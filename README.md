@@ -1,7 +1,9 @@
 # ***vorp_pre-made***
 An official vorp pre-made server
 
-
+## Visitor Count
+  <img src="https://profile-counter.glitch.me/VORP-Premade-server/count.svg" />
+  
 # Instalation
 
 * follow this [guide](https://outsider31000.github.io/VORP_API-docs/posts/intro/) on how to set up your server
@@ -25,3 +27,11 @@ and place them inside the folder called `resources`
 * vorp does not gurantee that any of this scripts will work or that we  even provide any kind support.
 all we do is from our free wil
 
+
+## DISCORD FOR SUPPORT
+
+[VORP DISCORD](https://discord.gg/DHGVAbCj7N)
+
+## VORP OFFICAL GITHUB PAGE ##
+
+[VORP GITHUB](https://github.com/VORPCORE)
