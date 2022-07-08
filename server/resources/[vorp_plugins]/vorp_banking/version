@@ -1,0 +1,16 @@
+<1.3>
+- added set gold for each bank
+- added set items for each bank
+- added set upgrade for each bank
+- added maxslot upgrade for each bank
+- added cost upgrade for each bank
+- fix that if you open the bank for the first time you had 0 on invspace, now default is 10
+- fix notify
+
+<1.2>
+- added npcs will be removed if banks are closed
+- added blips will remove if banks are closed
+- better config file
+- added opening hours and closing for each store
+- update all files
+<1.1>
