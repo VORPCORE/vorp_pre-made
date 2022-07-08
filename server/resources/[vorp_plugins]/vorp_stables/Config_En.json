@@ -11,6 +11,8 @@
         "DoYoulike"
     ],
 
+    "ShowTagsOnHorses": true, // to display horse tags or not to display horse tags (floating name)
+
     "HorseSkillPullUpFailPercent": 20, // 20% of fail and drop out from horse
     "DistanceToTeleport": 100.0,
 
