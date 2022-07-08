@@ -1,6 +1,6 @@
 -- --------------------------------------------------------
 -- Host:                         127.0.0.1
--- Server version:               10.4.22-MariaDB - mariadb.org binary distribution
+-- Server version:               10.4.21-MariaDB - mariadb.org binary distribution
 -- Server OS:                    Win64
 -- HeidiSQL Version:             11.3.0.6295
 -- --------------------------------------------------------
@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS `banks` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table vorpv2.banks: ~3 rows (approximately)
-DELETE FROM `banks`;
 /*!40000 ALTER TABLE `banks` DISABLE KEYS */;
 INSERT INTO `banks` (`name`) VALUES
 	('Blackwater'),
@@ -34,17 +33,20 @@ INSERT INTO `banks` (`name`) VALUES
 
 -- Dumping structure for table vorpv2.bank_users
 CREATE TABLE IF NOT EXISTS `bank_users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `identifier` varchar(50) NOT NULL,
   `charidentifier` int(11) NOT NULL,
   `money` double(22,2) DEFAULT 0.00,
   `gold` double(22,2) DEFAULT 0.00,
+  `items` longtext DEFAULT '[]',
+  `invspace` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
   KEY `name` (`name`),
   CONSTRAINT `bank` FOREIGN KEY (`name`) REFERENCES `banks` (`name`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table vorpv2.bank_users: ~0 rows (approximately)
-DELETE FROM `bank_users`;
 /*!40000 ALTER TABLE `bank_users` DISABLE KEYS */;
 /*!40000 ALTER TABLE `bank_users` ENABLE KEYS */;
 
@@ -62,7 +64,6 @@ CREATE TABLE IF NOT EXISTS `banneds` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- Dumping data for table vorpv2.banneds: ~0 rows (approximately)
-DELETE FROM `banneds`;
 /*!40000 ALTER TABLE `banneds` DISABLE KEYS */;
 /*!40000 ALTER TABLE `banneds` ENABLE KEYS */;
 
@@ -80,7 +81,6 @@ CREATE TABLE IF NOT EXISTS `bills` (
 ) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table vorpv2.bills: ~0 rows (approximately)
-DELETE FROM `bills`;
 /*!40000 ALTER TABLE `bills` DISABLE KEYS */;
 /*!40000 ALTER TABLE `bills` ENABLE KEYS */;
 
@@ -93,7 +93,6 @@ CREATE TABLE IF NOT EXISTS `boates` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table vorpv2.boates: ~0 rows (approximately)
-DELETE FROM `boates`;
 /*!40000 ALTER TABLE `boates` DISABLE KEYS */;
 /*!40000 ALTER TABLE `boates` ENABLE KEYS */;
 
@@ -108,9 +107,9 @@ CREATE TABLE IF NOT EXISTS `bounty` (
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table vorpv2.bounty: ~0 rows (approximately)
-DELETE FROM `bounty`;
 /*!40000 ALTER TABLE `bounty` DISABLE KEYS */;
 /*!40000 ALTER TABLE `bounty` ENABLE KEYS */;
+
 
 -- Dumping structure for table vorpv2.characters
 CREATE TABLE IF NOT EXISTS `characters` (
@@ -140,10 +139,8 @@ CREATE TABLE IF NOT EXISTS `characters` (
   `crafting` longtext COLLATE utf8mb4_bin DEFAULT '{"medical":0,"blacksmith":0,"basic":0,"survival":0,"brewing":0,"food":0}',
   `info` longtext COLLATE utf8mb4_bin DEFAULT '{}',
   `gunsmith` double(11,2) DEFAULT 0.00,
-  `ammo` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4 DEFAULT '{}',
   UNIQUE KEY `identifier_charidentifier` (`identifier`,`charidentifier`) USING BTREE,
   KEY `charidentifier` (`charidentifier`) USING BTREE,
-  INDEX `ammo` (`ammo`) USING BTREE,
   KEY `clanid` (`clanid`),
   KEY `crafting` (`crafting`(768)),
   KEY `compPlayer` (`compPlayer`(768)),
@@ -154,13 +151,11 @@ CREATE TABLE IF NOT EXISTS `characters` (
   KEY `meta` (`meta`),
   KEY `steamname` (`steamname`),
   CONSTRAINT `FK_characters_users` FOREIGN KEY (`identifier`) REFERENCES `users` (`identifier`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=631 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table vorpv2.characters: ~1 rows (approximately)
-DELETE FROM `characters`;
+
+-- Dumping data for table vorpv2.characters: ~190 rows (approximately)
 /*!40000 ALTER TABLE `characters` DISABLE KEYS */;
-INSERT INTO `characters` (`identifier`, `steamname`, `charidentifier`, `group`, `money`, `gold`, `rol`, `xp`, `inventory`, `job`, `status`, `meta`, `firstname`, `lastname`, `skinPlayer`, `compPlayer`, `jobgrade`, `coords`, `isdead`, `clanid`, `trust`, `supporter`, `walk`, `crafting`, `info`, `gunsmith`) VALUES
-	('steam:1100001152d90a2', 'Blue', 630, 'user', 200.00, 0.00, 0.00, 0, '{"consumable_raspberrywater":2,"consumable_salmon":2}', 'unemployed', '{}', '{}', 'te', 'te', '{"sex":"mp_male","HeadType":0,"BodyType":0,"LegsType":0,"HeadSize":0.0,"EyeBrowH":0.0,"EyeBrowW":0.0,"EyeBrowD":0.0,"EarsH":0.0,"EarsW":0.0,"EarsD":0.0,"EarsL":0.0,"EyeLidH":0.0,"EyeLidW":0.0,"EyeD":0.0,"EyeAng":0.0,"EyeDis":0.0,"EyeH":0.0,"NoseW":0.0,"NoseS":0.0,"NoseH":0.0,"NoseAng":0.0,"NoseC":0.0,"NoseDis":0.0,"CheekBonesH":0.0,"CheekBonesW":0.0,"CheekBonesD":0.0,"MouthW":0.0,"MouthD":0.0,"MouthX":0.0,"MouthY":0.0,"ULiphH":0.0,"ULiphW":0.0,"ULiphD":0.0,"LLiphH":0.0,"LLiphW":0.0,"LLiphD":0.0,"JawH":0.0,"JawW":0.0,"JawD":0.0,"ChinH":0.0,"ChinW":0.0,"ChinD":0.0,"Beard":0,"Hair":0,"Body":0,"Waist":0,"Eyes":0,"Scale":1.0,"eyebrows_visibility":0,"eyebrows_tx_id":0,"scars_visibility":0,"scars_tx_id":0,"spots_visibility":0,"spots_tx_id":0,"disc_visibility":0,"disc_tx_id":0,"complex_visibility":0,"complex_tx_id":0,"acne_visibility":0,"acne_tx_id":0,"ageing_visibility":0,"ageing_tx_id":0,"freckles_visibility":0,"freckles_tx_id":0,"moles_visibility":0,"moles_tx_id":0,"grime_visibility":0,"grime_tx_id":0,"lipsticks_visibility":0,"lipsticks_tx_id":0,"lipsticks_palette_id":0,"lipsticks_palette_color_primary":0,"shadows_visibility":0,"shadows_tx_id":0,"shadows_palette_id":0,"shadows_palette_color_primary":0,"albedo":317354806}', '{"Hat":-1,"EyeWear":-1,"Mask":-1,"NeckWear":-1,"NeckTies":-1,"Shirt":-1,"Suspender":-1,"Vest":-1,"Coat":-1,"Poncho":-1,"Cloak":-1,"Glove":-1,"RingRh":-1,"RingLh":-1,"Bracelet":-1,"Gunbelt":-1,"Belt":-1,"Buckle":-1,"Holster":-1,"Pant":-1,"Skirt":-1,"Chap":-1,"Boots":-1,"Spurs":-1,"Spats":-1,"GunbeltAccs":-1,"Gauntlets":-1,"Loadouts":-1,"Accessories":-1,"Satchels":-1,"CoatClosed":-1}', 0, '{"x":-314.40564,"y":785.7673,"z":117.461426,"heading":276.981659}', 0, 0, 0, 0, 'noanim', '{"medical":0,"blacksmith":0,"basic":0,"survival":0,"brewing":0,"food":0}', '{}', 0.00);
 /*!40000 ALTER TABLE `characters` ENABLE KEYS */;
 
 -- Dumping structure for table vorpv2.container
@@ -173,8 +168,7 @@ CREATE TABLE IF NOT EXISTS `container` (
   UNIQUE KEY `ID` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=217 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.container: ~20 rows (approximately)
-DELETE FROM `container`;
+-- Dumping data for table vorpv2.container: ~27 rows (approximately)
 /*!40000 ALTER TABLE `container` DISABLE KEYS */;
 INSERT INTO `container` (`id`, `name`, `items`, `invslots`) VALUES
 	(1, 'police', '[]', 0),
@@ -224,8 +218,7 @@ CREATE TABLE IF NOT EXISTS `dogs` (
   `isdead` varchar(10) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table vorpv2.dogs: ~0 rows (approximately)
-DELETE FROM `dogs`;
+-- Dumping data for table vorpv2.dogs: ~10 rows (approximately)
 /*!40000 ALTER TABLE `dogs` DISABLE KEYS */;
 /*!40000 ALTER TABLE `dogs` ENABLE KEYS */;
 
@@ -241,7 +234,6 @@ CREATE TABLE IF NOT EXISTS `doors` (
 ) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table vorpv2.doors: ~40 rows (approximately)
-DELETE FROM `doors`;
 /*!40000 ALTER TABLE `doors` DISABLE KEYS */;
 INSERT INTO `doors` (`id`, `doorinfo`, `job`, `item`, `break`, `breakin`) VALUES
 	(17, '[{"objc":4067537969,"objYaw1":0.00126346363686,"p":809.7841796875,"q":119.42121124267573,"doorhash":849871129,"o":-287.7419372558596,"objYaw2":0.00016431239782,"y":809.7841796875,"objYaw3":-169.6079864501953,"entit":4437506,"z":118.42121124267578,"locked":true,"x":-286.6419372558594,"doorname":"p_door62x"}]', '["doctor"]', 'no key item', 0, 0),
@@ -297,8 +289,7 @@ CREATE TABLE IF NOT EXISTS `farming` (
   `coords5` varchar(255) COLLATE latin1_general_cs DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
 
--- Dumping data for table vorpv2.farming: ~0 rows (approximately)
-DELETE FROM `farming`;
+-- Dumping data for table vorpv2.farming: ~34 rows (approximately)
 /*!40000 ALTER TABLE `farming` DISABLE KEYS */;
 /*!40000 ALTER TABLE `farming` ENABLE KEYS */;
 
@@ -319,23 +310,9 @@ CREATE TABLE IF NOT EXISTS `horses` (
   KEY `model` (`model`)
 ) ENGINE=InnoDB AUTO_INCREMENT=396 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.horses: ~0 rows (approximately)
-DELETE FROM `horses`;
+-- Dumping data for table vorpv2.horses: ~136 rows (approximately)
 /*!40000 ALTER TABLE `horses` DISABLE KEYS */;
 /*!40000 ALTER TABLE `horses` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.horse_complements
-CREATE TABLE IF NOT EXISTS `horse_complements` (
-  `identifier` varchar(50) NOT NULL,
-  `charidentifier` int(11) NOT NULL,
-  `complements` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  UNIQUE KEY `identifier` (`identifier`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
--- Dumping data for table vorpv2.horse_complements: ~0 rows (approximately)
-DELETE FROM `horse_complements`;
-/*!40000 ALTER TABLE `horse_complements` DISABLE KEYS */;
-/*!40000 ALTER TABLE `horse_complements` ENABLE KEYS */;
 
 -- Dumping structure for table vorpv2.items
 CREATE TABLE IF NOT EXISTS `items` (
@@ -349,7 +326,6 @@ CREATE TABLE IF NOT EXISTS `items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- Dumping data for table vorpv2.items: ~337 rows (approximately)
-DELETE FROM `items`;
 /*!40000 ALTER TABLE `items` DISABLE KEYS */;
 INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`) VALUES
 	('acid', 'Acid', 10, 1, 'item_standard', 1),
@@ -700,8 +676,7 @@ CREATE TABLE IF NOT EXISTS `jail` (
   `time_s` varchar(100) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table vorpv2.jail: ~0 rows (approximately)
-DELETE FROM `jail`;
+-- Dumping data for table vorpv2.jail: ~2 rows (approximately)
 /*!40000 ALTER TABLE `jail` DISABLE KEYS */;
 /*!40000 ALTER TABLE `jail` ENABLE KEYS */;
 
@@ -724,13 +699,10 @@ CREATE TABLE IF NOT EXISTS `loadout` (
   `label` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2281 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2280 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.loadout: ~1 rows (approximately)
-DELETE FROM `loadout`;
+-- Dumping data for table vorpv2.loadout: ~644 rows (approximately)
 /*!40000 ALTER TABLE `loadout` DISABLE KEYS */;
-INSERT INTO `loadout` (`id`, `identifier`, `charidentifier`, `name`, `ammo`, `components`, `dirtlevel`, `mudlevel`, `conditionlevel`, `rustlevel`, `used`, `used2`, `dropped`, `comps`, `label`) VALUES
-	(2280, 'steam:1100001152d90a2', 629, 'WEAPON_RIFLE_VARMINT', '{"nothing":0,"AMMO_22":41}', '["nothing"]', 0, 0, 0, 0, 0, 0, 0, '{}', NULL);
 /*!40000 ALTER TABLE `loadout` ENABLE KEYS */;
 
 -- Dumping structure for table vorpv2.logs
@@ -746,7 +718,6 @@ CREATE TABLE IF NOT EXISTS `logs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Dumping data for table vorpv2.logs: ~0 rows (approximately)
-DELETE FROM `logs`;
 /*!40000 ALTER TABLE `logs` DISABLE KEYS */;
 /*!40000 ALTER TABLE `logs` ENABLE KEYS */;
 
@@ -759,8 +730,7 @@ CREATE TABLE IF NOT EXISTS `mail` (
   PRIMARY KEY (`adress`)
 ) ENGINE=InnoDB AUTO_INCREMENT=122 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.mail: ~0 rows (approximately)
-DELETE FROM `mail`;
+-- Dumping data for table vorpv2.mail: ~68 rows (approximately)
 /*!40000 ALTER TABLE `mail` DISABLE KEYS */;
 /*!40000 ALTER TABLE `mail` ENABLE KEYS */;
 
@@ -776,8 +746,7 @@ CREATE TABLE IF NOT EXISTS `mail_inbox` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=337 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.mail_inbox: ~0 rows (approximately)
-DELETE FROM `mail_inbox`;
+-- Dumping data for table vorpv2.mail_inbox: ~115 rows (approximately)
 /*!40000 ALTER TABLE `mail_inbox` DISABLE KEYS */;
 /*!40000 ALTER TABLE `mail_inbox` ENABLE KEYS */;
 
@@ -791,8 +760,7 @@ CREATE TABLE IF NOT EXISTS `market` (
   KEY `charid` (`charidentifier`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.market: ~0 rows (approximately)
-DELETE FROM `market`;
+-- Dumping data for table vorpv2.market: ~6 rows (approximately)
 /*!40000 ALTER TABLE `market` DISABLE KEYS */;
 /*!40000 ALTER TABLE `market` ENABLE KEYS */;
 
@@ -802,7 +770,6 @@ CREATE TABLE IF NOT EXISTS `newspaper` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table vorpv2.newspaper: ~0 rows (approximately)
-DELETE FROM `newspaper`;
 /*!40000 ALTER TABLE `newspaper` DISABLE KEYS */;
 INSERT INTO `newspaper` (`news`) VALUES
 	('[]');
@@ -818,8 +785,7 @@ CREATE TABLE IF NOT EXISTS `outfits` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=840 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table vorpv2.outfits: ~0 rows (approximately)
-DELETE FROM `outfits`;
+-- Dumping data for table vorpv2.outfits: ~409 rows (approximately)
 /*!40000 ALTER TABLE `outfits` DISABLE KEYS */;
 /*!40000 ALTER TABLE `outfits` ENABLE KEYS */;
 
@@ -830,8 +796,7 @@ CREATE TABLE IF NOT EXISTS `outfitter` (
   `props` longtext DEFAULT '[]'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.outfitter: ~0 rows (approximately)
-DELETE FROM `outfitter`;
+-- Dumping data for table vorpv2.outfitter: ~8 rows (approximately)
 /*!40000 ALTER TABLE `outfitter` DISABLE KEYS */;
 /*!40000 ALTER TABLE `outfitter` ENABLE KEYS */;
 
@@ -863,8 +828,7 @@ CREATE TABLE IF NOT EXISTS `playerhousing` (
   KEY `primarydoor` (`primarydoor`(768))
 ) ENGINE=InnoDB AUTO_INCREMENT=234 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.playerhousing: ~0 rows (approximately)
-DELETE FROM `playerhousing`;
+-- Dumping data for table vorpv2.playerhousing: ~42 rows (approximately)
 /*!40000 ALTER TABLE `playerhousing` DISABLE KEYS */;
 /*!40000 ALTER TABLE `playerhousing` ENABLE KEYS */;
 
@@ -877,8 +841,7 @@ CREATE TABLE IF NOT EXISTS `playerhousing_sold_home_ledger` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=182 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.playerhousing_sold_home_ledger: ~0 rows (approximately)
-DELETE FROM `playerhousing_sold_home_ledger`;
+-- Dumping data for table vorpv2.playerhousing_sold_home_ledger: ~3 rows (approximately)
 /*!40000 ALTER TABLE `playerhousing_sold_home_ledger` DISABLE KEYS */;
 /*!40000 ALTER TABLE `playerhousing_sold_home_ledger` ENABLE KEYS */;
 
@@ -890,8 +853,7 @@ CREATE TABLE IF NOT EXISTS `playerscenes` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=137 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.playerscenes: ~0 rows (approximately)
-DELETE FROM `playerscenes`;
+-- Dumping data for table vorpv2.playerscenes: ~5 rows (approximately)
 /*!40000 ALTER TABLE `playerscenes` DISABLE KEYS */;
 /*!40000 ALTER TABLE `playerscenes` ENABLE KEYS */;
 
@@ -916,7 +878,6 @@ CREATE TABLE IF NOT EXISTS `playershops` (
 ) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table vorpv2.playershops: ~0 rows (approximately)
-DELETE FROM `playershops`;
 /*!40000 ALTER TABLE `playershops` DISABLE KEYS */;
 /*!40000 ALTER TABLE `playershops` ENABLE KEYS */;
 
@@ -951,8 +912,7 @@ CREATE TABLE IF NOT EXISTS `player_ranch` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.player_ranch: ~0 rows (approximately)
-DELETE FROM `player_ranch`;
+-- Dumping data for table vorpv2.player_ranch: ~4 rows (approximately)
 /*!40000 ALTER TABLE `player_ranch` DISABLE KEYS */;
 /*!40000 ALTER TABLE `player_ranch` ENABLE KEYS */;
 
@@ -975,7 +935,6 @@ CREATE TABLE IF NOT EXISTS `player_trains` (
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table vorpv2.player_trains: ~0 rows (approximately)
-DELETE FROM `player_trains`;
 /*!40000 ALTER TABLE `player_trains` DISABLE KEYS */;
 /*!40000 ALTER TABLE `player_trains` ENABLE KEYS */;
 
@@ -990,8 +949,7 @@ CREATE TABLE IF NOT EXISTS `posters` (
   KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.posters: ~0 rows (approximately)
-DELETE FROM `posters`;
+-- Dumping data for table vorpv2.posters: ~28 rows (approximately)
 /*!40000 ALTER TABLE `posters` DISABLE KEYS */;
 /*!40000 ALTER TABLE `posters` ENABLE KEYS */;
 
@@ -1006,7 +964,6 @@ CREATE TABLE IF NOT EXISTS `races` (
 ) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table vorpv2.races: ~0 rows (approximately)
-DELETE FROM `races`;
 /*!40000 ALTER TABLE `races` DISABLE KEYS */;
 /*!40000 ALTER TABLE `races` ENABLE KEYS */;
 
@@ -1017,7 +974,6 @@ CREATE TABLE IF NOT EXISTS `robbery` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
 
 -- Dumping data for table vorpv2.robbery: ~0 rows (approximately)
-DELETE FROM `robbery`;
 /*!40000 ALTER TABLE `robbery` DISABLE KEYS */;
 /*!40000 ALTER TABLE `robbery` ENABLE KEYS */;
 
@@ -1032,7 +988,6 @@ CREATE TABLE IF NOT EXISTS `rooms` (
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 -- Dumping data for table vorpv2.rooms: ~0 rows (approximately)
-DELETE FROM `rooms`;
 /*!40000 ALTER TABLE `rooms` DISABLE KEYS */;
 /*!40000 ALTER TABLE `rooms` ENABLE KEYS */;
 
@@ -1044,7 +999,6 @@ CREATE TABLE IF NOT EXISTS `society` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table vorpv2.society: ~81 rows (approximately)
-DELETE FROM `society`;
 /*!40000 ALTER TABLE `society` DISABLE KEYS */;
 INSERT INTO `society` (`job`, `jobgrade`, `salary`) VALUES
 	('police', 0, 10),
@@ -1137,7 +1091,6 @@ CREATE TABLE IF NOT EXISTS `society_ledger` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table vorpv2.society_ledger: ~18 rows (approximately)
-DELETE FROM `society_ledger`;
 /*!40000 ALTER TABLE `society_ledger` DISABLE KEYS */;
 INSERT INTO `society_ledger` (`job`, `ledger`) VALUES
 	('police', 0),
@@ -1177,7 +1130,6 @@ CREATE TABLE IF NOT EXISTS `society_shops` (
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table vorpv2.society_shops: ~12 rows (approximately)
-DELETE FROM `society_shops`;
 /*!40000 ALTER TABLE `society_shops` DISABLE KEYS */;
 INSERT INTO `society_shops` (`id`, `society`, `items`, `weapons`, `slots`, `level`) VALUES
 	(1, 'bastille', '[]', '[]', 50, 0),
@@ -1193,28 +1145,6 @@ INSERT INTO `society_shops` (`id`, `society`, `items`, `weapons`, `slots`, `leve
 	(11, 'bvs', '[]', '[]', 50, 0),
 	(12, 'ksd', '[]', '[]', 50, 0);
 /*!40000 ALTER TABLE `society_shops` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.stables
-CREATE TABLE IF NOT EXISTS `stables` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(50) NOT NULL,
-  `charidentifier` int(11) NOT NULL,
-  `name` varchar(30) NOT NULL,
-  `modelname` varchar(70) NOT NULL,
-  `type` varchar(11) NOT NULL,
-  `status` longtext DEFAULT NULL,
-  `xp` int(11) DEFAULT 0,
-  `injured` int(11) DEFAULT 0,
-  `gear` longtext DEFAULT NULL,
-  `isDefault` int(11) NOT NULL DEFAULT 0,
-  `inventory` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
--- Dumping data for table vorpv2.stables: ~0 rows (approximately)
-DELETE FROM `stables`;
-/*!40000 ALTER TABLE `stables` DISABLE KEYS */;
-/*!40000 ALTER TABLE `stables` ENABLE KEYS */;
 
 -- Dumping structure for table vorpv2.transactions
 CREATE TABLE IF NOT EXISTS `transactions` (
@@ -1235,7 +1165,6 @@ CREATE TABLE IF NOT EXISTS `transactions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table vorpv2.transactions: ~0 rows (approximately)
-DELETE FROM `transactions`;
 /*!40000 ALTER TABLE `transactions` DISABLE KEYS */;
 /*!40000 ALTER TABLE `transactions` ENABLE KEYS */;
 
@@ -1244,17 +1173,14 @@ CREATE TABLE IF NOT EXISTS `users` (
   `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `group` varchar(50) DEFAULT 'user',
   `warnings` int(11) DEFAULT 0,
-  `banned` tinyint(4) DEFAULT 0,
+  `banned` boolean,
+  `banneduntil` int(10) DEFAULT 0,
+  `char` varchar(50) NOT NULL DEFAULT 'false',
   PRIMARY KEY (`identifier`),
   UNIQUE KEY `identifier` (`identifier`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.users: ~2 rows (approximately)
-DELETE FROM `users`;
+-- Dumping data for table vorpv2.users: ~0 rows (approximately)
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` (`identifier`, `group`, `warnings`, `banned`) VALUES
-	('steam:110000108968cbd', 'user', 0, 0),
-	('steam:1100001152d90a2', 'user', 0, 0);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 -- Dumping structure for table vorpv2.wagons
@@ -1272,7 +1198,6 @@ CREATE TABLE IF NOT EXISTS `wagons` (
 ) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table vorpv2.wagons: ~0 rows (approximately)
-DELETE FROM `wagons`;
 /*!40000 ALTER TABLE `wagons` DISABLE KEYS */;
 /*!40000 ALTER TABLE `wagons` ENABLE KEYS */;
 
@@ -1286,7 +1211,6 @@ CREATE TABLE IF NOT EXISTS `wagon_water` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
 
 -- Dumping data for table vorpv2.wagon_water: ~0 rows (approximately)
-DELETE FROM `wagon_water`;
 /*!40000 ALTER TABLE `wagon_water` DISABLE KEYS */;
 /*!40000 ALTER TABLE `wagon_water` ENABLE KEYS */;
 
@@ -1294,16 +1218,48 @@ DELETE FROM `wagon_water`;
 CREATE TABLE IF NOT EXISTS `whitelist` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `status` boolean,
+  `firstconnection` boolean DEFAULT TRUE,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `identifier` (`identifier`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- Dumping data for table vorpv2.whitelist: ~0 rows (approximately)
-DELETE FROM `whitelist`;
 /*!40000 ALTER TABLE `whitelist` DISABLE KEYS */;
 /*!40000 ALTER TABLE `whitelist` ENABLE KEYS */;
+
+
+
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
+
+
+
+
+DROP TABLE IF EXISTS `stables`;
+CREATE TABLE `stables`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `charidentifier` int(11) NOT NULL,
+  `name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `modelname` varchar(70) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `type` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `status` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
+  `xp` int(11) NULL DEFAULT 0,
+  `injured` int(11) NULL DEFAULT 0,
+  `gear` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
+  `isDefault` int(11) NOT NULL DEFAULT 0,
+  `inventory` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `horse_complements`;
+CREATE TABLE `horse_complements`  (
+  `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `charidentifier` int(11) NOT NULL,
+  `complements` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  UNIQUE INDEX `identifier`(`identifier`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
