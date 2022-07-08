@@ -2,12 +2,12 @@
 An official vorp pre-made server
 
 ## Visitor Count
-  <img src="https://profile-counter.glitch.me/VORP-Premade-server/count.svg" />
+  <img src="https://profile-counter.glitch.me/vorp_pre-made/count.svg" />
   
 # Instalation
 
 * follow this [guide](https://outsider31000.github.io/VORP_API-docs/posts/intro/) on how to set up your server
-
+* alternatively follow the video [youtube video](https://www.youtube.com/watch?v=x-M3q9sV5IY&ab_channel=RIBSOSAY) its outdated. 
 ##### IMPORTANT
 
 * you must download this resources.
