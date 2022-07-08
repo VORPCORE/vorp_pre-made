@@ -18,9 +18,9 @@ and place them inside the folder called `resources`
 
 * do not rename any folders
 
-# other scripts [resources](https://github.com/outsider31000/public-scripts) or in discord
+# OTHER PLUG INS
 
-* find other scripts in here that are not vorp
+* find other scripts in [here](https://github.com/outsider31000/public-scripts) that are not vorp
 * or in discord
 
 # disclaimer
