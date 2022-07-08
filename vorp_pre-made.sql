@@ -1,29 +1,15 @@
--- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Server version:               10.4.22-MariaDB - mariadb.org binary distribution
--- Server OS:                    Win64
--- HeidiSQL Version:             11.3.0.6295
--- --------------------------------------------------------
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
--- Dumping database structure for vorpv2
 CREATE DATABASE IF NOT EXISTS `vorpv2` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 USE `vorpv2`;
 
--- Dumping structure for table vorpv2.banks
+
 CREATE TABLE IF NOT EXISTS `banks` (
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.banks: ~3 rows (approximately)
+
 DELETE FROM `banks`;
 /*!40000 ALTER TABLE `banks` DISABLE KEYS */;
 INSERT INTO `banks` (`name`) VALUES
@@ -32,7 +18,6 @@ INSERT INTO `banks` (`name`) VALUES
 	('Valentine');
 /*!40000 ALTER TABLE `banks` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.bank_users
 CREATE TABLE IF NOT EXISTS `bank_users` (
   `name` varchar(50) NOT NULL,
   `identifier` varchar(50) NOT NULL,
@@ -43,12 +28,12 @@ CREATE TABLE IF NOT EXISTS `bank_users` (
   CONSTRAINT `bank` FOREIGN KEY (`name`) REFERENCES `banks` (`name`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.bank_users: ~0 rows (approximately)
+
 DELETE FROM `bank_users`;
 /*!40000 ALTER TABLE `bank_users` DISABLE KEYS */;
 /*!40000 ALTER TABLE `bank_users` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.banneds
+
 CREATE TABLE IF NOT EXISTS `banneds` (
   `b_id` int(11) NOT NULL AUTO_INCREMENT,
   `b_steam` varchar(100) NOT NULL,
@@ -61,12 +46,12 @@ CREATE TABLE IF NOT EXISTS `banneds` (
   PRIMARY KEY (`b_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table vorpv2.banneds: ~0 rows (approximately)
+
 DELETE FROM `banneds`;
 /*!40000 ALTER TABLE `banneds` DISABLE KEYS */;
 /*!40000 ALTER TABLE `banneds` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.bills
+
 CREATE TABLE IF NOT EXISTS `bills` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `job` longtext DEFAULT NULL,
@@ -79,12 +64,12 @@ CREATE TABLE IF NOT EXISTS `bills` (
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.bills: ~0 rows (approximately)
+
 DELETE FROM `bills`;
 /*!40000 ALTER TABLE `bills` DISABLE KEYS */;
 /*!40000 ALTER TABLE `bills` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.boates
+
 CREATE TABLE IF NOT EXISTS `boates` (
   `identifier` varchar(40) NOT NULL,
   `charid` int(11) NOT NULL,
@@ -92,12 +77,12 @@ CREATE TABLE IF NOT EXISTS `boates` (
   `boat` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table vorpv2.boates: ~0 rows (approximately)
+
 DELETE FROM `boates`;
 /*!40000 ALTER TABLE `boates` DISABLE KEYS */;
 /*!40000 ALTER TABLE `boates` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.bounty
+
 CREATE TABLE IF NOT EXISTS `bounty` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` longtext DEFAULT '',
@@ -107,12 +92,11 @@ CREATE TABLE IF NOT EXISTS `bounty` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.bounty: ~0 rows (approximately)
+
 DELETE FROM `bounty`;
 /*!40000 ALTER TABLE `bounty` DISABLE KEYS */;
 /*!40000 ALTER TABLE `bounty` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.characters
 CREATE TABLE IF NOT EXISTS `characters` (
   `identifier` varchar(50) COLLATE utf8mb4_bin NOT NULL DEFAULT '',
   `steamname` varchar(50) COLLATE utf8mb4_bin NOT NULL DEFAULT '',
@@ -156,14 +140,9 @@ CREATE TABLE IF NOT EXISTS `characters` (
   CONSTRAINT `FK_characters_users` FOREIGN KEY (`identifier`) REFERENCES `users` (`identifier`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=631 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table vorpv2.characters: ~1 rows (approximately)
-DELETE FROM `characters`;
-/*!40000 ALTER TABLE `characters` DISABLE KEYS */;
-INSERT INTO `characters` (`identifier`, `steamname`, `charidentifier`, `group`, `money`, `gold`, `rol`, `xp`, `inventory`, `job`, `status`, `meta`, `firstname`, `lastname`, `skinPlayer`, `compPlayer`, `jobgrade`, `coords`, `isdead`, `clanid`, `trust`, `supporter`, `walk`, `crafting`, `info`, `gunsmith`) VALUES
-	('steam:1100001152d90a2', 'Blue', 630, 'user', 200.00, 0.00, 0.00, 0, '{"consumable_raspberrywater":2,"consumable_salmon":2}', 'unemployed', '{}', '{}', 'te', 'te', '{"sex":"mp_male","HeadType":0,"BodyType":0,"LegsType":0,"HeadSize":0.0,"EyeBrowH":0.0,"EyeBrowW":0.0,"EyeBrowD":0.0,"EarsH":0.0,"EarsW":0.0,"EarsD":0.0,"EarsL":0.0,"EyeLidH":0.0,"EyeLidW":0.0,"EyeD":0.0,"EyeAng":0.0,"EyeDis":0.0,"EyeH":0.0,"NoseW":0.0,"NoseS":0.0,"NoseH":0.0,"NoseAng":0.0,"NoseC":0.0,"NoseDis":0.0,"CheekBonesH":0.0,"CheekBonesW":0.0,"CheekBonesD":0.0,"MouthW":0.0,"MouthD":0.0,"MouthX":0.0,"MouthY":0.0,"ULiphH":0.0,"ULiphW":0.0,"ULiphD":0.0,"LLiphH":0.0,"LLiphW":0.0,"LLiphD":0.0,"JawH":0.0,"JawW":0.0,"JawD":0.0,"ChinH":0.0,"ChinW":0.0,"ChinD":0.0,"Beard":0,"Hair":0,"Body":0,"Waist":0,"Eyes":0,"Scale":1.0,"eyebrows_visibility":0,"eyebrows_tx_id":0,"scars_visibility":0,"scars_tx_id":0,"spots_visibility":0,"spots_tx_id":0,"disc_visibility":0,"disc_tx_id":0,"complex_visibility":0,"complex_tx_id":0,"acne_visibility":0,"acne_tx_id":0,"ageing_visibility":0,"ageing_tx_id":0,"freckles_visibility":0,"freckles_tx_id":0,"moles_visibility":0,"moles_tx_id":0,"grime_visibility":0,"grime_tx_id":0,"lipsticks_visibility":0,"lipsticks_tx_id":0,"lipsticks_palette_id":0,"lipsticks_palette_color_primary":0,"shadows_visibility":0,"shadows_tx_id":0,"shadows_palette_id":0,"shadows_palette_color_primary":0,"albedo":317354806}', '{"Hat":-1,"EyeWear":-1,"Mask":-1,"NeckWear":-1,"NeckTies":-1,"Shirt":-1,"Suspender":-1,"Vest":-1,"Coat":-1,"Poncho":-1,"Cloak":-1,"Glove":-1,"RingRh":-1,"RingLh":-1,"Bracelet":-1,"Gunbelt":-1,"Belt":-1,"Buckle":-1,"Holster":-1,"Pant":-1,"Skirt":-1,"Chap":-1,"Boots":-1,"Spurs":-1,"Spats":-1,"GunbeltAccs":-1,"Gauntlets":-1,"Loadouts":-1,"Accessories":-1,"Satchels":-1,"CoatClosed":-1}', 0, '{"x":-314.40564,"y":785.7673,"z":117.461426,"heading":276.981659}', 0, 0, 0, 0, 'noanim', '{"medical":0,"blacksmith":0,"basic":0,"survival":0,"brewing":0,"food":0}', '{}', 0.00);
-/*!40000 ALTER TABLE `characters` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.container
+
+
 CREATE TABLE IF NOT EXISTS `container` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` longtext DEFAULT NULL,
@@ -172,10 +151,11 @@ CREATE TABLE IF NOT EXISTS `container` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `ID` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=217 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.container: ~20 rows (approximately)
+y)
 DELETE FROM `container`;
+
 /*!40000 ALTER TABLE `container` DISABLE KEYS */;
+
 INSERT INTO `container` (`id`, `name`, `items`, `invslots`) VALUES
 	(1, 'police', '[]', 0),
 	(3, 'horsetrainer', '[]', 600),
@@ -199,7 +179,7 @@ INSERT INTO `container` (`id`, `name`, `items`, `invslots`) VALUES
 	(27, 'ksd', '[]', 600);
 /*!40000 ALTER TABLE `container` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.dogs
+
 CREATE TABLE IF NOT EXISTS `dogs` (
   `identifier` varchar(40) NOT NULL,
   `charidentifier` varchar(5) DEFAULT NULL,
@@ -224,12 +204,11 @@ CREATE TABLE IF NOT EXISTS `dogs` (
   `isdead` varchar(10) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table vorpv2.dogs: ~0 rows (approximately)
+
 DELETE FROM `dogs`;
 /*!40000 ALTER TABLE `dogs` DISABLE KEYS */;
 /*!40000 ALTER TABLE `dogs` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.doors
 CREATE TABLE IF NOT EXISTS `doors` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `doorinfo` longtext NOT NULL DEFAULT '[]',
@@ -240,7 +219,7 @@ CREATE TABLE IF NOT EXISTS `doors` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.doors: ~40 rows (approximately)
+
 DELETE FROM `doors`;
 /*!40000 ALTER TABLE `doors` DISABLE KEYS */;
 INSERT INTO `doors` (`id`, `doorinfo`, `job`, `item`, `break`, `breakin`) VALUES
@@ -286,7 +265,7 @@ INSERT INTO `doors` (`id`, `doorinfo`, `job`, `item`, `break`, `breakin`) VALUES
 	(74, '[{"entit":1546498,"z":118.41165161132813,"y":802.575927734375,"locked":true,"o":-276.0047912597656,"objYaw2":8.815490559754835e-7,"objYaw3":-11.78702926635742,"doorhash":1045059103,"q":118.41165161132813,"p":802.575927734375,"doorname":"p_door_val_jail02x","objYaw1":0.00029245525365,"objc":1988748538,"x":-276.0047912597656}]', '["police"]', 'no key item', 0, 1);
 /*!40000 ALTER TABLE `doors` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.farming
+
 CREATE TABLE IF NOT EXISTS `farming` (
   `identifier` varchar(255) COLLATE latin1_general_cs NOT NULL,
   `charid` varchar(255) COLLATE latin1_general_cs NOT NULL,
@@ -297,12 +276,10 @@ CREATE TABLE IF NOT EXISTS `farming` (
   `coords5` varchar(255) COLLATE latin1_general_cs DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
 
--- Dumping data for table vorpv2.farming: ~0 rows (approximately)
 DELETE FROM `farming`;
 /*!40000 ALTER TABLE `farming` DISABLE KEYS */;
 /*!40000 ALTER TABLE `farming` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.horses
 CREATE TABLE IF NOT EXISTS `horses` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `identifier` varchar(40) NOT NULL,
@@ -319,12 +296,12 @@ CREATE TABLE IF NOT EXISTS `horses` (
   KEY `model` (`model`)
 ) ENGINE=InnoDB AUTO_INCREMENT=396 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.horses: ~0 rows (approximately)
+
 DELETE FROM `horses`;
 /*!40000 ALTER TABLE `horses` DISABLE KEYS */;
 /*!40000 ALTER TABLE `horses` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.horse_complements
+
 CREATE TABLE IF NOT EXISTS `horse_complements` (
   `identifier` varchar(50) NOT NULL,
   `charidentifier` int(11) NOT NULL,
@@ -337,7 +314,7 @@ DELETE FROM `horse_complements`;
 /*!40000 ALTER TABLE `horse_complements` DISABLE KEYS */;
 /*!40000 ALTER TABLE `horse_complements` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.items
+
 CREATE TABLE IF NOT EXISTS `items` (
   `item` varchar(50) NOT NULL,
   `label` varchar(50) NOT NULL,
@@ -691,7 +668,7 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`) V
 	('Yarrow_Seed', 'Yarrow Seed', 10, 1, 'item_standard', 1);
 /*!40000 ALTER TABLE `items` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.jail
+
 CREATE TABLE IF NOT EXISTS `jail` (
   `identifier` varchar(100) NOT NULL DEFAULT '0',
   `name` varchar(100) NOT NULL DEFAULT '0',
@@ -700,12 +677,12 @@ CREATE TABLE IF NOT EXISTS `jail` (
   `time_s` varchar(100) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table vorpv2.jail: ~0 rows (approximately)
+
 DELETE FROM `jail`;
 /*!40000 ALTER TABLE `jail` DISABLE KEYS */;
 /*!40000 ALTER TABLE `jail` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.loadout
+
 CREATE TABLE IF NOT EXISTS `loadout` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `identifier` varchar(50) NOT NULL,
@@ -726,60 +703,8 @@ CREATE TABLE IF NOT EXISTS `loadout` (
   KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2281 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.loadout: ~1 rows (approximately)
-DELETE FROM `loadout`;
-/*!40000 ALTER TABLE `loadout` DISABLE KEYS */;
-INSERT INTO `loadout` (`id`, `identifier`, `charidentifier`, `name`, `ammo`, `components`, `dirtlevel`, `mudlevel`, `conditionlevel`, `rustlevel`, `used`, `used2`, `dropped`, `comps`, `label`) VALUES
-	(2280, 'steam:1100001152d90a2', 629, 'WEAPON_RIFLE_VARMINT', '{"nothing":0,"AMMO_22":41}', '["nothing"]', 0, 0, 0, 0, 0, 0, 0, '{}', NULL);
-/*!40000 ALTER TABLE `loadout` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.logs
-CREATE TABLE IF NOT EXISTS `logs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `time` timestamp NULL DEFAULT current_timestamp(),
-  `user` text DEFAULT NULL,
-  `steam` text DEFAULT NULL,
-  `ip` text DEFAULT NULL,
-  `category` text DEFAULT NULL,
-  `action` text DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table vorpv2.logs: ~0 rows (approximately)
-DELETE FROM `logs`;
-/*!40000 ALTER TABLE `logs` DISABLE KEYS */;
-/*!40000 ALTER TABLE `logs` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.mail
-CREATE TABLE IF NOT EXISTS `mail` (
-  `adress` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(50) DEFAULT NULL,
-  `charidentifier` int(11) DEFAULT NULL,
-  `adressbook` longtext NOT NULL DEFAULT '[]',
-  PRIMARY KEY (`adress`)
-) ENGINE=InnoDB AUTO_INCREMENT=122 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.mail: ~0 rows (approximately)
-DELETE FROM `mail`;
-/*!40000 ALTER TABLE `mail` DISABLE KEYS */;
-/*!40000 ALTER TABLE `mail` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.mail_inbox
-CREATE TABLE IF NOT EXISTS `mail_inbox` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `adress` int(11) DEFAULT NULL,
-  `msgs` longtext DEFAULT NULL,
-  `date` longtext DEFAULT NULL,
-  `time` longtext DEFAULT NULL,
-  `sender` longtext DEFAULT NULL,
-  `unred` int(11) DEFAULT 1,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=337 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.mail_inbox: ~0 rows (approximately)
-DELETE FROM `mail_inbox`;
-/*!40000 ALTER TABLE `mail_inbox` DISABLE KEYS */;
-/*!40000 ALTER TABLE `mail_inbox` ENABLE KEYS */;
 
 -- Dumping structure for table vorpv2.market
 CREATE TABLE IF NOT EXISTS `market` (
@@ -1194,7 +1119,7 @@ INSERT INTO `society_shops` (`id`, `society`, `items`, `weapons`, `slots`, `leve
 	(12, 'ksd', '[]', '[]', 50, 0);
 /*!40000 ALTER TABLE `society_shops` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.stables
+
 CREATE TABLE IF NOT EXISTS `stables` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `identifier` varchar(50) NOT NULL,
@@ -1211,12 +1136,12 @@ CREATE TABLE IF NOT EXISTS `stables` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table vorpv2.stables: ~0 rows (approximately)
+
 DELETE FROM `stables`;
 /*!40000 ALTER TABLE `stables` DISABLE KEYS */;
 /*!40000 ALTER TABLE `stables` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.transactions
+
 CREATE TABLE IF NOT EXISTS `transactions` (
   `bank` varchar(50) DEFAULT NULL,
   `fromIdentifier` varchar(50) DEFAULT NULL,
@@ -1234,12 +1159,11 @@ CREATE TABLE IF NOT EXISTS `transactions` (
   CONSTRAINT `FK_transactions_banks_2` FOREIGN KEY (`bankto`) REFERENCES `banks` (`name`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.transactions: ~0 rows (approximately)
+
 DELETE FROM `transactions`;
 /*!40000 ALTER TABLE `transactions` DISABLE KEYS */;
 /*!40000 ALTER TABLE `transactions` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.users
 CREATE TABLE IF NOT EXISTS `users` (
   `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `group` varchar(50) DEFAULT 'user',
@@ -1257,7 +1181,6 @@ INSERT INTO `users` (`identifier`, `group`, `warnings`, `banned`) VALUES
 	('steam:1100001152d90a2', 'user', 0, 0);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.wagons
 CREATE TABLE IF NOT EXISTS `wagons` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `identifier` varchar(40) NOT NULL,
@@ -1271,12 +1194,12 @@ CREATE TABLE IF NOT EXISTS `wagons` (
   KEY `model` (`model`)
 ) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.wagons: ~0 rows (approximately)
+
 DELETE FROM `wagons`;
 /*!40000 ALTER TABLE `wagons` DISABLE KEYS */;
 /*!40000 ALTER TABLE `wagons` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.wagon_water
+
 CREATE TABLE IF NOT EXISTS `wagon_water` (
   `identifier` varchar(255) COLLATE latin1_general_cs DEFAULT '0',
   `charid` varchar(255) COLLATE latin1_general_cs DEFAULT '0',
@@ -1285,12 +1208,12 @@ CREATE TABLE IF NOT EXISTS `wagon_water` (
   `wagon_name` varchar(50) COLLATE latin1_general_cs DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
 
--- Dumping data for table vorpv2.wagon_water: ~0 rows (approximately)
+
 DELETE FROM `wagon_water`;
 /*!40000 ALTER TABLE `wagon_water` DISABLE KEYS */;
 /*!40000 ALTER TABLE `wagon_water` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.whitelist
+
 CREATE TABLE IF NOT EXISTS `whitelist` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -1298,12 +1221,5 @@ CREATE TABLE IF NOT EXISTS `whitelist` (
   UNIQUE KEY `identifier` (`identifier`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table vorpv2.whitelist: ~0 rows (approximately)
 DELETE FROM `whitelist`;
-/*!40000 ALTER TABLE `whitelist` DISABLE KEYS */;
-/*!40000 ALTER TABLE `whitelist` ENABLE KEYS */;
 
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
