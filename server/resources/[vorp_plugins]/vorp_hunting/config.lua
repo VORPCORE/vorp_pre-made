@@ -56,8 +56,10 @@ Config.Butchers = {
 
 -----------------ANIMAL INSTRUCTIONS  -----------------
 -- 1. To add more rewards on each animal, edit the givenItem table. For example change givenItem ={ "meat"}, to givenItem ={ "meat","feathers"}
--- 2. If using more than one item in givenItem, then you must add another value to giveAmount. For example change givenAmount ={0}, to givenAmount ={0,0}
--- 3. giveAmount = {0} will set a amount to random amount between ItemQuantity max/min
+-- 2. If using more than one item in givenItem, then you must add another value to givenAmount. For example change givenAmount ={0}, to givenAmount ={0,0}
+-- 3. givenAmount = {0} will set an amount to random amount between ItemQuantity Max/Min
+-- 4. givenAmount = {{2,5}} will set an amount to random between the first and second numbers in the supplied table, for the corresponding givenItem.
+-- For example: givenItem = {"meat", "feathers", "claws", "beak"}, givenAmount = {{1,4}, {2,5}, 0, 1} will result in 1 to 4 "meat", 2 to 5 "feathers", ItemQuantity.Min to ItemQuanity.Max "claws" and 1 "beak".
 
 ----------------- !IMPORTANT! -----------------
 -- TO ADD MORE ANIMALS AND FIND HASHES, HOLD ANIMALS OR PELTS AND DO /ANIMAL command

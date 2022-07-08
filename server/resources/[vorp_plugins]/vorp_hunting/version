@@ -1,3 +1,8 @@
+<1.0.4>
+- added new function you can now add for **each item** a random ammount that a player can get from **each animal**.
+- update all files
+- see the example in the config file on how to do for each item, no need to replace your config file.
+- update fxmanifest to keep getting version checks
 <1.0.3>
 - New Butcher Locations
 - Inventory Check for rewards when selling or skinning animals
