@@ -1,0 +1,253 @@
+body {
+    display: none;
+}
+
+
+/* Read UI*/
+#mailbox-container-read,
+#mailbox-container-write,
+#mailbox-container-broadcast {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1000px;
+    height: fit-content;
+    box-shadow: 2px 3px 20px black, 0 0 125px #8f5922 inset;
+    background: #fffef0;
+    /* v2.1 : borders effect with SVG : try to play with scale to change them */
+    filter: url(#wavy2);
+    background-image: url(data:image/png;base64,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);
+    padding: 30px;
+}
+
+#mailbox-read-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid black;
+    margin: auto;
+    margin-bottom: 5px;
+    width: 99%;
+}
+
+.mailbox-title {
+    text-align: center;
+    width: 254px;
+}
+
+.mailbox-title h1 {
+    line-height: 1em;
+}
+
+.mailbox-content {
+    width: 100%;
+    height: 500px;
+
+    display: flex;
+    justify-content: flex-start;
+
+    margin-bottom: 10px;
+}
+
+#mailbox-letters {
+    width: 250px;
+    height: 100%;
+
+    margin: 0;
+    padding: 0;
+    overflow:hidden;
+    overflow-y:auto;
+    list-style-type: none;
+
+    border: 2px solid black;
+}
+
+/* total width */
+#mailbox-letters::-webkit-scrollbar {
+    width: 14px;
+}
+
+#mailbox-letters::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 14px 14px transparent;
+    border: solid 4px transparent;
+}
+
+#mailbox-letters::-webkit-scrollbar-thumb {
+    box-shadow: inset 0 0 14px 14px rgba(0, 0, 0, 0.5);
+    border: solid 4px transparent;
+    border-radius: 14px;
+}
+
+/* set button(top and bottom of the scrollbar) */
+#mailbox-letters::-webkit-scrollbar-button {
+    display: none;
+}
+
+
+.mailbox-letter {
+    border: 1px solid transparent;
+}
+
+.mailbox-letter:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.mailbox-letter a {
+    color: black;
+}
+
+.mailbox-letter .letter-date {
+    color: black;
+    font-size: 16px;
+    margin-top: -15px;
+    text-align: right;
+}
+
+.mailbox-letter-from {
+    height: 15%;
+    width: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 15px;
+
+    color: black
+}
+
+.mailbox-letter-message {
+    height: auto;
+    width: auto;
+
+    padding: 15px;
+
+    color: black
+}
+
+/*buttons*/
+.mailbox-buttons {
+    display: flex;
+    width: 100%;
+    height: 100px;
+    color: black;
+
+    box-sizing: border-box;
+    border: 2px solid black;
+}
+
+.mailbox-buttons #mailbox-buttons-global {
+    display: flex;
+    width: 250px;
+    height: 100%;
+
+    justify-content: center;
+    align-items: center;
+
+    border-right: 2px solid black;
+}
+
+.mailbox-buttons #mailbox-buttons-letter {
+    display: flex;
+    width: 75%;
+    height: 100%;
+
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+/* Write UI*/
+#mailbox-write-header,
+#mailbox-broadcast-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid black;
+    margin: auto;
+    margin-bottom: 5px;
+    width: 99%;
+}
+
+#mailbox-write-header a {
+    padding-right: 15px;
+}
+
+#mailbox-container-write textarea,
+#mailbox-container-broadcast textarea {
+    width: 100%;
+    height: 400px;
+    box-sizing: border-box;
+    resize: none;
+    border: 2px solid black;
+    background: none;
+    padding: 10px;
+    font-size: 1em;
+}
+
+#mailbox-container-write textarea:focus,
+#mailbox-container-broadcast textarea:focus {
+    outline: none;
+}
+
+#mailbox-buttons-write {
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+}
+
+#mailbox-buttons-broadcast {
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 40px;
+}
+
+#mailbox-buttons-write p {
+    margin: 0;
+}
+
+#mailbox-buttons-write select {
+    height: 50px;
+    min-width: 200px;
+    background: none;
+    border: 2px solid black;
+}
+
+.mailbox-buttons #mailbox-buttons-edit,
+.mailbox-buttons #mailbox-buttons-broadcast-edit {
+    display: flex;
+    height: 100%;
+
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mailbox-buttons #mailbox-buttons-edit a,
+.mailbox-buttons #mailbox-buttons-broadcast-edit a{
+    margin: 15px;
+}
+
+
+
+/*others*/
+p, div, a {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 500;
+    text-transform: uppercase;
+    line-height: 24px;
+    color: inherit;
+}
+
+li a {
+    display: block;
+
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
