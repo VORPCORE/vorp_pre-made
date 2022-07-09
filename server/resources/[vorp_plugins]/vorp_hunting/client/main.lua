@@ -98,11 +98,13 @@ function SellAnimal() -- Selling animal function
         elseif Citizen.InvokeNative(0x0CEEB6F4780B1F2F, horse, 0) ~= false then
             for x = #peltz, 1, -1 do
 				y = peltz[x]
-				local q = Citizen.InvokeNative(0x0CEEB6F4780B1F2F, horse, x - 1)
-				awardQuality(q, nil, {horse = horse, pelt = q}, function () 
-                    alreadysoldanimal = true
-                end)
-
+				if not y.sold then
+					y.sold = true
+					local q = Citizen.InvokeNative(0x0CEEB6F4780B1F2F, horse, x - 1)
+					awardQuality(q, nil, {horse = horse, pelt = q}, function () 
+                    	alreadysoldanimal = true
+                	end)
+				end
                 table.remove(peltz, x)
 			end
         end

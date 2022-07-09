@@ -35,11 +35,11 @@ local function giveReward(context, data, skipfinal)
 			xp = animal.xp or 0
 			
 			local multiplier = 1.0
-			if animal.poorQualityMultiplier and (data.quality == animal.poorQualityMultiplier) then
+			if (animal.poorQualityMultiplier and animal.poor) and (data.quality == animal.poor) then
 				multiplier = animal.poorQualityMultiplier
-			elseif animal.goodQualityMultiplier and (data.quality == animal.goodQualityMultiplier) then
+			elseif (animal.goodQualityMultiplier and animal.good) and (data.quality == animal.good) then
 				multiplier = animal.goodQualityMultiplier
-			elseif animal.perfectQualityMultiplier and (data.quality == animal.perfectQualityMultiplier) then
+			elseif (animal.perfectQualityMultiplier and animal.perfect) and (data.quality == animal.perfect) then
 				multiplier = animal.perfectQualityMultiplier
 			end
 			
@@ -104,13 +104,17 @@ local function giveReward(context, data, skipfinal)
 			-- Format items and set random quantities if set.
 			-- Check if items can be added
 			-- total up the quantity so it can be checked as a whole
-			for k, v in pairs(givenItem) do
+			for k, v in ipairs(givenItem) do
 				local nmb = 0
-
-				if givenAmount[k] > 0 then
-					nmb = givenAmount[k]
+				
+				if type(givenAmount[k]) == "table" then
+					nmb = math.random(tonumber(givenAmount[k][1]) or 0, tonumber(givenAmount[k][2]) or 1)
 				else
-					nmb = math.random(Config.ItemQuantity.Min, Config.ItemQuantity.Max)
+					if givenAmount[k] > 0 then
+						nmb = givenAmount[k]
+					else
+						nmb = math.random(Config.ItemQuantity.Min, Config.ItemQuantity.Max)
+					end
 				end
 
 				formattedGivenItems[k] = {
@@ -149,7 +153,7 @@ local function giveReward(context, data, skipfinal)
 			local validDisplays = #givenItem == #givenDisplay
 			local givenMsg = ""
 			if #formattedGivenItems > 0 then
-				if context == skinned then
+				if context == "skinned" then
 					givenMsg = Config.Language.SkinnableAnimalstowed
 				else
 					givenMsg = "You received "
@@ -179,7 +183,7 @@ AddEventHandler("vorp_hunting:giveReward", giveReward)
 
 
 RegisterServerEvent("vorp_hunting:getJob")
-AddEventHandler("vorp_hunting:getJob", function(source)
+AddEventHandler("vorp_hunting:getJob", function()
     local _source = source
     local User = VorpCore.getUser(_source)
     local Character = User.getUsedCharacter
@@ -188,3 +192,4 @@ AddEventHandler("vorp_hunting:getJob", function(source)
     TriggerClientEvent("vorp_hunting:findJob", _source, job)
 
 end)
+
