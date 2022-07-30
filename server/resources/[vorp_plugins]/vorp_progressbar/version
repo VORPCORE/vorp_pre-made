@@ -1,0 +1,5 @@
+<1.1>
+- Bugfixes
+- Stringed together progresses will now not infinitely loop.
+- New color option
+<1.0>
