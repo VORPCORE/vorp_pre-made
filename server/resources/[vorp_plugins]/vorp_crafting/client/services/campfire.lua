@@ -9,17 +9,17 @@ function placeCampfire()
 
     local playerPed = PlayerPedId()
     Animations.playAnimation(playerPed, "campfire")
-    
-    exports['progressBars']:startUI(20000, _U('PlaceFire'))
-    Citizen.Wait(20000)
-    Animations.endAnimation("campfire")
-    Animations.endAnimations() 
-    local x,y,z = table.unpack(GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 2.0, -1.55))
-    
-    local prop = CreateObject(GetHashKey(Config.PlaceableCampfire), x, y, z, true, false, true)
-    SetEntityHeading(prop, GetEntityHeading(PlayerPedId()))
-    PlaceObjectOnGroundProperly(prop)
-    campfire = prop
+
+    progressbar.start(_U('PlaceFire'), 20000, function ()
+        Animations.endAnimation("campfire")
+        Animations.endAnimations() 
+        local x,y,z = table.unpack(GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 2.0, -1.55))
+        
+        local prop = CreateObject(GetHashKey(Config.PlaceableCampfire), x, y, z, true, false, true)
+        SetEntityHeading(prop, GetEntityHeading(PlayerPedId()))
+        PlaceObjectOnGroundProperly(prop)
+        campfire = prop
+    end)
 end
 
 RegisterNetEvent('vorp:campfire')

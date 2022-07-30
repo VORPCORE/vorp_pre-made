@@ -41,5 +41,5 @@ All configurations available in `/config.lua`
 ## Dependency
  - Vorp Core
  - Vorp Inventory **(MUST HAVE THE LATEST)**
- - [progressBars](https://github.com/PokeSerGG/progressBars)
+ - Vorp progressBars
 

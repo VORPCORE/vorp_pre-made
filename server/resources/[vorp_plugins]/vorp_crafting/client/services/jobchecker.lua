@@ -2,6 +2,8 @@ local backoff = 500
 local dlq = 0
 job = nil
 
+appready = false
+
 function CheckJob(joblist)
     -- job = nil
 
@@ -32,4 +34,10 @@ end
 RegisterNetEvent("vorp:setjob")
 AddEventHandler("vorp:setjob", function(rjob)
     job = rjob
+end)
+
+RegisterNetEvent("vorp:SelectedCharacter")
+AddEventHandler("vorp:SelectedCharacter", function()
+    appready = true
+    TriggerServerEvent('vorp:findjob')
 end)

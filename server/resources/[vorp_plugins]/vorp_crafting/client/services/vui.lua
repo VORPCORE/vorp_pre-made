@@ -9,7 +9,11 @@ VUI.OpenUI = function (location)
     if allText then
         uiopen = true
         local playerPed = PlayerPedId()
-        Animations.forceRestScenario(true)
+
+
+        if Config.KneelingAnimation then
+            Animations.forceRestScenario(true)
+        end
         SendNUIMessage({
             type = 'vorp-craft-open',
             craftables = Config.Crafting,
@@ -39,8 +43,10 @@ end
 RegisterNUICallback('vorp-craft-close', function(args, cb)
     SetNuiFocus(false, false)
     uiopen = false
-    Animations.forceRestScenario(false)
-
+    
+    if Config.KneelingAnimation then
+        Animations.forceRestScenario(false)
+    end
     cb('ok')
 end)
 

@@ -29,9 +29,16 @@ AddEventHandler('vorp:openInv', function()
 end)
 
 RegisterServerEvent('vorp:startcrafting')
-AddEventHandler('vorp:startcrafting', function(crafting, countz)
+AddEventHandler('vorp:startcrafting', function(craftable, countz)
     local _source = source
     local Character = VorpCore.getUser(_source).getUsedCharacter
+
+    local crafting = getServerCraftable(craftable)
+
+    if not crafting then
+        print("Recipe not found on server")
+        return
+    end
 
     local playerjob = Character.job
     local job = crafting['Job']
@@ -53,57 +60,60 @@ AddEventHandler('vorp:startcrafting', function(crafting, countz)
     end
 
     if craft then
-        -- Check that the user has all crafting items available
-        local reward = crafting['Reward']
+        if crafting then
+            -- Check that the user has all crafting items available
+            local reward = crafting['Reward']
 
-        local craftcheck = true
-        for index, item in pairs(crafting.Items) do
-            local pcount = VorpInv.getItemCount(source, item.name)
-            local icount = item.count * countz
-
-            if pcount < icount then
-                craftcheck = false
-                break
-            end
-        end
-
-        if craftcheck == true then
-            -- Get Totals
-            local subcount = 0
-            local cancarry = false
+            local craftcheck = true
             for index, item in pairs(crafting.Items) do
-                local itemcount = item.count * countz
-                subcount = subcount + itemcount
-            end
-            local addcount = 0
-            for k, rwd in pairs(reward) do
-                local counta = rwd.count * countz
-                addcount = addcount + counta
+                local pcount = VorpInv.getItemCount(source, item.name)
+                local icount = item.count * countz
 
-                cancarry = VorpInv.canCarryItem(_source, rwd.name, counta)
+                if pcount < icount then
+                    craftcheck = false
+                    break
+                end
             end
 
-            -- Check if there is enought room in inventory in general.
-            local invAvailable = VorpInv.canCarryItems(_source, addcount - subcount)
-            if invAvailable and cancarry then
-                -- Loop through and remove each item
+            if craftcheck == true then
+                -- Get Totals
+                local subcount = 0
+                local cancarry = false
                 for index, item in pairs(crafting.Items) do
-                    VorpInv.subItem(_source, item.name, item.count * countz)
+                    local itemcount = item.count * countz
+                    subcount = subcount + itemcount
+                end
+                local addcount = 0
+                for k, rwd in pairs(reward) do
+                    local counta = rwd.count * countz
+                    addcount = addcount + counta
+
+                    cancarry = VorpInv.canCarryItem(_source, rwd.name, counta)
                 end
 
-                -- Give crafted item(s) to player
-                for k, v in pairs(reward) do
-                    local countx = v.count * countz
-                    VorpInv.addItem(_source, v.name, countx)
-                end
+                -- Check if there is enought room in inventory in general.
+                local invAvailable = VorpInv.canCarryItems(_source, addcount - subcount)
+                if invAvailable and cancarry then
+                    -- Loop through and remove each item
+                    for index, item in pairs(crafting.Items) do
+                        VorpInv.subItem(_source, item.name, item.count * countz)
+                    end
 
-                TriggerClientEvent("vorp:crafting", _source, crafting.Animation)
+                    -- Give crafted item(s) to player
+                    for k, v in pairs(reward) do
+                        local countx = v.count * countz
+                        VorpInv.addItem(_source, v.name, countx)
+                    end
+
+                    TriggerClientEvent("vorp:crafting", _source, crafting.Animation)
+                else
+                    TriggerClientEvent("vorp:TipRight", _source, _U('TooFull'), 3000)
+                end
             else
-                TriggerClientEvent("vorp:TipRight", _source, _U('TooFull'), 3000)
+                TriggerClientEvent("vorp:TipRight", _source, _U('NotEnough'), 3000)
             end
-        else
-            TriggerClientEvent("vorp:TipRight", _source, _U('NotEnough'), 3000)
         end
+        
     else
         TriggerClientEvent("vorp:TipRight", _source, _U('NotJob'), 3000)
     end
