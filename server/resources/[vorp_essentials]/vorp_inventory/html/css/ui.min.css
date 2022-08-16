@@ -67,6 +67,92 @@ body {
     opacity: 0.9;
 }
 
+/* Character Selection*/
+
+#character-selection {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 400px;
+    /*background-color: black;*/
+    background-image: url(../img/bgPanel2.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 400px 400px;
+    /*border-radius: 16px;*/
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+}
+
+#character-list {
+    z-index: 99999;
+    width: 80%;
+    height: 60%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    color: white;
+    background-color: rgb(122, 121, 121);
+
+    border-radius: 8px;
+
+    font-size: 18px;
+    line-height: 24px;
+    list-style-type: none;
+    padding: 0;
+    margin-top: 0;
+    overflow: auto;
+}
+
+#character-select-title {
+    color: white;
+    margin: 10px 0;
+}
+
+.list-item {
+    width: 80%;
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid white;
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.list-item:hover {
+    transition: background-color 0.3s;
+    background-color: rgb(162, 159, 159);
+    cursor: pointer;
+}
+
+.selected-item {
+    background-color: rgb(182, 173, 173);
+}
+
+.close-btn {
+    width: fit-content;
+    text-align: end;
+    margin-top: 5px;
+    margin-left: auto;
+    margin-right: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    color: white;
+}
+
+.close-btn:hover {
+    cursor: pointer;
+}
+
+/* End Character Selection*/
 
 #inventoryElement {
     position: absolute;
@@ -188,6 +274,20 @@ body {
     bottom: 0;
     left: 0;
     font-size: 17px;
+}
+
+#description2 { 
+    text-align: center;
+    position: absolute;
+    top: 880px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    font-size: 14px;
+    color: white;
+    word-wrap: break-word;
+    width: 399px;
+    left: 400px;
 }
 
 ::-webkit-scrollbar{
@@ -485,7 +585,10 @@ span.emoji {
         top: 790px;
 
     }
+    #description2 { 
+        top: 790px;
 
+    }
     .controls {
         top: 240px;
         left: 390px;
@@ -548,7 +651,10 @@ span.emoji {
         top: 840px;
         left: 10px;
     }
-    
+    #description2 { 
+        top: 840px;
+        left: 10px;
+    }
     .controls {
         top: 170px;
         left: 390px;

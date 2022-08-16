@@ -20,7 +20,33 @@ Refer to [issue #77](https://github.com/overextended/oxmysql/issues/77) for info
 - Lua promises in `lib/MySQL.lua` files for improved performance when awaiting a response
 - Support mysql-async syntax while providing newer (more accurate) names
 
+### Usage
 
+```lua
+-- Lua
+MySQL.query('SELECT * from users WHERE identifier = ?', {identifier}, function(result)
+    -- callback response
+    -- same as MySQL.Async.fetchAll
+end)
+CreateThread(function()
+    local result = MySQL.query.await('SELECT * from users WHERE identifier = ?', {identifier})
+    -- await a promise to resolve
+    -- same as MySQL.Sync.fetchAll
+end)
+```
+
+```js
+// JS
+exports.oxmysql.query('SELECT * from users WHERE identifier = ?', [identifier], (result) => {
+  // callback response
+})(async () => {
+  const result = await exports.oxmysql.query_async('SELECT * from users WHERE identifier = ?', [identifier]);
+  // await a promise to resolve
+})();
+exports.oxmysql.query_async('SELECT * from users WHERE identifier = ?', [identifier]).then((result) => {
+  // utilise .then to resolve a promise like a callback
+});
+```
 
 For more information regarding the use of queries, refer to the documentation linked above.
 
@@ -36,3 +62,8 @@ This allows queries to be properly prepared and escaped; the following lines are
 
 Named placeholders are deprecated and should be avoided as much as possible.
 
+<br><br><br><br><br>
+
+<hr>
+<p align='center'><a href='https://discord.gg/mEM6eYdXPm'>Discord</a></p>
+<hr>

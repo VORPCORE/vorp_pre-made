@@ -29,6 +29,7 @@ Locales["fr_lang"] = {
     recammo = "Vous avez reçu des munitions: ",
     emptyammo = "Vide",
     prompttitle = "Quantité",
+    prompttitle2 = "Prix:",
     promptaccept = "Accepter",
     toplayerpromptitle = "Sélectionner un joueur",
     toplaterpromptaccept = "Confirmer",
@@ -53,5 +54,5 @@ Locales["fr_lang"] = {
     drop = "jeter",
     cantweapons = "Tu ne peux plus porter d'armes",
     cantweapons2 = "La personne a déjà trop d'armes",
-    slow = "Stop trying to spam items!"
+    slow = "Arrêtez d'essayer de spammer des items!"
 }

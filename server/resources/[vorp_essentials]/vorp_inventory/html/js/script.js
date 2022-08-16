@@ -5,14 +5,20 @@ $("document").ready(function () {
 
     $("#inventoryHud").hide();
     $("#secondInventoryHud").hide();
+    $('#character-selection').hide();
 
     $("body").on("keyup", function (key) {
         if (Config.closeKeys.includes(key.which)) {
-            closeInventory();
+            if ($('#character-selection').is(":visible")) {
+                $('#character-selection').hide();
+            } else {
+                closeInventory();
+            }
         }
     });
 
     initSecondaryInventoryHandlers();
+
 });
 
 window.onload = initDivMouseOver;
@@ -20,7 +26,7 @@ window.onload = initDivMouseOver;
 window.addEventListener('message', function (event) {
 
     /*$('body').animate({ opacity: event.data.show ? 1 : 0 }, 500);*/
-    
+
     // if(event.data.action == "updateStatusHud") {
 
     //     if(event.data.money) {
@@ -45,7 +51,7 @@ window.addEventListener('message', function (event) {
         //BACKHERE
         LANGUAGE = event.data.language
     }
-    
+
     if (event.data.action == "reclabels") {
         ammolabels = event.data.labels
     }
@@ -72,15 +78,15 @@ window.addEventListener('message', function (event) {
             $("#id-value").text("ID " + event.data.id);
 
         }
-        
+
     } else if (event.data.action == "transaction") {
         let t = event.data.type
-        if(t == 'started') {
+        if (t == 'started') {
             let displaytext = event.data.text
             $('#loading-text').html(displaytext)
             $('#transaction-loader').show()
         }
-        if(t == 'completed') {
+        if (t == 'completed') {
             $('#transaction-loader').hide()
         }
     }
@@ -95,9 +101,15 @@ window.addEventListener('message', function (event) {
         $("#inventoryHud").fadeIn();
         $(".controls").remove();
 
-        $("#inventoryHud").append(
-            `<div class='controls'><div class='controls-center'><input type='text' id='search' placeholder='${LANGUAGE.inventorysearch}'/><button id='check'>${checkxy} / ${infoxy}</button></div><button id='close'>${LANGUAGE.inventoryclose}</button></div></div>`
-        );
+        if (event.data.search) {
+            $("#inventoryHud").append(
+                `<div class='controls'><div class='controls-center'><input type='text' id='search' placeholder='${LANGUAGE.inventorysearch}'/><button id='check'>${checkxy} / ${infoxy}</button></div><button id='close'>${LANGUAGE.inventoryclose}</button></div></div>`
+            );
+        } else {
+            $("#inventoryHud").append(
+                `<div class='controls'><div class='controls-center'><button id='check'>${checkxy} / ${infoxy}</button></div><button id='close'>${LANGUAGE.inventoryclose}</button></div></div>`
+            );
+        }
 
         $("#search").bind('input', function () {
             searchFor = $("#search").val().toLowerCase();
@@ -113,6 +125,10 @@ window.addEventListener('message', function (event) {
 
         type = event.data.type
 
+        if (event.data.type == "custom") {
+            customId = event.data.id;
+            initiateSecondaryInventory(id, event.data.title, event.data.capacity)
+        }
 
         if (event.data.type == "horse") {
             horseid = event.data.horseid;
@@ -132,7 +148,7 @@ window.addEventListener('message', function (event) {
             hideoutId = event.data.hideoutId;
             initiateSecondaryInventory(hideoutId, event.data.title, event.data.capacity)
         }
-         if (event.data.type == "bank") {
+        if (event.data.type == "bank") {
             bankId = event.data.bankId;
             initiateSecondaryInventory(bankId, event.data.title, event.data.capacity)
         }
@@ -140,20 +156,27 @@ window.addEventListener('message', function (event) {
             clanid = event.data.clanid;
             initiateSecondaryInventory(clanid, event.data.title, event.data.capacity)
         }
+        if (event.data.type == "store") {
+            StoreId = event.data.StoreId;
+            geninfo = event.data.geninfo;
+            initiateSecondaryInventory(StoreId, event.data.title, event.data.capacity)
+        }
         if (event.data.type == "steal") {
             stealid = event.data.stealId;
             initiateSecondaryInventory(stealid, event.data.title, event.data.capacity)
         }
         if (event.data.type == "Container") {
-           Containerid = event.data.Containerid;
-           initiateSecondaryInventory(Containerid, event.data.title, event.data.capacity)
+            Containerid = event.data.Containerid;
+            initiateSecondaryInventory(Containerid, event.data.title, event.data.capacity)
         }
 
         disabled = false;
 
-        $(document).on('keydown', function (event) {
-            $("#search").focus();
-        });
+        if (event.data.autofocus == true) {
+            $(document).on('keydown', function (event) {
+                $("#search").focus();
+            });
+        }
 
         $("#close").on('click', function (event) {
             closeInventory();

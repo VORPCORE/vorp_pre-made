@@ -22,7 +22,9 @@ server_scripts {
 shared_scripts {
   "config.lua",
   "locale.lua",
-  "languages/*.lua"
+  "languages/*.lua",
+  "shared/models/*.lua",
+  "shared/services/*.lua"
 }
 
 files {
@@ -32,7 +34,7 @@ files {
 server_exports { 'vorp_inventoryApi' }
 
 
-version '1.1.0'
+version '2.1'
 vorp_checker 'yes'
 vorp_name '^4Resource version Check^3'
 vorp_github 'https://github.com/VORPCORE/vorp_inventory-lua'

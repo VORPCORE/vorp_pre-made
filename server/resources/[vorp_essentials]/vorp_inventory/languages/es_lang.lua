@@ -29,6 +29,7 @@ Locales["es_lang"] = {
     recammo = "Has recibido munición: ",
     emptyammo = "Nada",
     prompttitle = "Cantidad",
+    prompttitle2 = "Price:",
     promptaccept = "Aceptar",
     toplayerpromptitle = "Seleccionar jugador",
     toplaterpromptaccept = "Confirmar",

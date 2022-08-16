@@ -9,6 +9,7 @@ Weapon.components = {}
 Weapon.used = false
 Weapon.used2 = false
 Weapon.desc = nil
+Weapon.currInv = ''
 
 function Weapon:UnequipWeapon()
 	local hash = GetHashKey(self.name)
@@ -181,4 +182,12 @@ end
 
 function Weapon:getDesc()
 	return self.desc
+end
+
+function Weapon:setCurrInv(invId)
+	self.currInv = invId
+end
+
+function Weapon:getCurrInv()
+	return self.currInv
 end

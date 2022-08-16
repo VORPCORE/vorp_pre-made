@@ -6,6 +6,7 @@ let disabledFunction = null;
 let ready4Action = true;
 let checkxy;
 let infoxy;
+let customId = 0;
 let houseId = 0;
 let hideoutid = 0;
 let clanid = 0;
@@ -18,3 +19,6 @@ let allplayerammo = [];
 let ammolabels = [];
 let isValidating = false; // Block other validation event when a validation prompt is already processing
 let LANGUAGE = {}
+let objToGive = {}
+let geninfo;
+let StoreId;

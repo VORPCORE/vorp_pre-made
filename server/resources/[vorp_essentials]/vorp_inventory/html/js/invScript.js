@@ -48,7 +48,7 @@ function inventorySetup(items) {
                 }
             })
         }
-        if (item.usable) {
+        if (item.canUse) {
             data.push({
                 text: LANGUAGE.use,
                 action: function () {
@@ -67,14 +67,14 @@ function inventorySetup(items) {
             data.push({
                 text: LANGUAGE.give,
                 action: function () {
-                    giveGetHowMany(item.name, item.type, item.hash, item.id);
+                    giveGetHowMany(item.name, item.type, item.hash, item.id, item.metadata);
                 }
             });
 
             data.push({
                 text: LANGUAGE.drop,
                 action: function () {
-                    dropGetHowMany(item.name, item.type, item.hash, item.id);
+                    dropGetHowMany(item.name, item.type, item.hash, item.id, item.metadata);
                 }
             });
         }
@@ -97,7 +97,11 @@ function inventorySetup(items) {
 
         $("#item-" + index).hover(
             function () {
-                OverSetDesc(item.desc);
+                if (item.type !== "item_weapon") {
+                    OverSetDesc(!!item.metadata.description ? item.metadata.description : '');
+                } else {
+                    OverSetDesc(!!item.desc ? item.desc : '');
+                }
             },
             function () {
                 OverSetDesc(" ");
@@ -202,7 +206,7 @@ function inventorySetup(items) {
     });
     $("#item-" + m_item).hover(
         function() {
-            OverSetTitle(m_item);
+            OverSetTitle(m_label);
         },
         function() {
             OverSetTitle(" ");

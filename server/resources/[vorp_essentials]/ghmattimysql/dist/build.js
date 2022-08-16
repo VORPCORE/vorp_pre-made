@@ -1,26 +1,9 @@
 var __create = Object.create;
 var __defProp = Object.defineProperty;
-var __defProps = Object.defineProperties;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
 var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __propIsEnum = Object.prototype.propertyIsEnumerable;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __spreadValues = (a, b) => {
-  for (var prop in b || (b = {}))
-    if (__hasOwnProp.call(b, prop))
-      __defNormalProp(a, prop, b[prop]);
-  if (__getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(b)) {
-      if (__propIsEnum.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    }
-  return a;
-};
-var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
 var __esm = (fn, res) => function __init() {
   return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
 };
@@ -21532,17 +21515,18 @@ var parseUri = (connectionString) => {
   if (!splitMatchGroups)
     throw new Error(`mysql_connection_string structure was invalid (${connectionString})`);
   const authTarget = splitMatchGroups[2] ? splitMatchGroups[2].split(":") : [];
-  const options = __spreadValues({
+  const options = {
     user: authTarget[0] || void 0,
     password: authTarget[1] || void 0,
     host: splitMatchGroups[3],
     port: parseInt(splitMatchGroups[4]),
-    database: splitMatchGroups[5].replace(/^\/+/, "")
-  }, splitMatchGroups[6] && splitMatchGroups[6].split("&").reduce((connectionInfo, parameter) => {
-    const [key, value] = parameter.split("=");
-    connectionInfo[key] = value;
-    return connectionInfo;
-  }, {}));
+    database: splitMatchGroups[5].replace(/^\/+/, ""),
+    ...splitMatchGroups[6] && splitMatchGroups[6].split("&").reduce((connectionInfo, parameter) => {
+      const [key, value] = parameter.split("=");
+      connectionInfo[key] = value;
+      return connectionInfo;
+    }, {})
+  };
   return options;
 };
 var connectionOptions = (() => {
@@ -21556,13 +21540,13 @@ var connectionOptions = (() => {
 var pool;
 var serverReady = false;
 setTimeout(() => {
-  pool = (0, import_mysql2.createPool)(__spreadProps(__spreadValues({
+  pool = (0, import_mysql2.createPool)({
     connectTimeout: 6e4,
     trace: false,
-    supportBigNumbers: true
-  }, connectionOptions), {
+    supportBigNumbers: true,
+    ...connectionOptions,
     typeCast
-  }));
+  });
   pool.query(mysql_transaction_isolation_level, (err) => {
     if (err)
       return console.error(`^3Unable to establish a connection to the database!
@@ -21986,6 +21970,15 @@ MySQL.prepare = (query, parameters, cb, invokingResource = GetInvokingResource()
 };
 MySQL.execute = MySQL.query;
 MySQL.fetch = MySQL.query;
+function provide(name, cb, sync) {
+  on(`__cfx_export_ghmattimysql_${name}`, (setCb) => setCb(cb));
+  on(`__cfx_export_ghmattimysql_${name}Sync`, (setCb) => setCb(sync));
+}
+provide("store", (query, cb) => {
+  cb(query);
+}, (query) => {
+  return query;
+});
 for (const key in MySQL) {
   global.exports(key, MySQL[key]);
   const exp = (query, parameters, invokingResource = GetInvokingResource()) => {
@@ -21999,6 +21992,8 @@ for (const key in MySQL) {
   };
   global.exports(`${key}_async`, exp);
   global.exports(`${key}Sync`, exp);
+  if (key === "execute" || key === "scalar" || key === "transaction")
+    provide(key, MySQL[key], exp);
 }
 /*! fetch-blob. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> */
 /*! formdata-polyfill. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> */

@@ -198,9 +198,9 @@
 
 #dialog-holder #dialog-center td .dialog-alert .select {
 	margin: 10px 5px 5px 5px;
-	padding: 15px 30px;
+	padding: 15px 50px;
 	float: left;
-	width: 30%;
+	width: 100%;
 	background: transparent;
 	cursor: pointer;
 	font-weight: 700;

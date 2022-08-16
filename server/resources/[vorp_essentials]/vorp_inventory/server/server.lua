@@ -1,6 +1,6 @@
 
 
-local VorpCore = {}
+VorpCore = {}
 
 TriggerEvent("getCore",function(core)
     VorpCore = core
@@ -8,7 +8,7 @@ end)
 
 VorpInv = exports.vorp_inventory:vorp_inventoryApi()
 
-
+ 
 -- get discord id
 function getIdentity(source, identity)
 	local num = 0

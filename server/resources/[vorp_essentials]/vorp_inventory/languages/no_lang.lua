@@ -29,6 +29,7 @@ Locales["no_lang"] = {
     recammo = "Du mottok ammunisjon: ",
     emptyammo = "Tomme",
     prompttitle = "Mengde",
+    prompttitle2 = "Price:",
     promptaccept = "Aksepterer",
     toplayerpromptitle = "Velg spiller",
     toplaterpromptaccept = "Bekrefte",

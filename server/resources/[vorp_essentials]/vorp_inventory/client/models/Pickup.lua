@@ -3,6 +3,7 @@ Pickup = {}
 Pickup.name = ''
 Pickup.entityId = ''
 Pickup.amount = ''
+Pickup.metadata = {}
 Pickup.isMoney = false
 Pickup.isGold = false
 Pickup.weaponId = ''

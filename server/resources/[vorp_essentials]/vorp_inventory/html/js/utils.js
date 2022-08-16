@@ -9,7 +9,9 @@ function processEventValidation(ms = 1000) {
 function isInt(n) {
     return n != "" && !isNaN(n) && Math.round(n) == n;
 }
-
+function isFloat(n){
+    return Number(n) === n && n % 1 !== 0;
+}
 function OverSetTitle(title) {
     document.getElementById("information").innerHTML = title;
 }
@@ -20,6 +22,10 @@ function OverSetTitleSecond(title) {
 
 function OverSetDesc(title) {
     document.getElementById("description").innerHTML = title;
+}
+
+function OverSetDescSecond(desc) {
+    document.getElementById("description2").innerHTML = desc;
 }
 
 function secondarySetTitle(title) {
@@ -112,25 +118,65 @@ function disableInventory(ms) {
     }
 }
 
-function selectPlayerToGive(data) {
-    dialog.prompt({
-        title: LANGUAGE.toplayerpromptitle,
-        button: LANGUAGE.toplaterpromptaccept,
-        required: false,
-        item: data,
-        type: data.type,
-        select: true,
-        validate: function (value, data, player) {
-            $.post("http://vorp_inventory/GiveItem", JSON.stringify({
-                player: player,
-                data: data
-            }));
-            return true;
-        }
-    });
+/*function selectPlayerToGive(data) {
+    const timer = setTimeout(() => {
+        clearTimeout(timer);
+        dialog.prompt({
+            title: LANGUAGE.toplayerpromptitle,
+            button: LANGUAGE.toplaterpromptaccept,
+            required: false,
+            item: data,
+            type: data.type,
+            select: true,
+            validate: function (value, data, player) {
+                $.post("http://vorp_inventory/GiveItem", JSON.stringify({
+                    player: player,
+                    data: data
+                }));
+                return true;
+            }
+        });
+    }, 300);
+}*/
+
+function validatePlayerSelection(player) {
+    const data = objToGive;
+
+    $.post("http://vorp_inventory/GiveItem", JSON.stringify({
+        player: player,
+        data: data
+    }));
+    $('#character-selection').hide();
+
+    // reset obj to give, for security
+    objToGive = {}
 }
 
-function dropGetHowMany(item, type, hash, id) {
+/**
+ * @param {object} data
+ }**/
+function selectPlayerToGive(data)
+{
+    objToGive = data; // save obj to give during process
+    const characters = data.players;
+
+    $('#character-select-title').html(LANGUAGE.toplayerpromptitle);
+    characters.sort((a, b) => a.label.toString().localeCompare(b.label.toString()));
+
+    $('#character-list').html('');
+    characters.forEach(character => {
+        $('#character-list').append(`<li class="list-item" id="character-${character.player}" data-player="${character.player}" onclick="validatePlayerSelection(${character.player})">${character.label}</li>`)
+    })
+    $('#character-selection').show();
+}
+
+function closeCharacterSelection() {
+    // reset obj to give, for security
+    objToGive = {}
+    $('#character-selection').hide();
+}
+
+function dropGetHowMany(item, type, hash, id, metadata) {
     if (type != "item_weapon") {
         dialog.prompt({
             title: LANGUAGE.prompttitle,
@@ -149,11 +195,13 @@ function dropGetHowMany(item, type, hash, id) {
                 }
                 if (!isInt(value)) {
                         return;
-                    } 
+                } 
                 $.post("http://vorp_inventory/DropItem", JSON.stringify({
                     item: item,
+                    id: id,
                     type: type,
-                    number: value
+                    number: value,
+                    metadata: metadata
                 }));
                 return true;
             }
@@ -168,7 +216,7 @@ function dropGetHowMany(item, type, hash, id) {
     }
 }
 
-function giveGetHowMany(item, type, hash, id) {
+function giveGetHowMany(item, type, hash, id, metadata) {
     if (type != "item_weapon") {
         dialog.prompt({
             title: LANGUAGE.prompttitle,
@@ -182,17 +230,22 @@ function giveGetHowMany(item, type, hash, id) {
             },
             validate: function (value, item, type) {
                 if (!value) {
+                    console.log('[giveGetHowMany] Error: given value is nil or 0. Closing Dialog');
                     dialog.close()
                     return;
                 }
                 if (!isInt(value)) {
-                        return;
-                    } 
+                    console.log('[giveGetHowMany] Error: given value is not an integer. Closing Dialog');
+                    dialog.close()
+                    return;
+                }
                 $.post("http://vorp_inventory/GetNearPlayers", JSON.stringify({
                     type: type,
                     what: "give",
                     item: item,
-                    count: value
+                    id: id,
+                    count: value,
+                    metadata: metadata
                 }));
                 return true;
             }

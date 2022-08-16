@@ -18,4 +18,3 @@ AddEventHandler("vorpInventory:removeItem", InventoryService.removeItem)
 
 RegisterNetEvent("vorpInventory:receiveWeapon")
 AddEventHandler("vorpInventory:receiveWeapon", InventoryService.receiveWeapon)
-	

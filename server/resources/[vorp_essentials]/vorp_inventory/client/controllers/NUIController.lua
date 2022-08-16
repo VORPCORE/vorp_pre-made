@@ -21,6 +21,36 @@ AddEventHandler("vorp_inventory:CloseInv", NUIService.CloseInventory)
 RegisterNetEvent("vorp_inventory:OpenInv")
 AddEventHandler("vorp_inventory:OpenInv", NUIService.OpenInv)
 
+RegisterNetEvent("vorp_inventory:setNearbyCharacters")
+AddEventHandler("vorp_inventory:setNearbyCharacters", NUIService.NUISetNearPlayers)
+
+--#region Custom Inventory
+
+RegisterNetEvent("vorp_inventory:OpenCustomInv")
+AddEventHandler("vorp_inventory:OpenCustomInv", NUIService.OpenCustomInventory)
+
+RegisterNetEvent("vorp_inventory:CloseCustomInv")
+AddEventHandler("vorp_inventory:CloseCustomInv", NUIService.CloseInv)
+
+RegisterNUICallback('TakeFromCustom', NUIService.NUITakeFromCustom)
+
+RegisterNUICallback('MoveToCustom', NUIService.NUIMoveToCustom)
+
+RegisterNetEvent("vorp_inventory:ReloadCustomInventory")
+AddEventHandler("vorp_inventory:ReloadCustomInventory", NUIService.ReloadInventory)
+
+--#endregion
+-- Store Module
+RegisterNetEvent("vorp_inventory:OpenStoreInventory")
+AddEventHandler("vorp_inventory:OpenStoreInventory", NUIService.OpenStoreInventory)
+
+RegisterNetEvent("vorp_inventory:ReloadStoreInventory")
+AddEventHandler("vorp_inventory:ReloadStoreInventory", NUIService.ReloadInventory)
+
+RegisterNUICallback('TakeFromStore', NUIService.NUITakeFromStore)
+
+RegisterNUICallback('MoveToStore', NUIService.NUIMoveToStore)
+
 -- Horse Module
 RegisterNetEvent("vorp_inventory:OpenHorseInventory")
 AddEventHandler("vorp_inventory:OpenHorseInventory", NUIService.OpenHorseInventory)
@@ -76,7 +106,6 @@ RegisterNUICallback('TakeFromBank', NUIService.NUITakeFromBank)
 
 RegisterNUICallback('MoveToBank', NUIService.NUIMoveToBank)
 
-
 --Hideout Module
 RegisterNetEvent("vorp_inventory:OpenHideoutInventory")
 AddEventHandler("vorp_inventory:OpenHideoutInventory", NUIService.OpenHideoutInventory)
@@ -112,8 +141,7 @@ RegisterNUICallback("MoveToContainer", NUIService.NUIMoveToContainer);
 
 -- Transactions
 RegisterNetEvent("vorp_inventory:transactionStarted")
-AddEventHandler("vorp_inventory:transactionStarted", NUIService.transactionStarted)
+AddEventHandler("vorp_inventory:transactionStarted", NUIService.TransactionStarted)
 
 RegisterNetEvent("vorp_inventory:transactionCompleted")
-AddEventHandler("vorp_inventory:transactionCompleted", NUIService.transactionComplete)
-
+AddEventHandler("vorp_inventory:transactionCompleted", NUIService.TransactionComplete)

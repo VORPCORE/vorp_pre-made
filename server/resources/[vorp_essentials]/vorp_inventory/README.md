@@ -18,6 +18,8 @@
 * When dropping or giving a weapon you give it with all the modifications and ammo.
 * It also has usable items.
 * KLS.
+* metadata
+* storage Api
 
 
 ![image](https://user-images.githubusercontent.com/87246847/156600012-3901dac7-73f8-4577-a8f5-9a60d7e3150b.png)
@@ -39,3 +41,4 @@
 - To [Val3ro](https://github.com/Val3ro) for the initial work.
 - to [Emolitt](https://github.com/RomainJolidon) and [Outsider](https://github.com/outsider31000) for finishing/testing.   
 - Credits to Vorp Team for creating the C# version and [Local9](https://github.com/Local9).
+- to [blue](https://github.com/kamelzarandah) for making this possible

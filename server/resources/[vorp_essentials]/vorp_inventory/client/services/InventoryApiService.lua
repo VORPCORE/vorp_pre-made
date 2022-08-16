@@ -7,21 +7,32 @@ InventoryApiService = {}
 ---@param type string
 ---@param canUse boolean
 ---@param canRemove boolean
----@param desc string
-InventoryApiService.addItem = function (count, limit, label, name, type, canUse, canRemove, desc )
-    if UserInventory[name] ~= nil then
-        UserInventory[name]:addCount(count)
+InventoryApiService.addItem = function (itemData)
+    local itemId = itemData.id
+    local itemAmount = itemData.count
+
+    local item = UserInventory[itemId]
+
+    if item ~= nil then
+        item:setCount(itemAmount)
     else
-        UserInventory[name] = Item:New({
-            count = count,
-            limit = limit,
-            name = name,
-            label = label,
-            type = type,
-            canUse = canUse,
-            canRemove = canRemove,
-            desc = desc
-        })
+        UserInventory[itemId] = Item:New(itemData)
+    end
+    NUIService.LoadInv()
+end
+
+---@param id number
+---@param qty number
+---@param metadata table
+InventoryApiService.subItem = function (id, qty, metadata)
+    if UserInventory[id] == nil then
+        return
+    end
+
+
+    UserInventory[id]:setCount(qty)
+    if UserInventory[id]:getCount() == 0 then
+        UserInventory[id] = nil
     end
     NUIService.LoadInv()
 end
@@ -33,19 +44,6 @@ InventoryApiService.subWeapon = function (weaponId)
             RemoveWeaponFromPed(PlayerPedId(), GetHashKey(UserWeapons[weaponId]:getName()),true, 0)
         end
         Utils.TableRemoveByKey(UserWeapons, weaponId)
-    end
-    NUIService.LoadInv()
-end
-
----@param name string
----@param qty number
-InventoryApiService.subItem = function (name, qty)
-    if UserInventory[name] ~= nil then
-        UserInventory[name]:setCount(qty)
-        if UserInventory[name]:getCount() == 0 then
-            --table.remove(UserInventory, name)
-            Utils.TableRemoveByKey(UserInventory, name)
-        end
     end
     NUIService.LoadInv()
 end
