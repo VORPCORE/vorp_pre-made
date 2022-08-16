@@ -2,7 +2,7 @@
 ------------------------------------- SERVER EXPORTS ------------------------------------------------------
 local VorpCore = {}
 local VORPwl = {}
-
+local stafftable = {}
 TriggerEvent("getCore", function(core)
     VorpCore = core
 end)
@@ -236,7 +236,7 @@ RegisterServerEvent("vorp_admin:givePlayer", function(targetID, type, data1, dat
                 end
             end)
         elseif type == "moneygold" then
-         local CurrencyType = data1
+            local CurrencyType = data1
             local qty = data2
             if qty then
                 Character.addCurrency(tonumber(CurrencyType), tonumber(qty))
@@ -401,15 +401,10 @@ RegisterServerEvent("vorp_admin:spectate", function(targetID)
 end)
 
 
+RegisterServerEvent("vorp_admin:announce", function(announce)
+    VorpCore.NotifySimpleTop(-1, _U("announce"), announce, 10000)
+end)
 
-function Check(table, isallow)
-    for k, list in pairs(table) do
-        if list == isallow then
-            return true
-        end
-    end
-    return false
-end
 
 -----------------------------------------------------------------------------------------------------------------
 --PERMISSIONS
@@ -424,4 +419,119 @@ RegisterServerEvent('vorp_admin:opneStaffMenu', function(object)
         Perm = false
         TriggerClientEvent('vorp_admin:OpenStaffMenu', _source, Perm)
     end
+end)
+
+--------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------- DISCORD --------------------------------------------------------
+
+function Discord(webhook, title, message)
+
+    PerformHttpRequest(webhook, function(err, text, headers) end, 'POST', json.encode({
+        embeds = {
+            {
+                ["color"] = Config.webhookColor,
+                ["author"] = {
+                    ["name"] = Config.name,
+                    ["icon_url"] = Config.logo
+                },
+                ["title"] = title,
+                ["description"] = message,
+                ["footer"] = {
+                    ["text"] = "VORPcore" .. " • " .. os.date("%x %X %p"),
+                    ["icon_url"] = Config.footerLogo,
+
+                },
+            },
+
+        },
+        avatar_url = Config.Avatar
+    }), {
+        ['Content-Type'] = 'application/json'
+    })
+
+end
+
+function GetIdentity(source, identity)
+
+    for k, v in pairs(GetPlayerIdentifiers(source)) do
+        if string.sub(v, 1, string.len(identity .. ":")) == identity .. ":" then
+            return v
+        end
+    end
+end
+
+RegisterServerEvent('vorp_admin:logs', function(webhook, title, description)
+
+    local _source = source
+    local Identifier = GetPlayerIdentifier(_source)
+    local discordIdentity = GetIdentity(_source, "discord")
+    local discordId = string.sub(discordIdentity, 9)
+    local ip = GetPlayerEndpoint(_source)
+    local steamName = GetPlayerName(_source)
+
+    local message = "**Steam name: **`" ..
+        steamName ..
+        "`**\nIdentifier**`" ..
+        Identifier ..
+        "` \n**Discord:** <@" ..
+        discordId ..
+        ">**\nIP: **`" .. ip .. "`\n `" .. description .. "`"
+
+    Discord(webhook, title, message)
+end)
+
+-- alert staff of report
+RegisterServerEvent('vorp_admin:alertstaff', function(source)
+    local _source = source
+    local Character = VorpCore.getUser(_source).getUsedCharacter
+    local playername = Character.firstname .. ' ' .. Character.lastname --player char name
+
+    for id, staff in pairs(stafftable) do
+   
+        VorpCore.NotifyRightTip(staff, _U("player") .. playername .. _U("reportedtodiscord"), 4000)
+    end
+end)
+
+-- check if staff is available
+RegisterServerEvent("vorp_admin:getStaffInfo", function(source)
+    local _source = source
+    local Staff = VorpCore.getUser(_source).getUsedCharacter
+    local staffgroup = Staff.group
+
+    if staffgroup and staffgroup ~= "user" then
+        stafftable[#stafftable + 1] = _source
+    end
+
+end)
+
+RegisterNetEvent("vorp_admin:requeststaff", function(source,type)
+    local _source = source
+    local playerID = _source
+    local Character = VorpCore.getUser(_source).getUsedCharacter
+    local playername = Character.firstname .. ' ' .. Character.lastname --player char name
+    for id, staff in pairs(stafftable) do
+      
+        if type == "new" then
+            VorpCore.NotifyRightTip(staff, playername .. " ID: " .. playerID .. _U("requestingassistance") .. _U("New"), 4000)
+        elseif type == "bug" then
+            VorpCore.NotifyRightTip(staff, playername .. " ID: " .. playerID .. _U("requestingassistance") .. _U("Foundbug"), 4000)
+        elseif type == "rules" then
+            VorpCore.NotifyRightTip(staff,playername .. " ID: " .. playerID .. _U("requestingassistance") .. _U("Someonebrokerules"), 4000)
+        elseif type == "cheating" then
+            VorpCore.NotifyRightTip(staff, playername .. " ID: " ..playerID .. _U("requestingassistance") .. _U("Someonecheating"), 4000)
+        end
+
+    end
+
+end)
+
+-- remove staff from table
+AddEventHandler('playerDropped', function()
+    local _source = source
+    for index, value in pairs(stafftable) do
+        if value == _source then
+            stafftable[index] = nil
+        end
+    end
+
 end)

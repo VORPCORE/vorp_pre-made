@@ -1,11 +1,111 @@
 ----------------------------------------------------------------------------
 ---------------------------------- BOOSTERS --------------------------------
 local god = false
-local player = PlayerPedId()
+
 local goldenCores = false
 local infiniteammo = false
 local NoClipActive = false
 local timer
+
+function GODmode()
+    local player = PlayerPedId()
+    if not god then
+
+        TriggerEvent('vorp:TipRight', _U("switchedon"), 3000)
+        SetEntityCanBeDamaged(player, false)
+        SetEntityInvincible(player, true)
+        SetPedConfigFlag(player, 2, true) -- no critical hits
+        SetPedCanRagdoll(player, false)
+        SetPedCanBeTargetted(player, false)
+        Citizen.InvokeNative(0x5240864E847C691C, player, false) --set ped can be incapacitaded
+        SetPlayerInvincible(player, true)
+        Citizen.InvokeNative(0xFD6943B6DF77E449, player, false) -- set ped can be lassoed
+
+        if Config.BoosterLogs.GodMode then -- if nil dont send
+            TriggerServerEvent("vorp_admin:logs", Config.BoosterLogs.GodMode, _U("titlebooster"),
+                _U("usedgod"))
+        end
+        god = true
+    else
+
+        TriggerEvent('vorp:TipRight', _U("switchedoff"), 3000)
+        SetEntityCanBeDamaged(player, true)
+        SetEntityInvincible(player, false)
+        SetPedConfigFlag(player, 2, false)
+        SetPedCanRagdoll(player, true)
+        SetPedCanBeTargetted(player, true)
+        Citizen.InvokeNative(0x5240864E847C691C, player, true)
+        SetPlayerInvincible(PlayerId(), false)
+        Citizen.InvokeNative(0xFD6943B6DF77E449, player, true)
+        god = false
+    end
+end
+
+function GoldenCores()
+    local player = PlayerPedId()
+    if not goldenCores then
+        TriggerEvent('vorp:TipRight', _U("switchedon"), 3000)
+        -- inner cores
+        Citizen.InvokeNative(0xC6258F41D86676E0, player, 0, 100)
+        Citizen.InvokeNative(0xC6258F41D86676E0, player, 1, 100)
+        Citizen.InvokeNative(0xC6258F41D86676E0, player, 2, 100)
+
+        --outter cores
+        Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 0, 5000.0)
+        Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 1, 5000.0)
+        Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 2, 5000.0)
+
+        Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 1, 5000.0)
+        Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 2, 5000.0)
+        Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 0, 5000.0)
+        if Config.BoosterLogs.GoldenCores then
+            TriggerServerEvent("vorp_admin:logs", Config.BoosterLogs.GoldenCores, _U("titlebooster"),
+                _U("usedgoldcores"))
+        end
+        goldenCores = true
+    else
+
+        TriggerEvent('vorp:TipRight', _U("switchedoff"), 3000)
+        --inner cores
+        Citizen.InvokeNative(0xC6258F41D86676E0, player, 0, 100)
+        Citizen.InvokeNative(0xC6258F41D86676E0, player, 1, 100)
+        Citizen.InvokeNative(0xC6258F41D86676E0, player, 2, 100)
+
+        --outter cores
+        Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 0, 0.0)
+        Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 1, 0.0)
+        Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 2, 0.0)
+
+        Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 1, 0.0)
+        Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 2, 0.0)
+        Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 0, 0.0)
+        goldenCores = false
+    end
+end
+
+function InfiAmmo()
+    local player = PlayerPedId()
+    local _, weaponHash = GetCurrentPedWeapon(player, false, 0, false)
+    if not infiniteammo then
+
+        infiniteammo = true
+        local unarmed = -1569615261
+        TriggerEvent("vorp:TipRight", _U("switchedon"), 3000)
+        if weaponHash == unarmed then
+            TriggerEvent("vorp:Tip", _U("noweapon"), 3000)
+        else
+            SetPedInfiniteAmmo(player, true, weaponHash)
+            if Config.BoosterLogs.InfiniteAmmo then
+                TriggerServerEvent("vorp_admin:logs", Config.BoosterLogs.InfiniteAmmo, _U("titlebooster")
+                    , _U("usedinfinitammo"))
+            end
+        end
+    else
+        infiniteammo = false
+        TriggerEvent("vorp:TipRight", _U("switchedoff"), 3000)
+        SetPedInfiniteAmmo(player, false, weaponHash)
+    end
+end
 
 function Boost()
     MenuData.CloseAll()
@@ -23,7 +123,7 @@ function Boost()
         { label = _U("spawnhorse"), value = 'spawnhorse', desc = _U("spawnhorse_desc") },
         { label = _U("selfheal"), value = 'selfheal', desc = _U("selfheal_desc") },
         { label = _U("selfrevive"), value = 'selfrevive', desc = _U("selfrevive_desc") },
-        --{ label = "players bip map", value = 'playerblip', desc = "show players blip on the map" }, todo
+        --{ label = "players blip map", value = 'playerblip', desc = "show players blip on the map" }, todo
         --{ label = "players id", value = 'showid', desc = "show players id over head", }, todo
     }
 
@@ -45,29 +145,7 @@ function Boost()
                 TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.Godmode")
                 Wait(100)
                 if AdminAllowed then
-                    if not god then
-                        god = true
-                        TriggerEvent('vorp:TipRight', _U("switchedon"), 3000)
-                        SetEntityCanBeDamaged(player, false)
-                        SetEntityInvincible(player, true)
-                        SetPedConfigFlag(player, 2, true) -- no critical hits
-                        SetPedCanRagdoll(player, false)
-                        SetPedCanBeTargetted(player, false)
-                        Citizen.InvokeNative(0x5240864E847C691C, player, false) --set ped can be incapacitaded
-                        SetPlayerInvincible(player, true)
-                        Citizen.InvokeNative(0xFD6943B6DF77E449, player, false) -- set ped can be lassoed
-                    else
-                        god = false
-                        TriggerEvent('vorp:TipRight', _U("switchedoff"), 3000)
-                        SetEntityCanBeDamaged(player, true)
-                        SetEntityInvincible(player, false)
-                        SetPedConfigFlag(player, 2, false)
-                        SetPedCanRagdoll(player, true)
-                        SetPedCanBeTargetted(player, true)
-                        Citizen.InvokeNative(0x5240864E847C691C, player, true)
-                        SetPlayerInvincible(PlayerId(), false)
-                        Citizen.InvokeNative(0xFD6943B6DF77E449, player, true)
-                    end
+                    GODmode()
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -75,54 +153,26 @@ function Boost()
                 TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.Golden")
                 Wait(100)
                 if AdminAllowed then
-                    if not goldenCores then
-
-                        goldenCores = true
-                        TriggerEvent('vorp:TipRight', _U("switchedon"), 3000)
-                        -- inner cores
-                        Citizen.InvokeNative(0xC6258F41D86676E0, player, 0, 100)
-                        Citizen.InvokeNative(0xC6258F41D86676E0, player, 1, 100)
-                        Citizen.InvokeNative(0xC6258F41D86676E0, player, 2, 100)
-
-                        --outter cores
-                        Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 0, 5000.0)
-                        Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 1, 5000.0)
-                        Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 2, 5000.0)
-
-                        Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 1, 5000.0)
-                        Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 2, 5000.0)
-                        Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 0, 5000.0)
-                    else
-                        goldenCores = false
-                        TriggerEvent('vorp:TipRight', _U("switchedoff"), 3000)
-                        --inner cores
-                        Citizen.InvokeNative(0xC6258F41D86676E0, player, 0, 100)
-                        Citizen.InvokeNative(0xC6258F41D86676E0, player, 1, 100)
-                        Citizen.InvokeNative(0xC6258F41D86676E0, player, 2, 100)
-
-                        --outter cores
-                        Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 0, 0.0)
-                        Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 1, 0.0)
-                        Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 2, 0.0)
-
-                        Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 1, 0.0)
-                        Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 2, 0.0)
-                        Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 0, 0.0)
-                    end
+                    GoldenCores()
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "noclip" then
+                local player = PlayerPedId()
                 TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.Noclip")
                 Wait(100)
                 if AdminAllowed then
                     if not NoClipActive then
+
                         NoClipActive = true
                         TriggerEvent('vorp:TipRight', _U("switchedon"), 3000)
                         if Config.FrozenPosition then
                             SetEntityHeading(player, GetEntityHeading(player) + 180)
                         end
-
+                        if Config.BoosterLogs.NoClip then
+                            TriggerServerEvent("vorp_admin:logs", Config.BoosterLogs.NoClip, _U("titlebooster"),
+                                _U("usednoclip"))
+                        end
                     else
                         NoClipActive = false
                         timer = 5000
@@ -135,21 +185,7 @@ function Boost()
                 TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.InfiniteAmmo")
                 Wait(100)
                 if AdminAllowed then
-                    local _, weaponHash = GetCurrentPedWeapon(player, false, 0, false)
-                    if not infiniteammo then
-                        infiniteammo = true
-                        local unarmed = -1569615261
-                        TriggerEvent("vorp:TipRight", _U("switchedon"), 3000)
-                        if weaponHash == unarmed then
-                            TriggerEvent("vorp:Tip", _U("noweapon"), 3000)
-                        else
-                            SetPedInfiniteAmmo(player, true, weaponHash)
-                        end
-                    else
-                        infiniteammo = false
-                        TriggerEvent("vorp:TipRight", _U("switchedoff"), 3000)
-                        SetPedInfiniteAmmo(player, false, weaponHash)
-                    end
+                    InfiAmmo()
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -158,6 +194,12 @@ function Boost()
                 Wait(100)
                 if AdminAllowed then
                     TriggerEvent('vorp:resurrectPlayer')
+
+                    if Config.BoosterLogs.SelfRevive then
+                        TriggerServerEvent("vorp_admin:logs",
+                            Config.BoosterLogs.SelfRevive
+                            , _U("titlebooster"), _U("usedrevive"))
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -165,11 +207,17 @@ function Boost()
                 TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.SelfHeal")
                 Wait(100)
                 if AdminAllowed then
+                    if Config.BoosterLogs.SelfHeal then
+                        TriggerServerEvent("vorp_admin:logs",
+                            Config.BoosterLogs.SelfHeal
+                            , _U("titlebooster"), _U("usedheal"))
+                    end
                     TriggerEvent('vorp:heal')
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "spawnhorse" then
+                local player = PlayerPedId()
                 TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.SpawHorse")
                 Wait(100)
                 if AdminAllowed then
@@ -199,6 +247,11 @@ function Boost()
                             horse = CreatePed(horse, playerCoords.x, playerCoords.y, playerCoords.z, true, true, true)
                             Citizen.InvokeNative(0x77FF8D35EEC6BBC4, horse, 1, 0)
                             Citizen.InvokeNative(0x028F76B6E78246EB, player, horse, -1, true)
+                            if Config.BoosterLogs.SelfSpawnHorse then
+                                TriggerServerEvent("vorp_admin:logs",
+                                    Config.BoosterLogs.SelfSpawnHorse
+                                    , _U("titlebooster"), _U("spawned") .. horse)
+                            end
                         else
                             TriggerEvent('vorp:TipRight', _U("advalue"), 3000)
                         end
@@ -208,6 +261,7 @@ function Boost()
                 end
 
             elseif data.current.value == "spawnwagon" then
+                local player = PlayerPedId()
                 TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.SpawnWagon")
                 Wait(100)
                 if AdminAllowed then
@@ -240,6 +294,10 @@ function Boost()
                             wagon = CreateVehicle(wagon, playerCoords.x, playerCoords.y, playerCoords.z, true, true, true)
                             Citizen.InvokeNative(0x77FF8D35EEC6BBC4, wagon, 1, 0)
                             SetPedIntoVehicle(player, wagon, -1)
+                            if Config.BoosterLogs.SelfSpawnWagon then
+                                TriggerServerEvent("vorp_admin:logs", Config.BoosterLogs.SelfSpawnWagon
+                                    , _U("titlebooster"), _U("spawned") .. wagon)
+                            end
                         else
                             TriggerEvent('vorp:TipRight', _U("advalue"), 3000)
                         end
@@ -273,7 +331,7 @@ end
 
 --CREDITS to the author for the noclip
 Citizen.CreateThread(function()
-
+    local player = PlayerPedId()
     local index = 1
     local CurrentSpeed = Config.Speeds[index].speed
     local FollowCamMode = true

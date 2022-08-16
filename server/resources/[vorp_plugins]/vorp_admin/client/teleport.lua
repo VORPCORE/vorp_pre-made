@@ -31,6 +31,10 @@ function Teleport()
                 Wait(100)
                 if AdminAllowed then
                     TriggerEvent('vorp:teleportWayPoint')
+                    if Config.TeleportLogs.Tpm then
+                        TriggerServerEvent("vorp_admin:logs", Config.TeleportLogs.Tpm
+                            , _U("titleteleport"), _U("usedtpm"))
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -67,7 +71,10 @@ function Teleport()
                             Wait(2000)
                             SetEntityCoords(admin, x, y, z)
                             DoScreenFadeIn(3000)
-
+                            if Config.TeleportLogs.Tptocoords then
+                                TriggerServerEvent("vorp_admin:logs", Config.TeleportLogs.Tptocoords
+                                    , _U("titleteleport"), _U("usedtptocoords"))
+                            end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 5000)
                         end
@@ -83,6 +90,10 @@ function Teleport()
                         local TargetID = result
                         if TargetID ~= "" then
                             TriggerServerEvent("vorp_admin:TpToPlayer", TargetID)
+                            if Config.TeleportLogs.Tptoplayer then
+                                TriggerServerEvent("vorp_admin:logs", Config.TeleportLogs.Tptoplayer
+                                    , _U("titleteleport"), _U("usedtptoplayer") .. "\n playerID: " .. TargetID)
+                            end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
                         end
@@ -103,6 +114,10 @@ function Teleport()
                         if TargetID ~= "" and lastLocation then
                             local adminCoords = GetEntityCoords(PlayerPedId())
                             TriggerServerEvent("vorp_admin:Bring", TargetID, adminCoords)
+                            if Config.TeleportLogs.Bringplayer then
+                                TriggerServerEvent("vorp_admin:logs", Config.TeleportLogs.Bringplayer
+                                    , _U("titleteleport"), _U("usedbringplayer") .. "\n playerID: " .. TargetID)
+                            end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"))
                         end

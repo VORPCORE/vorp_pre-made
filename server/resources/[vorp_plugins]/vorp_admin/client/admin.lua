@@ -31,6 +31,7 @@ function Admin()
                 Wait(100)
 
                 if AdminAllowed then
+
                     PlayerList()
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
@@ -72,17 +73,17 @@ function PlayerList()
         elements[#elements + 1] = {
             label = playersInfo.PlayerName,
             value = "players" .. k,
-            desc = _U("SteamName").."<span style=color:MediumSeaGreen;> "
-                .. playersInfo.name .. "</span><br>".._U("ServerID").."<span style=color:MediumSeaGreen;>"
-                .. playersInfo.serverId .. "</span><br>".._U("PlayerGroup").."<span style=color:MediumSeaGreen;>"
-                .. playersInfo.Group .. "</span><br>".._U("PlayerJob").."<span style=color:MediumSeaGreen;>"
-                .. playersInfo.Job .. "</span>".._U("Grade").."<span style=color:MediumSeaGreen;>"
-                .. playersInfo.Grade .. "</span><br>".._U("Identifier").."<span style=color:MediumSeaGreen;>"
-                .. playersInfo.SteamId .. "</span><br>".._U("PlayerMoney").."<span style=color:MediumSeaGreen;>"
-                .. playersInfo.Money .. "</span><br>".._U("PlayerGold").."<span style=color:Gold;>"
-                .. playersInfo.Gold .. "</span><br>".._U("PlayerStaticID").."<span style=color:Red;>"
-                .. playersInfo.staticID .. "</span><br>".._U("PlyaerWhitelist").."<span style=color:Gold;>"
-                .. playersInfo.WLstatus .. "</span><br>".._U("PlayerWarnings").."<span style=color:Gold;>"
+            desc = _U("SteamName") .. "<span style=color:MediumSeaGreen;> "
+                .. playersInfo.name .. "</span><br>" .. _U("ServerID") .. "<span style=color:MediumSeaGreen;>"
+                .. playersInfo.serverId .. "</span><br>" .. _U("PlayerGroup") .. "<span style=color:MediumSeaGreen;>"
+                .. playersInfo.Group .. "</span><br>" .. _U("PlayerJob") .. "<span style=color:MediumSeaGreen;>"
+                .. playersInfo.Job .. "</span>" .. _U("Grade") .. "<span style=color:MediumSeaGreen;>"
+                .. playersInfo.Grade .. "</span><br>" .. _U("Identifier") .. "<span style=color:MediumSeaGreen;>"
+                .. playersInfo.SteamId .. "</span><br>" .. _U("PlayerMoney") .. "<span style=color:MediumSeaGreen;>"
+                .. playersInfo.Money .. "</span><br>" .. _U("PlayerGold") .. "<span style=color:Gold;>"
+                .. playersInfo.Gold .. "</span><br>" .. _U("PlayerStaticID") .. "<span style=color:Red;>"
+                .. playersInfo.staticID .. "</span><br>" .. _U("PlyaerWhitelist") .. "<span style=color:Gold;>"
+                .. playersInfo.WLstatus .. "</span><br>" .. _U("PlayerWarnings") .. "<span style=color:Gold;>"
                 .. playersInfo.warns .. "</span>", info = playersInfo
         }
 
@@ -221,6 +222,11 @@ function OpenSimpleActionMenu(PlayerInfo)
                             freeze = true
                             TriggerServerEvent("vorp_admin:freeze", target, freeze)
                             TriggerEvent("vorp:TipRight", _U("switchedon"), 3000)
+                            if Config.AdminLogs.Freezed then
+                                TriggerServerEvent("vorp_admin:logs",
+                                    Config.AdminLogs.Freezed
+                                    , _U("titleadmin"), _U("usedfreeze") .. "\n> " .. PlayerInfo.PlayerName)
+                            end
                         else
                             freeze = false
                             TriggerServerEvent("vorp_admin:freeze", target, freeze)
@@ -242,6 +248,11 @@ function OpenSimpleActionMenu(PlayerInfo)
 
                     local adminCoords = GetEntityCoords(PlayerPedId())
                     TriggerServerEvent("vorp_admin:Bring", target, adminCoords)
+                    if Config.AdminLogs.Bring then
+                        TriggerServerEvent("vorp_admin:logs",
+                            Config.AdminLogs.Bring
+                            , _U("titleadmin"), _U("usedbring") .. "\n> " .. PlayerInfo.PlayerName)
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -260,6 +271,11 @@ function OpenSimpleActionMenu(PlayerInfo)
                     local target = data.current.info
 
                     TriggerServerEvent("vorp_admin:TpToPlayer", target)
+                    if Config.AdminLogs.Goto then
+                        TriggerServerEvent("vorp_admin:logs",
+                            Config.AdminLogs.Goto
+                            , _U("titleadmin"), _U("usedgoto") .. "\n> " .. PlayerInfo.PlayerName)
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -275,6 +291,11 @@ function OpenSimpleActionMenu(PlayerInfo)
                 if AdminAllowed then
                     local target = data.current.info
                     TriggerServerEvent('vorp_admin:revive', target)
+                    if Config.AdminLogs.Revive then
+                        TriggerServerEvent("vorp_admin:logs",
+                            Config.AdminLogs.Revive
+                            , _U("titleadmin"), _U("usedreviveplayer") .. "\n> " .. PlayerInfo.PlayerName)
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -285,6 +306,11 @@ function OpenSimpleActionMenu(PlayerInfo)
                 if AdminAllowed then
                     local target = data.current.info
                     TriggerServerEvent('vorp_admin:heal', target)
+                    if Config.AdminLogs.Heal then
+                        TriggerServerEvent("vorp_admin:logs",
+                            Config.AdminLogs.Heal
+                            , _U("titleadmin"), _U("usedhealplayer") .. "\n> " .. PlayerInfo.PlayerName)
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -320,6 +346,11 @@ function OpenSimpleActionMenu(PlayerInfo)
                             else
 
                                 TriggerServerEvent("vorp_admin:warns", target, status, staticID, reason)
+                                if Config.AdminLogs.Warned then
+                                    TriggerServerEvent("vorp_admin:logs",
+                                        Config.AdminLogs.Warned
+                                        , _U("titleadmin"), _U("warned") .. reason .. "\n > " .. PlayerInfo.PlayerName)
+                                end
                             end
 
                         else
@@ -339,6 +370,11 @@ function OpenSimpleActionMenu(PlayerInfo)
                     local target = data.current.info2
                     local status = "unwarn"
                     TriggerServerEvent("vorp_admin:warns", target, status, staticID)
+                    if Config.AdminLogs.Unwarned then
+                        TriggerServerEvent("vorp_admin:logs",
+                            Config.AdminLogs.Unwarned
+                            , _U("titleadmin"), _U("unwarned") .. "\n > " .. staticID)
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -349,6 +385,11 @@ function OpenSimpleActionMenu(PlayerInfo)
                 if AdminAllowed then
                     local target = data.current.info
                     TriggerServerEvent("vorp_admin:spectate", target)
+                    if Config.AdminLogs.Spectate then
+                        TriggerServerEvent("vorp_admin:logs",
+                            Config.AdminLogs.Spectate
+                            , _U("titleadmin"), _U("usedspectate") .. "\n > " .. PlayerInfo.PlayerName)
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -413,6 +454,11 @@ function OpenAdvancedActions(Player)
                 if AdminAllowed then
                     local target = data.current.info
                     TriggerServerEvent("vorp_admin:respawnPlayer", target)
+                    if Config.AdminLogs.Respawn then
+                        TriggerServerEvent("vorp_admin:logs",
+                            Config.AdminLogs.Respawn
+                            , _U("titleadmin"), _U("usedrespawn") .. "\n > " .. Player.PlayerName)
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -441,10 +487,15 @@ function OpenAdvancedActions(Player)
                         local reason = tostring(result)
                         if reason ~= "" then
                             if targetGroup ~= "user" then
-                                TriggerEvent("vorp:TipRight",  _U("cantkickstaff"), 4000)
+                                TriggerEvent("vorp:TipRight", _U("cantkickstaff"), 4000)
                             else
 
                                 TriggerServerEvent("vorp_admin:kick", targetID, reason)
+                                if Config.AdminLogs.Kick then
+                                    TriggerServerEvent("vorp_admin:logs", Config.AdminLogs.Kick
+                                        , _U("titleadmin"), _U("usedkick") .. "\n > " .. Player.PlayerName ..
+                                        "\n: " .. reason)
+                                end
                             end
 
                         else
@@ -485,9 +536,14 @@ function OpenAdvancedActions(Player)
                         if time ~= "" then
 
                             if group ~= "user" then
-                                TriggerEvent("vorp:TipRight",  _U("cantbanstaff"), 4000)
+                                TriggerEvent("vorp:TipRight", _U("cantbanstaff"), 4000)
                             else
                                 TriggerServerEvent("vorp_admin:BanPlayer", target, staticID, time)
+                                if Config.AdminLogs.Ban then
+                                    TriggerServerEvent("vorp_admin:logs", Config.AdminLogs.Ban
+                                        , _U("titleadmin"), _U("usedban") .. "\n > " .. Player.PlayerName ..
+                                        "\n: " .. time)
+                                end
                             end
 
                         else
@@ -505,6 +561,11 @@ function OpenAdvancedActions(Player)
                 if AdminAllowed then
                     local staticID = data.current.info
                     TriggerEvent("vorp:unban", staticID)
+                    if Config.AdminLogs.Unban then
+                        TriggerServerEvent("vorp_admin:logs", Config.AdminLogs.Unban
+                            , _U("titleadmin"), _U("usedunban") .. "\n > " .. Player.PlayerName ..
+                            "\n: " .. staticID)
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -518,6 +579,10 @@ function OpenAdvancedActions(Player)
                     local type = "addWhiteList"
                     TriggerServerEvent("vorp_admin:Whitelist", target, staticID, type)
                     TriggerEvent("vorp:TipRight", _U("whiteset"), 5000)
+                    if Config.AdminLogs.Whitelist then
+                        TriggerServerEvent("vorp_admin:logs", Config.AdminLogs.Whitelist, _U("titleadmin"),
+                            _U("usedwhitelist") .. "\n > " .. Player.PlayerName .. "\n: " .. staticID)
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -532,6 +597,11 @@ function OpenAdvancedActions(Player)
                     local type = "removewhitelist"
                     TriggerServerEvent("vorp_admin:Whitelist", target, staticID, type)
                     TriggerEvent("vorp:TipRight", _U("whiteremove"), 5000)
+                    if Config.AdminLogs.Unwhitelist then
+                        TriggerServerEvent("vorp_admin:logs", Config.AdminLogs.Unwhitelist
+                            , _U("titleadmin"), _U("usedunwhitelist") .. "\n > " .. Player.PlayerName ..
+                            "\n: " .. staticID)
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -560,6 +630,11 @@ function OpenAdvancedActions(Player)
 
                         if result ~= "" then
                             TriggerServerEvent("vorp_admin:setGroup", target, result)
+                            if Config.AdminLogs.Setgroup then
+                                TriggerServerEvent("vorp_admin:logs", Config.AdminLogs.Setgroup
+                                    , _U("titleadmin"), _U("usedsetgroup") .. "\n > " .. Player.PlayerName ..
+                                    "\ngroup: " .. result)
+                            end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
                         end
@@ -601,6 +676,11 @@ function OpenAdvancedActions(Player)
                             local jobname, jobgrade = tostring(splitstring[1]), tonumber(splitstring[2])
                             if jobname and jobgrade then
                                 TriggerServerEvent("vorp_admin:setJob", target, jobname, jobgrade)
+                                if Config.AdminLogs.Setjob then
+                                    TriggerServerEvent("vorp_admin:logs", Config.AdminLogs.Setjob
+                                        , _U("titleadmin"), _U("usedsetjob") .. "\n > " .. Player.PlayerName ..
+                                        "\njob:  " .. jobname .. " \ngrade: " .. jobgrade)
+                                end
                             end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
@@ -631,6 +711,7 @@ function Actions()
         { label = _U("deletewagon"), value = 'delwagon', desc = _U("deletewagon_desc") },
         { label = _U("deletewagonradius"), value = 'delwagonradius', desc = _U("deletewagonradius_desc") },
         { label = _U("getcoords"), value = 'getcoords', desc = _U("getcoords_desc") },
+        { label = _U("announce"), value = 'announce', desc = _U("announce_desc") },
 
     }
 
@@ -665,19 +746,7 @@ function Actions()
                 Wait(100)
 
                 if AdminAllowed then
-
-                    local wagon = GetVehiclePedIsIn(player, true)
-
-                    if IsPedInAnyVehicle(player, true) then
-                        wagon = GetVehiclePedIsIn(player, true)
-                    end
-                    if DoesEntityExist(wagon) then
-                        DeleteVehicle(wagon)
-                        DeleteEntity(wagon)
-                        TriggerEvent('vorp:TipRight', _U("youdeletedWagon"), 3000)
-                    else
-                        TriggerEvent('vorp:TipRight', _U("youneedtobeseatead"), 3000)
-                    end
+                    Delwagon()
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -721,6 +790,44 @@ function Actions()
 
                 if AdminAllowed then
                     OpenCoordsMenu()
+                else
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
+                end
+            elseif data.current.value == "announce" then
+
+                TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Announce')
+                Wait(100)
+
+                if AdminAllowed then
+
+                    local myInput = {
+                        type = "enableinput", -- dont touch
+                        inputType = "input",
+                        button = _U("confirm"), -- button name
+                        placeholder = _U("announce"), --placeholdername
+                        style = "block", --- dont touch
+                        attributes = {
+                            inputHeader = _U("announce"), -- header
+                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
+                            pattern = "[A-Za-z0-9 ]{5,100}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
+                            title = _U("lettersandnumbers"), -- if input doesnt match show this message
+                            style = "border-radius: 10px; backgRound-color: ; border:none;", -- style  the input
+                        }
+                    }
+
+                    TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
+                        local announce = result
+
+                        if announce ~= "" and announce then
+                            TriggerServerEvent("vorp_admin:announce", announce)
+                            if Config.AdminLogs.Announce then
+                                TriggerServerEvent("vorp_admin:logs", Config.AdminLogs.Announce
+                                    , _U("titleadmin"), _U("usedannounce") .. "\n > " .. announce)
+                            end
+                        else
+                            TriggerEvent('vorp:TipRight', _U("advalue"), 3000)
+                        end
+                    end)
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end

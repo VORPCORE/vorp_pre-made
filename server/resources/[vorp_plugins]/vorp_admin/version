@@ -1,1 +1,17 @@
+<1.3>
+- fix god mode
+- fix golden cores
+- fix infiniteammo
+- added commands in users menu
+- del horse del wagon hideui clear animations
+- update all files including fx manifest
+<1.2>
+- added to users menu REPORTS to discord and in game will alert staff
+- added to users menu request staff, staff will get a message of the user requesting assistance
+- update all files
+<1.1>
+- webhooks for most and each action
+- choose what info should display on the scoreboard for users
+- send announcment messages
+- update all files
 <1.0>

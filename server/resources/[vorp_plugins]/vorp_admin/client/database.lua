@@ -8,16 +8,16 @@ function DataBase()
     for _, PlayersData in pairs(players) do
         elements[#elements + 1] = {
 
-            label =  PlayersData.PlayerName, value = "players",
-            desc = _U("SteamName").."<span style=color:MediumSeaGreen;> "
-                .. PlayersData.name .. "</span><br>".._U("ServerID").."<span style=color:MediumSeaGreen;>"
-                .. PlayersData.serverId .. "</span><br>".._U("PlayerGroup").."<span style=color:MediumSeaGreen;>"
-                .. PlayersData.Group .. "</span><br>".._U("PlayerJob").."<span style=color:MediumSeaGreen;>"
-                .. PlayersData.Job .. "</span>".._U("Grade").."<span style=color:MediumSeaGreen;>"
-                .. PlayersData.Grade .. "</span><br>".._U("Identifier").."<span style=color:MediumSeaGreen;>"
-                .. PlayersData.SteamId .. "</span><br>".._U("PlayerMoney").."<span style=color:MediumSeaGreen;>"
-                .. PlayersData.Money .. "</span><br>".._U("PlayerGold").."<span style=color:Gold;>"
-                .. PlayersData.Gold .. "</span><br>".._U("PlayerStaticID").."<span style=color:Red;>"
+            label = PlayersData.PlayerName, value = "players",
+            desc = _U("SteamName") .. "<span style=color:MediumSeaGreen;> "
+                .. PlayersData.name .. "</span><br>" .. _U("ServerID") .. "<span style=color:MediumSeaGreen;>"
+                .. PlayersData.serverId .. "</span><br>" .. _U("PlayerGroup") .. "<span style=color:MediumSeaGreen;>"
+                .. PlayersData.Group .. "</span><br>" .. _U("PlayerJob") .. "<span style=color:MediumSeaGreen;>"
+                .. PlayersData.Job .. "</span>" .. _U("Grade") .. "<span style=color:MediumSeaGreen;>"
+                .. PlayersData.Grade .. "</span><br>" .. _U("Identifier") .. "<span style=color:MediumSeaGreen;>"
+                .. PlayersData.SteamId .. "</span><br>" .. _U("PlayerMoney") .. "<span style=color:MediumSeaGreen;>"
+                .. PlayersData.Money .. "</span><br>" .. _U("PlayerGold") .. "<span style=color:Gold;>"
+                .. PlayersData.Gold .. "</span><br>" .. _U("PlayerStaticID") .. "<span style=color:Red;>"
                 .. PlayersData.Gold .. "</span>", PlayerData = PlayersData
         }
 
@@ -160,6 +160,12 @@ function GivePlayers(PlayerData)
                             end
                             local itemName, itemQuantity = tostring(splitString[1]), tonumber(splitString[2])
                             TriggerServerEvent("vorp_admin:givePlayer", targetID, type, itemName, itemQuantity)
+                            if Config.DatabaseLogs.Giveitem then
+                                TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Giveitem, _U("titledatabase"),
+                                    _U("usedgiveitem") ..
+                                    "\nPlayer: " ..
+                                    PlayerData.PlayerName .. "\nitem: " .. itemName .. "\nQTY: " .. itemQuantity)
+                            end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
                         end
@@ -192,6 +198,11 @@ function GivePlayers(PlayerData)
                             local weaponName = result
                             local type = "weapon"
                             TriggerServerEvent("vorp_admin:givePlayer", targetID, type, weaponName)
+                            if Config.DatabaseLogs.Giveweapon then
+                                TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Giveweapon, _U("titledatabase")
+                                    , _U("usedgiveweapon") ..
+                                    "\nPlayer: " .. PlayerData.PlayerName .. "\nweapon: " .. weaponName)
+                            end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
                         end
@@ -229,6 +240,13 @@ function GivePlayers(PlayerData)
                             end
                             local moneyType, Quantity = tonumber(splitString[1]), tonumber(splitString[2])
                             TriggerServerEvent("vorp_admin:givePlayer", targetID, type, moneyType, Quantity)
+                            if Config.DatabaseLogs.Givecurrency then
+                                TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Givecurrency,
+                                    _U("titledatabase")
+                                    , _U("usedgivecurrency") ..
+                                    "\nPlayer: " .. PlayerData.PlayerName .. "\ntype: " .. moneyType ..
+                                    "\nQTY: " .. Quantity)
+                            end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
                         end
@@ -266,6 +284,11 @@ function GivePlayers(PlayerData)
                             local Hashname, Horsename, Horsesex = tostring(splitString[1]), tostring(splitString[2]),
                                 tonumber(splitString[3])
                             TriggerServerEvent("vorp_admin:givePlayer", targetID, type, Hashname, Horsename, Horsesex)
+                            if Config.DatabaseLogs.Givehorse then
+                                TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Givehorse, _U("titledatabase")
+                                    , _U("usedgivehorse") ..
+                                    "\nPlayer: " .. PlayerData.PlayerName .. "\nhorse: " .. Hashname)
+                            end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
                         end
@@ -303,6 +326,11 @@ function GivePlayers(PlayerData)
                             end
                             local Modelname, Wagonname = tostring(splitString[1]), tostring(splitString[2])
                             TriggerServerEvent("vorp_admin:givePlayer", targetID, type, Modelname, Wagonname)
+                            if Config.DatabaseLogs.Givewagon then
+                                TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Givewagon, _U("titledatabase")
+                                    , _U("usedgivewagon") ..
+                                    "\nPlayer: " .. PlayerData.PlayerName .. "\nwagon: " .. Modelname)
+                            end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
                         end
@@ -373,6 +401,11 @@ function RemovePlayers(PlayerData)
                     local targetID = data.current.info
                     local type = "money"
                     TriggerServerEvent("vorp_admin:ClearCurrency", targetID, type)
+                    if Config.DatabaseLogs.Clearmoney then
+                        TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Clearmoney, _U("titledatabase")
+                            , _U("usedclearmoney") ..
+                            "\nPlayer: " .. PlayerData.PlayerName .. "\nplayerID: " .. targetID .. "\ntype: " .. type)
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -383,6 +416,11 @@ function RemovePlayers(PlayerData)
                     local targetID = data.current.info
                     local type = "gold"
                     TriggerServerEvent("vorp_admin:ClearCurrency", targetID, type)
+                    if Config.DatabaseLogs.Cleargold then
+                        TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Cleargold, _U("titledatabase")
+                            , _U("usedcleargold") ..
+                            "\nPlayer: " .. PlayerData.PlayerName .. "\nplayerID: " .. targetID .. "\ntype: " .. type)
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -411,6 +449,12 @@ function RemovePlayers(PlayerData)
                         if result ~= "" then
                             if result == "yes" then
                                 TriggerServerEvent("vorp_admin:ClearAllItems", type, targetID)
+                                if Config.DatabaseLogs.Clearitems then
+                                    TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Clearitems,
+                                        _U("titledatabase")
+                                        , _U("usedclearitems") ..
+                                        "\nPlayer: " .. PlayerData.PlayerName .. "\nplayerID: " .. targetID)
+                                end
                             end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
@@ -446,6 +490,12 @@ function RemovePlayers(PlayerData)
                         if result ~= "" then
                             if result == "yes" then
                                 TriggerServerEvent("vorp_admin:ClearAllItems", type, targetID)
+                                if Config.DatabaseLogs.Clearweapons then
+                                    TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Clearweapons,
+                                        _U("titledatabase")
+                                        , _U("usedclearweapons") ..
+                                        "\nPlayer: " .. PlayerData.PlayerName .. "\nplayerID: " .. targetID)
+                                end
                             end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
@@ -475,12 +525,12 @@ function OpenInvnetory(inventorydata)
     MenuData.CloseAll()
     local elements = {}
 
-       for _, dataItems in pairs(inventorydata) do -- to prevent menu from opening empty and give errors
+    for _, dataItems in pairs(inventorydata) do -- to prevent menu from opening empty and give errors
 
         elements[#elements + 1] = { label = dataItems.label ..
             " <span style='margin-left:10px; color: Yellow;'>" .. dataItems.count .. '</span>', value = "",
             desc = dataItems.label }
-        end
+    end
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
             title    = _U("MenuTitle"),

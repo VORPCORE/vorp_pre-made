@@ -1,8 +1,11 @@
 Config = {
     --add your language
     defaultlang = "en_lang",
+
     Key = 0x3C3DD371, --PGDOWN open menu
-    CanOpenMenuWhenDead = true, -- if true any staff can open menu when dead, !WARNING! staff can abuse this to get revived ET
+
+    CanOpenMenuWhenDead = true, -- if true any staff can open menu when dead, !WARNING! staff can abuse this to get revived
+
     ---------------------- NO CLIP ----------------------
     ShowControls = false,
     Controls = {
@@ -35,26 +38,75 @@ Config = {
     },
 
     FrozenPosition = true,
+
+
     -----------------------------------------------------
-    -- PERMISSIONS
-    openMenu = { "admin", "moderator" }
+    -- Users scoreboard
+    -- only one can be added
+    -- choose what info should show to all users
+    showUsersInfo = "showAll", -- showAll --showJob --showGroup -- showID
 
+    --------------------------------------------------------
+    -- WEBHOOKS/LOGS
+    ReportLogs   = "", -- for reports
+    webhookColor = 16711680, --EMBED COLOR RED
+    name         = "VORP", --NAME OF EMBED
+    logo         = "https://via.placeholder.com/30x30", --HEAD LOGO
+    footerLogo   = "https://via.placeholder.com/30x30", --FOOTER LOGO
+    Avatar       = "https://via.placeholder.com/30x30", -- AVATAR LOGO
+    -- delete the ones you dont want to LOG into your discord.
+    BoosterLogs  = {
+        NoClip = "",
+        InfiniteAmmo = "",
+        GoldenCores = "",
+        GodMode = "",
+        SelfHeal = "",
+        SelfRevive = "",
+        SelfSpawnHorse = "",
+        SelfSpawnWagon = "",
+    },
+    -- delete the ones you dont want to LOG into your discord.
+    AdminLogs    = {
+        --simple actions
+        Freezed = "",
+        Bring = "",
+        Goto = "",
+        Revive = "",
+        Heal = "",
+        Warned = "",
+        Unwarned = "",
+        Spectate = "",
+        --advanced actions
+        Respawn = "",
+        Kick = "",
+        Ban = "",
+        Unban = "",
+        Whitelist = "",
+        Unwhitelist = "",
+        Setgroup = "",
+        Setjob = "",
+        Announce = ""
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    },
+    -- delete the ones you dont want to LOG into your discord.
+    TeleportLogs = {
+        Tpm = "",
+        Tptocoords = "",
+        Tptoplayer = "",
+        Bringplayer = "",
+    },
+    -- delete the ones you dont want to LOG into your discord.
+    DatabaseLogs = {
+        Giveitem = "",
+        Giveweapon = "",
+        Givecurrency = "",
+        Givehorse = "",
+        Givewagon = "",
+        Clearmoney = "",
+        Cleargold = "",
+        Clearitems = "",
+        Clearweapons = "",
+    }
 
 
 

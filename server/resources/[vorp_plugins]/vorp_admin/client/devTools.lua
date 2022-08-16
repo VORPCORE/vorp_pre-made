@@ -7,6 +7,8 @@ function OpenDevTools()
         { label = _U("spawnpedanimal"), value = 'spawnped', desc = _U("spawnpedanimal_desc") },
         { label = _U("getcoords"), value = 'getcoords', desc = _U("getcoords_desc") },
         { label = _U("spawnwagon"), value = 'spawnwagon', desc = _U("spawnwagon_desc") },
+        { label = _U("objectmenu"), value = 'delobject', desc = _U("object_desc") },
+
     }
 
 

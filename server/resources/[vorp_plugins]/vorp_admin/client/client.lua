@@ -23,15 +23,15 @@ AddEventHandler("onResourceStop", function(resourceName)
     end
 end)
 
-AddEventHandler('onClientResourceStart', function(resourceName)
-    if (GetCurrentResourceName() ~= resourceName) then
-        return
-    end
-    Wait(1000)
-    AdminAllowed = false
-    TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.OpenMenu")
 
+RegisterNetEvent('vorp:SelectedCharacter', function()
+    AdminAllowed = false
+    local player = GetPlayerServerId(tonumber(PlayerId()))
+    Wait(100)
+    TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.OpenMenu")
+    TriggerServerEvent("vorp_admin:getStaffInfo", player)
 end)
+
 
 
 Citizen.CreateThread(function()
@@ -154,7 +154,5 @@ end)
 
 -- show items inventory
 RegisterNetEvent("vorp_admin:getplayerInventory", function(inventorydata)
-
-        OpenInvnetory(inventorydata)
-   
+    OpenInvnetory(inventorydata)
 end)
