@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div id="app">
+      <div class="wrapper" v-if="visible">
+        <h2>Animation Dev Tool</h2>
+        <hr/>
+        <div><strong>Currently Playing: </strong>{{storage.name}}</div>
+        <hr/>
+        <h3>Prop Placement</h3>
+        <div>
+          <span>{</span>
+          <span>x = {{storage.x}},</span>
+          <span>y = {{storage.y}},</span>
+          <span>z = {{storage.z}},</span>
+
+          <span>xr = {{storage.xr}},</span>
+          <span>yr = {{storage.yr}},</span>
+          <span>zr = {{storage.zr}}</span>
+          <span>}</span>
+        </div>
+
+        <button @click="press('x', 'inc')">move x</button>
+        <button @click="press('y', 'inc')">move y</button>
+
+        <button @click="press('z', 'inc')">move z</button>
+        <br/>
+        <button @click="press('x', 'dec')">move -x</button>
+        <button @click="press('y', 'dec')">move -y</button>
+        
+        <button @click="press('z', 'dec')">move -z</button>
+        
+        <br/><br/>
+
+        <button @click="press('xr', 'inc')">move xr</button>
+        
+        <button @click="press('yr', 'inc')">move yr</button>
+        <button @click="press('zr', 'inc')">move zr</button>
+        <br/>
+
+        <button @click="press('xr', 'dec')">move -xr</button>
+        
+        <button @click="press('yr', 'dec')">move -yr</button>
+        <button @click="press('zr', 'dec')">move -zr</button>
+        
+        <br/><br/>
+
+        <label for="modifier" style="padding-right: 6px;">Modifier</label>
+        <input name="modifier" type="number" v-model="mod" />
+
+        <br/><br/>
+        <button @click="focus()">unFocus</button>
+        <button @click="stop()">stop</button>
+        
+        <hr/>
+        <small>
+          <h2 style="margin-bottom: 0px;">Commands</h2>
+          <div>/focus</div>
+          <div>/startanimation animationname</div>
+          <div>/endanimation animationname</div>
+        </small>
+      </div>
+    </div>
+  </body>
+</html>
+<!-- Import your JS and JS Vendor (vue.js) -->
+<script src="https://unpkg.com/vue@3.1.1/dist/vue.global.prod.js"></script> 
+<script src="app.js"></script>

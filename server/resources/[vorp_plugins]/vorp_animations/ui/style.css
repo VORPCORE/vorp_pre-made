@@ -1,0 +1,134 @@
+@font-face {
+  font-family: rdr;
+  src: url(assets/fonts/rdrlino-regular-webfont.woff);
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: transparent;
+  overflow: hidden;
+}
+
+#app {
+  font-family: rdr;
+  touch-action: manipulation;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #fff;
+}
+
+.wrapper {
+  text-align: center;
+  width: 20vw;
+  height: 65vh;
+
+  position: absolute;
+  left: 90%;
+  top: 2%;
+  transform: translate(-90%, -2%);
+
+  z-index: 999;
+  padding: 10px;
+}
+
+.wrapper::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 90%;
+  top: -170px;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: -1;
+  background-size: cover;
+  background-image: url(assets/inkroller.png);
+  background-repeat: no-repeat;
+  transform: rotate(180deg);
+}
+
+.copy {
+  width: 70%;
+  margin: 0 auto;
+}
+
+hr {
+  width: 85%;
+  text-align: center;
+  margin: 0 auto;
+  margin-top:6px;
+}
+
+span {
+  margin-right: 6px;
+  font-size: 12px;
+  color: rgb(219, 219, 219);
+}
+
+button {
+  border: 1px solid #948A8A;
+  text-align: center;
+  background-image: url(assets/selection_box_bg.png);
+  background-repeat: no-repeat;
+  background-position: center;
+
+  border: none;
+  background-size: 100% 100%;
+
+
+  color: white;
+  width: 100px;
+  height: 40px;
+  
+
+  position: relative;
+  user-select: none;
+  transition: all .3s;
+
+  margin: 2px;
+  border-radius: 2px;
+}
+
+.cancel {
+  background-color:rgb(143, 70, 70)
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: rgba(143, 70, 70, 0.644);
+  border-color: rgb(143, 70, 70);
+}
+
+/* Resolution support */
+@media (max-width: 1920px) {
+  .wrapper {
+    text-align: center;
+    width: 18vw;
+    height: 20vh;
+  
+    position: absolute;
+    left: 50%;
+    top: 2%;
+    transform: translate(-50%, -2%);
+  
+    z-index: 999;
+    padding: 10px;
+  }
+  .wrapper::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: -70px;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: -1;
+    background-size: cover;
+    background-image: url(assets/inkroller.png);
+    background-repeat: no-repeat;
+    transform: rotate(180deg);
+  }
+}
