@@ -16,5 +16,6 @@ Locales["en_lang"] = {
     PutOutFire = 'Putting out the campfire...',
     NotEnough = 'Not enough material for this recipe',
     NotJob = 'You dont have the required job ',
-    TooFull = 'Inventory is too full to craft'
+    TooFull = 'Inventory is too full to craft',
+    WeaponsFull = "You can't carry more weapons",
 }

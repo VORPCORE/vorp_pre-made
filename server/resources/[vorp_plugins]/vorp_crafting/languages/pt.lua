@@ -16,5 +16,6 @@ Locales["pt_lang"] = {
     PutOutFire = 'Apagando a fogueira...',
     NotEnough = 'Nao tem materias suficientes para fazer esta receita',
     NotJob = 'Nao tem o trabalho necessario ',
-    TooFull = 'O seu inventario esta demasiado cheio para craftar'
+    TooFull = 'O seu inventario esta demasiado cheio para craftar',
+    WeaponsFull = 'Você não pode carregar mais armas',
 }

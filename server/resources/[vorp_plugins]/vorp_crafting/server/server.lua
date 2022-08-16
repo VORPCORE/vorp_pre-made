@@ -79,35 +79,59 @@ AddEventHandler('vorp:startcrafting', function(craftable, countz)
                 -- Get Totals
                 local subcount = 0
                 local cancarry = false
+
                 for index, item in pairs(crafting.Items) do
                     local itemcount = item.count * countz
                     subcount = subcount + itemcount
                 end
-                local addcount = 0
-                for k, rwd in pairs(reward) do
-                    local counta = rwd.count * countz
-                    addcount = addcount + counta
 
-                    cancarry = VorpInv.canCarryItem(_source, rwd.name, counta)
-                end
+                -- Differentiate between items and weapons
+                if crafting.Type == "weapon" then
+                    local ammo = { ["nothing"] = 0 }
+                    local components = {}
+    
+                    -- Check that the user can carry weapons
+                    VorpInv.canCarryWeapons(_source, 1, function(canCarryWeapons)
+                        if canCarryWeapons  then
+                            -- Delete items to crafting
+                            for index, item in pairs(crafting.Items) do
+                                VorpInv.subItem(_source, item.name, item.count * countz)
+                            end
 
-                -- Check if there is enought room in inventory in general.
-                local invAvailable = VorpInv.canCarryItems(_source, addcount - subcount)
-                if invAvailable and cancarry then
-                    -- Loop through and remove each item
-                    for index, item in pairs(crafting.Items) do
-                        VorpInv.subItem(_source, item.name, item.count * countz)
+                            -- Give weapons from the crafting list
+                            for k, v in pairs(reward) do
+                                VorpInv.createWeapon(_source, v.name, ammo, components)
+                            end
+                            
+                            TriggerClientEvent("vorp:crafting", _source, crafting.Animation)
+                        else
+                            TriggerClientEvent("vorp:TipRight", _source, _U('WeaponsFull'), 3000)
+
+                        end
+                    end)
+                elseif crafting.Type == "item" then
+                    local addcount = 0
+                    for k, rwd in pairs(reward) do
+                        local counta = rwd.count * countz
+                        addcount = addcount + counta
+                        cancarry = VorpInv.canCarryItem(_source, rwd.name, counta)
                     end
-
-                    -- Give crafted item(s) to player
-                    for k, v in pairs(reward) do
-                        local countx = v.count * countz
-                        VorpInv.addItem(_source, v.name, countx)
+                    -- Check if there is enought room in inventory in general
+                    local invAvailable = VorpInv.canCarryItems(_source, addcount - subcount)
+                    if invAvailable and cancarry then
+                        -- Loop through and remove each item
+                        for index, item in pairs(crafting.Items) do
+                            VorpInv.subItem(_source, item.name, item.count * countz)
+                        end
+                        -- Give crafted item(s) to player
+                        for k, v in pairs(reward) do
+                            local countx = v.count * countz
+                            VorpInv.addItem(_source, v.name, countx)
+                        end
+                        TriggerClientEvent("vorp:crafting", _source, crafting.Animation)
+                    else
+                        TriggerClientEvent("vorp:TipRight", _source, _U('TooFull'), 3000)
                     end
-
-                    TriggerClientEvent("vorp:crafting", _source, crafting.Animation)
-                else
-                    TriggerClientEvent("vorp:TipRight", _source, _U('TooFull'), 3000)
                 end
             else
                 TriggerClientEvent("vorp:TipRight", _source, _U('NotEnough'), 3000)
