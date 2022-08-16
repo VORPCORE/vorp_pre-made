@@ -291,6 +291,7 @@ function WarMenu.CloseMenu()
 			setMenuVisible(currentMenu, false)
 			debugPrint(tostring(currentMenu)..' menu closed')
 			PlaySoundFrontend(-1, "QUIT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
+			ClearPedTasks(PlayerPedId())
 			optionCount = 0
 			currentMenu = nil
 			currentKey = nil

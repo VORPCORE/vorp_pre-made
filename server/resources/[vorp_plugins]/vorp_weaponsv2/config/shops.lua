@@ -1,11 +1,18 @@
-Config5 = {}
-
-Config5.weaponshops = { -- money for houses bought goes here. sellers have it to collected from here. 
+Config3 = {}
+Config3.Stores = {
+     -- money for houses bought goes here. sellers have it to collected from here. 
     Valentine = {	   -- you can add more wep markets by copy pasting this 
-        Pos = {x=-281.0, y=780.7, z=119.52}, -- location of wep market 
+        Pos = {x =-280.4646, y = 779.0331, z = 119.2540}, -- location of wep market 
         blipsprite = 202506373, -- blip sprite for wep market
         showblip = true, -- show blip or not 
-        Name = 'Weapons Shop', -- blip name 
+        StoreHoursAllowed = true, -- if you want the stores to use opening and closed hours
+        PromptName = "Weapons Shop ",
+        StoreOpen = 7, -- am
+        StoreClose = 21, -- pm
+        Name = 'Weapons Shop', -- Store name 
+        BlipName = "valentine Weapons", -- blip name
+        SpawnNPC = true,
+        NpcModel = "U_M_M_NbxGeneralStoreOwner_01",
         weapons = {
             ["Melee"] = {
                 ["Tradders Knife"] = {	
@@ -434,7 +441,7 @@ Config5.weaponshops = { -- money for houses bought goes here. sellers have it to
                 ["Arrow Normal"] = {
                    
                     price = .5, 
-                    item = "ammoarrmownormal",
+                    item = "ammoarrownormal",
                     
                 },
                 --[[ ["Arrow Dynamite"] = {
@@ -543,7 +550,14 @@ Config5.weaponshops = { -- money for houses bought goes here. sellers have it to
         Pos = {x=2716.73, y=-1285.27, z=49.63}, 
         blipsprite = 202506373,
         showblip = true,
-        Name = 'Weapons Shop', 
+        StoreHoursAllowed = true, -- if you want the stores to use opening and closed hours
+        StoreOpen = 7, -- am
+        StoreClose = 21, -- pm
+        Name = 'Weapons Shop', -- Store name 
+        PromptName = "Weapons Shop ",
+        BlipName = "Saint`s Weapons", -- blip name
+        SpawnNPC = true,
+        NpcModel = "U_M_M_NbxGeneralStoreOwner_01",
         weapons = {
             ["Melee"] = {
                 ["Tradders Knife"] = {	
@@ -1081,6 +1095,13 @@ Config5.weaponshops = { -- money for houses bought goes here. sellers have it to
         blipsprite = 202506373,
         showblip = true,
         Name = 'Weapons Shop', 
+        StoreHoursAllowed = true, -- if you want the stores to use opening and closed hours
+        StoreOpen = 7, -- am
+        StoreClose = 21, -- pm
+        Name = 'Weapons Shop', -- Store name 
+        BlipName = "Rhodes Weapons", -- blip name
+        SpawnNPC = true,
+        NpcModel = "U_M_M_NbxGeneralStoreOwner_01",
         weapons = {
             ["Melee"] = {
                 ["Tradders Knife"] = {	
@@ -1616,7 +1637,14 @@ Config5.weaponshops = { -- money for houses bought goes here. sellers have it to
         Pos = {x=2946.56, y=1319.68, z=44.82}, 
         blipsprite = 202506373,
         showblip = true,
-        Name = 'Weapons Shop', 
+        StoreHoursAllowed = true, -- if you want the stores to use opening and closed hours
+        StoreOpen = 7, -- am
+        StoreClose = 21, -- pm
+        Name = 'Weapons Shop', -- Store name 
+        PromptName = "Weapons Shop ",
+        BlipName = "valentine Weapons", -- blip name
+        SpawnNPC = true,
+        NpcModel = "U_M_M_NbxGeneralStoreOwner_01",
         weapons = {
             ["Melee"] = {
                 ["Tradders Knife"] = {	
@@ -2153,7 +2181,14 @@ Config5.weaponshops = { -- money for houses bought goes here. sellers have it to
         Pos = {x=-5508.327, y=-2964.35, z=-0.6288}, 
         blipsprite = 202506373,
         showblip = true,
-        Name = 'Weapons Shop', 
+        StoreHoursAllowed = true, -- if you want the stores to use opening and closed hours
+        StoreOpen = 7, -- am
+        StoreClose = 21, -- pm
+        Name = 'Weapons Shop', -- Store name 
+        BlipName = "Tumbleweed Weapons", -- blip name
+        SpawnNPC = true,
+        NpcModel = "U_M_M_NbxGeneralStoreOwner_01",
+        PromptName = "Weapons Shop ",
         weapons = {
             ["Melee"] = {
                 ["Tradders Knife"] = {	
