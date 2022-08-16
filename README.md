@@ -6,21 +6,13 @@ An official vorp pre-made server
   
 # Instalation
 
-* step 1 
+# step 1 
    * follow this [guide](https://outsider31000.github.io/VORP_API-docs/posts/intro/) on how to set up your server
-* alternatively follow the video [youtube video](https://www.youtube.com/watch?v=x-M3q9sV5IY&ab_channel=RIBSOSAY) its outdated. 
-* step 2
+   * alternatively follow the video [youtube video](https://www.youtube.com/watch?v=x-M3q9sV5IY&ab_channel=RIBSOSAY) its outdated. 
+
+# step 2
   * [menuapi](https://github.com/outsider31000/menuapi) you need this too
-##### IMPORTANT
 
-* step 3 
-   * you must download this resources.
-
-[CFX SERVER DATA FILES](https://github.com/citizenfx/cfx-server-data/tree/master/resources)
-
-and place them inside the folder called `resources`
-
-* do not rename any folders
 
 # OTHER PLUG INS
 
