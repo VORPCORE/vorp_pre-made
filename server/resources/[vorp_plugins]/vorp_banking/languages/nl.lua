@@ -35,8 +35,9 @@ Languages["nl"] = {
     success = "Je hebt het volgende betaald om jouw kluisruimte te vergroten: $ ",
     maxslots = "Je hebt het maximale aantal plaatsen bereikt: ",
     maxitems = "Het limiet voor dit voorwerp is: ",
-    depoitem3 = "Je hebt gestort: ",
-    of        = "x ", 
+    depoitem3 = "Je hebt opgeslagen: ",
+    of = "x ",
     withitem = "Je hebt opgenomen: ",
-    closed = "The bank is currently closed"
+    cant = "Je kunt dit voorwerp niet opslaan",
+    closed = "De bank is op dit moment gesloten"
 }

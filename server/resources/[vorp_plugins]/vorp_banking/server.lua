@@ -66,7 +66,7 @@ AddEventHandler('vorp_bank:UpgradeSafeBox', function(costlot, maxslots, amount, 
 end)
 
 RegisterServerEvent('vorp_bank:depositcash')
-AddEventHandler('vorp_bank:depositcash', function(amount, name)
+AddEventHandler('vorp_bank:depositcash', function(amount, name, bankinfo)
   local _source = source
   local Character = VorpCore.getUser(_source).getUsedCharacter
   local charidentifier = Character.charIdentifier
@@ -77,15 +77,24 @@ AddEventHandler('vorp_bank:depositcash', function(amount, name)
     exports.ghmattimysql:execute("UPDATE bank_users Set money=money+@money WHERE charidentifier=@charidentifier AND name = @name"
       , Parameters)
     TriggerClientEvent("vorp:TipRight", _source, Config.language.youdepo .. amount, 10000)
+
+    local bankinfo = {
+      money = bankinfo.money + amount,
+      gold = bankinfo.gold,
+      invspace = bankinfo.invspace,
+      name = bankinfo.name
+    }
+    TriggerClientEvent("vorp_bank:ReloadBankMenu", _source, bankinfo)
+
     Discord(Config.language.depoc, GetPlayerName(_source), amount, name)
   else
     TriggerClientEvent("vorp:TipRight", _source, Config.language.invalid, 10000)
   end
-  TriggerClientEvent("vorp_bank:ready", _source)
+  --TriggerClientEvent("vorp_bank:ready", _source)
 end)
 
 RegisterServerEvent('vorp_bank:depositgold')
-AddEventHandler('vorp_bank:depositgold', function(amount, name)
+AddEventHandler('vorp_bank:depositgold', function(amount, name, bankinfo)
   local _source = source
   local Character = VorpCore.getUser(_source).getUsedCharacter
   local charidentifier = Character.charIdentifier
@@ -96,15 +105,24 @@ AddEventHandler('vorp_bank:depositgold', function(amount, name)
     exports.ghmattimysql:execute("UPDATE bank_users Set gold=gold+@gold WHERE charidentifier=@charidentifier AND name = @name"
       , Parameters)
     TriggerClientEvent("vorp:TipRight", _source, Config.language.youdepog .. amount, 10000)
+
+    local bankinfo = {
+      money = bankinfo.money,
+      gold = bankinfo.gold + amount,
+      invspace = bankinfo.invspace,
+      name = bankinfo.name
+    }
+    TriggerClientEvent("vorp_bank:ReloadBankMenu", _source, bankinfo)
+
     Discord(Config.language.depog, GetPlayerName(_source), amount, name)
   else
     TriggerClientEvent("vorp:TipRight", _source, Config.language.invalid, 10000)
   end
-  TriggerClientEvent("vorp_bank:ready", _source)
+  --TriggerClientEvent("vorp_bank:ready", _source)
 end)
 
 RegisterServerEvent('vorp_bank:withcash')
-AddEventHandler('vorp_bank:withcash', function(amount, name)
+AddEventHandler('vorp_bank:withcash', function(amount, name, bankinfo)
   local _source = source
   local Character = VorpCore.getUser(_source).getUsedCharacter
   local charidentifier = Character.charIdentifier
@@ -117,16 +135,25 @@ AddEventHandler('vorp_bank:withcash', function(amount, name)
         , Parameters)
       Character.addCurrency(0, amount)
       TriggerClientEvent("vorp:TipRight", _source, Config.language.withdrew .. amount, 10000)
+
+      local bankinfo = {
+        money = bankinfo.money - amount,
+        gold = bankinfo.gold,
+        invspace = bankinfo.invspace,
+        name = bankinfo.name
+      }
+      TriggerClientEvent("vorp_bank:ReloadBankMenu", _source, bankinfo)
+
       Discord(Config.language.withc, GetPlayerName(_source), amount, name)
     else
       TriggerClientEvent("vorp:TipRight", _source, Config.language.invalid, 10000)
     end
-    TriggerClientEvent("vorp_bank:ready", _source)
+    --TriggerClientEvent("vorp_bank:ready", _source)
   end)
 end)
 
 RegisterServerEvent('vorp_bank:withgold')
-AddEventHandler('vorp_bank:withgold', function(amount, name)
+AddEventHandler('vorp_bank:withgold', function(amount, name, bankinfo)
   local _source = source
   local Character = VorpCore.getUser(_source).getUsedCharacter
   local charidentifier = Character.charIdentifier
@@ -139,11 +166,20 @@ AddEventHandler('vorp_bank:withgold', function(amount, name)
         , Parameters)
       Character.addCurrency(1, amount)
       TriggerClientEvent("vorp:TipRight", _source, Config.language.withdrewg .. amount, 10000)
+
+      local bankinfo = {
+        money = bankinfo.money,
+        gold = bankinfo.gold - amount,
+        invspace = bankinfo.invspace,
+        name = bankinfo.name
+      }
+      TriggerClientEvent("vorp_bank:ReloadBankMenu", _source, bankinfo)
+
       Discord(Config.language.withg, GetPlayerName(_source), amount, name)
     else
       TriggerClientEvent("vorp:TipRight", _source, Config.language.invalid, 10000)
     end
-    TriggerClientEvent("vorp_bank:ready", _source)
+    --TriggerClientEvent("vorp_bank:ready", _source)
   end)
 end)
 

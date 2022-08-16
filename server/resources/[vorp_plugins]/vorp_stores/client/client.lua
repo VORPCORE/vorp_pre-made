@@ -4,6 +4,7 @@ local OpenStores
 local CloseStores
 local PlayerJob
 local JobGrade
+local shopStocks = {} 
 local PromptGroup = GetRandomIntInRange(0, 0xffffff)
 local PromptGroup2 = GetRandomIntInRange(0, 0xffffff)
 local isInMenu = false
@@ -162,28 +163,29 @@ Citizen.CreateThread(function()
                             end
 
                         else -- job only
-
-                            TriggerServerEvent("vorp_stores:getPlayerJob")
-
-
-                            local distance = Vdist2(coords.x, coords.y, coords.z, storeConfig.x, storeConfig.y,
-                                storeConfig.z, true)
+                            local coordsDist = vector3(coords.x, coords.y, coords.z)
+                            local coordsStore = vector3(storeConfig.x, storeConfig.y, storeConfig.z)
+                            local distance = #(coordsDist - coordsStore)
 
                             if (distance <= storeConfig.distanceOpenStore) then
-                                if CheckJob(storeConfig.AllowedJobs, PlayerJob) then
-                                    if tonumber(storeConfig.JobGrade) <= tonumber(JobGrade) then
-                                        sleep = false
-                                        local label = CreateVarString(10, 'LITERAL_STRING', storeConfig.PromptName)
+                                TriggerServerEvent("vorp_stores:getPlayerJob")
+                                Wait(200)
+                                if PlayerJob then
+                                    if CheckJob(storeConfig.AllowedJobs, PlayerJob) then
+                                        if tonumber(storeConfig.JobGrade) <= tonumber(JobGrade) then
+                                            sleep = false
+                                            local label = CreateVarString(10, 'LITERAL_STRING', storeConfig.PromptName)
 
-                                        PromptSetActiveGroupThisFrame(PromptGroup, label)
-                                        if Citizen.InvokeNative(0xC92AC953F0A982AE, OpenStores) then
-                                            OpenCategory(storeId)
+                                            PromptSetActiveGroupThisFrame(PromptGroup, label)
+                                            if Citizen.InvokeNative(0xC92AC953F0A982AE, OpenStores) then
+                                                OpenCategory(storeId)
 
-                                            DisplayRadar(false)
-                                            TaskStandStill(player, -1)
+                                                DisplayRadar(false)
+                                                TaskStandStill(player, -1)
+                                            end
                                         end
                                     end
-                                end
+                                 end
                             end
 
 
@@ -221,31 +223,30 @@ Citizen.CreateThread(function()
 
                     else -- job only
 
-                        TriggerServerEvent("vorp_stores:getPlayerJob")
-
-                        while PlayerJob == nil do
-                            Wait(100)
-                        end
-
-                        local distance = Vdist2(coords.x, coords.y, coords.z, storeConfig.x, storeConfig.y,
-                            storeConfig.z, true)
+                        local coordsDist = vector3(coords.x, coords.y, coords.z)
+                        local coordsStore = vector3(storeConfig.x, storeConfig.y, storeConfig.z)
+                        local distance = #(coordsDist - coordsStore)
 
                         if (distance <= storeConfig.distanceOpenStore) then
-                            if CheckJob(storeConfig.AllowedJobs, PlayerJob) then
-                                if tonumber(storeConfig.JobGrade) <= tonumber(JobGrade) then
+                            TriggerServerEvent("vorp_stores:getPlayerJob")
+                            Wait(200)
+                            if PlayerJob then
+                                if CheckJob(storeConfig.AllowedJobs, PlayerJob) then
+                                    if tonumber(storeConfig.JobGrade) <= tonumber(JobGrade) then
 
-                                    sleep = false
-                                    local label = CreateVarString(10, 'LITERAL_STRING', storeConfig.PromptName)
+                                        sleep = false
+                                        local label = CreateVarString(10, 'LITERAL_STRING', storeConfig.PromptName)
 
-                                    PromptSetActiveGroupThisFrame(PromptGroup, label)
-                                    if Citizen.InvokeNative(0xC92AC953F0A982AE, OpenStores) then
-                                        OpenCategory(storeId)
+                                        PromptSetActiveGroupThisFrame(PromptGroup, label)
+                                        if Citizen.InvokeNative(0xC92AC953F0A982AE, OpenStores) then
+                                            OpenCategory(storeId)
 
-                                        DisplayRadar(false)
-                                        TaskStandStill(player, -1)
+                                            DisplayRadar(false)
+                                            TaskStandStill(player, -1)
+                                        end
                                     end
                                 end
-                            end
+                            end        
                         end
 
 
@@ -347,36 +348,69 @@ function OpenSellMenu(storeId, category)
     local storeConfig = Config.Stores[storeId]
 
     local elementIndex = 1
-
+    TriggerServerEvent("vorp_stores:getShopStock")
+    Citizen.Wait(100)
+    
     for index, storeItem in ipairs(Config.SellItems[storeId]) do
-        if storeItem.category == category then
+        local itemFound = false
 
-            if storeItem.category == category then
-                local ctp = ""
-                if storeItem.currencyType == "gold" then
-                    ctp = "#"
-                else
-                    ctp = "$"
+        if storeItem.category == category then
+            local ctp = ""
+            if storeItem.currencyType == "gold" then
+                ctp = "#"
+            else
+                ctp = "$"
+            end
+            if shopStocks[storeId] then
+                for k, items in pairs(shopStocks[storeId]) do
+                    if items.itemName == storeItem.itemName and items.type == "sell" then
+                        itemFound = true
+                        menuElements[elementIndex] = {
+                            itemHeight = "2vh",
+                            label = "<span style=font-size:15px;text-align:center;>" ..
+                            items.amount .. "</span>".."<img style='max-height:45px;max-width:45px;float: left;text-align: center; margin-top: -5px;' src='nui://vorp_inventory/html/img/items/" ..
+                                storeItem.itemName .. ".png'><span style=margin-left:40px;font-size:25px;text-align:center;>" ..
+                                storeItem.itemLabel .. "</span>",
+                            value = "sell" .. tostring(elementIndex),
+                            desc = "" ..
+                                '<span style="font-family: crock; src:nui://menuapi/html/fonts/crock.ttf) format("truetype")</span>' ..
+                                _U("sellfor") .. '<span style="margin-left:90px;">' .. '<span style="font-size:25px;">' .. ctp ..
+                                '</span>' .. '<span style="font-size:30px;">' .. string.format("%.2f", storeItem.sellprice) ..
+                                "</span><span style='color: Yellow;'>  " .. storeItem.currencyType .. "</span><br><br><br>" ..
+                                storeItem.desc,
+                            info = storeItem
+            
+                        }
+            
+                        elementIndex = elementIndex + 1
+    
+                    end
                 end
+  
+            end
+            
+            if not itemFound then
                 menuElements[elementIndex] = {
                     itemHeight = "2vh",
-                    label = "<img style='max-height:45px;max-width:45px;float: left;text-align: center; margin-top: -5px;' src='nui://vorp_inventory/html/img/items/" ..
+                    label = "<span style=font-size:15px;text-align:left;>∞</span>".."<img style='max-height:45px;max-width:45px;float: left;text-align: center; margin-top: -5px;' src='nui://vorp_inventory/html/img/items/" ..
                         storeItem.itemName .. ".png'><span style=margin-left:40px;font-size:25px;text-align:center;>" ..
                         storeItem.itemLabel .. "</span>",
                     value = "sell" .. tostring(elementIndex),
                     desc = "" ..
                         '<span style="font-family: crock; src:nui://menuapi/html/fonts/crock.ttf) format("truetype")</span>' ..
                         _U("sellfor") .. '<span style="margin-left:90px;">' .. '<span style="font-size:25px;">' .. ctp ..
-                        '</span>' .. '<span style="font-size:30px;">' .. storeItem.sellprice ..
+                        '</span>' .. '<span style="font-size:30px;">' .. string.format("%.2f", storeItem.sellprice) ..
                         "</span><span style='color: Yellow;'>  " .. storeItem.currencyType .. "</span><br><br><br>" ..
                         storeItem.desc,
                     info = storeItem
-
+    
                 }
-
+    
                 elementIndex = elementIndex + 1
+    
+                
             end
-
+            
         end
 
     end
@@ -423,7 +457,7 @@ function OpenSellMenu(storeId, category)
 
                 if qty ~= nil and qty ~= 0 and qty > 0 then
 
-                    TriggerServerEvent("vorp_stores:sell", ItemLabel, ItemName, currencyType, sellPrice, qty) -- sell it
+                    TriggerServerEvent("vorp_stores:sell", ItemLabel, ItemName, currencyType, sellPrice, qty,storeId) -- sell it
 
                 else
 
@@ -449,10 +483,12 @@ function OpenBuyMenu(storeId, category)
     local menuElements = {}
     local player = PlayerPedId()
     local storeConfig = Config.Stores[storeId]
-
     local elementIndex = 1
+    TriggerServerEvent("vorp_stores:getShopStock")
+    Citizen.Wait(100)
 
     for index, storeItem in ipairs(Config.BuyItems[storeId]) do
+        local itemFound = false
 
         if storeItem.category == category then
             local ctp = ""
@@ -461,25 +497,56 @@ function OpenBuyMenu(storeId, category)
             else
                 ctp = "$"
             end
-
-            menuElements[elementIndex] = {
-                itemHeight = "2vh",
-                label = "<img style='max-height: 40px;max-width: 40px;float: left;text-align: center;margin-top: -5px;' src='nui://vorp_inventory/html/img/items/" ..
-                    storeItem.itemName .. ".png'><span style=margin-left:40px;font-size:25px;text-align:center;>" ..
-                    storeItem.itemLabel .. "</span>",
-                value = "sell" .. tostring(elementIndex),
-                desc = "" ..
-                    '<span style="font-family: crock; src:nui://menuapi/html/fonts/crock.ttf) format("truetype")</span>' ..
-                    _U("buyfor") .. '<span style="margin-left:90px;">' .. '<span style="font-size:25px;">' .. ctp ..
-                    '</span>' .. '<span style="font-size:30px;">' .. storeItem.buyprice ..
-                    "</span><span style='color:Yellow;'>  " .. storeItem.currencyType .. "</span><br><br><br>" ..
-                    storeItem.desc,
-                info = storeItem
-
-            }
-
-            elementIndex = elementIndex + 1
-
+            if shopStocks[storeId] then
+                for k, items in pairs(shopStocks[storeId]) do
+                    if items.itemName == storeItem.itemName and items.type == "buy" then
+                        itemFound = true
+                        menuElements[elementIndex] = {
+                            itemHeight = "2vh",
+                            label = "<span style=font-size:15px;text-align:center;>" ..
+                            items.amount .. "</span>".." <img style='max-height: 40px;max-width: 40px;float: left;text-align: center;margin-top: -5px;' src='nui://vorp_inventory/html/img/items/" ..
+                                storeItem.itemName .. ".png'><span style=margin-left:40px;font-size:25px;text-align:center;>" ..
+                                storeItem.itemLabel .. "</span>",
+                            value = "sell" .. tostring(elementIndex),
+                            desc = "" ..
+                                '<span style="font-family: crock; src:nui://menuapi/html/fonts/crock.ttf) format("truetype")</span>' ..
+                                _U("buyfor") .. '<span style="margin-left:90px;">' .. '<span style="font-size:25px;">' .. ctp ..
+                                '</span>' .. '<span style="font-size:30px;">' .. string.format("%.2f", storeItem.buyprice) ..
+                                "</span><span style='color:Yellow;'>  " .. storeItem.currencyType .. "</span><br><br><br>" ..
+                                storeItem.desc,
+                            info = storeItem
+            
+                        }
+            
+                        elementIndex = elementIndex + 1
+    
+                    end
+                end
+  
+            end
+            
+            if not itemFound then
+                menuElements[elementIndex] = {
+                    itemHeight = "2vh",
+                    label = "<span style=font-size:15px;text-align:left;>∞</span>".. "<img style='max-height: 40px;max-width: 40px;float: left;text-align: center;margin-top: -5px;' src='nui://vorp_inventory/html/img/items/" ..
+                        storeItem.itemName .. ".png'><span style=margin-left:40px;font-size:25px;text-align:center;>" ..
+                        storeItem.itemLabel .. "</span>",
+                    value = "sell" .. tostring(elementIndex),
+                    desc = "" ..
+                        '<span style="font-family: crock; src:nui://menuapi/html/fonts/crock.ttf) format("truetype")</span>' ..
+                        _U("buyfor") .. '<span style="margin-left:90px;">' .. '<span style="font-size:25px;">' .. ctp ..
+                        '</span>' .. '<span style="font-size:30px;">' .. string.format("%.2f", storeItem.buyprice) ..
+                        "</span><span style='color:Yellow;'>  " .. storeItem.currencyType .. "</span><br><br><br>" ..
+                        storeItem.desc,
+                    info = storeItem
+    
+                }
+    
+                elementIndex = elementIndex + 1
+    
+                
+            end
+            
         end
 
     end
@@ -527,7 +594,7 @@ function OpenBuyMenu(storeId, category)
                 local qty = tonumber(result)
                 if qty ~= nil and qty ~= 0 and qty > 0 then
 
-                    TriggerServerEvent("vorp_stores:buy", ItemLabel, ItemName, currencyType, buyPrice, qty) -- sell it
+                    TriggerServerEvent("vorp_stores:buy", ItemLabel, ItemName, currencyType, buyPrice, qty,storeId) -- sell it
                 else
                     TriggerEvent("vorp:TipRight", _U("insertamount"), 3000)
                 end
@@ -543,6 +610,11 @@ function OpenBuyMenu(storeId, category)
     end)
 
 end
+
+RegisterNetEvent("vorp_stores:sendShopStock")
+AddEventHandler("vorp_stores:sendShopStock", function(stock)
+    shopStocks = stock
+end)
 
 RegisterNetEvent("vorp_stores:sendPlayerJob")
 AddEventHandler("vorp_stores:sendPlayerJob", function(Job, grade)

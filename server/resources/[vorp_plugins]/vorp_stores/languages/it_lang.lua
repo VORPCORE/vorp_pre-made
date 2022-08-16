@@ -28,5 +28,7 @@ Locales["it_lang"] = {
     cantcarry = "Non puoi trasportare più niente",
     closed = "~e~CLOSED ~o~",
     am = ":00~q~am to ~o~",
-    pm = ":00~q~pm"
+    pm = ":00~q~pm",
+    limitSell = "Non compro più così tanto di questo articolo",
+    limitBuy = "Sfortunatamente non ne ho più così tanto in magazzino."
 }

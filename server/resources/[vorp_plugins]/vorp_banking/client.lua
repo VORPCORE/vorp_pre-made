@@ -112,6 +112,18 @@ AddEventHandler("vorp_bank:ready", function()
     inmenu = false
 end)
 
+RegisterNetEvent("vorp_bank:ReloadBankMenu")
+AddEventHandler("vorp_bank:ReloadBankMenu", function(_bankinfo)
+    local Menu = MenuData.GetOpened ("default", GetCurrentResourceName(), "menuapi")
+    bankinfo = _bankinfo
+
+    while bankinfo == nil do
+        Citizen.Wait(50)
+    end
+
+    Openbank(Menu.data.title)
+end)
+
 Citizen.CreateThread(function()
     PromptSetUp()
     PromptSetUp2()
@@ -282,7 +294,7 @@ function Openbank(bankName)
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
                     local result = tonumber(cb)
                     if result ~= "" and result then
-                        TriggerServerEvent("vorp_bank:depositcash", result, bank)
+                        TriggerServerEvent("vorp_bank:depositcash", result, bank, bankinfo)
                     else
                         TriggerEvent("vorp:TipBottom", Config.language.invalid, 6000)
                         inmenu = false
@@ -309,7 +321,7 @@ function Openbank(bankName)
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
                     local result = tonumber(cb)
                     if result ~= "" and result then
-                        TriggerServerEvent("vorp_bank:depositgold", result, bank)
+                        TriggerServerEvent("vorp_bank:depositgold", result, bank, bankinfo)
                     else
                         TriggerEvent("vorp:TipBottom", Config.language.invalid, 6000)
                         inmenu = false
@@ -336,7 +348,7 @@ function Openbank(bankName)
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
                     local result = tonumber(cb)
                     if result ~= "" and result then
-                        TriggerServerEvent("vorp_bank:withcash", result, bank)
+                        TriggerServerEvent("vorp_bank:withcash", result, bank, bankinfo)
                     else
                         TriggerEvent("vorp:TipBottom", Config.language.invalid, 6000)
                         inmenu = false
@@ -363,7 +375,7 @@ function Openbank(bankName)
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
                     local result = tonumber(cb)
                     if result ~= "" and result then
-                        TriggerServerEvent("vorp_bank:withgold", result, bank)
+                        TriggerServerEvent("vorp_bank:withgold", result, bank, bankinfo)
                     else
                         TriggerEvent("vorp:TipBottom", Config.language.invalid, 6000)
                         inmenu = false
@@ -422,3 +434,12 @@ function Openbank(bankName)
             ClearPedTasks(PlayerPedId())
         end)
 end
+-- open doors
+CreateThread(function()
+    for door, state in pairs(Config.Doors) do
+        if not IsDoorRegisteredWithSystem(door) then
+            Citizen.InvokeNative(0xD99229FE93B46286, door, 1, 1, 0, 0, 0, 0)
+        end
+        DoorSystemSetDoorState(door, state)
+    end
+end)

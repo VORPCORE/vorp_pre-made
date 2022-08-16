@@ -28,5 +28,7 @@ Locales["fr_lang"] = {
     cantcarry = " vous ne pouvez pas porter cet item",
     closed = "~e~FERMÉ ~o~",
     am = ":00~q~am à ~o~",
-    pm = ":00~q~pm"
+    pm = ":00~q~pm",
+    limitSell = "Je n'achète plus autant de cet objet",
+    limitBuy = "Je n'en ai malheureusement plus beaucoup en réserve."
 }
