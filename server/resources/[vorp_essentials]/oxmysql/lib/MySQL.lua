@@ -61,7 +61,7 @@ local function safeArgs(query, parameters, cb, transaction)
 end
 
 local promise = promise
-local oxmysql = exports.ghmattimysql
+local oxmysql = exports.oxmysql
 local Await = Citizen.Await
 local GetCurrentResourceName = GetCurrentResourceName()
 
@@ -79,7 +79,7 @@ end
 
 setmetatable(MySQL, {
 	__index = function(self, method)
-		local state = GetResourceState('ghmattimysql')
+		local state = GetResourceState('oxmysql')
 		if state == 'started' or state == 'starting' then
 			self[method] = setmetatable({}, {
 

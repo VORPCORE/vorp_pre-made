@@ -1,7 +1,5 @@
 <h1 align='center'><a href='https://overextended.github.io/docs/oxmysql/'>Documentation</a></h2>
 
-# YOU MUST RENAME THE FOLDER TO `ghmattimysql` OR IT WONT WORK.
-
 ### Introduction
 
 Oxmysql is an alternative to the unmaintained mysql-async/ghmattimysql resources, utilising [node-mysql2](https://github.com/sidorares/node-mysql2) rather than [mysqljs](https://github.com/mysqljs/mysql).

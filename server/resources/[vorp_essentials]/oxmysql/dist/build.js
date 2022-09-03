@@ -14809,14 +14809,19 @@ var require_mysql2 = __commonJS({
 });
 
 // src/config/index.ts
-var resourceName, mysql_debug, mysql_ui, mysql_slow_query_warning, mysql_connection_string, mysql_transaction_isolation_level;
+var resourceName, mysql_ui, mysql_slow_query_warning, mysql_connection_string, mysql_debug, mysql_transaction_isolation_level, parseUri, connectionOptions;
 var init_config = __esm({
   "src/config/index.ts"() {
     resourceName = GetCurrentResourceName();
-    mysql_debug = GetConvar("mysql_debug", "false") === "true";
     mysql_ui = GetConvar("mysql_ui", "false") === "true";
     mysql_slow_query_warning = GetConvarInt("mysql_slow_query_warning", 200);
     mysql_connection_string = GetConvar("mysql_connection_string", "");
+    try {
+      const debug = GetConvar("mysql_debug", "false");
+      mysql_debug = debug === "false" ? false : JSON.parse(debug);
+    } catch (e2) {
+      mysql_debug = true;
+    }
     mysql_transaction_isolation_level = (() => {
       const query = "SET TRANSACTION ISOLATION LEVEL";
       switch (GetConvarInt("mysql_transaction_isolation_level", 2)) {
@@ -14832,6 +14837,57 @@ var init_config = __esm({
           return `${query} READ COMMITTED`;
       }
     })();
+    parseUri = (connectionString) => {
+      const splitMatchGroups = connectionString.match(new RegExp("^(?:([^:/?#.]+):)?(?://(?:([^/?#]*)@)?([\\w\\d\\-\\u0100-\\uffff.%]*)(?::([0-9]+))?)?([^?#]+)?(?:\\?([^#]*))?$"));
+      if (!splitMatchGroups)
+        throw new Error(`mysql_connection_string structure was invalid (${connectionString})`);
+      const authTarget = splitMatchGroups[2] ? splitMatchGroups[2].split(":") : [];
+      const options = {
+        user: authTarget[0] || void 0,
+        password: authTarget[1] || void 0,
+        host: splitMatchGroups[3],
+        port: parseInt(splitMatchGroups[4]),
+        database: splitMatchGroups[5].replace(/^\/+/, ""),
+        ...splitMatchGroups[6] && splitMatchGroups[6].split("&").reduce((connectionInfo, parameter) => {
+          const [key, value] = parameter.split("=");
+          connectionInfo[key] = value;
+          return connectionInfo;
+        }, {})
+      };
+      return options;
+    };
+    connectionOptions = (() => {
+      const options = mysql_connection_string.includes("mysql://") ? parseUri(mysql_connection_string) : mysql_connection_string.replace(/(?:host(?:name)|ip|server|data\s?source|addr(?:ess)?)=/gi, "host=").replace(/(?:user\s?(?:id|name)?|uid)=/gi, "user=").replace(/(?:pwd|pass)=/gi, "password=").replace(/(?:db)=/gi, "database=").split(";").reduce((connectionInfo, parameter) => {
+        const [key, value] = parameter.split("=");
+        connectionInfo[key] = value;
+        return connectionInfo;
+      }, {});
+      options.namedPlaceholders = options.namedPlaceholders === "false" ? false : true;
+      return options;
+    })();
+    RegisterCommand("oxmysql_debug", (source2, args) => {
+      if (source2 !== 0)
+        return console.log("^3This command can only be run server side^0");
+      switch (args[0]) {
+        case "add":
+          if (!Array.isArray(mysql_debug))
+            mysql_debug = [];
+          mysql_debug.push(args[1]);
+          return console.log(`^3Added ${args[1]} to mysql_debug^0`);
+        case "remove":
+          if (Array.isArray(mysql_debug)) {
+            const index = mysql_debug.indexOf(args[1]);
+            if (index === -1)
+              return;
+            mysql_debug.splice(index, 1);
+            if (mysql_debug.length === 0)
+              mysql_debug = false;
+            return console.log(`^3Removed ${args[1]} from mysql_debug^0`);
+          }
+        default:
+          return console.log(`^3Usage: oxmysql add|remove <resource>^0`);
+      }
+    }, true);
   }
 });
 
@@ -21455,16 +21511,15 @@ var init_update = __esm({
           const release = await response.json();
           if (release.prerelease)
             return;
-          const currentVersion = GetResourceMetadata(resourceName, "version", 0).match(/(\d)\.(\d+)\.(\d+)/);
+          const currentVersion = GetResourceMetadata(resourceName, "version", 0).match(/(\d)\.(\d+\.\d+)/);
           if (!currentVersion)
             return;
-          const latestVersion = release.tag_name.match(/(\d)\.(\d+)\.(\d+)/);
+          const latestVersion = release.tag_name.match(/(\d)\.(\d+\.\d+)/);
           if (!latestVersion)
             return;
-          if (currentVersion[0] === latestVersion[0] || currentVersion[0] > latestVersion[0])
+          if (currentVersion[0] === latestVersion[0] || parseInt(currentVersion[1]) > parseInt(latestVersion[1]) || parseFloat(currentVersion[2]) > parseFloat(latestVersion[2]))
             return;
-          const updateMessage = currentVersion[3] < latestVersion[3] ? "patch" : currentVersion[2] < latestVersion[2] ? "an update" : "a major update";
-          console.log(`^3There is ${updateMessage} available for oxmysql - please update to the latest release (current version: ${currentVersion[0]})\r
+          console.log(`^3An update is available for oxmysql (current version: ${currentVersion[0]})\r
 ${release.html_url}^0`);
         } catch (e2) {
         }
@@ -21510,33 +21565,6 @@ var typeCast = (field, next) => {
 };
 
 // src/database/index.ts
-var parseUri = (connectionString) => {
-  const splitMatchGroups = connectionString.match(new RegExp("^(?:([^:/?#.]+):)?(?://(?:([^/?#]*)@)?([\\w\\d\\-\\u0100-\\uffff.%]*)(?::([0-9]+))?)?([^?#]+)?(?:\\?([^#]*))?$"));
-  if (!splitMatchGroups)
-    throw new Error(`mysql_connection_string structure was invalid (${connectionString})`);
-  const authTarget = splitMatchGroups[2] ? splitMatchGroups[2].split(":") : [];
-  const options = {
-    user: authTarget[0] || void 0,
-    password: authTarget[1] || void 0,
-    host: splitMatchGroups[3],
-    port: parseInt(splitMatchGroups[4]),
-    database: splitMatchGroups[5].replace(/^\/+/, ""),
-    ...splitMatchGroups[6] && splitMatchGroups[6].split("&").reduce((connectionInfo, parameter) => {
-      const [key, value] = parameter.split("=");
-      connectionInfo[key] = value;
-      return connectionInfo;
-    }, {})
-  };
-  return options;
-};
-var connectionOptions = (() => {
-  const options = mysql_connection_string.includes("mysql://") ? parseUri(mysql_connection_string) : mysql_connection_string.replace(/(?:host(?:name)|ip|server|data\s?source|addr(?:ess)?)=/gi, "host=").replace(/(?:user\s?(?:id|name)?|uid)=/gi, "user=").replace(/(?:pwd|pass)=/gi, "password=").replace(/(?:db)=/gi, "database=").split(";").reduce((connectionInfo, parameter) => {
-    const [key, value] = parameter.split("=");
-    connectionInfo[key] = value;
-    return connectionInfo;
-  }, {});
-  return options;
-})();
 var pool;
 var serverReady = false;
 setTimeout(() => {
@@ -21557,14 +21585,17 @@ setTimeout(() => {
 });
 
 // src/utils/parseArguments.ts
-var convertNamedPlaceholders = require_named_placeholders()();
+init_config();
+var convertNamedPlaceholders = connectionOptions.namedPlaceholders && require_named_placeholders()();
 var parseArguments = (invokingResource, query, parameters, cb) => {
   if (typeof query !== "string")
     throw new Error(`Query expected a string but received ${typeof query} instead`);
-  if (query.includes(":") && parameters && typeof parameters === "object" && !Array.isArray(parameters) || query.includes("@")) {
-    const placeholders = convertNamedPlaceholders(query, parameters);
-    query = placeholders[0];
-    parameters = placeholders[1];
+  if (convertNamedPlaceholders && parameters && typeof parameters === "object" && !Array.isArray(parameters)) {
+    if (query.includes(":") || query.includes("@")) {
+      const placeholders = convertNamedPlaceholders(query, parameters);
+      query = placeholders[0];
+      parameters = placeholders[1];
+    }
   }
   if (cb && typeof cb !== "function")
     cb = void 0;
@@ -21573,7 +21604,7 @@ var parseArguments = (invokingResource, query, parameters, cb) => {
     parameters = [];
   } else if (parameters === null || parameters === void 0)
     parameters = [];
-  if (!Array.isArray(parameters)) {
+  if (parameters && !Array.isArray(parameters)) {
     let arr = [];
     Object.entries(parameters).forEach((entry) => arr[parseInt(entry[0]) - 1] = entry[1]);
     parameters = arr;
@@ -21622,7 +21653,12 @@ var parseResponse = (type, result) => {
 init_config();
 var logStorage = {};
 var logQuery = (invokingResource, query, executionTime, parameters) => {
-  if (executionTime >= mysql_slow_query_warning || mysql_debug)
+  if (mysql_debug && Array.isArray(mysql_debug)) {
+    if (mysql_debug.includes(invokingResource)) {
+      console.log(`^3[DEBUG] ${invokingResource} took ${executionTime}ms to execute a query!
+      ${query} ${JSON.stringify(parameters)}^0`);
+    }
+  } else if (mysql_debug || executionTime >= mysql_slow_query_warning)
     console.log(`^3[${mysql_debug ? "DEBUG" : "WARNING"}] ${invokingResource} took ${executionTime}ms to execute a query!
     ${query} ${JSON.stringify(parameters)}^0`);
   if (!mysql_ui)
