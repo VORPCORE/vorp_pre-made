@@ -28,6 +28,6 @@ all we do is from our free wil
 
 [VORP DISCORD](https://discord.gg/DHGVAbCj7N)
 
-## VORP OFFICAL GITHUB PAGE 
+## VORP OFFICAL GITHUB PAGE ##
 
 [VORP GITHUB](https://github.com/VORPCORE)
