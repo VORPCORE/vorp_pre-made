@@ -1,10 +1,3 @@
--- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Server version:               10.4.14-MariaDB - mariadb.org binary distribution
--- Server OS:                    Win64
--- HeidiSQL Version:             11.3.0.6295
--- --------------------------------------------------------
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET NAMES utf8 */;
 /*!50503 SET NAMES utf8mb4 */;
@@ -12,26 +5,14 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-
--- Dumping database structure for vorpv2
 CREATE DATABASE IF NOT EXISTS `vorpv2` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 USE `vorpv2`;
 
--- Dumping structure for table vorpv2.banks
 CREATE TABLE IF NOT EXISTS `banks` (
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.banks: ~3 rows (approximately)
-/*!40000 ALTER TABLE `banks` DISABLE KEYS */;
-INSERT INTO `banks` (`name`) VALUES
-	('Blackwater'),
-	('Saint Denis'),
-	('Valentine');
-/*!40000 ALTER TABLE `banks` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.bank_users
 CREATE TABLE IF NOT EXISTS `bank_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
@@ -44,13 +25,8 @@ CREATE TABLE IF NOT EXISTS `bank_users` (
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
   CONSTRAINT `bank` FOREIGN KEY (`name`) REFERENCES `banks` (`name`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.bank_users: ~0 rows (approximately)
-/*!40000 ALTER TABLE `bank_users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bank_users` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.banneds
 CREATE TABLE IF NOT EXISTS `banneds` (
   `b_id` int(11) NOT NULL AUTO_INCREMENT,
   `b_steam` varchar(100) NOT NULL,
@@ -63,11 +39,6 @@ CREATE TABLE IF NOT EXISTS `banneds` (
   PRIMARY KEY (`b_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table vorpv2.banneds: ~0 rows (approximately)
-/*!40000 ALTER TABLE `banneds` DISABLE KEYS */;
-/*!40000 ALTER TABLE `banneds` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.bills
 CREATE TABLE IF NOT EXISTS `bills` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `job` longtext DEFAULT NULL,
@@ -78,39 +49,9 @@ CREATE TABLE IF NOT EXISTS `bills` (
   `amount` double DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.bills: ~0 rows (approximately)
-/*!40000 ALTER TABLE `bills` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bills` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.boates
-CREATE TABLE IF NOT EXISTS `boates` (
-  `identifier` varchar(40) NOT NULL,
-  `charid` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `boat` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Dumping data for table vorpv2.boates: ~0 rows (approximately)
-/*!40000 ALTER TABLE `boates` DISABLE KEYS */;
-/*!40000 ALTER TABLE `boates` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.bounty
-CREATE TABLE IF NOT EXISTS `bounty` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` longtext DEFAULT '',
-  `identifier` varchar(50) DEFAULT NULL,
-  `charidentifier` int(11) DEFAULT NULL,
-  `info` longtext DEFAULT '[]',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.bounty: ~0 rows (approximately)
-/*!40000 ALTER TABLE `bounty` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bounty` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.characters
 CREATE TABLE IF NOT EXISTS `characters` (
   `identifier` varchar(50) COLLATE utf8mb4_bin NOT NULL DEFAULT '',
   `steamname` varchar(50) COLLATE utf8mb4_bin NOT NULL DEFAULT '',
@@ -120,6 +61,11 @@ CREATE TABLE IF NOT EXISTS `characters` (
   `gold` double(11,2) DEFAULT 0.00,
   `rol` double(11,2) NOT NULL DEFAULT 0.00,
   `xp` int(11) DEFAULT 0,
+  `healthouter` int(4) DEFAULT 500,
+  `healthinner` int(4) DEFAULT 100,
+  `staminaouter` int(4) DEFAULT 100,
+  `staminainner` int(4) DEFAULT 100,
+  `hours` float NOT NULL DEFAULT 0,
   `inventory` longtext COLLATE utf8mb4_bin DEFAULT NULL,
   `job` varchar(50) COLLATE utf8mb4_bin DEFAULT 'unemployed',
   `status` varchar(140) COLLATE utf8mb4_bin DEFAULT '{}',
@@ -139,6 +85,11 @@ CREATE TABLE IF NOT EXISTS `characters` (
   `info` longtext COLLATE utf8mb4_bin DEFAULT '{}',
   `gunsmith` double(11,2) DEFAULT 0.00,
   `ammo` longtext COLLATE utf8mb4_bin DEFAULT '{}',
+  `clan` int(11) DEFAULT 0,
+  `discordid` varchar(255) COLLATE utf8mb4_bin DEFAULT '0',
+  `lastjoined` longtext COLLATE utf8mb4_bin DEFAULT '[]',
+  `motel` varchar(255) COLLATE utf8mb4_bin DEFAULT '0',
+  `moonshineenty` longtext COLLATE utf8mb4_bin DEFAULT '{}',
   UNIQUE KEY `identifier_charidentifier` (`identifier`,`charidentifier`) USING BTREE,
   KEY `charidentifier` (`charidentifier`) USING BTREE,
   KEY `clanid` (`clanid`),
@@ -151,13 +102,8 @@ CREATE TABLE IF NOT EXISTS `characters` (
   KEY `meta` (`meta`),
   KEY `steamname` (`steamname`),
   CONSTRAINT `FK_characters_users` FOREIGN KEY (`identifier`) REFERENCES `users` (`identifier`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table vorpv2.characters: ~0 rows (approximately)
-/*!40000 ALTER TABLE `characters` DISABLE KEYS */;
-/*!40000 ALTER TABLE `characters` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.character_inventories
 CREATE TABLE IF NOT EXISTS `character_inventories` (
   `character_id` int(11) DEFAULT NULL,
   `inventory_type` varchar(100) NOT NULL DEFAULT 'default',
@@ -167,146 +113,24 @@ CREATE TABLE IF NOT EXISTS `character_inventories` (
   KEY `character_inventory_idx` (`character_id`,`inventory_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.character_inventories: ~0 rows (approximately)
-/*!40000 ALTER TABLE `character_inventories` DISABLE KEYS */;
-/*!40000 ALTER TABLE `character_inventories` ENABLE KEYS */;
 
--- Dumping structure for table vorpv2.container
-CREATE TABLE IF NOT EXISTS `container` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` longtext DEFAULT NULL,
-  `items` longtext NOT NULL DEFAULT '{}',
-  `invslots` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ID` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=217 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.container: ~20 rows (approximately)
-/*!40000 ALTER TABLE `container` DISABLE KEYS */;
-INSERT INTO `container` (`id`, `name`, `items`, `invslots`) VALUES
-	(1, 'police', '[]', 0),
-	(3, 'horsetrainer', '[]', 600),
-	(4, 'doctor', '[]', 600),
-	(5, 'realestate', '[]', 600),
-	(6, 'bastille', '[]', 600),
-	(7, 'rgs', '[]', 600),
-	(8, 'rguns', '[]', 600),
-	(15, 'shaman', '{}', 600),
-	(16, 'marshal', '[]', 0),
-	(17, 'valtrain', '[]', 600),
-	(18, 'bountyhunter', '[]', 600),
-	(19, 'blacksmith', '[]', 600),
-	(20, 'trash', '[]', 0),
-	(21, 'trash', '[]', 0),
-	(22, 'trash', '[]', 0),
-	(23, 'gunsmith', '[]', 600),
-	(24, 'miner', '[]', 600),
-	(25, 'silvershot', '{}', 600),
-	(26, 'bvs', '{}', 600),
-	(27, 'ksd', '[]', 600);
-/*!40000 ALTER TABLE `container` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.dogs
-CREATE TABLE IF NOT EXISTS `dogs` (
-  `identifier` varchar(40) NOT NULL,
-  `charidentifier` varchar(5) DEFAULT NULL,
-  `dog` varchar(255) DEFAULT NULL,
-  `age` varchar(255) DEFAULT NULL,
-  `skin` varchar(1) DEFAULT '0',
-  `hunger` varchar(10) DEFAULT '0',
-  `thirst` varchar(10) DEFAULT '0',
-  `health` varchar(10) DEFAULT '0',
-  `Command_1` varchar(10) DEFAULT '0',
-  `Command_2` varchar(10) DEFAULT '0',
-  `Command_3` varchar(10) DEFAULT '0',
-  `Command_4` varchar(10) DEFAULT '0',
-  `Command_5` varchar(10) DEFAULT '0',
-  `Command_6` varchar(10) DEFAULT '0',
-  `Command_7` varchar(10) DEFAULT '0',
-  `Command_8` varchar(10) DEFAULT '0',
-  `Command_9` varchar(10) DEFAULT '0',
-  `Command_10` varchar(10) DEFAULT '0',
-  `Command_11` varchar(10) DEFAULT '0',
-  `Command_12` varchar(10) DEFAULT '0',
-  `isdead` varchar(10) DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Dumping data for table vorpv2.dogs: ~0 rows (approximately)
-/*!40000 ALTER TABLE `dogs` DISABLE KEYS */;
-/*!40000 ALTER TABLE `dogs` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.doors
 CREATE TABLE IF NOT EXISTS `doors` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `doorinfo` longtext NOT NULL DEFAULT '[]',
   `job` longtext NOT NULL DEFAULT '[]',
   `item` longtext NOT NULL,
   `break` int(11) DEFAULT 0,
-  `breakin` int(11) DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.doors: ~40 rows (approximately)
-/*!40000 ALTER TABLE `doors` DISABLE KEYS */;
-INSERT INTO `doors` (`id`, `doorinfo`, `job`, `item`, `break`, `breakin`) VALUES
-	(17, '[{"objc":4067537969,"objYaw1":0.00126346363686,"p":809.7841796875,"q":119.42121124267573,"doorhash":849871129,"o":-287.7419372558596,"objYaw2":0.00016431239782,"y":809.7841796875,"objYaw3":-169.6079864501953,"entit":4437506,"z":118.42121124267578,"locked":true,"x":-286.6419372558594,"doorname":"p_door62x"}]', '["doctor"]', 'no key item', 0, 0),
-	(19, '[{"objc":3588026089,"objYaw1":0.00106622942257,"p":803.9545288085938,"q":119.2931732177734,"doorhash":849871129,"o":-284.0079223632815,"objYaw2":0.00004140395321,"locked":false,"objYaw3":-170.0000457763672,"entit":3104770,"z":118.39317321777344,"y":803.9545288085938,"x":-282.8079223632813,"doorname":"p_door62x"}]', '["doctor"]', 'no key item', 0, 0),
-	(20, '[{"objc":925575409,"objYaw1":0.00005818598947,"p":813.357421875,"q":119.51548156738277,"doorhash":831542679,"o":-289.8586120605467,"objYaw2":-2.5566565531320859e-10,"y":813.357421875,"objYaw3":9.99999237060546,"entit":2146819,"z":118.4154815673828,"locked":true,"x":-290.8586120605469,"doorname":"s_doorsldprtn01x"}]', '["doctor"]', 'no key item', 0, 0),
-	(21, '[{"objc":3439738919,"objYaw1":-0.00285818148404,"p":815.2374267578125,"q":118.01589355468752,"doorhash":1680756541,"o":-283.9742492675788,"objYaw2":-0.00032217756961,"locked":true,"objYaw3":99.6661376953125,"entit":2882307,"z":118.4158935546875,"y":815.2374267578125,"x":-281.0742492675781,"doorname":"s_doorsldprtnbrd01x"}]', '["doctor"]', 'no key item', 0, 0),
-	(22, '[{"entit":4463107,"z":118.39580535888672,"y":810.0264892578125,"locked":true,"o":-265.6664489746082,"doorhash":-1099727136,"objYaw3":-79.59313201904297,"x":-270.7664489746094,"q":117.59580535888677,"p":810.0264892578125,"doorname":"p_door_val_jail_cell02x","objYaw1":-0.00115369225386,"objc":1508776842,"objYaw2":0.00002403184225}]', '["police"]', 'no key item', 0, 0),
-	(23, '[{"z":163.64759826660157,"locked":false,"x":-1806.6751708984376,"doorname":"p_door_val_bank02","objYaw2":0.0,"doorhash":990179346,"y":-350.3128051757813,"objYaw3":-115.00009155273438,"entit":6598659,"q":164.04759826660158,"p":-350.3128051757813,"o":-1811.8751708984328,"objYaw1":0.0,"objc":1821044729}]', '["police","marshal"]', 'no key item', 0, 0),
-	(24, '[{"doorname":"p_door37x","objYaw1":0.0,"objYaw2":0.0,"z":163.64759826660157,"locked":true,"x":-1812.669189453125,"y":-345.08489990234377,"objYaw3":-115.00009155273438,"doorhash":-1497029950,"objc":1514359658,"entit":7538179,"q":165.34759826660148,"p":-345.08489990234377,"o":-1814.069189453124}]', '["police","marshal"]', 'no key item', 0, 0),
-	(27, '[{"x":-757.0423583984375,"objc":3821185084,"doorhash":-1093732866,"objYaw3":89.71432495117188,"objYaw2":-0.00138236454222,"doorname":"p_door_bla_jail_l_01x","p":-1269.92333984375,"o":-756.1423583984373,"entit":9117699,"objYaw1":-0.00035303513868,"q":44.46863403320314,"locked":false,"z":43.06863403320312,"y":-1269.92333984375}]', '["police","marshal"]', 'no key item', 0, 0),
-	(28, '[{"doorname":"p_door_bla_jail_r_01x","doorhash":784094203,"objYaw2":0.0,"objYaw3":89.99992370605469,"y":-1268.485107421875,"x":-757.0421752929688,"o":-763.3421752929702,"z":43.068603515625,"locked":true,"objYaw1":0.0,"objc":3410720590,"entit":9211395,"q":41.96860351562498,"p":-1268.485107421875}]', '["police","marshal"]', 'no key item', 0, 0),
-	(29, '[{"doorname":"p_door34x","doorhash":447074149,"objYaw2":-0.00003090844984,"objYaw3":-89.69831085205078,"y":-1268.744873046875,"x":-769.136962890625,"o":-769.236962890625,"z":43.0400390625,"locked":true,"objYaw1":-0.00002747763028,"objc":2810801921,"entit":3817220,"q":44.04003906250001,"p":-1268.744873046875}]', '["police","marshal"]', 'no key item', 0, 0),
-	(30, '[{"doorname":"p_doorrhosheriff02x","z":76.76842498779297,"objYaw2":0.0,"objYaw3":159.81829833984376,"y":-1305.9600830078126,"x":1359.710205078125,"entit":5355524,"objYaw1":0.0,"locked":false,"objc":349074475,"o":1358.710205078126,"doorhash":-1866470762,"q":78.0684249877929,"p":-1305.9600830078126}]', '["police","marshal"]', 'no key item', 0, 0),
-	(31, '[{"doorname":"p_door04x","doorhash":-542955242,"objYaw2":-0.00094323337543,"objYaw3":-110.37109375,"y":-1297.5340576171876,"x":1359.0972900390626,"o":1358.8972900390627,"z":76.78761291503906,"locked":true,"objYaw1":0.00140971527434,"objc":1614494720,"entit":6161412,"q":77.787612915039,"p":-1297.5340576171876}]', '["police","marshal"]', 'no key item', 0, 0),
-	(32, '[{"doorname":"p_doornbd39a","z":47.95257186889648,"objYaw2":0.0,"objYaw3":89.99993133544922,"y":-1309.9276123046876,"x":2516.144287109375,"entit":7446532,"objYaw1":0.0,"locked":false,"objc":417663242,"o":2516.8442871093745,"doorhash":1816996393,"q":49.0525718688965,"p":-1309.9276123046876}]', '["police","marshal"]', 'no key item', 0, 0),
-	(33, '[{"doorname":"p_doornbd39a","z":47.95257186889648,"objYaw2":0.0,"objYaw3":-90.00000762939453,"y":-1307.724853515625,"x":2516.14453125,"entit":8310020,"objYaw1":0.0,"locked":false,"objc":1611175760,"o":2518.8445312499977,"doorhash":1816996393,"q":49.85257186889651,"p":-1307.724853515625}]', '["police","marshal"]', 'no key item', 0, 0),
-	(38, '[{"doorname":"p_doorstrawberry01x_new","q":158.63195495605465,"objYaw1":0.0,"p":-429.39251708984377,"o":-1803.311816406249,"objYaw2":0.0,"objc":2543619259,"entit":1741570,"y":-429.39251708984377,"z":157.8319549560547,"doorhash":1898488517,"locked":false,"x":-1802.11181640625,"objYaw3":154.9999542236328}]', '["doctor"]', 'no key item', 0, 0),
-	(40, '[{"q":117.72991180419922,"objYaw1":0.0,"objc":3886827663,"doorname":"p_door_val_bank00_rx","o":-306.8853454589844,"p":780.1154174804688,"y":780.1154174804688,"locked":false,"doorhash":169503210,"objYaw2":0.0,"z":117.72991180419922,"objYaw3":-169.9445037841797,"x":-306.8853454589844,"entit":6125571}]', '[]', 'no key item', 0, 0),
-	(41, '[{"q":117.72991180419922,"objYaw1":0.0,"objc":2642457609,"doorname":"p_door_val_bank00_lx","o":-309.05206298828127,"p":779.7301025390625,"y":779.7301025390625,"locked":false,"doorhash":160636303,"objYaw2":0.0,"z":117.72991180419922,"objYaw3":10.05537796020507,"x":-309.05206298828127,"entit":6126595}]', '[]', 'no key item', 0, 0),
-	(42, '[{"q":117.72991180419922,"objYaw1":0.0,"objc":1340831050,"doorname":"p_gate_valbankvlt","o":-311.7406311035156,"p":774.6756591796875,"y":774.6756591796875,"locked":false,"doorhash":-790938048,"objYaw2":0.0,"z":117.72991180419922,"objYaw3":10.05545711517334,"x":-311.7406311035156,"entit":7346691}]', '[]', 'no key item', 0, 0),
-	(43, '[{"q":117.70217895507813,"objYaw1":0.0,"objc":3718620420,"doorname":"p_door_val_bank01","o":-311.0597839355469,"p":770.1240234375,"y":770.1240234375,"locked":false,"doorhash":760370349,"objYaw2":0.0,"z":117.70217895507813,"objYaw3":10.05545711517334,"x":-311.0597839355469,"entit":7554563}]', '[]', 'no key item', 0, 0),
-	(45, '[{"q":48.21639251708984,"objYaw1":0.0,"objc":340151973,"doorname":"p_doornbd39x","o":2545.34619140625,"p":-1289.8310546875,"y":-1289.8310546875,"locked":false,"doorhash":367033685,"objYaw2":0.0,"z":48.21639251708984,"objYaw3":0.0,"x":2545.34619140625,"entit":9413635}]', '[]', 'no key item', 0, 0),
-	(46, '[{"q":48.21639251708984,"objYaw1":0.0,"objc":544106233,"doorname":"p_doornbd39x","o":2547.55029296875,"p":-1289.8310546875,"y":-1289.8310546875,"locked":false,"doorhash":367033685,"objYaw2":0.0,"z":48.21639251708984,"objYaw3":179.99998474121095,"x":2547.55029296875,"entit":9410563}]', '[]', 'no key item', 0, 0),
-	(47, '[{"q":43.66149902343751,"objYaw1":0.0,"z":42.6614990234375,"doorname":"p_door13x","o":-809.041845703125,"p":-1279.1900634765626,"y":-1279.1900634765626,"locked":false,"doorhash":-1819321039,"objc":531022111,"objYaw2":0.0,"objYaw3":89.99998474121094,"x":-809.141845703125,"entit":2499075}]', '[]', 'no key item', 0, 0),
-	(49, '[{"doorname":"p_door_val_bank01","doorhash":760370349,"objYaw2":-0.00148201663978,"q":43.75194320678712,"p":-1277.6683349609376,"o":-817.810791015625,"objYaw3":-89.74759674072266,"y":-1277.6683349609376,"z":42.65194320678711,"entit":7655429,"x":-817.810791015625,"locked":true,"objYaw1":0.00069039629306,"objc":2817192481}]', '["realestate"]', 'no key item', 0, 0),
-	(51, '[{"objYaw1":0.0,"locked":false,"x":-315.3799743652344,"doorhash":-542955242,"y":818.7929077148438,"objYaw3":-169.99996948242188,"entit":4502032,"objc":261929195,"z":117.96400451660156,"objYaw2":0.0,"p":818.7929077148438,"q":117.96400451660156,"doorname":"p_door04x","o":-315.3799743652344}]', '["bastille"]', 'no key item', 0, 0),
-	(55, '[{"objc":2171243230,"objYaw1":0.0,"locked":true,"z":121.9578628540039,"objYaw2":0.0,"x":-2215.229736328125,"doorhash":233569385,"objYaw3":29.99999237060547,"doorname":"p_door_barn02","y":724.6326293945313,"q":122.1578628540039,"entit":6794249,"o":-2215.129736328125,"p":724.6326293945313}]', '["bountyhunter"]', 'no key item', 0, 0),
-	(56, '[{"objc":2468163139,"objYaw1":0.0,"y":726.8384399414063,"z":121.9578628540039,"objYaw2":0.0,"doorhash":233569385,"objYaw3":-150.0,"locked":true,"doorname":"p_door_barn02","x":-2211.3740234375,"q":122.75786285400386,"entit":5037065,"o":-2211.2740234375,"p":726.8384399414063}]', '["bountyhunter"]', 'no key item', 0, 0),
-	(57, '[{"doorname":"p_door_wornbarn_l","objYaw1":0.0,"p":745.0603637695313,"objYaw3":-150.0,"objc":2726022400,"x":-2216.4638671875,"doorhash":-559000589,"z":122.47724151611328,"y":745.0603637695313,"objYaw2":0.0,"o":-2216.4638671875,"q":122.47724151611328,"locked":true,"entit":8142601}]', '["bountyhunter"]', 'no key item', 0, 0),
-	(58, '[{"doorname":"p_barn_door_l","objYaw1":0.0,"p":737.8558959960938,"objYaw3":-150.0,"objc":3025858750,"x":-2228.867431640625,"doorhash":-336539838,"z":122.49179077148438,"y":737.8558959960938,"objYaw2":0.0,"o":-2228.867431640625,"q":122.49179077148438,"locked":true,"entit":8807689}]', '["bountyhunter"]', 'no key item', 0, 0),
-	(60, '[{"o":-322.74957275390627,"q":120.62322235107422,"objYaw1":-0.0003209762508,"objc":3765902977,"objYaw3":99.68075561523438,"doorname":"p_door33x","p":766.6564331054688,"entit":1012482,"y":766.6564331054688,"doorhash":1650744725,"x":-322.74957275390627,"z":120.62322235107422,"objYaw2":-0.00067330955062,"locked":true}]', '[]', 'no key item', 0, 0),
-	(61, '[{"entit":6188553,"z":121.6198501586914,"y":724.8563842773438,"x":-2176.849609375,"o":-2177.849609374999,"objYaw2":0.00000112510235,"objYaw3":-155.00228881835938,"locked":true,"q":122.61985015869137,"p":724.8563842773438,"doorname":"p_doorbrait01bx","objYaw1":0.00086592242587,"objc":2670400201,"doorhash":1064769829}]', '["bountyhunter"]', 'no key item', 0, 0),
-	(62, '[{"objYaw2":0.0,"entit":2735618,"doorname":"p_door34x","q":120.13214263916017,"p":682.674377441406,"o":501.7857543945315,"locked":true,"doorhash":447074149,"objYaw3":-94.99996185302736,"objYaw1":0.0,"z":120.03214263916016,"y":683.6743774414063,"x":500.5857543945313,"objc":6541948}]', '["blacksmith"]', 'no key item', 0, 1),
-	(64, '[{"entit":3190787,"z":120.0238037109375,"y":672.7487182617188,"x":491.7784729003906,"o":492.8784729003909,"objYaw2":0.0,"objYaw3":85.00003051757813,"locked":true,"q":120.52380371093749,"p":673.848718261719,"doorname":"p_door34x","objYaw1":0.0,"objc":2337551683,"doorhash":447074149}]', '["blacksmith"]', 'no key item', 0, 1),
-	(67, '[{"objc":2343746133,"y":771.751953125,"doorname":"p_gate_valbankvlt","z":117.72990417480468,"objYaw3":-169.99984741210938,"objYaw1":0.0,"o":-301.9361877441406,"doorhash":-790938048,"q":117.72990417480468,"p":771.751953125,"locked":true,"x":-301.9361877441406,"objYaw2":0.0,"entit":1819907}]', '["bastille"]', 'no key item', 0, 1),
-	(68, '[{"objc":334467483,"y":767.6043090820313,"x":-302.9228210449219,"z":117.69805145263672,"objYaw3":100.0553970336914,"objYaw1":0.0,"o":-302.9228210449219,"doorhash":760370349,"q":117.69805145263672,"p":767.6043090820313,"locked":true,"objYaw2":0.0,"doorname":"p_door_val_bank01","entit":2344195}]', '["bastille"]', 'no key item', 0, 1),
-	(69, '[{"objYaw1":0.0,"objYaw3":-169.94448852539066,"y":766.3489990234375,"x":-307.7537536621094,"o":-307.7537536621094,"z":117.70159149169922,"objYaw2":0.0,"doorname":"p_door_val_bankvault","objc":576950805,"entit":2945539,"locked":true,"p":766.3489990234375,"q":117.70159149169922,"doorhash":-765914358}]', '["bastille"]', 'no key item', 0, 1),
-	(70, '[{"entit":9356802,"z":121.62875366210938,"y":716.46337890625,"x":-2182.510498046875,"o":-2181.210498046876,"objYaw2":0.0,"objYaw3":-64.99996185302735,"locked":true,"q":121.62875366210938,"p":716.46337890625,"doorname":"p_door37x","objYaw1":0.0,"objc":2212914984,"doorhash":-1497029950}]', '["bountyhunter"]', 'no key item', 0, 1),
-	(71, '[{"objc":3065308386,"y":-361.5426330566406,"doorname":"p_door04x","z":87.0780029296875,"objYaw3":116.81532287597656,"objYaw1":0.00000590390027,"o":-333.3887329101563,"doorhash":-542955242,"q":87.0780029296875,"p":-361.5426330566406,"locked":true,"x":-333.3887329101563,"objYaw2":0.0001215565353,"entit":2270472}]', '["ksd"]', 'no key item', 0, 1),
-	(72, '[{"objc":2818197357,"y":-362.57171630859377,"doorname":"p_door04x","z":87.0780029296875,"objYaw3":116.99994659423828,"objYaw1":0.0,"o":-339.0961608886719,"doorhash":-542955242,"q":87.0780029296875,"p":-362.57171630859377,"locked":true,"x":-339.0961608886719,"objYaw2":0.0,"entit":8104202}]', '["ksd"]', 'no key item', 0, 1),
-	(73, '[{"objc":395506985,"y":812.0270385742188,"x":-275.8447570800781,"z":118.41483306884766,"objYaw3":-169.99998474121098,"objYaw1":0.0,"o":-275.8447570800781,"doorhash":980307335,"q":118.41483306884766,"p":812.0270385742188,"locked":true,"doorname":"p_door_val_jail01x","objYaw2":0.0,"entit":1592075}]', '["police"]', 'no key item', 0, 1),
-	(74, '[{"entit":1546498,"z":118.41165161132813,"y":802.575927734375,"locked":true,"o":-276.0047912597656,"objYaw2":8.815490559754835e-7,"objYaw3":-11.78702926635742,"doorhash":1045059103,"q":118.41165161132813,"p":802.575927734375,"doorname":"p_door_val_jail02x","objYaw1":0.00029245525365,"objc":1988748538,"x":-276.0047912597656}]', '["police"]', 'no key item', 0, 1);
-/*!40000 ALTER TABLE `doors` ENABLE KEYS */;
+CREATE TABLE IF NOT EXISTS `herbalists` (
+  `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `charidentifier` int(11) NOT NULL,
+  `location` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  PRIMARY KEY (`identifier`) USING BTREE,
+  UNIQUE KEY `identifier_charidentifier` (`identifier`,`charidentifier`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
--- Dumping structure for table vorpv2.farming
-CREATE TABLE IF NOT EXISTS `farming` (
-  `identifier` varchar(255) COLLATE latin1_general_cs NOT NULL,
-  `charid` varchar(255) COLLATE latin1_general_cs NOT NULL,
-  `coords1` varchar(255) COLLATE latin1_general_cs DEFAULT '0',
-  `coords2` varchar(255) COLLATE latin1_general_cs DEFAULT '0',
-  `coords3` varchar(255) COLLATE latin1_general_cs DEFAULT '0',
-  `coords4` varchar(255) COLLATE latin1_general_cs DEFAULT '0',
-  `coords5` varchar(255) COLLATE latin1_general_cs DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
-
--- Dumping data for table vorpv2.farming: ~0 rows (approximately)
-/*!40000 ALTER TABLE `farming` DISABLE KEYS */;
-/*!40000 ALTER TABLE `farming` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.horses
 CREATE TABLE IF NOT EXISTS `horses` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `identifier` varchar(40) NOT NULL,
@@ -321,13 +145,8 @@ CREATE TABLE IF NOT EXISTS `horses` (
   PRIMARY KEY (`id`),
   KEY `FK_horses_characters` (`charid`),
   KEY `model` (`model`)
-) ENGINE=InnoDB AUTO_INCREMENT=396 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
--- Dumping data for table vorpv2.horses: ~0 rows (approximately)
-/*!40000 ALTER TABLE `horses` DISABLE KEYS */;
-/*!40000 ALTER TABLE `horses` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.horse_complements
 CREATE TABLE IF NOT EXISTS `horse_complements` (
   `identifier` varchar(50) NOT NULL,
   `charidentifier` int(11) NOT NULL,
@@ -335,11 +154,16 @@ CREATE TABLE IF NOT EXISTS `horse_complements` (
   UNIQUE KEY `identifier` (`identifier`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table vorpv2.horse_complements: ~0 rows (approximately)
-/*!40000 ALTER TABLE `horse_complements` DISABLE KEYS */;
-/*!40000 ALTER TABLE `horse_complements` ENABLE KEYS */;
+CREATE TABLE IF NOT EXISTS `housing` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(255) DEFAULT NULL,
+  `charidentifier` int(11) NOT NULL,
+  `inventory` longtext DEFAULT NULL,
+  `furniture` longtext DEFAULT NULL,
+  `open` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
--- Dumping structure for table vorpv2.items
 CREATE TABLE IF NOT EXISTS `items` (
   `item` varchar(50) NOT NULL,
   `label` varchar(50) NOT NULL,
@@ -352,20 +176,164 @@ CREATE TABLE IF NOT EXISTS `items` (
   `desc` varchar(5550) NOT NULL DEFAULT 'nice item',
   PRIMARY KEY (`item`) USING BTREE,
   UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=338 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table vorpv2.items: ~337 rows (approximately)
+CREATE TABLE IF NOT EXISTS `items_crafted` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `character_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `metadata` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`metadata`)),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ID` (`id`),
+  KEY `crafted_item_idx` (`character_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `jail` (
+  `identifier` varchar(100) NOT NULL DEFAULT '0',
+  `name` varchar(100) NOT NULL DEFAULT '0',
+  `characterid` varchar(5) NOT NULL DEFAULT '0',
+  `time` varchar(100) NOT NULL DEFAULT '0',
+  `time_s` varchar(100) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS `loadout` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(50) NOT NULL,
+  `charidentifier` int(11) DEFAULT NULL,
+  `name` varchar(50) DEFAULT NULL,
+  `ammo` varchar(255) NOT NULL DEFAULT '{}',
+  `components` varchar(255) NOT NULL DEFAULT '{}',
+  `dirtlevel` double DEFAULT 0,
+  `mudlevel` double DEFAULT 0,
+  `conditionlevel` double DEFAULT 0,
+  `rustlevel` double DEFAULT 0,
+  `used` tinyint(4) DEFAULT 0,
+  `used2` tinyint(4) DEFAULT 0,
+  `dropped` int(11) NOT NULL DEFAULT 0,
+  `comps` longtext NOT NULL DEFAULT '{}',
+  `label` varchar(50) DEFAULT NULL,
+  `curr_inv` varchar(100) NOT NULL DEFAULT 'default',
+  PRIMARY KEY (`id`),
+  KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+
+
+CREATE TABLE IF NOT EXISTS `mail_inbox` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `adress` int(11) DEFAULT NULL,
+  `msgs` longtext DEFAULT NULL,
+  `date` longtext DEFAULT NULL,
+  `time` longtext DEFAULT NULL,
+  `sender` longtext DEFAULT NULL,
+  `unred` int(11) DEFAULT 1,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+
+CREATE TABLE IF NOT EXISTS `outfits` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(45) NOT NULL,
+  `charidentifier` int(11) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `comps` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `rooms` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `interiorId` int(11) NOT NULL,
+  `inventory` longtext DEFAULT NULL,
+  `identifier` varchar(60) NOT NULL,
+  `charidentifier` int(11) NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `stables` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(50) NOT NULL,
+  `charidentifier` int(11) NOT NULL,
+  `name` varchar(30) NOT NULL,
+  `modelname` varchar(70) NOT NULL,
+  `type` varchar(11) NOT NULL,
+  `status` longtext DEFAULT NULL,
+  `xp` int(11) DEFAULT 0,
+  `injured` int(11) DEFAULT 0,
+  `gear` longtext DEFAULT NULL,
+  `isDefault` int(11) NOT NULL DEFAULT 0,
+  `inventory` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `users` (
+  `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `group` varchar(50) DEFAULT 'user',
+  `warnings` int(11) DEFAULT 0,
+  `banned` tinyint(1) DEFAULT NULL,
+  `banneduntil` int(10) DEFAULT 0,
+  `char` varchar(50) NOT NULL DEFAULT 'false',
+  PRIMARY KEY (`identifier`),
+  UNIQUE KEY `identifier` (`identifier`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `wagons` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(40) NOT NULL,
+  `charid` int(11) NOT NULL,
+  `selected` int(11) NOT NULL DEFAULT 0,
+  `model` varchar(50) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `items` longtext DEFAULT '{}',
+  PRIMARY KEY (`id`),
+  KEY `FK_horses_characters` (`charid`),
+  KEY `model` (`model`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `wagon_water` (
+  `identifier` varchar(255) COLLATE latin1_general_cs DEFAULT '0',
+  `charid` varchar(255) COLLATE latin1_general_cs DEFAULT '0',
+  `wagon` varchar(255) COLLATE latin1_general_cs DEFAULT '0',
+  `water` varchar(255) COLLATE latin1_general_cs DEFAULT '0',
+  `wagon_name` varchar(50) COLLATE latin1_general_cs DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
+
+CREATE TABLE IF NOT EXISTS `whitelist` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `status` tinyint(1) DEFAULT NULL,
+  `firstconnection` tinyint(1) DEFAULT 1,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `identifier` (`identifier`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+
+// inster 
+
+
+INSERT IGNORE INTO `banks` (`name`) VALUES
+	('Blackwater'),
+	('Saint Denis'),
+	('Valentine');
+
+
+
 /*!40000 ALTER TABLE `items` DISABLE KEYS */;
-INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `id`, `metadata`, `desc`) VALUES
+INSERT IGNORE INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `id`, `metadata`, `desc`) VALUES
 	('acid', 'Acid', 10, 1, 'item_standard', 1, 1, '{}', 'nice item'),
 	('Agarita', 'Agarita', 10, 1, 'item_standard', 1, 2, '{}', 'nice item'),
 	('Agarita_Seed', 'Agarita Seed', 10, 1, 'item_standard', 1, 3, '{}', 'nice item'),
 	('Alaskan_Ginseng', 'Alaskan Ginseng', 10, 1, 'item_standard', 1, 4, '{}', 'nice item'),
 	('Alaskan_Ginseng_Seed', 'Alaskan Ginseng Seed', 10, 1, 'item_standard', 1, 5, '{}', 'nice item'),
 	('alcohol', 'Alcohol', 10, 1, 'item_standard', 1, 6, '{}', 'nice item'),
+	('aligatormeat', 'Alligator Meat', 20, 1, 'item_standard', 1, 568, '{}', 'nice item'),
+	('aligators', 'Alligator pelt', 20, 1, 'item_standard', 1, 544, '{}', 'nice item'),
+	('aligatorto', 'Alligator tooth', 20, 1, 'item_standard', 1, 543, '{}', 'nice item'),
 	('American_Ginseng', 'American Ginseng', 10, 1, 'item_standard', 1, 7, '{}', 'nice item'),
 	('American_Ginseng_Seed', 'American Ginseng Seed', 10, 1, 'item_standard', 1, 8, '{}', 'nice item'),
-	('ammoarrmownormal', 'Arrow Normal', 10, 1, 'item_standard', 1, 9, '{}', 'nice item'),
+	('ammoarrownormal', 'Arrow Normal', 10, 1, 'item_standard', 1, 9, '{}', 'nice item'),
 	('ammoarrowdynamite', 'Arrow Dynamite', 10, 1, 'item_standard', 1, 10, '{}', 'nice item'),
 	('ammoarrowfire', 'Arrow Fire', 10, 1, 'item_standard', 1, 11, '{}', 'nice item'),
 	('ammoarrowimproved', 'Arrow Improved', 10, 1, 'item_standard', 1, 12, '{}', 'nice item'),
@@ -410,9 +378,18 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `
 	('ammovoldynamite', 'Volatile Dynamite Ammo', 10, 1, 'item_standard', 1, 51, '{}', 'nice item'),
 	('ammovolmolotov', 'Volatile Molotov Ammo', 10, 1, 'item_standard', 1, 52, '{}', 'nice item'),
 	('antipoison', 'Antipoison', 20, 1, 'item_standard', 1, 53, '{}', 'nice item'),
+	('antipoison2', 'Anti Snake Poison', 20, 1, 'item_standard', 1, 617, '{}', 'nice item'),
 	('apple', 'Apple', 20, 1, 'item_standard', 1, 54, '{}', 'nice item'),
+	('applebarrel', 'Apple Barrel', 20, 1, 'item_standard', 1, 762, '{}', 'nice item'),
+	('applebasket', 'Apple Basket', 20, 1, 'item_standard', 1, 763, '{}', 'nice item'),
 	('appleCrumbMash', 'Minty Berry Mash', 10, 1, 'item_standard', 1, 55, '{}', 'nice item'),
 	('appleCrumbMoonshine', 'Minty Berry Moonshine', 10, 1, 'item_standard', 1, 56, '{}', 'nice item'),
+	('apple_barrel', 'Apple Barrel', 20, 1, 'item_standard', 1, 634, '{}', 'nice item'),
+	('apple_basket', 'Apple Basket', 20, 1, 'item_standard', 1, 635, '{}', 'nice item'),
+	('Apple_Seed', 'Apple Seed', 10, 1, 'item_standard', 1, 727, '{}', 'nice item'),
+	('armadilloc', 'Armadillo claws', 20, 1, 'item_standard', 1, 449, '{}', 'nice item'),
+	('armadillos', 'Armadillo pelt', 20, 1, 'item_standard', 1, 448, '{}', 'nice item'),
+	('asnakes', 'Copperhead Snake pelt', 20, 1, 'item_standard', 1, 487, '{}', 'nice item'),
 	('a_c_fishbluegil_01_ms', 'Medium Bluegil', 10, 1, 'item_standard', 0, 57, '{}', 'nice item'),
 	('a_c_fishbluegil_01_sm', 'Small Bluegil', 5, 1, 'item_standard', 0, 58, '{}', 'nice item'),
 	('a_c_fishbullheadcat_01_ms', 'Medium Bullhead', 10, 1, 'item_standard', 0, 59, '{}', 'nice item'),
@@ -429,14 +406,34 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `
 	('a_c_fishrockbass_01_sm', 'Small Rockbass', 5, 1, 'item_standard', 0, 70, '{}', 'nice item'),
 	('a_c_fishsalmonsockeye_01_ms', 'Sockeye Salmon', 10, 1, 'item_standard', 0, 71, '{}', 'nice item'),
 	('a_c_fishsmallmouthbass_01_ms', 'Smallmouth Bass', 10, 1, 'item_standard', 0, 72, '{}', 'nice item'),
+	('badgers', 'Badger skin', 20, 1, 'item_standard', 1, 491, '{}', 'nice item'),
 	('bait', 'Bait', 20, 1, 'item_standard', 1, 73, '{}', 'nice item'),
 	('banana', 'Banana', 20, 1, 'item_standard', 1, 74, '{}', 'nice item'),
 	('bandage', 'Bandage', 20, 1, 'item_standard', 1, 75, '{}', 'nice item'),
+	('barrel', 'Barrel', 5, 1, 'item_standard', 1, 800, '{}', 'nice item'),
+	('bat_c', 'Bat', 20, 1, 'item_standard', 1, 420, '{}', 'nice item'),
 	('Bay_Bolete', 'Bay Bolete', 10, 1, 'item_standard', 1, 76, '{}', 'nice item'),
 	('Bay_Bolete_Seed', 'Bay Bolete Seed', 10, 1, 'item_standard', 1, 77, '{}', 'nice item'),
+	('bbears', 'Black Bear skin', 20, 1, 'item_standard', 1, 452, '{}', 'nice item'),
+	('bbirdb', 'Cormorant beak', 20, 1, 'item_standard', 1, 528, '{}', 'nice item'),
+	('bbirdf', 'Cormorant feather', 20, 1, 'item_standard', 1, 527, '{}', 'nice item'),
+	('bcandle', 'Bottle Candle', 20, 1, 'item_standard', 1, 663, '{}', 'nice item'),
+	('bearbench', 'Bear Bench', 20, 1, 'item_standard', 1, 773, '{}', 'nice item'),
+	('bearc', 'Bear claws', 20, 1, 'item_standard', 1, 450, '{}', 'nice item'),
+	('beart', 'Bear tooth', 20, 1, 'item_standard', 1, 451, '{}', 'nice item'),
+	('bear_bench', 'Bear Bench', 20, 1, 'item_standard', 1, 645, '{}', 'nice item'),
+	('beavertail', 'Beaver tail', 20, 1, 'item_standard', 1, 542, '{}', 'nice item'),
+	('beawers', 'Beaver pelt', 20, 1, 'item_standard', 1, 541, '{}', 'nice item'),
+	('beef', 'Beef', 20, 1, 'item_standard', 1, 567, '{}', 'nice item'),
 	('beefjerky', 'Beef Jerky', 20, 1, 'item_standard', 1, 78, '{}', 'nice item'),
 	('beer', 'Beer', 10, 1, 'item_standard', 1, 79, '{}', 'nice item'),
+	('beerbox', 'Beer Box', 20, 1, 'item_standard', 1, 586, '{}', 'nice item'),
+	('bigchest', 'Big Chest', 1, 1, 'item_standard', 1, 658, '{}', 'nice item'),
+	('biggame', 'Big Game Meat', 20, 1, 'item_standard', 1, 565, '{}', 'nice item'),
 	('Big_Leather', 'Big Leather', 10, 1, 'item_standard', 1, 80, '{}', 'nice item'),
+	('bird', 'Bird Meat', 20, 1, 'item_standard', 1, 569, '{}', 'nice item'),
+	('bisonhorn', 'Bison horn', 20, 1, 'item_standard', 1, 461, '{}', 'nice item'),
+	('bisons', 'Bison pelt', 20, 1, 'item_standard', 1, 462, '{}', 'nice item'),
 	('Bitter_Weed', 'Bitter Weed', 10, 1, 'item_standard', 1, 81, '{}', 'nice item'),
 	('Bitter_Weed_Seed', 'Bitter Weed Seed', 10, 1, 'item_standard', 1, 82, '{}', 'nice item'),
 	('blackberryale', 'Black Berry Ale', 10, 1, 'item_standard', 1, 83, '{}', 'nice item'),
@@ -444,32 +441,75 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `
 	('Black_Berry_Seed', 'Black Berry Seed', 10, 1, 'item_standard', 1, 85, '{}', 'nice item'),
 	('Black_Currant', 'Black Currant', 10, 1, 'item_standard', 1, 86, '{}', 'nice item'),
 	('Black_Currant_Seed', 'Black Currant Seed', 10, 1, 'item_standard', 1, 87, '{}', 'nice item'),
+	('blanketbox', 'Blanket Box', 20, 1, 'item_standard', 1, 760, '{}', 'nice item'),
+	('blanket_box', 'Blanket Box', 20, 1, 'item_standard', 1, 632, '{}', 'nice item'),
 	('Blood_Flower', 'Blood Flower', 10, 1, 'item_standard', 1, 88, '{}', 'nice item'),
 	('Blood_Flower_Seed', 'Blood Flower Seed', 10, 1, 'item_standard', 1, 89, '{}', 'nice item'),
 	('blueberry', 'Blueberry', 10, 1, 'item_standard', 1, 90, '{}', 'nice item'),
+	('bluejay_c', 'Blue jay', 20, 1, 'item_standard', 1, 421, '{}', 'nice item'),
+	('bmdresser', 'brown mirror dresser', 20, 1, 'item_standard', 1, 652, '{}', 'nice item'),
+	('boarmusk', 'Boar tusk', 20, 1, 'item_standard', 1, 456, '{}', 'nice item'),
+	('boars', 'Boar pelt', 20, 1, 'item_standard', 1, 457, '{}', 'nice item'),
+	('boaskin', 'Boa Snake pelt', 20, 1, 'item_standard', 1, 486, '{}', 'nice item'),
 	('boiledegg', 'Boiled Egg', 10, 1, 'item_standard', 1, 91, '{}', 'nice item'),
+	('boobyb', 'Red-footed booby beak', 20, 1, 'item_standard', 1, 501, '{}', 'nice item'),
+	('boobyf', 'Red-footed booby feather', 20, 1, 'item_standard', 1, 500, '{}', 'nice item'),
 	('book', 'Book', 5, 1, 'item_standard', 1, 92, '{}', 'nice item'),
 	('bountylicns', 'Bounty Hunter License', 10, 1, 'item_standard', 1, 93, '{}', 'nice item'),
+	('bouquet', 'Bouquet', 1, 1, 'item_standard', 1, 342, '{}', 'nice item'),
+	('bparrotb', 'Parrot beak', 20, 1, 'item_standard', 1, 522, '{}', 'nice item'),
+	('bparrotf', 'Parrot feather', 20, 1, 'item_standard', 1, 521, '{}', 'nice item'),
+	('buckantler', 'Buck Antlers', 20, 1, 'item_standard', 1, 459, '{}', 'nice item'),
+	('bucks', 'Buck skin', 20, 1, 'item_standard', 1, 460, '{}', 'nice item'),
+	('bullhorn', 'Bull horn', 20, 1, 'item_standard', 1, 463, '{}', 'nice item'),
+	('bulls', 'Bull pelt', 20, 1, 'item_standard', 1, 464, '{}', 'nice item'),
 	('Bulrush', 'Bulrush', 10, 1, 'item_standard', 1, 94, '{}', 'nice item'),
 	('Bulrush_Seed', 'Bulrush Seed', 10, 1, 'item_standard', 1, 95, '{}', 'nice item'),
+	('bunkbed', 'bunk bed', 20, 1, 'item_standard', 1, 665, '{}', 'nice item'),
 	('Burdock_Root', 'Burdock Root', 10, 1, 'item_standard', 1, 96, '{}', 'nice item'),
 	('Burdock_Root_Seed', 'Burdock Root Seed', 10, 1, 'item_standard', 1, 97, '{}', 'nice item'),
+	('butchertable1', 'Small Butcher Table', 20, 1, 'item_standard', 1, 583, '{}', 'nice item'),
+	('butchertable2', 'Medium Butcher Table', 20, 1, 'item_standard', 1, 582, '{}', 'nice item'),
+	('butchertable3', 'Large Butcher Table', 20, 1, 'item_standard', 1, 581, '{}', 'nice item'),
+	('bwdresser', 'brown wood dresser', 20, 1, 'item_standard', 1, 651, '{}', 'nice item'),
+	('camera', 'Camera', 1, 1, 'item_standard', 1, 346, '{}', 'nice item'),
 	('campfire', 'Campfire', 5, 1, 'item_standard', 1, 98, '{}', 'nice item'),
+	('candlea', 'Candle', 20, 1, 'item_standard', 1, 661, '{}', 'nice item'),
+	('cane', 'Cane', 1, 1, 'item_standard', 1, 344, '{}', 'nice item'),
+	('cardinal_c', 'Cardinal bird', 20, 1, 'item_standard', 1, 422, '{}', 'nice item'),
 	('Cardinal_Flower', 'Cardinal Flower', 10, 1, 'item_standard', 1, 99, '{}', 'nice item'),
 	('Cardinal_Flower_Seed', 'Cardinal Flower Seed', 10, 1, 'item_standard', 1, 100, '{}', 'nice item'),
 	('carrots', 'Carrot', 10, 1, 'item_standard', 1, 101, '{}', 'nice item'),
+	('cedarwaxwing_c', 'Cedar waxwing', 20, 1, 'item_standard', 1, 423, '{}', 'nice item'),
 	('Chanterelles', 'Chanterelles', 10, 1, 'item_standard', 1, 102, '{}', 'nice item'),
 	('Chanterelles_Seed', 'Chanterelles Seed', 10, 1, 'item_standard', 1, 103, '{}', 'nice item'),
 	('char', 'Char', 10, 1, 'item_standard', 0, 104, '{}', 'nice item'),
+	('chestc', 'Chest C', 20, 1, 'item_standard', 1, 578, '{}', 'nice item'),
 	('chewingtobacco', 'Chewing Tobacco', 20, 1, 'item_standard', 1, 105, '{}', 'nice item'),
+	('chickenf', 'Chicken feather', 20, 1, 'item_standard', 1, 525, '{}', 'nice item'),
+	('chickenheart', 'Chicken heart', 20, 1, 'item_standard', 1, 526, '{}', 'nice item'),
+	('chipmunk_c', 'Chipmunk', 20, 1, 'item_standard', 1, 419, '{}', 'nice item'),
 	('Choc_Daisy', 'Choc Daisy', 10, 1, 'item_standard', 1, 106, '{}', 'nice item'),
 	('Choc_Daisy_Seed', 'Choc Daisy Seed', 10, 1, 'item_standard', 1, 107, '{}', 'nice item'),
 	('cigar', 'Cigar', 20, 1, 'item_standard', 1, 108, '{}', 'nice item'),
 	('cigarette', 'Cigarette', 20, 1, 'item_standard', 1, 109, '{}', 'nice item'),
 	('cigarettefilter', 'Cig Filter', 20, 1, 'item_standard', 1, 110, '{}', 'nice item'),
+	('cinematicket', 'Ticket', 2, 1, 'item_standard', 0, 351, '{}', 'nice item'),
 	('clay', 'Clay', 20, 1, 'item_standard', 1, 111, '{}', 'nice item'),
+	('cleanser', 'Cleanser', 5, 1, 'item_standard', 1, 340, '{}', 'nice item'),
+	('clothbench', 'Cloth Bench', 20, 1, 'item_standard', 1, 776, '{}', 'nice item'),
+	('clothesline', 'Clothes Line', 20, 1, 'item_standard', 1, 766, '{}', 'nice item'),
+	('clothes_line', 'Clothes Line', 20, 1, 'item_standard', 1, 638, '{}', 'nice item'),
+	('cloth_bench', 'Cloth Bench', 20, 1, 'item_standard', 1, 648, '{}', 'nice item'),
 	('coal', 'Coal', 20, 1, 'item_standard', 1, 112, '{}', 'nice item'),
+	('cockc', 'Rooster claws', 20, 1, 'item_standard', 1, 499, '{}', 'nice item'),
+	('cockf', 'Rooster feather', 20, 1, 'item_standard', 1, 498, '{}', 'nice item'),
 	('cocoa', 'Cocoa', 20, 1, 'item_standard', 1, 113, '{}', 'nice item'),
+	('cocoaseeds', 'Cocoa Seeds', 10, 1, 'item_standard', 1, 733, '{}', 'nice item'),
+	('coffindecor', 'Coffin Decor', 20, 1, 'item_standard', 1, 629, '{}', 'nice item'),
+	('condenser', 'Condenser', 5, 1, 'item_standard', 1, 816, '{}', 'nice item'),
+	('condorb', 'Condor beak', 20, 1, 'item_standard', 1, 480, '{}', 'nice item'),
+	('condorf', 'Condor feather', 20, 1, 'item_standard', 1, 479, '{}', 'nice item'),
 	('consumable_bluegil', 'Dried Bluegil', 10, 1, 'item_standard', 1, 114, '{}', 'nice item'),
 	('consumable_breakfast', 'Breakfast', 5, 1, 'item_standard', 1, 115, '{}', 'nice item'),
 	('consumable_caramel', 'Caramel', 5, 1, 'item_standard', 1, 116, '{}', 'nice item'),
@@ -498,58 +538,140 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `
 	('copper', 'Copper', 30, 1, 'item_standard', 1, 139, '{}', 'nice item'),
 	('corn', 'Corn', 10, 1, 'item_standard', 1, 140, '{}', 'nice item'),
 	('cornseed', 'Corn seed', 10, 1, 'item_standard', 1, 141, '{}', 'nice item'),
+	('cougarf', 'Cougar tooth', 20, 1, 'item_standard', 1, 558, '{}', 'nice item'),
+	('cougars', 'Cougar skin', 20, 1, 'item_standard', 1, 557, '{}', 'nice item'),
+	('cougartaxi', 'Cougar Taxidermy', 20, 1, 'item_standard', 1, 771, '{}', 'nice item'),
+	('cougar_taxidermy', 'Cougar Taxidermy', 20, 1, 'item_standard', 1, 643, '{}', 'nice item'),
+	('cowh', 'Cow horn', 20, 1, 'item_standard', 1, 562, '{}', 'nice item'),
+	('cows', 'Cow pelt', 20, 1, 'item_standard', 1, 561, '{}', 'nice item'),
+	('coyotef', 'Coyote tooth', 20, 1, 'item_standard', 1, 560, '{}', 'nice item'),
+	('coyotepelt', 'Coyote Pelt', 20, 1, 'item_standard', 1, 759, '{}', 'nice item'),
+	('coyotes', 'Coyote skin', 20, 1, 'item_standard', 1, 559, '{}', 'nice item'),
+	('coyotetaxi', 'Coyote Taxidermy', 20, 1, 'item_standard', 1, 768, '{}', 'nice item'),
+	('coyote_pelt', 'Coyote Pelt', 20, 1, 'item_standard', 1, 631, '{}', 'nice item'),
+	('coyote_taxidermy', 'Coyote Taxidermy', 20, 1, 'item_standard', 1, 640, '{}', 'nice item'),
+	('crab_c', 'Crab', 20, 1, 'item_standard', 1, 425, '{}', 'nice item'),
+	('craftingfire', 'Crafting Fire', 20, 1, 'item_standard', 1, 753, '{}', 'nice item'),
+	('crafting_fire', 'Crafting Fire', 20, 1, 'item_standard', 1, 625, '{}', 'nice item'),
+	('crawfish_c', 'Crawfish', 20, 1, 'item_standard', 1, 424, '{}', 'nice item'),
 	('Creeking_Thyme', 'Creeping Thyme', 10, 1, 'item_standard', 1, 142, '{}', 'nice item'),
 	('Creeking_Thyme_Seed', 'Creeping Thyme Seed', 10, 1, 'item_standard', 1, 143, '{}', 'nice item'),
 	('Creekplum', 'Creekplum', 10, 1, 'item_standard', 1, 144, '{}', 'nice item'),
 	('Creekplum_Seed', 'Creekplum Seed', 10, 1, 'item_standard', 1, 145, '{}', 'nice item'),
 	('Crows_Garlic', 'Crows Garlic', 10, 1, 'item_standard', 1, 146, '{}', 'nice item'),
 	('Crows_Garlic_Seed', 'Crows Garlic Seed', 10, 1, 'item_standard', 1, 147, '{}', 'nice item'),
+	('crow_c', 'Crow', 20, 1, 'item_standard', 1, 426, '{}', 'nice item'),
+	('darub', 'Crane beak', 20, 1, 'item_standard', 1, 530, '{}', 'nice item'),
+	('daruf', 'Crane feather', 20, 1, 'item_standard', 1, 529, '{}', 'nice item'),
+	('dbcandle', 'Dbl Candle', 20, 1, 'item_standard', 1, 660, '{}', 'nice item'),
+	('decortent1', 'Decor Tent 1 Set', 20, 1, 'item_standard', 1, 600, '{}', 'nice item'),
+	('decortent2', 'Decor Tent 2 Set', 20, 1, 'item_standard', 1, 601, '{}', 'nice item'),
+	('decortent3', 'Decor Tent 3 Set', 20, 1, 'item_standard', 1, 602, '{}', 'nice item'),
+	('deerheart', 'Deer heart', 20, 1, 'item_standard', 1, 466, '{}', 'nice item'),
+	('deerpelt', 'Deer Pelt', 20, 1, 'item_standard', 1, 758, '{}', 'nice item'),
+	('deerskin', 'Deer skin', 20, 1, 'item_standard', 1, 465, '{}', 'nice item'),
+	('deertaxi', 'Deer Taxidermy', 20, 1, 'item_standard', 1, 770, '{}', 'nice item'),
+	('deer_pelt', 'Deer Pelt', 20, 1, 'item_standard', 1, 630, '{}', 'nice item'),
+	('deer_taxidermy', 'Deer Taxidermy', 20, 1, 'item_standard', 1, 642, '{}', 'nice item'),
 	('Desert_Sage', 'Desert Sage', 10, 1, 'item_standard', 1, 148, '{}', 'nice item'),
 	('Desert_Sage_Seed', 'Desert Sage Seed', 10, 1, 'item_standard', 1, 149, '{}', 'nice item'),
 	('diamond', 'Diamond', 20, 1, 'item_standard', 1, 150, '{}', 'nice item'),
+	('dleguans', 'Desert Iguana pelt', 20, 1, 'item_standard', 1, 551, '{}', 'nice item'),
+	('dreamcatcher', 'Dream Catcher', 20, 1, 'item_standard', 1, 591, '{}', 'nice item'),
 	('Drink_For_Dog', 'Pet Water', 10, 1, 'item_standard', 1, 151, '{}', 'nice item'),
+	('duckfat', 'Duck fat', 20, 1, 'item_standard', 1, 467, '{}', 'nice item'),
 	('Duck_Egg', 'Duck Egg', 10, 1, 'item_standard', 1, 152, '{}', 'nice item'),
 	('dynamite', 'Pipe charge dynamite', 30, 1, 'item_standard', 1, 153, '{}', 'nice item'),
+	('eaglef', 'Eagle feather', 20, 1, 'item_standard', 1, 468, '{}', 'nice item'),
+	('eaglet', 'Eagle claws', 20, 1, 'item_standard', 1, 469, '{}', 'nice item'),
+	('egg', 'Egg', 20, 1, 'item_standard', 1, 796, '{}', 'nice item'),
 	('eggs', 'Egg', 50, 1, 'item_standard', 1, 154, '{}', 'nice item'),
+	('egretb', 'Snowy Egret beak', 20, 1, 'item_standard', 1, 473, '{}', 'nice item'),
+	('egretf', 'Snowy Egret feather', 20, 1, 'item_standard', 1, 472, '{}', 'nice item'),
+	('elkantler', 'Elk antler', 20, 1, 'item_standard', 1, 474, '{}', 'nice item'),
+	('elks', 'Vapiti pelt', 20, 1, 'item_standard', 1, 475, '{}', 'nice item'),
 	('emerald', 'Emerald', 20, 1, 'item_standard', 1, 155, '{}', 'nice item'),
 	('English_Mace', 'English Mace', 10, 1, 'item_standard', 1, 156, '{}', 'nice item'),
 	('English_Mace_Seed', 'English Mace Seed', 10, 1, 'item_standard', 1, 157, '{}', 'nice item'),
 	('Evergreen_Huckleberry', 'Evergreen Huckleberry', 10, 1, 'item_standard', 1, 158, '{}', 'nice item'),
 	('Evergreen_Huckleberry_Seed', 'Evergreen Huckleberry Seed', 10, 1, 'item_standard', 1, 159, '{}', 'nice item'),
 	('fan', 'Fan', 5, 1, 'item_standard', 1, 160, '{}', 'nice item'),
+	('fancydouble', 'fancy double', 20, 1, 'item_standard', 1, 667, '{}', 'nice item'),
 	('Fat', 'Animal Fat', 10, 1, 'item_standard', 1, 161, '{}', 'nice item'),
 	('Feather', 'Feather', 20, 1, 'item_standard', 1, 162, '{}', 'nice item'),
 	('Feed_For_Dog', 'Dog Food', 10, 1, 'item_standard', 1, 163, '{}', 'nice item'),
+	('fertilizer', 'Fertilizer', 10, 1, 'item_standard', 1, 736, '{}', 'nice item'),
+	('fertilizerbless', 'Blessed Fertilizer', 10, 1, 'item_standard', 1, 738, '{}', 'nice item'),
+	('fertilizeregg', 'Fertilizer with Eggs', 10, 1, 'item_standard', 1, 737, '{}', 'nice item'),
+	('fertilizerpro', 'Fertilizer with Produce', 10, 1, 'item_standard', 1, 740, '{}', 'nice item'),
+	('fertilizerpulpsap', 'Fertilizer with Pulp/Sap', 10, 1, 'item_standard', 1, 741, '{}', 'nice item'),
+	('fertilizersn', 'Fertilizer with Snake', 10, 1, 'item_standard', 1, 742, '{}', 'nice item'),
+	('fertilizersq', 'Fertilizer with Squirrel', 10, 1, 'item_standard', 1, 743, '{}', 'nice item'),
+	('fertilizersw', 'Fertilizer with Soft Wood', 10, 1, 'item_standard', 1, 745, '{}', 'nice item'),
+	('fertilizersyn', 'Synful Fertilizer', 10, 1, 'item_standard', 1, 739, '{}', 'nice item'),
+	('fertilizerwoj', 'Fertilizer with Wojape', 10, 1, 'item_standard', 1, 744, '{}', 'nice item'),
 	('fibers', 'Fibers', 20, 1, 'item_standard', 0, 164, '{}', 'nice item'),
 	('fish', 'Fish', 50, 1, 'item_standard', 1, 165, '{}', 'nice item'),
 	('fishbait', 'Fishbait', 10, 1, 'item_standard', 1, 166, '{}', 'nice item'),
 	('fishchips', 'Fish and Chips', 10, 1, 'item_standard', 1, 167, '{}', 'nice item'),
+	('fishmeat', 'Bigfish Meat', 20, 1, 'item_standard', 1, 572, '{}', 'nice item'),
 	('flag', 'Camp Flag', 10, 1, 'item_standard', 1, 168, '{}', 'nice item'),
+	('flowerboxes', 'Flower Boxes', 20, 1, 'item_standard', 1, 628, '{}', 'nice item'),
+	('foodbarrel', 'Food Barrel', 20, 1, 'item_standard', 1, 764, '{}', 'nice item'),
+	('food_barrel', 'Food Barrel', 20, 1, 'item_standard', 1, 636, '{}', 'nice item'),
+	('foxskin', 'Foxskin', 20, 1, 'item_standard', 1, 512, '{}', 'nice item'),
+	('foxt', 'Fox tooth', 20, 1, 'item_standard', 1, 513, '{}', 'nice item'),
 	('friedtater', 'Fried Taters', 10, 1, 'item_standard', 1, 169, '{}', 'nice item'),
+	('frogbull2_c', 'Poisoned Frogbull', 20, 1, 'item_standard', 1, 428, '{}', 'nice item'),
+	('frogbull_c', 'Frogbull', 20, 1, 'item_standard', 1, 427, '{}', 'nice item'),
+	('fsnakes', 'Blacktail rattlesnake pelt', 20, 1, 'item_standard', 1, 488, '{}', 'nice item'),
+	('game', 'Game Meat', 20, 1, 'item_standard', 1, 570, '{}', 'nice item'),
 	('Gamey_Meat', 'Gamey Meat', 10, 1, 'item_standard', 1, 170, '{}', 'nice item'),
 	('Gator_Egg_3', 'Aligator Egg 3', 10, 1, 'item_standard', 1, 171, '{}', 'nice item'),
 	('Gator_Egg_4', 'Aligator Egg 4', 10, 1, 'item_standard', 1, 172, '{}', 'nice item'),
 	('Gator_Egg_5', 'Aligator Egg 5', 10, 1, 'item_standard', 1, 173, '{}', 'nice item'),
+	('gbarrelx', 'Gun Barrel', 20, 1, 'item_standard', 1, 761, '{}', 'nice item'),
+	('gbears', 'Grizzly Bear skin', 20, 1, 'item_standard', 1, 453, '{}', 'nice item'),
 	('ginsengtea', 'Ginseng Tea', 10, 1, 'item_standard', 1, 174, '{}', 'nice item'),
 	('glassbottle', 'Glass Bottle', 15, 1, 'item_standard', 1, 175, '{}', 'nice item'),
+	('gleguans', 'Green Iguana pelt', 20, 1, 'item_standard', 1, 552, '{}', 'nice item'),
+	('goathead', 'Goat head', 20, 1, 'item_standard', 1, 556, '{}', 'nice item'),
+	('goats', 'Goat pelt', 20, 1, 'item_standard', 1, 555, '{}', 'nice item'),
 	('goldbar', 'GoldBar', 5, 1, 'item_standard', 1, 176, '{}', 'nice item'),
 	('Golden_Currant', 'Golden Currant', 10, 1, 'item_standard', 1, 177, '{}', 'nice item'),
 	('Golden_Currant_Seed', 'Golden Currant Seed', 10, 1, 'item_standard', 1, 178, '{}', 'nice item'),
 	('goldfish', 'Gold Fish', 10, 1, 'item_standard', 0, 179, '{}', 'nice item'),
-	('goldnugget', 'Gold nugget', 30, 1, 'item_standard', 0, 180, '{}', 'nice item'),
 	('goldpan', 'Gold pan', 10, 1, 'item_standard', 1, 181, '{}', 'nice item'),
 	('goldring', 'Gold Ring', 10, 1, 'item_standard', 1, 182, '{}', 'nice item'),
+	('gold_nugget', 'Gold nugget', 30, 1, 'item_standard', 0, 180, '{}', 'nice item'),
+	('gooseb', 'Goose beak', 20, 1, 'item_standard', 1, 532, '{}', 'nice item'),
+	('goosef', 'Goose feather', 20, 1, 'item_standard', 1, 531, '{}', 'nice item'),
 	('Goose_Egg_4', 'Goose Egg', 10, 1, 'item_standard', 1, 183, '{}', 'nice item'),
-	('hairpomade', 'Hair Pomade', 10, 1, 'item_standard', 1, 184, '{}', 'nice item'),
+	('guitar', 'Classic Guitar', 1, 1, 'item_standard', 1, 341, '{}', 'nice item'),
+	('gun_barrel', 'Gun Barrel', 20, 1, 'item_standard', 1, 633, '{}', 'nice item'),
+	('gypsywagon', 'Gypsys Wagon Set', 20, 1, 'item_standard', 1, 585, '{}', 'nice item'),
+	('hairpomade', 'Hair Pomade', 5, 1, 'item_standard', 1, 184, '{}', 'nice item'),
 	('handcuffs', 'Handcuffs', 10, 1, 'item_standard', 1, 185, '{}', 'nice item'),
 	('hatchet', 'Hatchet', 1, 1, 'item_standard', 1, 186, '{}', 'nice item'),
+	('hawkf', 'Hawk feather', 20, 1, 'item_standard', 1, 535, '{}', 'nice item'),
+	('hawkt', 'Hawk claws', 20, 1, 'item_standard', 1, 536, '{}', 'nice item'),
 	('Health_For_Dog', 'Pet Bandages', 10, 1, 'item_standard', 1, 187, '{}', 'nice item'),
 	('hemp', 'Hemp', 10, 1, 'item_standard', 1, 188, '{}', 'nice item'),
 	('hemp_cig', 'Hemp Cigarette', 1, 1, 'item_standard', 1, 189, '{}', 'nice item'),
+	('hemp_seed', 'Hemp Seed', 20, 1, 'item_standard', 1, 615, '{}', 'nice item'),
+	('herbal_medicine', 'Herbal Medicine', 20, 1, 'item_standard', 1, 338, '{}', 'nice item'),
+	('herbal_tonic', 'Herbal Tonic', 20, 1, 'item_standard', 1, 339, '{}', 'nice item'),
 	('herbmed', 'Herbal Remedy', 10, 1, 'item_standard', 1, 190, '{}', 'nice item'),
 	('heroin', 'Heroin', 5, 1, 'item_standard', 1, 191, '{}', 'nice item'),
+	('herptile', 'Herptile meat', 20, 1, 'item_standard', 1, 573, '{}', 'nice item'),
+	('hitchingpost', 'Hitching Post', 20, 1, 'item_standard', 1, 580, '{}', 'nice item'),
+	('hoe', 'Garden Hoe', 10, 1, 'item_standard', 1, 679, '{}', 'nice item'),
 	('honey', 'Honey', 10, 1, 'item_standard', 1, 192, '{}', 'nice item'),
+	('hop', 'Hop', 10, 1, 'item_standard', 1, 685, '{}', 'nice item'),
+	('hop_seed', 'Hop Seed', 10, 1, 'item_standard', 1, 684, '{}', 'nice item'),
 	('horsebrush', 'Horse Brush', 5, 1, 'item_standard', 1, 193, '{}', 'nice item'),
+	('horsehitches', 'Horse Hitches Set', 20, 1, 'item_standard', 1, 603, '{}', 'nice item'),
+	('horsemeal', 'Horse ration', 10, 1, 'item_standard', 1, 348, '{}', 'nice item'),
 	('Hummingbird_Sage', 'Hummingbird Sage', 10, 1, 'item_standard', 1, 194, '{}', 'nice item'),
 	('Hummingbird_Sage_Seed', 'Hummingbird Sage Seed', 10, 1, 'item_standard', 1, 195, '{}', 'nice item'),
 	('hwood', 'Hard Wood', 20, 1, 'item_standard', 0, 196, '{}', 'nice item'),
@@ -559,47 +681,208 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `
 	('ironbar', 'Iron Bar', 30, 1, 'item_standard', 1, 200, '{}', 'nice item'),
 	('ironextract', 'Iron Extract', 1, 1, 'item_standard', 0, 201, '{}', 'nice item'),
 	('ironhammer', 'Iron Hammer', 5, 1, 'item_standard', 1, 202, '{}', 'nice item'),
+	('kbirdb', 'Great Blue Heron beak', 20, 1, 'item_standard', 1, 534, '{}', 'nice item'),
+	('kbirdf', 'Great Blue Heron feather', 20, 1, 'item_standard', 1, 533, '{}', 'nice item'),
+	('kitchencounter', 'Kitchen Counter', 20, 1, 'item_standard', 1, 611, '{}', 'nice item'),
 	('kit_bandana', 'Bandana', 2, 1, 'item_standard', 1, 203, '{}', 'nice item'),
+	('lamppost1', 'Lamp Post 1 Set', 20, 1, 'item_standard', 1, 606, '{}', 'nice item'),
+	('lamppost2', 'Lamp Post 2 Set', 20, 1, 'item_standard', 1, 607, '{}', 'nice item'),
+	('lanterna', 'Lantern', 20, 1, 'item_standard', 1, 659, '{}', 'nice item'),
 	('leather', 'Leather', 50, 1, 'item_standard', 1, 204, '{}', 'nice item'),
+	('leatherchair', 'Leather Chair', 20, 1, 'item_standard', 1, 748, '{}', 'nice item'),
+	('leather_chair', 'Leather Chair', 20, 1, 'item_standard', 1, 620, '{}', 'nice item'),
+	('legalbook', 'Legal Book', 1, 1, 'item_standard', 1, 892, '{}', 'nice item'),
+	('legaligators', 'Legendary Alligator pelt', 20, 1, 'item_standard', 1, 417, '{}', 'nice item'),
+	('legaligators1', 'Legendary Teca Alligator pelt', 20, 1, 'item_standard', 1, 400, '{}', 'nice item'),
+	('legaligators2', 'Legendary Sun Alligator pelt', 20, 1, 'item_standard', 1, 401, '{}', 'nice item'),
+	('legaligators3', 'Legendary Banded Alligator pelt', 20, 1, 'item_standard', 1, 402, '{}', 'nice item'),
+	('legalpaper', 'Legal Paper', 4, 1, 'item_standard', 1, 891, '{}', 'nice item'),
+	('legbears1', 'Legendary Deadly Bear pelt', 20, 1, 'item_standard', 1, 376, '{}', 'nice item'),
+	('legbears2', 'Legendary Owiza Bear pelt', 20, 1, 'item_standard', 1, 377, '{}', 'nice item'),
+	('legbears3', 'Legendary Ridgeback Spirit Bear pelt', 20, 1, 'item_standard', 1, 378, '{}', 'nice item'),
+	('legbears4', 'Legendary Golden Spirit Bear pelt', 20, 1, 'item_standard', 1, 379, '{}', 'nice item'),
+	('legbeavers1', 'Legendary Grey Beaver pelt', 20, 1, 'item_standard', 1, 397, '{}', 'nice item'),
+	('legbeavers2', 'Legendary White Beaver pelt', 20, 1, 'item_standard', 1, 398, '{}', 'nice item'),
+	('legbeavers3', 'Legendary Black Beaver pelt', 20, 1, 'item_standard', 1, 399, '{}', 'nice item'),
+	('legbeawers', 'Legendary Beaver pelt', 20, 1, 'item_standard', 1, 411, '{}', 'nice item'),
+	('legbisonhorn', 'Legendary Bison Horns', 20, 1, 'item_standard', 1, 353, '{}', 'nice item'),
+	('legbisons', 'Legendary Bison pelt', 20, 1, 'item_standard', 1, 416, '{}', 'nice item'),
+	('legbisons1', 'Legendary Tatanka Bison pelt', 20, 1, 'item_standard', 1, 365, '{}', 'nice item'),
+	('legbisons2', 'Legendary Winyan Bison pelt', 20, 1, 'item_standard', 1, 366, '{}', 'nice item'),
+	('legbisons3', 'Legendary Payata Bison pelt', 20, 1, 'item_standard', 1, 367, '{}', 'nice item'),
+	('legbisonstak', 'Legendary Takanta Bison pelt', 20, 1, 'item_standard', 1, 415, '{}', 'nice item'),
+	('legboars', 'Legendary Boar pelt', 20, 1, 'item_standard', 1, 414, '{}', 'nice item'),
+	('legboars1', 'Legendary Cogi Boar pelt', 20, 1, 'item_standard', 1, 393, '{}', 'nice item'),
+	('legboars2', 'Legendary Wakpa Boar pelt', 20, 1, 'item_standard', 1, 394, '{}', 'nice item'),
+	('legboars3', 'Legendary Icahi Boar pelt', 20, 1, 'item_standard', 1, 395, '{}', 'nice item'),
+	('legboars4', 'Legendary Wildhog pelt', 20, 1, 'item_standard', 1, 396, '{}', 'nice item'),
+	('legbucks', 'Legendary Buck skin', 20, 1, 'item_standard', 1, 410, '{}', 'nice item'),
+	('legbucks1', 'Legendary Buck pelt', 20, 1, 'item_standard', 1, 368, '{}', 'nice item'),
+	('legbucks2', 'Legendary Mudrunner Buck pelt', 20, 1, 'item_standard', 1, 369, '{}', 'nice item'),
+	('legbucks3', 'Legendary Snow Buck pelt', 20, 1, 'item_standard', 1, 370, '{}', 'nice item'),
+	('legbucks4', 'Legendary Shadow Buck pelt', 20, 1, 'item_standard', 1, 371, '{}', 'nice item'),
+	('legcougars', 'Legendary Cougar skin', 20, 1, 'item_standard', 1, 409, '{}', 'nice item'),
+	('legcougars1', 'Legendary Iguga Cougar pelt', 20, 1, 'item_standard', 1, 389, '{}', 'nice item'),
+	('legcougars2', 'Legendary Maza Cougar pelt', 20, 1, 'item_standard', 1, 390, '{}', 'nice item'),
+	('legcougars3', 'Legendary Sapa Cougar pelt', 20, 1, 'item_standard', 1, 391, '{}', 'nice item'),
+	('legcougars4', 'Legendary Black Cougar pelt', 20, 1, 'item_standard', 1, 392, '{}', 'nice item'),
+	('legcoyotes', 'Legendary Coyote skin', 20, 1, 'item_standard', 1, 408, '{}', 'nice item'),
+	('legcoyotes1', 'Legendary Red Streak Coyote pelt', 20, 1, 'item_standard', 1, 386, '{}', 'nice item'),
+	('legcoyotes2', 'Legendary Midnight Paw Coyote pelt', 20, 1, 'item_standard', 1, 387, '{}', 'nice item'),
+	('legcoyotes3', 'Legendary Milk Coyote pelt', 20, 1, 'item_standard', 1, 388, '{}', 'nice item'),
+	('legelkantler', 'Legendary Elk Antlers', 20, 1, 'item_standard', 1, 355, '{}', 'nice item'),
+	('legelks', 'Legendary Elk pelt', 20, 1, 'item_standard', 1, 403, '{}', 'nice item'),
+	('legelks1', 'Legendary Katata Elk pelt', 20, 1, 'item_standard', 1, 362, '{}', 'nice item'),
+	('legelks2', 'Legendary Ozula Elk pelt', 20, 1, 'item_standard', 1, 363, '{}', 'nice item'),
+	('legelks3', 'Legendary Inahme Elk pelt', 20, 1, 'item_standard', 1, 364, '{}', 'nice item'),
+	('legendbuckantler', 'Legendary Buck Antlers', 20, 1, 'item_standard', 1, 356, '{}', 'nice item'),
+	('legendsnakes', 'Legendary Boa pelt', 20, 1, 'item_standard', 1, 418, '{}', 'nice item'),
+	('legfoxs2', 'Legendary Marble Fox pelt', 20, 1, 'item_standard', 1, 360, '{}', 'nice item'),
+	('legfoxs3', 'Legendary Cross Fox pelt', 20, 1, 'item_standard', 1, 361, '{}', 'nice item'),
+	('legfoxskin', 'Legendary Fox skin', 20, 1, 'item_standard', 1, 413, '{}', 'nice item'),
+	('leggbears', 'Legendary Bear skin', 20, 1, 'item_standard', 1, 404, '{}', 'nice item'),
+	('legmooseantler', 'Legendary Moose Antlers', 20, 1, 'item_standard', 1, 352, '{}', 'nice item'),
+	('legmooses', 'Legendary Moose pelt', 20, 1, 'item_standard', 1, 405, '{}', 'nice item'),
+	('legmooses1', 'Legendary Snowflake Moose pelt', 20, 1, 'item_standard', 1, 357, '{}', 'nice item'),
+	('legmooses2', 'Legendary Knight Moose pelt', 20, 1, 'item_standard', 1, 358, '{}', 'nice item'),
+	('legmooses3', 'Legendary Rudy Moose pelt', 20, 1, 'item_standard', 1, 359, '{}', 'nice item'),
+	('legpanthers1', 'Legendary Nightwalker Panther pelt', 20, 1, 'item_standard', 1, 383, '{}', 'nice item'),
+	('legpanthers2', 'Legendary Ghost Panther pelt', 20, 1, 'item_standard', 1, 384, '{}', 'nice item'),
+	('legpanthers3', 'Legendary Iwakta Panther pelt', 20, 1, 'item_standard', 1, 385, '{}', 'nice item'),
+	('legprongs', 'Legendary Pronghorn skin', 20, 1, 'item_standard', 1, 407, '{}', 'nice item'),
+	('legramhorn', 'Legendary Ram Horns', 20, 1, 'item_standard', 1, 354, '{}', 'nice item'),
+	('legrams', 'Legendary Ram pelt', 20, 1, 'item_standard', 1, 412, '{}', 'nice item'),
+	('legrams1', 'Legendary Gabbro Horn Ram pelt', 20, 1, 'item_standard', 1, 372, '{}', 'nice item'),
+	('legrams2', 'Legendary Chalk Horn Ram pelt', 20, 1, 'item_standard', 1, 373, '{}', 'nice item'),
+	('legrams3', 'Legendary Rutile Horn Ram pelt', 20, 1, 'item_standard', 1, 374, '{}', 'nice item'),
+	('legrams4', 'Legendary GreatHorn Ram pelt', 20, 1, 'item_standard', 1, 375, '{}', 'nice item'),
+	('legwolfpelt', 'Legendary Wolf skin', 20, 1, 'item_standard', 1, 406, '{}', 'nice item'),
+	('legwolfs1', 'Legendary Emerald Wolf pelt', 20, 1, 'item_standard', 1, 380, '{}', 'nice item'),
+	('legwolfs2', 'Legendary Onyx Wolf pelt', 20, 1, 'item_standard', 1, 381, '{}', 'nice item'),
+	('legwolfs3', 'Legendary Moonstone Wolf pelt', 20, 1, 'item_standard', 1, 382, '{}', 'nice item'),
+	('lizardl', 'Lizard foot', 20, 1, 'item_standard', 1, 554, '{}', 'nice item'),
+	('lizards', 'Lizard pelt', 20, 1, 'item_standard', 1, 553, '{}', 'nice item'),
 	('lockpick', 'Lockpick', 5, 1, 'item_standard', 1, 205, '{}', 'nice item'),
 	('lockpickmold', 'Lockpick Mold', 5, 1, 'item_standard', 1, 206, '{}', 'nice item'),
+	('logbechs', 'Log Bench 2', 20, 1, 'item_standard', 1, 775, '{}', 'nice item'),
+	('logbench', 'Log Bench 1', 20, 1, 'item_standard', 1, 774, '{}', 'nice item'),
+	('log_bencha', 'Log Bench 1', 20, 1, 'item_standard', 1, 646, '{}', 'nice item'),
+	('log_benchb', 'Log Bench 2', 20, 1, 'item_standard', 1, 647, '{}', 'nice item'),
+	('loonb', 'Common loon beak', 20, 1, 'item_standard', 1, 538, '{}', 'nice item'),
+	('loonf', 'Common loon feather', 20, 1, 'item_standard', 1, 537, '{}', 'nice item'),
+	('loungechair', 'Lounge Chair', 20, 1, 'item_standard', 1, 598, '{}', 'nice item'),
+	('loungechair2', 'Lounge Chair 2', 20, 1, 'item_standard', 1, 599, '{}', 'nice item'),
+	('lumberaxe', 'Lumber Axe', 1, 1, 'item_standard', 1, 345, '{}', 'nice item'),
 	('mackerel', 'Mackerel', 10, 1, 'item_standard', 0, 207, '{}', 'nice item'),
+	('marriagebook', 'Marriage Book', 1, 1, 'item_standard', 1, 894, '{}', 'nice item'),
+	('marriagecertification', 'Marriage Certify', 2, 1, 'item_standard', 1, 895, '{}', 'nice item'),
+	('mashalaskan', 'Alaskan Gin Mash', 20, 1, 'item_standard', 1, 824, '{}', 'nice item'),
+	('mashamerican', 'Alaskan Gin Mash', 20, 1, 'item_standard', 1, 825, '{}', 'nice item'),
+	('mashapple', 'Apple Mash', 20, 1, 'item_standard', 1, 826, '{}', 'nice item'),
+	('mashblackberry', 'Blackberry Mash', 20, 1, 'item_standard', 1, 827, '{}', 'nice item'),
+	('mashblackberry90p', 'Blackberry Mash 90p', 20, 1, 'item_standard', 1, 828, '{}', 'nice item'),
+	('mashpeach', 'Peach Mash', 20, 1, 'item_standard', 1, 829, '{}', 'nice item'),
+	('mashplum', 'Plum Mash', 20, 1, 'item_standard', 1, 830, '{}', 'nice item'),
+	('mashraspberry', 'Raspberry Mash', 20, 1, 'item_standard', 1, 831, '{}', 'nice item'),
+	('mashraspberry90p', 'Raspberry Mash 90p', 20, 1, 'item_standard', 1, 832, '{}', 'nice item'),
+	('mashstrong', 'Strong Mash Batch', 20, 1, 'item_standard', 1, 833, '{}', 'nice item'),
 	('meat', 'Meat', 20, 1, 'item_standard', 1, 208, '{}', 'nice item'),
 	('milk', 'Milk', 50, 1, 'item_standard', 1, 209, '{}', 'nice item'),
 	('Milk_Weed', 'Milk Weed', 10, 1, 'item_standard', 1, 210, '{}', 'nice item'),
 	('Milk_Weed_Seed', 'Milk Weed Seed', 10, 1, 'item_standard', 1, 211, '{}', 'nice item'),
 	('moonshine', 'Moonshine', 10, 1, 'item_standard', 1, 212, '{}', 'nice item'),
+	('mooseantler', 'Moose Antlers', 20, 1, 'item_standard', 1, 548, '{}', 'nice item'),
+	('mooses', 'Moose pelt', 20, 1, 'item_standard', 1, 549, '{}', 'nice item'),
 	('morpcert', 'Morphine Perscription', 10, 1, 'item_standard', 1, 213, '{}', 'nice item'),
 	('morphine', 'Morphine', 10, 1, 'item_standard', 1, 214, '{}', 'nice item'),
+	('mountainmen', 'Mountain Camp Set', 20, 1, 'item_standard', 1, 608, '{}', 'nice item'),
 	('mp001_p_mp_still02x', 'Brennerei', 1, 1, 'item_standard', 1, 215, '{}', 'nice item'),
+	('muskrats', 'Muskrat skin', 20, 1, 'item_standard', 1, 547, '{}', 'nice item'),
 	('Mutton', 'Mutton', 20, 1, 'item_standard', 1, 216, '{}', 'nice item'),
 	('nails', 'Nails', 40, 1, 'item_standard', 1, 217, '{}', 'nice item'),
+	('nativebasket1', 'Native Basket 1', 20, 1, 'item_standard', 1, 593, '{}', 'nice item'),
+	('nativebasket2', 'Native Basket 2', 20, 1, 'item_standard', 1, 594, '{}', 'nice item'),
+	('nativedecor', 'Native Decor Set', 20, 1, 'item_standard', 1, 584, '{}', 'nice item'),
+	('nativepot', 'Native Pot', 20, 1, 'item_standard', 1, 592, '{}', 'nice item'),
+	('nativeskull', 'Native Decor 1', 20, 1, 'item_standard', 1, 595, '{}', 'nice item'),
+	('naturalwagon', 'Naturalists Wagon Set', 20, 1, 'item_standard', 1, 605, '{}', 'nice item'),
 	('newspaper', 'NewsPaper', 20, 1, 'item_standard', 1, 218, '{}', 'nice item'),
+	('nightstand', 'night stand', 20, 1, 'item_standard', 1, 653, '{}', 'nice item'),
 	('nitrite', 'Nitrite', 20, 1, 'item_standard', 1, 219, '{}', 'nice item'),
 	('nitroglyserolia', 'Nitroglycerol', 30, 1, 'item_standard', 1, 220, '{}', 'nice item'),
+	('normaltable', 'Table', 20, 1, 'item_standard', 1, 750, '{}', 'nice item'),
 	('notebook', 'Notebook', 5, 1, 'item_standard', 1, 221, '{}', 'nice item'),
+	('obed', 'Old bed', 20, 1, 'item_standard', 1, 664, '{}', 'nice item'),
 	('Oleander_Sage', 'Oleander Sage', 10, 1, 'item_standard', 1, 222, '{}', 'nice item'),
 	('Oleander_Sage_Seed', 'Oleander Sage Seed', 10, 1, 'item_standard', 1, 223, '{}', 'nice item'),
+	('opossumc', 'Opossum claws', 20, 1, 'item_standard', 1, 515, '{}', 'nice item'),
+	('opossums', 'Opossum skin', 20, 1, 'item_standard', 1, 514, '{}', 'nice item'),
 	('orden_presidente', 'Order of the President', 10, 1, 'item_standard', 0, 224, '{}', 'nice item'),
 	('Oregano', 'Oregano', 10, 1, 'item_standard', 1, 225, '{}', 'nice item'),
 	('Oregano_Seed', 'Oregano Seed', 10, 1, 'item_standard', 1, 226, '{}', 'nice item'),
+	('oriole2_c', 'Hooded Oriole', 20, 1, 'item_standard', 1, 430, '{}', 'nice item'),
+	('oriole_c', 'Oriole', 20, 1, 'item_standard', 1, 429, '{}', 'nice item'),
+	('owlf', 'Owl feather', 20, 1, 'item_standard', 1, 539, '{}', 'nice item'),
+	('owlt', 'Owl claws', 20, 1, 'item_standard', 1, 540, '{}', 'nice item'),
+	('oxhorn', 'Angus Bull horn', 20, 1, 'item_standard', 1, 545, '{}', 'nice item'),
+	('oxs', 'Angus Bull pelt', 20, 1, 'item_standard', 1, 546, '{}', 'nice item'),
+	('panthere', 'Panther eyes', 20, 1, 'item_standard', 1, 564, '{}', 'nice item'),
+	('panthers', 'Panther skin', 20, 1, 'item_standard', 1, 563, '{}', 'nice item'),
 	('paper', 'Paper', 20, 1, 'item_standard', 1, 227, '{}', 'nice item'),
+	('parasol', 'Parasol', 1, 1, 'item_standard', 1, 343, '{}', 'nice item'),
 	('Parasol_Mushroom', 'Parasol Mushroom', 10, 1, 'item_standard', 1, 228, '{}', 'nice item'),
 	('Parasol_Mushroom_Seed', 'Parasol Mushroom Seed', 10, 1, 'item_standard', 1, 229, '{}', 'nice item'),
+	('peachseeds', 'Peach Seeds', 10, 1, 'item_standard', 1, 735, '{}', 'nice item'),
+	('peasantb', 'Peasant beak', 20, 1, 'item_standard', 1, 518, '{}', 'nice item'),
+	('peasantf', 'Peasant feather', 20, 1, 'item_standard', 1, 517, '{}', 'nice item'),
+	('pecaris', 'Peccary pelt', 20, 1, 'item_standard', 1, 550, '{}', 'nice item'),
+	('pelicanb', 'Pelican beak', 20, 1, 'item_standard', 1, 520, '{}', 'nice item'),
+	('pelicanf', 'Pelican feather', 20, 1, 'item_standard', 1, 519, '{}', 'nice item'),
+	('pen', 'Pen', 2, 1, 'item_standard', 0, 896, '{}', 'nice item'),
+	('pheasant_taxidermy', 'Pheasant Taxidermy', 20, 1, 'item_standard', 1, 641, '{}', 'nice item'),
+	('phestaxi', 'Pheasant Taxidermy', 20, 1, 'item_standard', 1, 769, '{}', 'nice item'),
 	('pickaxe', 'Pickaxe', 1, 1, 'item_standard', 0, 230, '{}', 'nice item'),
+	('pigeon_c', 'Pigeon', 20, 1, 'item_standard', 1, 431, '{}', 'nice item'),
+	('pigs', 'Pig pelt', 20, 1, 'item_standard', 1, 516, '{}', 'nice item'),
 	('pipe', 'Pipe', 5, 1, 'item_standard', 1, 231, '{}', 'nice item'),
+	('pipecopper', 'Copper Pipe', 5, 1, 'item_standard', 1, 835, '{}', 'nice item'),
+	('planttrimmer', 'Plant Trimmer', 10, 1, 'item_standard', 1, 678, '{}', 'nice item'),
 	('pocket_watch', 'Pocket Watch', 5, 1, 'item_standard', 1, 232, '{}', 'nice item'),
+	('pokerset', 'Poker Table Set', 20, 1, 'item_standard', 1, 579, '{}', 'nice item'),
+	('pork', 'Pork', 20, 1, 'item_standard', 1, 571, '{}', 'nice item'),
+	('porkfat', 'Pig fat', 20, 1, 'item_standard', 1, 458, '{}', 'nice item'),
+	('pot', 'Distillery Pot', 1, 1, 'item_standard', 1, 836, '{}', 'nice item'),
+	('pota', 'House Pot', 20, 1, 'item_standard', 1, 626, '{}', 'nice item'),
 	('potato', 'Potato', 20, 1, 'item_standard', 1, 233, '{}', 'nice item'),
+	('potatoseed', 'Potato Seed', 10, 1, 'item_standard', 1, 731, '{}', 'nice item'),
+	('prairib', 'Prairi chicken beak', 20, 1, 'item_standard', 1, 509, '{}', 'nice item'),
 	('Prairie_Poppy', 'Prairie Poppy', 10, 1, 'item_standard', 1, 234, '{}', 'nice item'),
 	('Prairie_Poppy_Seed', 'Prairie Poppy Seed', 10, 1, 'item_standard', 1, 235, '{}', 'nice item'),
+	('prairif', 'Prairi chicken feather', 20, 1, 'item_standard', 1, 508, '{}', 'nice item'),
+	('pronghornh', 'Pronghorn horn', 20, 1, 'item_standard', 1, 511, '{}', 'nice item'),
+	('prongs', 'Pronghorn skin', 20, 1, 'item_standard', 1, 510, '{}', 'nice item'),
 	('provision_jail_keys', 'Jail Keys', 10, 1, 'item_standard', 1, 236, '{}', 'nice item'),
 	('pulp', 'Pulp', 20, 1, 'item_standard', 0, 237, '{}', 'nice item'),
+	('p_baitBread01x', 'Bread Bait', 20, 1, 'item_standard', 1, 838, '{}', 'nice item'),
 	('p_barrelmoonshine', 'Barrel', 1, 1, 'item_standard', 1, 238, '{}', 'nice item'),
+	('quailb', 'Quail beak', 20, 1, 'item_standard', 1, 471, '{}', 'nice item'),
+	('quailf', 'Quail feather', 20, 1, 'item_standard', 1, 470, '{}', 'nice item'),
 	('quartz', 'Quartz', 20, 1, 'item_standard', 1, 239, '{}', 'nice item'),
+	('rabbitpaw', 'Rabbitfoot', 20, 1, 'item_standard', 1, 507, '{}', 'nice item'),
+	('rabbits', 'Rabbitskin', 20, 1, 'item_standard', 1, 506, '{}', 'nice item'),
+	('raccoons', 'Raccoon skin', 20, 1, 'item_standard', 1, 504, '{}', 'nice item'),
+	('raccoont', 'Raccoon tooth', 20, 1, 'item_standard', 1, 505, '{}', 'nice item'),
 	('rajahdysoljy', 'Explosive Oil', 30, 1, 'item_standard', 1, 240, '{}', 'nice item'),
+	('ramhorn', 'Ram Horn', 20, 1, 'item_standard', 1, 454, '{}', 'nice item'),
+	('rams', 'Ram pelt', 20, 1, 'item_standard', 1, 455, '{}', 'nice item'),
 	('Rams_Head', 'Rams Head', 10, 1, 'item_standard', 1, 241, '{}', 'nice item'),
 	('Rams_Head_Seed', 'Rams Head Seed', 10, 1, 'item_standard', 1, 242, '{}', 'nice item'),
 	('raspberryale', 'Raspberry Ale', 10, 1, 'item_standard', 1, 243, '{}', 'nice item'),
+	('rat_c', 'Rat', 20, 1, 'item_standard', 1, 432, '{}', 'nice item'),
+	('ravenc', 'Raven claws', 20, 1, 'item_standard', 1, 502, '{}', 'nice item'),
+	('ravenf', 'Raven feather', 20, 1, 'item_standard', 1, 503, '{}', 'nice item'),
+	('rectable', 'Rectangle Table', 20, 1, 'item_standard', 1, 751, '{}', 'nice item'),
+	('rectangle_table', 'Rectangle Table', 20, 1, 'item_standard', 1, 623, '{}', 'nice item'),
 	('Red_Raspberry', 'Red Raspberry', 10, 1, 'item_standard', 1, 244, '{}', 'nice item'),
 	('Red_Raspberry_Seed', 'Red Raspberry Seed', 10, 1, 'item_standard', 1, 245, '{}', 'nice item'),
 	('Red_Sage', 'Red Sage', 10, 1, 'item_standard', 1, 246, '{}', 'nice item'),
@@ -619,9 +902,16 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `
 	('riflerecmold', 'Rifle Receiver Mold', 5, 1, 'item_standard', 1, 260, '{}', 'nice item'),
 	('riflestock', 'Rifle Stock', 5, 1, 'item_standard', 1, 261, '{}', 'nice item'),
 	('roach', 'Roach', 10, 1, 'item_standard', 0, 262, '{}', 'nice item'),
+	('robberyplanning', 'Robbery Planning Set', 20, 1, 'item_standard', 1, 604, '{}', 'nice item'),
+	('robin_c', 'Robin', 20, 1, 'item_standard', 1, 433, '{}', 'nice item'),
 	('rock', 'Rock', 30, 1, 'item_standard', 0, 263, '{}', 'nice item'),
 	('rollingpaper', 'Rolling paper', 30, 1, 'item_standard', 1, 264, '{}', 'nice item'),
+	('roundtable', 'Round Table', 20, 1, 'item_standard', 1, 749, '{}', 'nice item'),
+	('round_table', 'Round Table', 20, 1, 'item_standard', 1, 621, '{}', 'nice item'),
+	('rspoonb', 'Roseta Spoonbill beak', 20, 1, 'item_standard', 1, 497, '{}', 'nice item'),
+	('rspoonf', 'Roseta Spoonbill feather', 20, 1, 'item_standard', 1, 496, '{}', 'nice item'),
 	('rubber', 'Rubber', 20, 1, 'item_standard', 0, 265, '{}', 'nice item'),
+	('rubbertube', 'Rubber Tube', 5, 1, 'item_standard', 0, 841, '{}', 'nice item'),
 	('salamelle', 'Fresh Pork ', 20, 1, 'item_standard', 1, 266, '{}', 'nice item'),
 	('salmon', 'Salmon', 10, 1, 'item_standard', 0, 267, '{}', 'nice item'),
 	('salt', 'Salt', 20, 1, 'item_standard', 1, 268, '{}', 'nice item'),
@@ -630,49 +920,106 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `
 	('sap', 'Sap', 20, 1, 'item_standard', 0, 271, '{}', 'nice item'),
 	('sarsaparilla', 'Sarsaparilla', 10, 1, 'item_standard', 1, 272, '{}', 'nice item'),
 	('scale', 'Scale', 5, 1, 'item_standard', 1, 273, '{}', 'nice item'),
+	('scentg', 'Scent glad', 20, 1, 'item_standard', 1, 492, '{}', 'nice item'),
+	('seagullb', 'Seagull beak', 20, 1, 'item_standard', 1, 495, '{}', 'nice item'),
+	('seagullf', 'Seagull feather', 20, 1, 'item_standard', 1, 494, '{}', 'nice item'),
 	('secondchance', 'Second Chance', 10, 1, 'item_standard', 1, 274, '{}', 'nice item'),
+	('sheephead', 'Sheep head', 20, 1, 'item_standard', 1, 493, '{}', 'nice item'),
 	('shellcasing', 'Shell Casing', 40, 1, 'item_standard', 1, 275, '{}', 'nice item'),
+	('shootingtarget', 'Shooting Target', 20, 1, 'item_standard', 1, 613, '{}', 'nice item'),
 	('shotgunbarrel', 'Shotgun Barrel', 5, 1, 'item_standard', 1, 276, '{}', 'nice item'),
 	('shotgunmold', 'Shotgun Mold', 5, 1, 'item_standard', 1, 277, '{}', 'nice item'),
 	('shotgunstock', 'Shotgun Stock', 5, 1, 'item_standard', 1, 278, '{}', 'nice item'),
 	('shrimps', 'Shrimp Stew', 1, 1, 'item_standard', 1, 279, '{}', 'nice item'),
+	('sidetable', 'side table 1', 20, 1, 'item_standard', 1, 782, '{}', 'nice item'),
+	('sidetablea', 'side table 2', 20, 1, 'item_standard', 1, 783, '{}', 'nice item'),
+	('sidetableb', 'side table 3', 20, 1, 'item_standard', 1, 784, '{}', 'nice item'),
+	('side_table', 'side table 1', 20, 1, 'item_standard', 1, 654, '{}', 'nice item'),
+	('side_tablea', 'side table 2', 20, 1, 'item_standard', 1, 655, '{}', 'nice item'),
+	('side_tableb', 'side table 3', 20, 1, 'item_standard', 1, 656, '{}', 'nice item'),
+	('singlebed', 'single bed', 20, 1, 'item_standard', 1, 666, '{}', 'nice item'),
+	('skullpost', 'Skull Post', 20, 1, 'item_standard', 1, 597, '{}', 'nice item'),
+	('smallchest', 'Small Chest', 1, 1, 'item_standard', 1, 657, '{}', 'nice item'),
+	('smallmcandle', 'Small Melted Candle', 20, 1, 'item_standard', 1, 662, '{}', 'nice item'),
 	('Small_Leather', 'Small Leather', 10, 1, 'item_standard', 1, 280, '{}', 'nice item'),
 	('SnakeSkin', 'Snake Skin', 20, 1, 'item_standard', 1, 281, '{}', 'nice item'),
+	('snaket', 'Snake tooth', 20, 1, 'item_standard', 1, 490, '{}', 'nice item'),
 	('Snake_Poison', 'Snake Poison', 10, 1, 'item_standard', 1, 282, '{}', 'nice item'),
 	('soborno', 'Soborno Alcohol', 15, 1, 'item_standard', 0, 283, '{}', 'nice item'),
+	('songbird2_c', 'Scarlet songbird', 20, 1, 'item_standard', 1, 435, '{}', 'nice item'),
+	('songbird_c', 'Songbird', 20, 1, 'item_standard', 1, 434, '{}', 'nice item'),
+	('sparrow0_c', 'Common Sparrow', 20, 1, 'item_standard', 1, 436, '{}', 'nice item'),
+	('sparrow1_c', 'Sparrow', 20, 1, 'item_standard', 1, 437, '{}', 'nice item'),
+	('sparrow2_c', 'Golden Sparrow', 20, 1, 'item_standard', 1, 438, '{}', 'nice item'),
+	('squirrel_black_c', 'Black Squirrel', 20, 1, 'item_standard', 1, 441, '{}', 'nice item'),
+	('squirrel_grey_c', 'Gray Squirrel', 20, 1, 'item_standard', 1, 439, '{}', 'nice item'),
+	('squirrel_red_c', 'Red Squirrel', 20, 1, 'item_standard', 1, 440, '{}', 'nice item'),
+	('standard_table', 'Table', 20, 1, 'item_standard', 1, 622, '{}', 'nice item'),
+	('standingtorch', 'Stading Torch', 20, 1, 'item_standard', 1, 612, '{}', 'nice item'),
 	('steak', 'Steak', 10, 1, 'item_standard', 1, 284, '{}', 'nice item'),
 	('steakveg', 'Steak with Veggies', 10, 1, 'item_standard', 1, 285, '{}', 'nice item'),
+	('stillkit', 'Still Kit', 5, 1, 'item_standard', 1, 843, '{}', 'nice item'),
 	('stim', 'Horse Stimulant', 2, 1, 'item_standard', 1, 286, '{}', 'nice item'),
 	('stolenmerch', 'Stolen Items', 10, 1, 'item_standard', 0, 287, '{}', 'nice item'),
 	('stonehammer', 'Stone Hammer', 5, 1, 'item_standard', 1, 288, '{}', 'nice item'),
+	('stringy', 'Stringy meat', 20, 1, 'item_standard', 1, 574, '{}', 'nice item'),
 	('sugar', 'Sugar', 20, 1, 'item_standard', 0, 289, '{}', 'nice item'),
 	('sugarcaneseed', 'Surgarcane seed', 10, 1, 'item_standard', 1, 290, '{}', 'nice item'),
+	('sugarcube', 'Sugar Cube', 10, 1, 'item_standard', 1, 347, '{}', 'nice item'),
 	('sulfur', 'Sulfur', 30, 1, 'item_standard', 0, 291, '{}', 'nice item'),
 	('syn', 'Syn', 50, 1, 'item_standard', 1, 292, '{}', 'nice item'),
 	('synpackage', 'Syn Package', 10, 1, 'item_standard', 1, 293, '{}', 'nice item'),
 	('syringe', 'Syringe', 20, 1, 'item_standard', 1, 294, '{}', 'nice item'),
 	('syringecert', 'Syringe Cert', 10, 1, 'item_standard', 1, 295, '{}', 'nice item'),
 	('tent', 'Tent', 1, 1, 'item_standard', 1, 296, '{}', 'nice item'),
+	('tent2', 'Trader Tent', 20, 1, 'item_standard', 1, 588, '{}', 'nice item'),
+	('tent3', 'Simple Tent', 20, 1, 'item_standard', 1, 589, '{}', 'nice item'),
+	('tent4', 'Canvas Shade', 20, 1, 'item_standard', 1, 590, '{}', 'nice item'),
 	('tequila', 'Tequila', 10, 1, 'item_standard', 1, 297, '{}', 'nice item'),
 	('Texas_Bonnet', 'Texas Bonnet', 10, 1, 'item_standard', 1, 298, '{}', 'nice item'),
 	('Texas_Bonnet_Seed', 'Texas Bonnet Seed', 10, 1, 'item_standard', 1, 299, '{}', 'nice item'),
+	('timbertable', 'Timber Table', 20, 1, 'item_standard', 1, 752, '{}', 'nice item'),
+	('timber_table', 'Timber Table', 20, 1, 'item_standard', 1, 624, '{}', 'nice item'),
+	('tipi', 'Native Tipi', 20, 1, 'item_standard', 1, 596, '{}', 'nice item'),
+	('toaddesert_c', 'Desert Toad', 20, 1, 'item_standard', 1, 444, '{}', 'nice item'),
+	('toadpoison_c', 'Poisoned Toad', 20, 1, 'item_standard', 1, 443, '{}', 'nice item'),
+	('toad_c', 'Toad', 20, 1, 'item_standard', 1, 442, '{}', 'nice item'),
 	('token', 'Camp License', 5, 1, 'item_standard', 1, 300, '{}', 'nice item'),
+	('toolbarrel', 'Tool Barrel', 20, 1, 'item_standard', 1, 767, '{}', 'nice item'),
+	('tool_barrel', 'Tool Barrel', 20, 1, 'item_standard', 1, 639, '{}', 'nice item'),
 	('trainkey', 'Train Key', 1, 1, 'item_standard', 1, 301, '{}', 'nice item'),
+	('trayoffood', 'Serving Table', 20, 1, 'item_standard', 1, 614, '{}', 'nice item'),
 	('tropicalPunchMash', 'Ginseng Mash', 10, 1, 'item_standard', 0, 302, '{}', 'nice item'),
 	('tropicalPunchMoonshine', 'Ginseng Moonshine', 10, 1, 'item_standard', 0, 303, '{}', 'nice item'),
 	('trout', 'Trout', 10, 1, 'item_standard', 0, 304, '{}', 'nice item'),
+	('turkeyb', 'Turkey beak', 20, 1, 'item_standard', 1, 484, '{}', 'nice item'),
+	('turkeyf', 'Turkey feather', 20, 1, 'item_standard', 1, 483, '{}', 'nice item'),
 	('TurtleShell', 'Turtle Shell', 20, 1, 'item_standard', 1, 305, '{}', 'nice item'),
+	('turtlet', 'Turtle tooth', 20, 1, 'item_standard', 1, 482, '{}', 'nice item'),
 	('tylenol', 'Tylenol', 10, 1, 'item_standard', 1, 306, '{}', 'nice item'),
+	('undertaker1', 'Coffin', 20, 1, 'item_standard', 1, 609, '{}', 'nice item'),
+	('undertaker2', 'Flower Coffin', 20, 1, 'item_standard', 1, 610, '{}', 'nice item'),
+	('unique_brad_horsesugar', 'Brad Horse Sugar', 5, 1, 'item_standard', 1, 350, '{}', 'nice item'),
+	('unique_horse_feed', 'Horse Feed', 5, 1, 'item_standard', 1, 349, '{}', 'nice item'),
 	('vanillaFlower', 'Vanille Flower', 20, 1, 'item_standard', 0, 307, '{}', 'nice item'),
+	('venison', 'Venison', 20, 1, 'item_standard', 1, 566, '{}', 'nice item'),
 	('Violet_Snowdrop', 'Violet Snowdrop', 10, 1, 'item_standard', 1, 308, '{}', 'nice item'),
 	('Violet_Snowdrop_Seed', 'Violet Snowdrop Seed', 10, 1, 'item_standard', 1, 309, '{}', 'nice item'),
 	('vodka', 'Vodka', 10, 1, 'item_standard', 1, 310, '{}', 'nice item'),
 	('Volture_Egg', 'Volture Egg', 10, 1, 'item_standard', 1, 311, '{}', 'nice item'),
+	('vulturetaxi', 'Vulture Taxidermy', 20, 1, 'item_standard', 1, 772, '{}', 'nice item'),
+	('vulture_taxidermy', 'Vulture Taxidermy', 20, 1, 'item_standard', 1, 644, '{}', 'nice item'),
+	('washtub', 'Wash Tub', 20, 1, 'item_standard', 1, 637, '{}', 'nice item'),
 	('water', 'Water', 15, 1, 'item_standard', 1, 312, '{}', 'nice item'),
+	('waterbarrel', 'Water Barrel', 20, 1, 'item_standard', 1, 587, '{}', 'nice item'),
 	('wateringcan', 'Water Jug', 10, 1, 'item_standard', 1, 313, '{}', 'nice item'),
 	('wateringcan_dirtywater', 'Dirty Watering Jug', 10, 1, 'item_standard', 1, 314, '{}', 'nice item'),
 	('wateringcan_empty', 'Empty Watering Jug', 10, 1, 'item_standard', 1, 315, '{}', 'nice item'),
+	('waterpump', 'Water Pump', 20, 1, 'item_standard', 1, 755, '{}', 'nice item'),
+	('water_pump', 'Water Pump', 20, 1, 'item_standard', 1, 627, '{}', 'nice item'),
 	('whisky', 'Whisky', 10, 1, 'item_standard', 1, 316, '{}', 'nice item'),
+	('wickerbench', 'Wicker Bench', 20, 1, 'item_standard', 1, 778, '{}', 'nice item'),
+	('wicker_bench', 'Wicker Bench', 20, 1, 'item_standard', 1, 650, '{}', 'nice item'),
 	('wildCiderMash', 'Black Berry Mash', 10, 1, 'item_standard', 0, 317, '{}', 'nice item'),
 	('wildCiderMoonshine', 'Black Berry Moonshine', 10, 1, 'item_standard', 0, 318, '{}', 'nice item'),
 	('Wild_Carrot', 'Wild Carrot', 10, 1, 'item_standard', 1, 319, '{}', 'nice item'),
@@ -689,630 +1036,23 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `
 	('Wisteria', 'Wisteria', 10, 1, 'item_standard', 1, 330, '{}', 'nice item'),
 	('Wisteria_Seed', 'Wisteria Seed', 10, 1, 'item_standard', 1, 331, '{}', 'nice item'),
 	('wojape', 'Wojape', 5, 1, 'item_standard', 1, 332, '{}', 'nice item'),
+	('wolfheart', 'Wolf heart', 20, 1, 'item_standard', 1, 476, '{}', 'nice item'),
+	('wolfpelt', 'Wolf skin', 20, 1, 'item_standard', 1, 477, '{}', 'nice item'),
+	('wolftooth', 'Wolf tooth', 20, 1, 'item_standard', 1, 478, '{}', 'nice item'),
 	('wood', 'Soft Wood', 20, 1, 'item_standard', 0, 333, '{}', 'nice item'),
+	('woodbench', 'Wooden Bench', 20, 1, 'item_standard', 1, 777, '{}', 'nice item'),
+	('woodchair', 'Wood Chair', 20, 1, 'item_standard', 1, 747, '{}', 'nice item'),
+	('wooden_bench', 'Wooden Bench', 20, 1, 'item_standard', 1, 649, '{}', 'nice item'),
 	('wooden_boards', 'Wooden Boards', 25, 1, 'item_standard', 0, 334, '{}', 'nice item'),
+	('woodpeck01_c', 'Woodpecker', 20, 1, 'item_standard', 1, 445, '{}', 'nice item'),
+	('woodpeck02_c', 'Woodpecker 2', 20, 1, 'item_standard', 1, 446, '{}', 'nice item'),
+	('wood_chair', 'Wood Chair', 20, 1, 'item_standard', 1, 619, '{}', 'nice item'),
 	('wool', 'Wool', 50, 1, 'item_standard', 1, 335, '{}', 'nice item'),
+	('wsnakes', 'Western rattlesnake pelt', 20, 1, 'item_standard', 1, 489, '{}', 'nice item'),
+	('wsnakeskin', 'Watersnake pelt', 20, 1, 'item_standard', 1, 485, '{}', 'nice item'),
 	('Yarrow', 'Yarrow', 10, 1, 'item_standard', 1, 336, '{}', 'nice item'),
 	('Yarrow_Seed', 'Yarrow Seed', 10, 1, 'item_standard', 1, 337, '{}', 'nice item');
 /*!40000 ALTER TABLE `items` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.items_crafted
-CREATE TABLE IF NOT EXISTS `items_crafted` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `character_id` int(11) NOT NULL,
-  `item_id` int(11) NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `metadata` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`metadata`)),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ID` (`id`),
-  KEY `crafted_item_idx` (`character_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.items_crafted: ~0 rows (approximately)
-/*!40000 ALTER TABLE `items_crafted` DISABLE KEYS */;
-/*!40000 ALTER TABLE `items_crafted` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.jail
-CREATE TABLE IF NOT EXISTS `jail` (
-  `identifier` varchar(100) NOT NULL DEFAULT '0',
-  `name` varchar(100) NOT NULL DEFAULT '0',
-  `characterid` varchar(5) NOT NULL DEFAULT '0',
-  `time` varchar(100) NOT NULL DEFAULT '0',
-  `time_s` varchar(100) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- Dumping data for table vorpv2.jail: ~0 rows (approximately)
-/*!40000 ALTER TABLE `jail` DISABLE KEYS */;
-/*!40000 ALTER TABLE `jail` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.jobmanager
-CREATE TABLE IF NOT EXISTS `jobmanager` (
-  `identifier` varchar(50) NOT NULL,
-  `charidentifier` int(11) NOT NULL,
-  `jobname` varchar(50) NOT NULL,
-  PRIMARY KEY (`identifier`,`charidentifier`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.jobmanager: ~0 rows (approximately)
-/*!40000 ALTER TABLE `jobmanager` DISABLE KEYS */;
-/*!40000 ALTER TABLE `jobmanager` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.loadout
-CREATE TABLE IF NOT EXISTS `loadout` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(50) NOT NULL,
-  `charidentifier` int(11) DEFAULT NULL,
-  `name` varchar(50) DEFAULT NULL,
-  `ammo` varchar(255) NOT NULL DEFAULT '{}',
-  `components` varchar(255) NOT NULL DEFAULT '{}',
-  `dirtlevel` double DEFAULT 0,
-  `mudlevel` double DEFAULT 0,
-  `conditionlevel` double DEFAULT 0,
-  `rustlevel` double DEFAULT 0,
-  `used` tinyint(4) DEFAULT 0,
-  `used2` tinyint(4) DEFAULT 0,
-  `dropped` int(11) NOT NULL DEFAULT 0,
-  `comps` longtext NOT NULL DEFAULT '{}',
-  `label` varchar(50) DEFAULT NULL,
-  `curr_inv` varchar(100) NOT NULL DEFAULT 'default',
-  PRIMARY KEY (`id`),
-  KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2283 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.loadout: ~2 rows (approximately)
-/*!40000 ALTER TABLE `loadout` DISABLE KEYS */;
-INSERT INTO `loadout` (`id`, `identifier`, `charidentifier`, `name`, `ammo`, `components`, `dirtlevel`, `mudlevel`, `conditionlevel`, `rustlevel`, `used`, `used2`, `dropped`, `comps`, `label`, `curr_inv`) VALUES
-	(2281, 'steam:1100001335513c4', 2, 'WEAPON_MELEE_KNIFE', '[]', '[]', 0, 0, 0, 0, 0, 0, 0, '{}', NULL, 'default'),
-	(2282, 'steam:1100001335513c4', 2, 'WEAPON_REPEATER_WINCHESTER', '[]', '[]', 0, 0, 0, 0, 0, 0, 0, '{}', NULL, 'default');
-/*!40000 ALTER TABLE `loadout` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.mail
-CREATE TABLE IF NOT EXISTS `mail` (
-  `adress` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(50) DEFAULT NULL,
-  `charidentifier` int(11) DEFAULT NULL,
-  `adressbook` longtext NOT NULL DEFAULT '[]',
-  PRIMARY KEY (`adress`)
-) ENGINE=InnoDB AUTO_INCREMENT=122 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.mail: ~0 rows (approximately)
-/*!40000 ALTER TABLE `mail` DISABLE KEYS */;
-/*!40000 ALTER TABLE `mail` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.mailbox_mails
-CREATE TABLE IF NOT EXISTS `mailbox_mails` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `sender_id` varchar(50) DEFAULT NULL,
-  `sender_firstname` varchar(50) DEFAULT NULL,
-  `sender_lastname` varchar(50) DEFAULT NULL,
-  `receiver_id` varchar(50) DEFAULT NULL,
-  `receiver_firstname` varchar(50) DEFAULT NULL,
-  `receiver_lastname` varchar(50) DEFAULT NULL,
-  `message` text DEFAULT NULL,
-  `opened` tinyint(1) DEFAULT 0,
-  `received_at` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.mailbox_mails: ~0 rows (approximately)
-/*!40000 ALTER TABLE `mailbox_mails` DISABLE KEYS */;
-/*!40000 ALTER TABLE `mailbox_mails` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.mail_inbox
-CREATE TABLE IF NOT EXISTS `mail_inbox` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `adress` int(11) DEFAULT NULL,
-  `msgs` longtext DEFAULT NULL,
-  `date` longtext DEFAULT NULL,
-  `time` longtext DEFAULT NULL,
-  `sender` longtext DEFAULT NULL,
-  `unred` int(11) DEFAULT 1,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=337 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.mail_inbox: ~0 rows (approximately)
-/*!40000 ALTER TABLE `mail_inbox` DISABLE KEYS */;
-/*!40000 ALTER TABLE `mail_inbox` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.market
-CREATE TABLE IF NOT EXISTS `market` (
-  `charidentifier` int(11) NOT NULL DEFAULT 0,
-  `listing` longtext DEFAULT '[]',
-  `invid` int(11) DEFAULT 0,
-  `invslots` int(11) DEFAULT 0,
-  PRIMARY KEY (`charidentifier`) USING BTREE,
-  KEY `charid` (`charidentifier`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.market: ~0 rows (approximately)
-/*!40000 ALTER TABLE `market` DISABLE KEYS */;
-/*!40000 ALTER TABLE `market` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.newspaper
-CREATE TABLE IF NOT EXISTS `newspaper` (
-  `news` longtext DEFAULT '[]'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.newspaper: ~0 rows (approximately)
-/*!40000 ALTER TABLE `newspaper` DISABLE KEYS */;
-INSERT INTO `newspaper` (`news`) VALUES
-	('[]');
-/*!40000 ALTER TABLE `newspaper` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.outfits
-CREATE TABLE IF NOT EXISTS `outfits` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(45) NOT NULL,
-  `charidentifier` int(11) DEFAULT NULL,
-  `title` varchar(255) DEFAULT NULL,
-  `comps` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=840 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
--- Dumping data for table vorpv2.outfits: ~0 rows (approximately)
-/*!40000 ALTER TABLE `outfits` DISABLE KEYS */;
-/*!40000 ALTER TABLE `outfits` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.outfitter
-CREATE TABLE IF NOT EXISTS `outfitter` (
-  `identifier` varchar(50) DEFAULT NULL,
-  `charidentifier` int(11) DEFAULT NULL,
-  `props` longtext DEFAULT '[]'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.outfitter: ~0 rows (approximately)
-/*!40000 ALTER TABLE `outfitter` DISABLE KEYS */;
-/*!40000 ALTER TABLE `outfitter` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.playerhousing
-CREATE TABLE IF NOT EXISTS `playerhousing` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `type` int(11) NOT NULL DEFAULT 0,
-  `primarydoor` longtext NOT NULL DEFAULT '[]',
-  `otherdoors` longtext NOT NULL DEFAULT '[]',
-  `range` int(11) DEFAULT 0,
-  `owned` int(11) DEFAULT 0,
-  `selleridentifier` varchar(50) NOT NULL DEFAULT '',
-  `sellercharidentifier` int(11) NOT NULL DEFAULT 0,
-  `ledger` double NOT NULL DEFAULT 0,
-  `tax` int(11) NOT NULL DEFAULT 0,
-  `repoed` int(11) NOT NULL DEFAULT 0,
-  `invspace` int(11) NOT NULL DEFAULT 0,
-  `upgrade` int(11) NOT NULL DEFAULT 0,
-  `keyholders` longtext NOT NULL DEFAULT '[]',
-  `changingroom` longtext NOT NULL DEFAULT '[]',
-  `inventorylocation` longtext NOT NULL DEFAULT '[]',
-  `items` longtext NOT NULL DEFAULT '[]',
-  `furniture` longtext NOT NULL DEFAULT '[]',
-  `price` int(11) NOT NULL DEFAULT 0,
-  `buyeridentifier` varchar(50) NOT NULL DEFAULT '0',
-  `buyercharidentifier` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  KEY `id` (`id`),
-  KEY `primarydoor` (`primarydoor`(768))
-) ENGINE=InnoDB AUTO_INCREMENT=234 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.playerhousing: ~0 rows (approximately)
-/*!40000 ALTER TABLE `playerhousing` DISABLE KEYS */;
-/*!40000 ALTER TABLE `playerhousing` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.playerhousing_sold_home_ledger
-CREATE TABLE IF NOT EXISTS `playerhousing_sold_home_ledger` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(50) DEFAULT NULL,
-  `charidentifier` int(11) DEFAULT NULL,
-  `amount` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=182 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.playerhousing_sold_home_ledger: ~0 rows (approximately)
-/*!40000 ALTER TABLE `playerhousing_sold_home_ledger` DISABLE KEYS */;
-/*!40000 ALTER TABLE `playerhousing_sold_home_ledger` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.playerscenes
-CREATE TABLE IF NOT EXISTS `playerscenes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `coords` longtext DEFAULT '{}',
-  `text` longtext DEFAULT '',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=137 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.playerscenes: ~0 rows (approximately)
-/*!40000 ALTER TABLE `playerscenes` DISABLE KEYS */;
-/*!40000 ALTER TABLE `playerscenes` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.playershops
-CREATE TABLE IF NOT EXISTS `playershops` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(50) NOT NULL DEFAULT '0',
-  `charidentifier` int(11) NOT NULL DEFAULT 0,
-  `items` longtext NOT NULL DEFAULT '[]',
-  `weapons` longtext NOT NULL DEFAULT '[]',
-  `price` float NOT NULL DEFAULT 0,
-  `name` varchar(50) NOT NULL DEFAULT '',
-  `slots` int(11) NOT NULL DEFAULT 0,
-  `coords` longtext NOT NULL DEFAULT '[]',
-  `owned` int(11) DEFAULT 0,
-  `blip` int(11) DEFAULT 1,
-  `ledger` float DEFAULT 0,
-  `level` int(255) DEFAULT 0,
-  PRIMARY KEY (`id`),
-  KEY `items` (`items`(768)),
-  KEY `weapons` (`weapons`(768))
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.playershops: ~0 rows (approximately)
-/*!40000 ALTER TABLE `playershops` DISABLE KEYS */;
-/*!40000 ALTER TABLE `playershops` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.player_ranch
-CREATE TABLE IF NOT EXISTS `player_ranch` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(50) DEFAULT NULL,
-  `charidentifier` int(11) DEFAULT NULL,
-  `name` longtext DEFAULT NULL,
-  `price` float DEFAULT NULL,
-  `coords` longtext DEFAULT '[]',
-  `owned` int(11) DEFAULT 0,
-  `herdtrail` longtext DEFAULT '[]',
-  `cattle` longtext DEFAULT '[]',
-  `q_cattle` longtext DEFAULT '[]',
-  `dist` int(11) DEFAULT NULL,
-  `chores` longtext DEFAULT '[]',
-  `cows` longtext DEFAULT '[]',
-  `chickens` longtext DEFAULT '[]',
-  `milk` int(11) DEFAULT 0,
-  `eggs` int(11) DEFAULT 0,
-  `ledger` float DEFAULT 0,
-  `dog` varchar(50) DEFAULT '0',
-  `q_ranch` int(11) DEFAULT 0,
-  `repoed` int(11) DEFAULT 0,
-  `herding` int(11) DEFAULT 0,
-  `selling` int(11) DEFAULT 0,
-  `milking` int(11) DEFAULT 0,
-  `checking` int(11) DEFAULT 0,
-  `tax` int(11) DEFAULT 0,
-  `hired` longtext DEFAULT '[]',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.player_ranch: ~0 rows (approximately)
-/*!40000 ALTER TABLE `player_ranch` DISABLE KEYS */;
-/*!40000 ALTER TABLE `player_ranch` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.player_trains
-CREATE TABLE IF NOT EXISTS `player_trains` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL DEFAULT '0',
-  `contid` int(11) DEFAULT NULL,
-  `maint` float DEFAULT 100,
-  `coal` int(11) DEFAULT 0,
-  `coalcap` int(11) DEFAULT NULL,
-  `speed` float DEFAULT NULL,
-  `hash` varchar(50) DEFAULT NULL,
-  `company` varchar(50) DEFAULT NULL,
-  `coalcon` int(11) DEFAULT NULL,
-  `img` varchar(50) DEFAULT NULL,
-  `coalup` int(11) DEFAULT 0,
-  `speedup` int(11) DEFAULT 0,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.player_trains: ~0 rows (approximately)
-/*!40000 ALTER TABLE `player_trains` DISABLE KEYS */;
-/*!40000 ALTER TABLE `player_trains` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.posters
-CREATE TABLE IF NOT EXISTS `posters` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) DEFAULT NULL,
-  `poster_link` varchar(255) DEFAULT NULL,
-  `city` varchar(255) DEFAULT '',
-  `charidentifier` varchar(255) DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.posters: ~0 rows (approximately)
-/*!40000 ALTER TABLE `posters` DISABLE KEYS */;
-/*!40000 ALTER TABLE `posters` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.races
-CREATE TABLE IF NOT EXISTS `races` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(50) DEFAULT NULL,
-  `charidentifier` int(11) DEFAULT NULL,
-  `name` varchar(50) NOT NULL DEFAULT '[]',
-  `loc` longtext DEFAULT '[]',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.races: ~0 rows (approximately)
-/*!40000 ALTER TABLE `races` DISABLE KEYS */;
-/*!40000 ALTER TABLE `races` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.robbery
-CREATE TABLE IF NOT EXISTS `robbery` (
-  `name_robbery` varchar(50) COLLATE latin1_general_cs DEFAULT '0',
-  `time_robbery` datetime DEFAULT NULL ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
-
--- Dumping data for table vorpv2.robbery: ~0 rows (approximately)
-/*!40000 ALTER TABLE `robbery` DISABLE KEYS */;
-/*!40000 ALTER TABLE `robbery` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.rooms
-CREATE TABLE IF NOT EXISTS `rooms` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `interiorId` int(11) NOT NULL,
-  `inventory` longtext DEFAULT NULL,
-  `identifier` varchar(60) NOT NULL,
-  `charidentifier` int(11) NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-
--- Dumping data for table vorpv2.rooms: ~0 rows (approximately)
-/*!40000 ALTER TABLE `rooms` DISABLE KEYS */;
-/*!40000 ALTER TABLE `rooms` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.society
-CREATE TABLE IF NOT EXISTS `society` (
-  `job` longtext DEFAULT NULL,
-  `jobgrade` int(11) DEFAULT NULL,
-  `salary` int(11) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.society: ~81 rows (approximately)
-/*!40000 ALTER TABLE `society` DISABLE KEYS */;
-INSERT INTO `society` (`job`, `jobgrade`, `salary`) VALUES
-	('police', 0, 10),
-	('police', 1, 18),
-	('police', 2, 18),
-	('police', 3, 18),
-	('police', 4, 18),
-	('police', 5, 18),
-	('police', 6, 18),
-	('miner', 1, 0),
-	('miner', 2, 0),
-	('miner', 3, 0),
-	('miner', 4, 0),
-	('miner', 0, 0),
-	('doctor', 0, 1),
-	('doctor', 1, 1),
-	('doctor', 2, 1),
-	('doctor', 3, 1),
-	('horsetrainer', 0, 0),
-	('horsetrainer', 1, 0),
-	('horsetrainer', 2, 0),
-	('horsetrainer', 3, 0),
-	('horsetrainer', 4, 0),
-	('realestate', 0, 0),
-	('realestate', 1, 0),
-	('realestate', 2, 0),
-	('bastille', 0, 0),
-	('bastille', 1, 0),
-	('bastille', 2, 0),
-	('bastille', 3, 0),
-	('bastille', 4, 0),
-	('bastille', 5, 0),
-	('rguns', 2, 0),
-	('sgs', 1, 0),
-	('sgs', 2, 0),
-	('sgs', 3, 0),
-	('sgs', 4, 0),
-	('sgs', 5, 0),
-	('sgs', 0, 0),
-	('rguns', 0, 0),
-	('rguns', 1, 0),
-	('rguns', 3, 0),
-	('rguns', 4, 0),
-	('rguns', 5, 0),
-	('shaman', 0, 0),
-	('shaman', 1, 0),
-	('shaman', 2, 0),
-	('shaman', 3, 0),
-	('marshal', 0, 0),
-	('marshal', 1, 0),
-	('marshal', 2, 0),
-	('marshal', 3, 10),
-	('valtrain', 0, 0),
-	('valtrain', 1, 0),
-	('valtrain', 2, 0),
-	('valtrain', 3, 0),
-	('bountyhunter', 0, 0),
-	('bountyhunter', 1, 0),
-	('bountyhunter', 2, 0),
-	('bountyhunter', 3, 0),
-	('blacksmith', 0, 0),
-	('blacksmith', 1, 0),
-	('gunsmith', 0, 0),
-	('gunsmith', 1, 0),
-	('gunsmith', 2, 0),
-	('gunsmith', 4, 0),
-	('gunsmith', 3, 0),
-	('gunsmith', 5, 0),
-	('gunsmith', 6, 0),
-	('gunsmith', 7, 0),
-	('blacksmith', 2, 0),
-	('miner', 0, 0),
-	('miner', 1, 0),
-	('miner', 2, 0),
-	('silvershot', 0, 0),
-	('silvershot', 1, 0),
-	('silvershot', 2, 0),
-	('bvs', 0, 0),
-	('bvs', 1, 0),
-	('bvs', 2, 0),
-	('ksd', 0, 0),
-	('ksd', 1, 0),
-	('ksd', 2, 0);
-/*!40000 ALTER TABLE `society` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.society_ledger
-CREATE TABLE IF NOT EXISTS `society_ledger` (
-  `job` longtext DEFAULT NULL,
-  `ledger` int(11) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.society_ledger: ~18 rows (approximately)
-/*!40000 ALTER TABLE `society_ledger` DISABLE KEYS */;
-INSERT INTO `society_ledger` (`job`, `ledger`) VALUES
-	('police', 0),
-	('miner', 0),
-	('doctor', 0),
-	('horsetrainer', 0),
-	('realestate', 0),
-	('bastille', 0),
-	('sgs', 0),
-	('rguns', 0),
-	('shaman', 0),
-	('marshal', 0),
-	('valtrain', 0),
-	('bountyhunter', 0),
-	('gunsmith', 0),
-	('blacksmith', 0),
-	('miner', 0),
-	('silvershot', 0),
-	('bvs', 0),
-	('ksd', 0);
-/*!40000 ALTER TABLE `society_ledger` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.society_shops
-CREATE TABLE IF NOT EXISTS `society_shops` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `society` varchar(50) NOT NULL DEFAULT '0',
-  `items` longtext NOT NULL DEFAULT '[]',
-  `weapons` longtext NOT NULL DEFAULT '[]',
-  `slots` int(11) NOT NULL DEFAULT 50,
-  `level` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  KEY `id` (`id`),
-  KEY `society` (`society`),
-  KEY `items` (`items`(768)),
-  KEY `slots` (`slots`),
-  KEY `weapons` (`weapons`(768))
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.society_shops: ~12 rows (approximately)
-/*!40000 ALTER TABLE `society_shops` DISABLE KEYS */;
-INSERT INTO `society_shops` (`id`, `society`, `items`, `weapons`, `slots`, `level`) VALUES
-	(1, 'bastille', '[]', '[]', 50, 0),
-	(2, 'sgs', '[]', '[]', 50, 0),
-	(3, 'rguns', '[]', '[]', 50, 0),
-	(4, 'shaman', '[]', '[]', 50, 0),
-	(5, 'bountyhunter', '[]', '[]', 50, 0),
-	(6, 'gunsmith', '[]', '[]', 50, 0),
-	(7, 'blacksmith', '[]', '[]', 50, 0),
-	(8, 'miner', '[]', '[]', 50, 0),
-	(9, 'horsetrainer', '[]', '[]', 50, 0),
-	(10, 'silvershot', '[]', '[]', 50, 0),
-	(11, 'bvs', '[]', '[]', 50, 0),
-	(12, 'ksd', '[]', '[]', 50, 0);
-/*!40000 ALTER TABLE `society_shops` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.stables
-CREATE TABLE IF NOT EXISTS `stables` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(50) NOT NULL,
-  `charidentifier` int(11) NOT NULL,
-  `name` varchar(30) NOT NULL,
-  `modelname` varchar(70) NOT NULL,
-  `type` varchar(11) NOT NULL,
-  `status` longtext DEFAULT NULL,
-  `xp` int(11) DEFAULT 0,
-  `injured` int(11) DEFAULT 0,
-  `gear` longtext DEFAULT NULL,
-  `isDefault` int(11) NOT NULL DEFAULT 0,
-  `inventory` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
--- Dumping data for table vorpv2.stables: ~0 rows (approximately)
-/*!40000 ALTER TABLE `stables` DISABLE KEYS */;
-/*!40000 ALTER TABLE `stables` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.transactions
-CREATE TABLE IF NOT EXISTS `transactions` (
-  `bank` varchar(50) DEFAULT NULL,
-  `fromIdentifier` varchar(50) DEFAULT NULL,
-  `fromcharid` int(11) DEFAULT NULL,
-  `toIdentifier` varchar(50) DEFAULT NULL,
-  `tocharid` int(11) DEFAULT NULL,
-  `date` date DEFAULT NULL,
-  `money` double(22,2) DEFAULT 0.00,
-  `gold` double(22,2) DEFAULT 0.00,
-  `reason` varchar(100) DEFAULT NULL,
-  `bankto` varchar(50) DEFAULT NULL,
-  KEY `FK_transactions_banks` (`bank`),
-  KEY `FK_transactions_banks_2` (`bankto`),
-  CONSTRAINT `FK_transactions_banks` FOREIGN KEY (`bank`) REFERENCES `banks` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `FK_transactions_banks_2` FOREIGN KEY (`bankto`) REFERENCES `banks` (`name`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.transactions: ~0 rows (approximately)
-/*!40000 ALTER TABLE `transactions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `transactions` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.users
-CREATE TABLE IF NOT EXISTS `users` (
-  `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `group` varchar(50) DEFAULT 'user',
-  `warnings` int(11) DEFAULT 0,
-  `banned` tinyint(1) DEFAULT NULL,
-  `banneduntil` int(10) DEFAULT 0,
-  `char` varchar(50) NOT NULL DEFAULT 'false',
-  PRIMARY KEY (`identifier`),
-  UNIQUE KEY `identifier` (`identifier`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.users: ~1 rows (approximately)
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.wagons
-CREATE TABLE IF NOT EXISTS `wagons` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(40) NOT NULL,
-  `charid` int(11) NOT NULL,
-  `selected` int(11) NOT NULL DEFAULT 0,
-  `model` varchar(50) NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `items` longtext DEFAULT '{}',
-  PRIMARY KEY (`id`),
-  KEY `FK_horses_characters` (`charid`),
-  KEY `model` (`model`)
-) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb4;
-
--- Dumping data for table vorpv2.wagons: ~0 rows (approximately)
-/*!40000 ALTER TABLE `wagons` DISABLE KEYS */;
-/*!40000 ALTER TABLE `wagons` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.wagon_water
-CREATE TABLE IF NOT EXISTS `wagon_water` (
-  `identifier` varchar(255) COLLATE latin1_general_cs DEFAULT '0',
-  `charid` varchar(255) COLLATE latin1_general_cs DEFAULT '0',
-  `wagon` varchar(255) COLLATE latin1_general_cs DEFAULT '0',
-  `water` varchar(255) COLLATE latin1_general_cs DEFAULT '0',
-  `wagon_name` varchar(50) COLLATE latin1_general_cs DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
-
--- Dumping data for table vorpv2.wagon_water: ~0 rows (approximately)
-/*!40000 ALTER TABLE `wagon_water` DISABLE KEYS */;
-/*!40000 ALTER TABLE `wagon_water` ENABLE KEYS */;
-
--- Dumping structure for table vorpv2.whitelist
-CREATE TABLE IF NOT EXISTS `whitelist` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `status` tinyint(1) DEFAULT NULL,
-  `firstconnection` tinyint(1) DEFAULT 1,
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `identifier` (`identifier`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
--- Dumping data for table vorpv2.whitelist: ~0 rows (approximately)
-/*!40000 ALTER TABLE `whitelist` DISABLE KEYS */;
-/*!40000 ALTER TABLE `whitelist` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
