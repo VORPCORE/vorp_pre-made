@@ -1,0 +1,18 @@
+Locales["ru_lang"] = {
+    InputHeader = 'Как много {{msg}} вы хотите создать',
+    InputCraft = 'Создание вещей',
+    InputCancel = 'Отмена',
+    BackButton = 'Назад',
+    ExitButton = 'Выйти',
+    CraftHeader = 'Создание',
+    CraftText = 'Начать создание',
+    InvalidAmount = 'Неверное количество',
+    Crafting = 'Создание...',
+    FinishedCrafting = 'Вы закончили создание',
+    PlaceFire = "Вы разводите костер...",
+    PutOutFire = 'Вы тушите костер...',
+    NotEnough = 'Недостаточно материалов для этого рецепта',
+    NotJob = 'У вас нет необходимой работы ',
+    TooFull = 'Инвентарь слишком заполнен, что бы создавать',
+    WeaponsFull = "Вы не можете унести больше оружия ",
+}

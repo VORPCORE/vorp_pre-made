@@ -64,10 +64,17 @@ local function giveReward(context, data, skipfinal)
 	
 	if found then
 		local monies = {}
-			
-		if money ~= 0 then
-			table.insert(monies, Config.Language.dollar .. money)
-			Character.addCurrency(0, money)
+		local moneylinux = (math.floor(money * 100) / 100)
+		if Config.Linux == true then
+			if money ~= 0 then
+				table.insert(monies, Config.Language.dollar .. moneylinux)
+				Character.addCurrency(0, money)
+			end
+		else
+            if money ~= 0 then
+			    table.insert(monies, Config.Language.dollar .. money)
+			    Character.addCurrency(0, money)
+			end
 		end
 
 		if gold ~= 0 then

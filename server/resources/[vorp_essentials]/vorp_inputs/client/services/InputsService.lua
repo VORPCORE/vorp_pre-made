@@ -1,19 +1,35 @@
 InputsService = {}
-local text = nil
+local callbackOfCurrentOpenInput = nil
 
 InputsService.CloseInput = function()
+    callbackOfCurrentOpenInput = nil
     SetNuiFocus(false, false)
     SendNUIMessage(NUIEvent:New({ style = "none" }))
 end
 
 ---@param result table
+InputsService.CallCallbackAndCloseInput = function(result)
+
+    local resultText = result.stringtext or nil
+
+    if resultText ~= nil then
+        callbackOfCurrentOpenInput(resultText)
+    end
+
+    Wait(1)
+
+    InputsService.CloseInput()
+end
+
+---@param result table
 InputsService.SetSubmit = function(result)
-    text = result.stringtext
+    InputsService.CallCallbackAndCloseInput(result)
 end
 
 ---@param result table
 InputsService.SetClose = function(result)
-    text = result.stringtext
+   --TODO At which point will this method be called? Is it correct to set result.resultText and call callback?
+    InputsService.CallCallbackAndCloseInput(result)
 end
 
 ---@param title string
@@ -36,17 +52,7 @@ end
 InputsService.OnAdvancedInput = function(inputConfig, cb)
     SetNuiFocus(true, true)
     SendNUIMessage(json.decode(inputConfig))
-
-    while text == nil do
-        Wait(1)
-    end
-
-    cb(text)
-
-    Wait(1)
-    text = nil
-
-    InputsService.CloseInput()
+    callbackOfCurrentOpenInput = cb
 end
 
 ---@param button string
@@ -64,13 +70,5 @@ InputsService.WaitForInputs = function(button, placeHolder, cb, inputType)
         inputType = inputType,
     }))
 
-    while text == nil do
-        Wait(1)
-    end
-
-    cb(text)
-    Wait(1)
-    text = nil
-
-    InputsService.CloseInput()
+    callbackOfCurrentOpenInput = cb
 end

@@ -23,7 +23,6 @@ body {
   text-align: center;
   width: 20vw;
   height: 30px;
-
   position: absolute;
   left: 50%;
   bottom: 2%;
@@ -33,7 +32,7 @@ body {
 
 .linear-progress {
   position: absolute;
-  overflow: hidden;
+  /* overflow: hidden; */
   bottom: 200px;
   border-radius: 4px;
   background-color: rgba(87, 87, 87, 0.486);
@@ -74,6 +73,7 @@ body {
   left:50%;
   transform:translate(-50%,-50%);
   margin:0;
+  width: 100%;
 }
 
 @keyframes circleprogress {

@@ -11,7 +11,8 @@ createApp({
       interval: null,
       timeout: null,
       running: false,
-      maincolor: null
+      maincolor: null,
+      width: '20vw'
     };
   },
   mounted() {
@@ -37,6 +38,7 @@ createApp({
         this.theme = event.data.theme;
         this.time = event.data.mili;
         this.maincolor = event.data.color
+        this.width = event.data.width
         let that = this;
         running = true
 

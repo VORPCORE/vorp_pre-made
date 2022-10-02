@@ -88,9 +88,10 @@ AddEventHandler("vorp_fishing:FishToInventory", function(fishModel)
 	TriggerClientEvent("vorp:TipBottom", _source, 'You got a '..fish_name, 4000)
 end)
 
-RegisterServerEvent('vorp_fishing:discord_keep')
-AddEventHandler("vorp_fishing:discord_keep", function(fishModel, fishWeight)
+RegisterServerEvent('vorp_fishing:discord')
+AddEventHandler("vorp_fishing:discord", function(fishModel, fishWeight, staus)
     local _source = source
+    local _status = staus
     local User = VorpCore.getUser(source)
     local Character = User.getUsedCharacter
 	local fish = fishEntity[fishModel]
@@ -100,6 +101,7 @@ AddEventHandler("vorp_fishing:discord_keep", function(fishModel, fishWeight)
     local avatar = Config.DiscordAvatar
     local webhook = Config.DiscordWebHook
     local CharName
+    local _description
     if Character ~= nil then
         if Character.lastname ~= nil then
             CharName = Character.firstname .. ' ' .. Character.lastname
@@ -108,19 +110,25 @@ AddEventHandler("vorp_fishing:discord_keep", function(fishModel, fishWeight)
         end
     end
 
+    if _status == "keep" then
+        _description = _U("discord_fishKept")
+    elseif _status == "throw" then
+        _description = _U("discord_fishThrow")
+    end
+
     local embeds = {
             {
-                ["title"] = CharName .." "..Config.Lang.discord_fishCaught,
-                ["description"] = Config.Lang.discord_fishKept,
+                ["title"] = CharName .." ".._U("discord_fishCaught"),
+                ["description"] = _description,
                 ["type"]="rich",
                 ["color"] = 4777493,
                 ["fields"] = {
                     {
-                        ["name"] = Config.Lang.discord_fieldFishName,
+                        ["name"] = _U("discord_fieldFishName"),
                         ["value"] = fish_name,
                         ["inline"] = true,
                     },{
-                        ["name"] = Config.Lang.discord_fieldFishWeight,
+                        ["name"] = _U("discord_fieldFishWeight"),
                         ["value"] = fish_weight:gsub("%%", "").."Kg",
                         ["inline"] = true,
                     },

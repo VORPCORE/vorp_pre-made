@@ -3,8 +3,11 @@
 
 Config = {}
 
-Config.DevMode = true -- DIABLE THIS IF YOUR SERVER IS LIVE
+Config.DevMode = false -- DIABLE THIS IF YOUR SERVER IS LIVE
 
+Config.Linux = false -- If they use a Linux server, then true
+
+Config.butcherfunction = true -- set to true if you want to use butcher functions
 ----------------------------- TRANSLATE HERE -------------------------------------
 Config.Language = {
     NotHoldingAnimal = "You Got Nothing To Sell",
@@ -42,16 +45,16 @@ Config.ItemQuantity = {
 
 
 Config.Butchers = {
-    { butchername = "Valentine Butcher", butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(-339.0141, 767.6358, 115.5645), heading = 100.41544342041, radius = 3.0 },
-    { butchername = "Strawberry Butcher", butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(-1753.143, -392.4201, 155.2578), heading = 181.37438964844, radius = 3.0 },
-    { butchername = "Blackwater Butcher", butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(-754.0, -1285.158, 43.03), heading = 273.579, radius = 3.0 },
-    { butchername = "Annesburg Butcher", butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(2934.51, 1301.159, 43.48365), heading = 70.572128295898, radius = 3.0 },
-    { butchername = "Van Horn Butcher", butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(2991.844, 572.0218, 43.36182), heading = 259.52850341797, radius = 3.0 },
-    { butchername = "Rhodes Butcher", butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(1297.578, -1277.589, 74.88102), heading = 146.60472106934, radius = 3.0 },
-    { butchername = "Armadillo Butcher", butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(-3691.438, -2623.152, -14.75121), heading = 0.46632757782936, radius = 3.0 },
-    { butchername = "Tumbleweed Butcher", butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(-5510.371, -2947.005, -1.894515), heading = 251.54911804199, radius = 3.0 },
-    { butchername = "Landing Butcher", butcherjob = "butcher", blip = 1369919445, npcmodel = "CS_MP_SHAKY", coords = vector3(-1435.61, -2330.28, 43.66), heading = 1.15, radius = 4.0 },
-    { butchername = "Saint Denis Butcher", butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(2819.54, -1331.21, 45.00), heading = 51.8221321532, radius = 4.0 }
+    { butchername = "Valentine Butcher",   butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(-339.0141, 767.6358, 115.5645),   heading = 100.41544342041,  radius = 3.0, showblip = true },
+    { butchername = "Strawberry Butcher",  butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(-1753.143, -392.4201, 155.2578),  heading = 181.37438964844,  radius = 3.0, showblip = true },
+    { butchername = "Blackwater Butcher",  butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(-754.0, -1285.158, 43.03),        heading = 273.579,          radius = 3.0, showblip = true },
+    { butchername = "Annesburg Butcher",   butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(2934.51, 1301.159, 43.48365),     heading = 70.572128295898,  radius = 3.0, showblip = true },
+    { butchername = "Van Horn Butcher",    butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(2991.844, 572.0218, 43.36182),    heading = 259.52850341797,  radius = 3.0, showblip = true },
+    { butchername = "Rhodes Butcher",      butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(1297.578, -1277.589, 74.88102),   heading = 146.60472106934,  radius = 3.0, showblip = true },
+    { butchername = "Armadillo Butcher",   butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(-3691.438, -2623.152, -14.75121), heading = 0.46632757782936, radius = 3.0, showblip = true },
+    { butchername = "Tumbleweed Butcher",  butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(-5510.371, -2947.005, -1.894515), heading = 251.54911804199,  radius = 3.0, showblip = true },
+    { butchername = "Landing Butcher",     butcherjob = "butcher", blip = 1369919445, npcmodel = "CS_MP_SHAKY",          coords = vector3(-1435.61, -2330.28, 43.66),       heading = 1.15,             radius = 4.0, showblip = true },
+    { butchername = "Saint Denis Butcher", butcherjob = "butcher", blip = 1369919445, npcmodel = "S_M_M_UNIBUTCHERS_01", coords = vector3(2819.54, -1331.21, 45.00),        heading = 51.8221321532,    radius = 4.0, showblip = true }
 }
 
 -----------------ANIMAL INSTRUCTIONS  -----------------

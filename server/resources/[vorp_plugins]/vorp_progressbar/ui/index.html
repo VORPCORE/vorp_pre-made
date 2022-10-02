@@ -5,7 +5,7 @@
   </head>
   <body>
     <div id="app">
-      <div class="wrapper linear-progress" v-if="visible && theme == 'linear'" :style="{'--maincolor': maincolor}">
+      <div class="wrapper linear-progress" v-if="visible && theme == 'linear'" :style="{'--maincolor': maincolor, 'width':width}">
         <div
           class="loader"
           :style="`animation-name: growprogress; animation-duration: ${time}ms; animation-timing-function: linear;`"

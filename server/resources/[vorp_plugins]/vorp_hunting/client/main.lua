@@ -5,7 +5,9 @@ local playerJob
 
 RegisterNetEvent("vorp:SelectedCharacter") -- NPC loads after selecting character
 AddEventHandler("vorp:SelectedCharacter", function(charid)
-    StartButchers()
+    if Config.butcherfunction then 
+        StartButchers()
+    end
 end)
 
 RegisterNetEvent('vorp_hunting:findjob')
@@ -53,9 +55,11 @@ function StartButchers() -- Loading Butchers Function
             FreezeEntityPosition(npc, true) -- NPC can't escape
             SetBlockingOfNonTemporaryEvents(npc, true) -- NPC can't be scared
         end
+        if v.showblip then
         local blip = Citizen.InvokeNative(0x554D9D53F696D002, 1664425300, x, y, z) -- Blip Creation
         SetBlipSprite(blip, v.blip, true) -- Blip Texture
         Citizen.InvokeNative(0x9CB1A1623062F402, blip, v.butchername) -- Name of Blip
+        end
     end
 end
 
@@ -80,7 +84,7 @@ function SellAnimal() -- Selling animal function
     local horse = Citizen.InvokeNative(0x4C8B59171957BCF7, PlayerPedId())
     local alreadysoldanimal = false
     -- Logic for if a horse is detected
-    if horse ~= nil and horse ~= false then
+    if horse ~= nil and horse ~= false and NetworkGetEntityOwner(horse) == PlayerId() then
         -- Check if the horse is holding anything
         if Citizen.InvokeNative(0xA911EE21EDF69DAF, horse) ~= false then
             local holding2 = Citizen.InvokeNative(0xD806CD2A4F2C2996, horse) -- Get what the horse is holding
@@ -251,41 +255,43 @@ Citizen.CreateThread(function()
 end)
 
 Citizen.CreateThread(function()
-    while true do
-        local sleep = true
-        for i, v in ipairs(Config.Butchers) do
-            local playerCoords = GetEntityCoords(PlayerPedId())
-            if Vdist(playerCoords, v.coords) <= v.radius then -- Checking distance between player and butcher
+    if Config.butcherfunction then 
+        while true do
+            local sleep = true
+            for i, v in ipairs(Config.Butchers) do
+                local playerCoords = GetEntityCoords(PlayerPedId())
+                if Vdist(playerCoords, v.coords) <= v.radius then -- Checking distance between player and butcher
 
-                sleep = false
-                local label = CreateVarString(10, 'LITERAL_STRING', Config.Language.sell)
-                PromptSetActiveGroupThisFrame(prompts, label)
+                    sleep = false
+                    local label = CreateVarString(10, 'LITERAL_STRING', Config.Language.sell)
+                    PromptSetActiveGroupThisFrame(prompts, label)
 
-                if Citizen.InvokeNative(0xC92AC953F0A982AE, openButcher) then
-                    if Config.joblocked then
-                        TriggerServerEvent("vorp_hunting:getJob")
+                    if Citizen.InvokeNative(0xC92AC953F0A982AE, openButcher) then
+                        if Config.joblocked then
+                            TriggerServerEvent("vorp_hunting:getJob")
 
-                        while playerJob == nil do
-                            Wait(100)
-                        end
-                        if playerJob == v.butcherjob then
+                            while playerJob == nil do
+                                Wait(100)
+                            end
+                            if playerJob == v.butcherjob then
+                                SellAnimal()
+                                Citizen.Wait(200)
+                            else
+                                TriggerEvent("vorp:TipRight", Config.Language.notabutcher .. " : " .. v.butcherjob, 4000)
+                            end
+                        else
                             SellAnimal()
                             Citizen.Wait(200)
-                        else
-                            TriggerEvent("vorp:TipRight", Config.Language.notabutcher .. " : " .. v.butcherjob, 4000)
                         end
-                    else
-                        SellAnimal()
-                        Citizen.Wait(200)
+                        Citizen.Wait(1000)
                     end
-                    Citizen.Wait(1000)
                 end
             end
+            if sleep then
+                Citizen.Wait(500)
+            end
+            Citizen.Wait(1)
         end
-        if sleep then
-            Citizen.Wait(500)
-        end
-        Citizen.Wait(1)
     end
 end)
 

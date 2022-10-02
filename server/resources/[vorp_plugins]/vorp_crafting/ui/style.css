@@ -139,6 +139,19 @@ h2 {
   transform: translate(-50%, -50%);
 }
 
+.ing-tile {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  background-image: url(assets/inkroller.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  white-space: nowrap;
+  min-height: 160px;
+  padding: 20px;
+}
+
 .text {
   padding-top: 8px;
 }

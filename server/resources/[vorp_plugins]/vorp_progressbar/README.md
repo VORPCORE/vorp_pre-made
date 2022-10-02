@@ -24,6 +24,7 @@
 | callback | function that will get called when the progress is done |
 | theme | What you want the progress bar/circle to look like |
 | color | What color (hex or rgb) do you want the progress loader to be. Defaults to a dark red. |
+| width | What width you want the linear progressbar to be. Default: 20vw |
 
 ##### Theme Options
 | Option | Info |
@@ -36,7 +37,7 @@ _**Examples:**_
  ```lua
         progressbar.start('Loading...', 20000, function ()
             print('DONE!!!!')
-        end, 'linear', '#ff0000')
+        end, 'linear', '#ff0000', '20vw')
  ```
 
  ```lua

@@ -19,16 +19,23 @@
             </div>
   
             <div class="craftable-wrap" v-for="(cata, index) in Object.keys(consumables)" :key="'catitems'+index"   v-show="currentRoute == cata" >
-              <div class="bcc-button" v-for="(it, index) in consumables[cata]" @click="handleItemClick(it)">
+              <div class="bcc-button" v-for="(it, index) in consumables[cata]" @click="handleItemClick(it)" @mouseover="toggleDesc(it, true)" @mouseleave="toggleDesc(null, false)">
                 <div class="button-content">
                   <div class="text">{{it.Text}}</div>
                   <div class="subtext" v-if="it.SubText">{{it.SubText}}</div>
                 </div>
-                <div class="description">
+                <div v-if="style.descriptionsidebar == false" class="description">
                   <div>{{it.Desc}}</div>
                 </div>
               </div>
               <div class="bcc-button" @click="currentRoute = 'home'"><span class="statictext">{{language.BackButton}}</span></div>
+            </div>
+          </div>
+
+          <div class="ing-tile" v-if="desc.show && style.descriptionsidebar == true">
+            <h2>Ingredients</h2>
+            <div v-for="(ing, index) in Ingredients" :key="'desc'+index">
+              {{ing}}
             </div>
           </div>
         </div>

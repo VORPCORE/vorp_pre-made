@@ -19,12 +19,12 @@ Citizen.CreateThread(function()
                 local propjobcheck = CheckJob(Config.CampfireJobLock)
                 for k, v in pairs(Config.CraftingProps) do
                     if propjobcheck and iscrafting == false and uiopen == false then
-                        local campfire = DoesObjectOfTypeExistAtCoords(Coords.x, Coords.y, Coords.z, Config.Distances.campfire, GetHashKey(v), 0) --This is resource intensive, but not sure there is a way around this.
+                        local campfire = DoesObjectOfTypeExistAtCoords(Coords.x, Coords.y, Coords.z, Config.Distances.campfire, GetHashKey(v.prop), 0) --This is resource intensive, but not sure there is a way around this.
                         if campfire then
-                            UIPrompt.activate('Campfire')
+                            UIPrompt.activate(v.title)
         
                             if Citizen.InvokeNative(0xC92AC953F0A982AE, CraftPrompt) then
-                                VUI.OpenUI({ id = 'campfires' })
+                                VUI.OpenUI({ id = v.title:lower()})
                             end
                         end 
                     end
@@ -88,4 +88,15 @@ end)
 RegisterNetEvent("vorp:UpdateRecipes")
 AddEventHandler("vorp:UpdateRecipes", function(recipes)
     Config.Crafting = recipes
+end)
+
+RegisterNetEvent("vorp:UpdateLocations")
+AddEventHandler("vorp:UpdateLocations", function(locations)
+    --for key, value in pairs(locations) do
+    --    print(value.name)
+    --end
+    Config.Locations = locations
+    --for key, value in pairs(Config.Locations) do
+    --    print(value.name, value.id, value.Job)
+    --end
 end)

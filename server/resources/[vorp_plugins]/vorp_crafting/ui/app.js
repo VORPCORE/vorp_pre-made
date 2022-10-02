@@ -7,7 +7,12 @@ createApp({
       visible: false,
       showInput: false,
       style: {
-        fontSize: 'm'
+        fontSize: 'm',
+        descriptionsidebar: null
+      },
+      desc: {
+        data: null,
+        show: false
       },
       job: null,
       language: {},
@@ -49,7 +54,9 @@ createApp({
       testCategory: [
         {
           ident: 'food', 
-          text: 'Craft Food'
+          text: 'Craft Food',
+          Job: 0,
+          Location: 0
         }
       ]
     };
@@ -66,7 +73,8 @@ createApp({
         categories: this.testCategory,
         crafttime: 15000,
         style: {
-          fontSize: 'm'
+          fontSize: 'm',
+          descriptionsidebar: true
         },
         language: {
           InputHeader: 'How many {{msg}} you want to craft',
@@ -116,6 +124,10 @@ createApp({
     },
     InputCraftText() {
       return  this.activeCraftable.Text && this.language.InputHeader ? this.language.InputHeader.replace('{{msg}}', this.activeCraftable.Text) : ''
+    },
+    Ingredients() {
+      if (this.desc.show == false) return ''
+      return this.desc.data.Desc.replace('Recipe: ', '').replace('Recipe ', '').split(',')
     }
   },
   methods: {
@@ -143,6 +155,10 @@ createApp({
         this.currentRoute = 'home'
         this.closeView()
       }
+    },
+    toggleDesc(ing, state) {
+      this.desc.show = state
+      this.desc.data = ing
     },
     animationPlaying() {
       this.visible = false
@@ -275,14 +291,18 @@ createApp({
         if (jobcheck == true) {
           // Filter out locations
           if (item.Location == 0) {
-            consumables[item.Category].push(item)
+            if (consumables[item.Category]){
+              consumables[item.Category].push(item)
+            }
           } else {
             let l = item.Location.length
             let pos = 0
             for (pos; pos < l; pos++) {
               let loc = item.Location[pos]
               if (loc == location?.id) {
-                consumables[item.Category].push(item)
+                if (consumables[item.Category]){
+                  consumables[item.Category].push(item)
+                }
                 break
               }
             }

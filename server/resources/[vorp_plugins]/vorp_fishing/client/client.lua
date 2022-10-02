@@ -7,6 +7,7 @@ local fishForce = 0.6
 local nextAttTime = 0
 local horizontalMove = 0
 local lastState = 0
+local status = nil
 
 local fishing_data = {
     fish                   = { weight = 0, rodweight },
@@ -292,11 +293,12 @@ Citizen.CreateThread(function()
                         if fishing then
                             FISHING_SET_TRANSITION_FLAG(32)
                             fishing = false
+                            status = "keep"
                             local entity = FISHING_GET_FISH_HANDLE()
                             local fishModel = GetEntityModel(entity)
                             TriggerServerEvent("vorp_fishing:FishToInventory", fishModel)
                             if Config.DiscordIntegration == true then
-                                TriggerServerEvent("vorp_fishing:discord_keep", fishModel, fishing_data.fish.weight)
+                                TriggerServerEvent("vorp_fishing:discord", fishModel, fishing_data.fish.weight, status)
                             end
                             SetEntityAsMissionEntity(entity, true, true)
                             Citizen.Wait(3000)
@@ -308,9 +310,14 @@ Citizen.CreateThread(function()
                     if IsControlJustPressed(0, GetHashKey("INPUT_AIM")) then
                         if fishing then
                             fishing = false
+                            status = "throw"
                             local entity = FISHING_GET_FISH_HANDLE()
+                            local fishModel = GetEntityModel(entity)
                             Citizen.InvokeNative(0x9B0C7FA063E67629, PlayerPedId(), "", 0, 1)
                             FISHING_SET_TRANSITION_FLAG(64)
+                            if Config.DiscordIntegration == true then
+                                TriggerServerEvent("vorp_fishing:discord", fishModel, fishing_data.fish.weight, status)
+                            end
                             SetEntityAsMissionEntity(entity, true, true)
                             Citizen.Wait(3000)
                             DeleteEntity(entity)
@@ -344,20 +351,20 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
         if FISHING_GET_MINIGAME_STATE() == 1 then
-            PromptSetActiveGroupThisFrame(fishing_data.prompt_prepare_fishing.group, CreateVarString(10, "LITERAL_STRING", Config.Lang.ReadyToFish))
+            PromptSetActiveGroupThisFrame(fishing_data.prompt_prepare_fishing.group, CreateVarString(10, "LITERAL_STRING", _U("ReadyToFish")))
         end    
         
         if FISHING_GET_MINIGAME_STATE() == 6 then
-            PromptSetActiveGroupThisFrame(fishing_data.prompt_waiting_hook.group, CreateVarString(10, "LITERAL_STRING", Config.Lang.Fishing))
+            PromptSetActiveGroupThisFrame(fishing_data.prompt_waiting_hook.group, CreateVarString(10, "LITERAL_STRING", _U("Fishing")))
         end
 
         if FISHING_GET_MINIGAME_STATE() == 7 then
             fishing_data.fish.weight = FISHING_GET_F_(8)
-            PromptSetActiveGroupThisFrame(fishing_data.prompt_hook.group, CreateVarString(10, "LITERAL_STRING", Config.Lang.MiniGame))
+            PromptSetActiveGroupThisFrame(fishing_data.prompt_hook.group, CreateVarString(10, "LITERAL_STRING", _U("MiniGame")))
         end
         if FISHING_GET_MINIGAME_STATE() == 12 then
             if fishs[GetEntityModel(FISHING_GET_FISH_HANDLE())] ~= nil then
-                PromptSetActiveGroupThisFrame(fishing_data.prompt_finish.group, CreateVarString(10, "LITERAL_STRING",Config.Lang.FishName..": "..fishs[GetEntityModel(FISHING_GET_FISH_HANDLE())] .." // "..Config.Lang.FishWeight..": "..string.format("%.2f%%", (fishing_data.fish.weight * 54.25)):gsub("%%", "").."Kg"))
+                PromptSetActiveGroupThisFrame(fishing_data.prompt_finish.group, CreateVarString(10, "LITERAL_STRING",_U("FishName")..": "..fishs[GetEntityModel(FISHING_GET_FISH_HANDLE())] .." // ".._U("FishWeight")..": "..string.format("%.2f%%", (fishing_data.fish.weight * 54.25)):gsub("%%", "").."Kg"))
 
             end
         end
@@ -599,7 +606,7 @@ function prepareMyPrompt()
     fishing_data.prompt_prepare_fishing.group = GetRandomIntInRange(0, 0xffffff)
     local prompt = PromptRegisterBegin()
     PromptSetControlAction(prompt, GetHashKey("INPUT_AIM")) -- MOUSE LEFT CLICK
-    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", Config.Lang.PrepRod))
+    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", _U("PrepRod")))
     PromptSetEnabled(prompt, true)
     PromptSetVisible(prompt, true)
     PromptSetHoldMode(prompt, false)
@@ -609,7 +616,7 @@ function prepareMyPrompt()
 
     prompt = PromptRegisterBegin()
     PromptSetControlAction(prompt, 0x07CE1E61) -- LEFT CONTROL
-    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", Config.Lang.ThrowHook))
+    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", _U("ThrowHook")))
     PromptSetEnabled(prompt, true)
     PromptSetVisible(prompt, true)
     PromptSetHoldMode(prompt, false)
@@ -621,7 +628,7 @@ function prepareMyPrompt()
     fishing_data.prompt_waiting_hook.group = GetRandomIntInRange(0, 0xffffff)
     prompt = PromptRegisterBegin()
     PromptSetControlAction(prompt, GetHashKey("INPUT_ATTACK")) -- MOUSE LEFT CLICK
-    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", Config.Lang.HookFish))
+    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", _U("HookFish")))
     PromptSetEnabled(prompt, true)
     PromptSetVisible(prompt, true)
     PromptSetHoldMode(prompt, false)
@@ -631,7 +638,7 @@ function prepareMyPrompt()
 
     prompt = PromptRegisterBegin()
     PromptSetControlAction(prompt, 0x8FFC75D6) -- LEFT SHIFT
-    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", Config.Lang.Cancel))
+    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", _U("Cancel")))
     PromptSetEnabled(prompt, true)
     PromptSetVisible(prompt, true)
     PromptSetHoldMode(prompt, false)
@@ -641,7 +648,7 @@ function prepareMyPrompt()
     
     prompt = PromptRegisterBegin()
     PromptSetControlAction(prompt, 0xDB096B85) -- LEFT CONTROL
-    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", Config.Lang.ReelLure))
+    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", _U("ReelLure")))
     PromptSetEnabled(prompt, true)
     PromptSetVisible(prompt, true)
     PromptSetHoldMode(prompt, false)
@@ -653,7 +660,7 @@ function prepareMyPrompt()
     fishing_data.prompt_hook.group = GetRandomIntInRange(0, 0xffffff)
     prompt = PromptRegisterBegin()
     PromptSetControlAction(prompt, 0xFBD7B3E6) -- SPACE
-    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", Config.Lang.ReelIn))
+    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", _U("ReelIn")))
     PromptSetEnabled(prompt, true)
     PromptSetVisible(prompt, true)
     PromptSetHoldMode(prompt, false)
@@ -663,7 +670,7 @@ function prepareMyPrompt()
 
     prompt = PromptRegisterBegin()
     PromptSetControlAction(prompt, 0x8FFC75D6) -- LEFT SHIFT
-    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", Config.Lang.Cancel))
+    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", _U("Cancel")))
     PromptSetEnabled(prompt, true)
     PromptSetVisible(prompt, true)
     PromptSetHoldMode(prompt, false)
@@ -675,7 +682,7 @@ function prepareMyPrompt()
     fishing_data.prompt_finish.group = GetRandomIntInRange(0, 0xffffff)
     prompt = PromptRegisterBegin()
     PromptSetControlAction(prompt, GetHashKey("INPUT_ATTACK")) -- MOUSE LEFT CLICK
-    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", Config.Lang.KeepFish))
+    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", _U("KeepFish")))
     PromptSetEnabled(prompt, true)
     PromptSetVisible(prompt, true)
     PromptSetHoldMode(prompt, false)
@@ -685,7 +692,7 @@ function prepareMyPrompt()
 
     prompt = PromptRegisterBegin()
     PromptSetControlAction(prompt,  GetHashKey("INPUT_AIM")) -- MOUSE RIGHT CLICK
-    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", Config.Lang.ThrowFish))
+    PromptSetText(prompt, CreateVarString(10, "LITERAL_STRING", _U("ThrowFish")))
     PromptSetEnabled(prompt, true)
     PromptSetVisible(prompt, true)
     PromptSetHoldMode(prompt, false)

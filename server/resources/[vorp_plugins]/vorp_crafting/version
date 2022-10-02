@@ -1,3 +1,12 @@
+<1.6>
+- Bugfix adding recipes from other scripts
+- New functions in api to add and remove crafting locations from other scripts
+- Specific Categories from locations
+<1.5>
+- Exploit fixed
+- New config for allowing items to stay in inventory on use
+- New campfireprops config that allows custom titles
+- New ingredients UI!
 <1.4>
 - Bugfixes around player crashing on character select
 - Migrated to vorp_progressbar
