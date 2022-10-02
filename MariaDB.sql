@@ -365,7 +365,7 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `
 	('alcohol', 'Alcohol', 10, 1, 'item_standard', 1, 6, '{}', 'nice item'),
 	('American_Ginseng', 'American Ginseng', 10, 1, 'item_standard', 1, 7, '{}', 'nice item'),
 	('American_Ginseng_Seed', 'American Ginseng Seed', 10, 1, 'item_standard', 1, 8, '{}', 'nice item'),
-	('ammoarrmownormal', 'Arrow Normal', 10, 1, 'item_standard', 1, 9, '{}', 'nice item'),
+	('ammoarrownormal', 'Arrow Normal', 10, 1, 'item_standard', 1, 9, '{}', 'nice item'),
 	('ammoarrowdynamite', 'Arrow Dynamite', 10, 1, 'item_standard', 1, 10, '{}', 'nice item'),
 	('ammoarrowfire', 'Arrow Fire', 10, 1, 'item_standard', 1, 11, '{}', 'nice item'),
 	('ammoarrowimproved', 'Arrow Improved', 10, 1, 'item_standard', 1, 12, '{}', 'nice item'),
