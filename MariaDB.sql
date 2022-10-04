@@ -310,7 +310,7 @@ CREATE TABLE IF NOT EXISTS `whitelist` (
   UNIQUE KEY `identifier` (`identifier`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
-// inster 
+
 
 
 INSERT IGNORE INTO `banks` (`name`) VALUES
