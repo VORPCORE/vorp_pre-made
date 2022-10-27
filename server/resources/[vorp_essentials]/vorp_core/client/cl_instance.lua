@@ -1,3 +1,6 @@
+----------------------------------------------------------------------------
+------------------------- OUTDATED -----------------------------------------
+-- INSTANCE PLAYER 
 RegisterNetEvent('vorp:setInstancePlayer', function(instance)
     if instance then
         NetworkStartSoloTutorialSession()

@@ -4,7 +4,6 @@ local hideUI = true
 
 RegisterCommand("hideui", function()
 
-
     if hideUI then
         ExecuteCommand("togglechat")
         DisplayRadar(false)

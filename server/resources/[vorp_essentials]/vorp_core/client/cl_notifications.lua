@@ -5,7 +5,8 @@ AddEventHandler('vorp:NotifyLeft', function(firsttext, secondtext, dict, icon, d
     local _color = color or "COLOR_WHITE"
     LoadTexture(_dict)
 
-    exports.vorp_core:DisplayLeftNotification(tostring(firsttext), tostring(secondtext), tostring(_dict), tostring(_icon), tonumber(duration), tostring(_color))
+    exports.vorp_core:DisplayLeftNotification(tostring(firsttext), tostring(secondtext), tostring(_dict), tostring(_icon)
+        , tonumber(duration), tostring(_color))
 end)
 
 
@@ -44,7 +45,8 @@ AddEventHandler('vorp:ShowAdvancedRightNotification', function(text, dict, icon,
         LoadTexture(_dict)
         _icon = "tick"
     end
-    exports.vorp_core:ShowAdvancedRightNotification(tostring(text), tostring(_dict), tostring(_icon), tostring(text_color), tonumber(duration))
+    exports.vorp_core:ShowAdvancedRightNotification(tostring(text), tostring(_dict), tostring(_icon),
+        tostring(text_color), tonumber(duration))
 end)
 --new
 RegisterNetEvent('vorp:ShowBasicTopNotification')
@@ -85,15 +87,10 @@ end)
 --new
 RegisterNetEvent('vorp:warningNotify')
 AddEventHandler('vorp:warningNotify', function(title, msg, audioRef, audioName, duration)
-    exports.vorp_core:warningNotify(tostring(title), tostring(msg), tostring(audioRef), tostring(audioName), tonumber(duration))
+    exports.vorp_core:warningNotify(tostring(title), tostring(msg), tostring(audioRef), tostring(audioName),
+        tonumber(duration))
 end)
 
-
--------- play a sound -------------
-RegisterNetEvent('vorp:PlaySoundFrontEnd')
-AddEventHandler('vorp:PlaySoundFrontEnd', function(category, name)
-    PlayFrontendSound(category, name)
-end)
 
 -- remove event notifications
 Citizen.CreateThread(function()
@@ -103,7 +100,9 @@ Citizen.CreateThread(function()
         if event > 0 then
             for i = 0, event - 1 do
                 local eventAtIndex = GetEventAtIndex(0, i)
-                if eventAtIndex == GetHashKey("EVENT_CHALLENGE_GOAL_COMPLETE") or eventAtIndex == GetHashKey("EVENT_CHALLENGE_REWARD") or eventAtIndex == GetHashKey("EVENT_DAILY_CHALLENGE_STREAK_COMPLETED") then
+                if eventAtIndex == GetHashKey("EVENT_CHALLENGE_GOAL_COMPLETE") or
+                    eventAtIndex == GetHashKey("EVENT_CHALLENGE_REWARD") or
+                    eventAtIndex == GetHashKey("EVENT_DAILY_CHALLENGE_STREAK_COMPLETED") then
                     Citizen.InvokeNative(0x6035E8FBCA32AC5E)
                 end
             end
@@ -127,5 +126,5 @@ end)
 --TriggerEvent('vorp:ShowBottomRight', "your text", 4000)
 --TriggerEvent('vorp:failmissioNotifY', "your text", "msg", 4000)
 --TriggerEvent('vorp:deadplayerNotifY', title, audioRef, audioName, duration)
---TriggerEvent('vorp:updatemissioNotify', "title ", "msg , duration) 
+--TriggerEvent('vorp:updatemissioNotify', "title ", "msg , duration)
 --TriggerEvent('vorp:warningNotify', title, msg, audioRef, audioName, duration)

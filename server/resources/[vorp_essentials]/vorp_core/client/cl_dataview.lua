@@ -157,7 +157,8 @@ for label, datatype in pairs(DataView.Types) do
     end
 end
 
-
+------------------------------------------------------------------------------------------------------------------------
+---------------------------------------- HEALTH AND STAMINA FILLERS ----------------------------------------------------
 local a2 = DataView.ArrayBuffer(12 * 8)
 local a3 = DataView.ArrayBuffer(12 * 8)
 Citizen.InvokeNative("0xCB5D11F9508A928D", 1, a2:Buffer(), a3:Buffer(), GetHashKey("UPGRADE_HEALTH_TANK_1"), 1084182731,

@@ -1,12 +1,12 @@
 local firstSpawn = true
 local active = false
 local playerHash = GetHashKey("PLAYER")
-
 local mapTypeOnMount = Config.mapTypeOnMount
 local mapTypeOnFoot = Config.mapTypeOnFoot
 local enableTypeRadar = Config.enableTypeRadar
+local pvp = Config.PVP
+local HealthData = {}
 
-pvp = Config.PVP
 
 function setPVP()
     NetworkSetFriendlyFireOption(pvp)
@@ -62,7 +62,6 @@ RegisterNetEvent('vorp:initCharacter', function(coords, heading, isdead)
             Wait(1000)
             --shut down loading screen
             ShutdownLoadingScreen()
-
             Wait(7000)
             -- ensure health and stamina
             local health = GetAttributeCoreValue(PlayerPedId(), 0)
@@ -110,18 +109,12 @@ RegisterNetEvent('vorp:initCharacter', function(coords, heading, isdead)
         HealthData = {}
     end
 
-
-
 end)
 -------------------------------------------------------------------------------------------------
 
-
-
 RegisterNetEvent('vorp:SelectedCharacter', function()
     local playerId = PlayerId()
-
     firstSpawn = false
-
     SetMinimapHideFow(true)
 
     if Config.ActiveEagleEye then
@@ -135,18 +128,15 @@ RegisterNetEvent('vorp:SelectedCharacter', function()
     setPVP()
     DisplayRadar(true) -- show HUD
     SetMinimapHideFow(true) -- enable FOW
-    TriggerServerEvent("vorp:chatSuggestion") --- chat add suggestion trigger 
+    TriggerServerEvent("vorp:chatSuggestion") --- chat add suggestion trigger
     TriggerServerEvent('vorp_core:instanceplayers', 0) -- remove instanced players
 end)
 
-HealthData = {}
-
 RegisterNetEvent("vorp:GetHealthFromCore")
 AddEventHandler("vorp:GetHealthFromCore", function(healthData)
-
     HealthData = healthData
-
 end)
+
 
 AddEventHandler('playerSpawned', function(spawnInfo)
     TriggerServerEvent('vorp_core:instanceplayers', tonumber(GetPlayerServerId(PlayerId())) + 45557) --instance players
@@ -221,7 +211,6 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(1000)
         --print("Updating local data with Health and Stamina")
-
         local innerCoreHealth = Citizen.InvokeNative(0x36731AC041289BB1, PlayerPedId(), 0)
         local outerCoreStamina = Citizen.InvokeNative(0x22F2A386D43048A9, PlayerPedId())
         local innerCoreStamina = Citizen.InvokeNative(0x36731AC041289BB1, PlayerPedId(), 1)
@@ -235,7 +224,6 @@ CreateThread(function()
     while true do
         local player = PlayerPedId()
         Wait(300000)
-
         local innerCoreHealth = Citizen.InvokeNative(0x36731AC041289BB1, player, 0, Citizen.ResultAsInteger())
         local outerCoreStamina = Citizen.InvokeNative(0x22F2A386D43048A9, player)
         local innerCoreStamina = Citizen.InvokeNative(0x36731AC041289BB1, player, 1, Citizen.ResultAsInteger())
@@ -244,7 +232,6 @@ CreateThread(function()
         local innerStamina = tonumber(innerCoreStamina)
 
         if innerHealth and innerStamina and getHealth and outerCoreStamina then
-
             TriggerServerEvent("vorp:SaveHealth", getHealth, innerHealth)
             Wait(5)
             TriggerServerEvent("vorp:SaveStamina", outerCoreStamina, innerStamina)
@@ -254,8 +241,8 @@ end)
 
 -- To do in server side if is any problems
 Citizen.CreateThread(function()
-	while true do
-		Citizen.Wait(1800000)
+    while true do
+        Citizen.Wait(1800000)
         TriggerServerEvent("vorp:SaveHours")
-	end
+    end
 end)
