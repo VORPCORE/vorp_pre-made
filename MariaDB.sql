@@ -220,18 +220,19 @@ CREATE TABLE IF NOT EXISTS `loadout` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 
-
-CREATE TABLE IF NOT EXISTS `mail_inbox` (
+CREATE TABLE IF NOT EXISTS `mailbox_mails` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `adress` int(11) DEFAULT NULL,
-  `msgs` longtext DEFAULT NULL,
-  `date` longtext DEFAULT NULL,
-  `time` longtext DEFAULT NULL,
-  `sender` longtext DEFAULT NULL,
-  `unred` int(11) DEFAULT 1,
+  `sender_id` varchar(50) DEFAULT NULL,
+  `sender_firstname` varchar(50) DEFAULT NULL,
+  `sender_lastname` varchar(50) DEFAULT NULL,
+  `receiver_id` varchar(50) DEFAULT NULL,
+  `receiver_firstname` varchar(50) DEFAULT NULL,
+  `receiver_lastname` varchar(50) DEFAULT NULL,
+  `message` text DEFAULT NULL,
+  `opened` tinyint(1) DEFAULT 0,
+  `received_at` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
-
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `outfits` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
