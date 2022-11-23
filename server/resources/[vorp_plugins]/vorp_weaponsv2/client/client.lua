@@ -38,6 +38,7 @@ local label
 local OpenGroup = GetRandomIntInRange(0, 0xffffff)
 local CloseGroup = GetRandomIntInRange(0, 0xffffff)
 local prompts = GetRandomIntInRange(0, 0xffffff)
+local progressbar = exports.vorp_progressbar:initiate()
 
 RegisterNetEvent("vorp_weapons:removeallammo") -- new event 
 AddEventHandler("vorp_weapons:removeallammo", function()
@@ -125,7 +126,8 @@ end
 function playanim(anim, msg)
 	local playerPed = PlayerPedId()
 	TaskStartScenarioInPlace(playerPed, GetHashKey(anim), 20000, true, false, false, false)
-	exports['progressBars']:startUI(20000, msg)
+        progressbar.start(msg, 20000, function ()
+	end)
 	Citizen.Wait(20000)
 	ClearPedTasksImmediately(PlayerPedId())
 end

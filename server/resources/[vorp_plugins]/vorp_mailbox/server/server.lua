@@ -32,7 +32,7 @@ AddEventHandler("mailbox:sendMessage", function(data)
         local remainingTime = ((lastMessageSentTime + 1000 * delay) - gameTime) / 1000
         local errorMessage = _U("TipOnTooRecentMessageSent"):gsub("%$1", remainingTime)
 
-        TriggerClientEvent("vorp:Tip", _source, errorMessage)
+        TriggerClientEvent("vorp:Tip", _source, errorMessage, 5000)
         return
     end
 
@@ -40,11 +40,11 @@ AddEventHandler("mailbox:sendMessage", function(data)
     local price = Config['MessageSendPrice']
 
     if sourceCharacter.money < price then
-        TriggerClientEvent("vorp:Tip", _source, _U("TipOnInsufficientMoneyForMessage"))
+        TriggerClientEvent("vorp:Tip", _source, _U("TipOnInsufficientMoneyForMessage"), 5000)
         return;
     end
 
-    exports.ghmattimysql:execute( "INSERT INTO mailbox_mails SET sender_id = ? , sender_firstname = ?, sender_lastname = ?, receiver_id = ?, receiver_firstname = ?, receiver_lastname = ?, message = ?;",
+    exports.ghmattimysql:execute("INSERT INTO mailbox_mails SET sender_id = ? , sender_firstname = ?, sender_lastname = ?, receiver_id = ?, receiver_firstname = ?, receiver_lastname = ?, message = ?;",
     {steamIdentifier,
     sourceCharacter.firstname,
     sourceCharacter.lastname,
@@ -56,7 +56,7 @@ AddEventHandler("mailbox:sendMessage", function(data)
 
     TriggerEvent("vorp:removeMoney", _source, 0, price)
     lastUserMessageSent[steamIdentifier] = gameTime
-    TriggerClientEvent("vorp:Tip", _U("TipOnMessageSent"))
+    TriggerClientEvent("vorp:Tip", _U("TipOnMessageSent"), 5000)
 
     local connectedUsers = CORE.getUsers() -- return a Dictionary of <SteamID, User>
     for steam, user in pairs(connectedUsers) do
@@ -92,7 +92,7 @@ AddEventHandler("mailbox:broadcastMessage", function(data)
         local remainingTime = ((lastBroadcastSentTime + 1000 * delay) - gameTime) / 1000
         local errorMessage = _U("TipOnTooRecentMessageSent"):gsub("%$1", remainingTime)
 
-        TriggerClientEvent("vorp:Tip", _source, errorMessage)
+        TriggerClientEvent("vorp:Tip", _source, errorMessage, 5000)
         return
     end
 
@@ -100,13 +100,13 @@ AddEventHandler("mailbox:broadcastMessage", function(data)
     local price = Config['MessageBroadcastPrice']
 
     if sourceCharacter.money < price then
-        TriggerClientEvent("vorp:Tip", _source, _U("TipOnInsufficientMoneyForBroadcast"))
+        TriggerClientEvent("vorp:Tip", _source, _U("TipOnInsufficientMoneyForBroadcast"), 5000)
         return;
     end
 
     TriggerEvent("vorp:removeMoney", _source, 0, price)
     lastUserBroadcastSent[steamIdentifier] = gameTime
-    TriggerClientEvent("vorp:Tip", _U("TipOnMessageSent"))
+    TriggerClientEvent("vorp:Tip", _U("TipOnMessageSent"), 5000)
 
     local connectedUsers = CORE.getUsers() -- return a Dictionary of <SteamID, User>
     for _, user in pairs(connectedUsers) do
@@ -131,7 +131,7 @@ AddEventHandler("mailbox:getMessages", function()
     local sourceCharacter = CORE.getUser(source).getUsedCharacter
     local steamIdentifier = CORE.getUser(source).getIdentifier()
 
-    exports.ghmattimysql:execute( "SELECT * FROM mailbox_mails WHERE receiver_id = ? AND receiver_firstname = ? AND receiver_lastname = ?;",
+    exports.ghmattimysql:execute("SELECT * FROM mailbox_mails WHERE receiver_id = ? AND receiver_firstname = ? AND receiver_lastname = ?;",
     {steamIdentifier,
     sourceCharacter.firstname,
     sourceCharacter.lastname
@@ -181,15 +181,15 @@ AddEventHandler("mailbox:updateMessages", function(data)
     local toMarkAsread = data.toMarkAsread
 
     if toDelete ~= nil and #toDelete > 0 then
-        exports.ghmattimysql:execute( "DELETE FROM mailbox_mails WHERE id IN (?);", toDelete)
+        exports.ghmattimysql:execute("DELETE FROM mailbox_mails WHERE id IN (?);", toDelete)
     end
     if toMarkAsread ~= nil and #toMarkAsread > 0 then
-        exports.ghmattimysql:execute( "UPDATE mailbox_mails SET opened = true WHERE id IN (?);", toMarkAsread)
+        exports.ghmattimysql:execute("UPDATE mailbox_mails SET opened = true WHERE id IN (?);", toMarkAsread)
     end
 end)
 
 function RefreshUsersCache()
-    exports.ghmattimysql:execute( "SELECT identifier as steam, firstname, lastname FROM characters;",
+    exports.ghmattimysql:execute("SELECT identifier as steam, firstname, lastname FROM characters;",
     {}, function (result)
         --[[users: Array<{
                      identifier,
