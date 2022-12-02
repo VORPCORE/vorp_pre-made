@@ -16,7 +16,7 @@
 
 
    * Follow this [guide](https://outsider31000.github.io/VORP_API-docs/posts/intro/) on how to set up your server
-   * Alternatively follow the video [youtube video](https://www.youtube.com/watch?v=x-M3q9sV5IY&ab_channel=RIBSOSAY) but its outdated. 
+
 
 
   * [menuapi](https://github.com/outsider31000/menuapi) you need this menu for the scripts to work
