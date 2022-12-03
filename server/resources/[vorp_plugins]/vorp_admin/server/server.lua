@@ -375,6 +375,18 @@ RegisterServerEvent("vorp_admin:Whitelist", function(targetID, staticid, type)
     end
 end)
 
+RegisterServerEvent("vorp_admin:Whitelistoffline", function(staticid, type)
+    local _source = source
+    local staticID = staticid
+    if _source then
+        if type == "whiteList" then
+            TriggerEvent("vorp:whitelistPlayer", staticID)
+        else
+            TriggerEvent("vorp:unwhitelistPlayer", staticID)
+        end
+    end
+end)
+
 --REVIVE
 RegisterServerEvent("vorp_admin:revive", function(targetID)
     local _source = targetID

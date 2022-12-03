@@ -48,7 +48,14 @@ Config = {
 
     --------------------------------------------------------
     -- WEBHOOKS/LOGS
-    ReportLogs   = "", -- for reports
+    ReportLogs   = {
+        Reports = "", -- for reports
+        RequestStaff = "", -- for request staff
+        BugReport = "", -- for bug report
+        RulesBroken = "", -- for rules broken report
+        Cheating = "" -- for cheating report
+    },
+    AlertCooldown = 60, -- cooldown for request staff to request again (seconds)
     webhookColor = 16711680, --EMBED COLOR RED
     name         = "VORP", --NAME OF EMBED
     logo         = "https://via.placeholder.com/30x30", --HEAD LOGO

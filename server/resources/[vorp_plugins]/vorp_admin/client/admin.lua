@@ -941,7 +941,7 @@ function OffLine()
                         elseif type == "unban" then
                             TriggerEvent("vorp:unban", StaticID)
                         else
-                            TriggerEvent("vorp:TipRight", _U("incorrecttype"))
+                            TriggerEvent("vorp:TipRight", _U("incorrecttype"), 4000)
                         end
 
                     else
@@ -974,10 +974,10 @@ function OffLine()
                         end
                         local type, StaticID = tostring(splitstring[1]), tonumber(splitstring[2])
                         if type and StaticID then -- if empty dont run
-                            if type == "whitelist" then
-                                TriggerEvent("vorp:whitelistPlayer", StaticID)
+                             if type == "whitelist" then
+                                TriggerServerEvent("vorp_admin:Whitelistoffline", StaticID, type)
                             elseif type == "unwhitelist" then
-                                TriggerEvent("vorp:unwhitelistPlayer", StaticID)
+                                TriggerServerEvent("vorp_admin:Whitelistoffline", StaticID, type)
                             else
                                 TriggerEvent("vorp:TipRight", _U("incorrect"))
                             end
@@ -986,7 +986,7 @@ function OffLine()
                         TriggerEvent("vorp:TipRight", _U("empty"), 4000)
                     end
                 end)
-            elseif data.current.value == "warns" then
+            elseif data.current.value == "warn" then
                 local myInput = {
                     type = "enableinput", -- dont touch
                     inputType = "textarea",
@@ -1019,10 +1019,10 @@ function OffLine()
                             elseif type == "unwarn" then
                                 TriggerEvent("vorp:unwarn", StaticID)
                             else
-                                TriggerEvent("vorp:TipRight", _U("incorrect"))
+                                TriggerEvent("vorp:TipRight", _U("incorrect"), 4000)
                             end
                         else
-                            TriggerEvent("vorp:TipRight", _U("missing"))
+                            TriggerEvent("vorp:TipRight", _U("missing"), 4000)
                         end
 
                     else

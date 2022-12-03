@@ -13,7 +13,7 @@ function OpenUsersMenu()
         { label = _U("Report"), value = 'report', desc = _U("reportoptions_desc") },
         { label = _U("requeststaff"), value = 'requeststaff', desc = _U("Requeststaff_desc") },
         { label = _U("showMyInfo"), value = 'showinfo', desc = _U("showmyinfo_desc") },
-        { label = _U("commands"), value = 'commands', desc = _U("user commands") },
+        { label = _U("commands"), value = 'commands', desc = _U("usercommands") },
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
@@ -152,7 +152,7 @@ function Report()
         if report and report ~= "" then
 
             if Config.ReportLogs then -- if nil dont send
-                TriggerServerEvent("vorp_admin:logs", Config.ReportLogs, _U("report"),
+                TriggerServerEvent("vorp_admin:logs", Config.ReportLogs.Reports, _U("report"),
                     _U("playerreported") .. report)
                 VORP.NotifySimpleTop(_U("reportitle"), _U("reportsent"), 3000)
                 TriggerServerEvent("vorp_admin:alertstaff", player)
@@ -161,6 +161,11 @@ function Report()
     end)
 
 end
+
+------ REQUEST STAFF ---------------------------------
+
+local cooldown = false
+local timer = Config.AlertCooldown
 
 function RequestStaff()
     MenuData.CloseAll()
@@ -185,18 +190,32 @@ function RequestStaff()
             if data.current == "backup" then
                 _G[data.trigger]()
             end
-            if data.current.value == "new" then
+            if data.current.value == "new" and not cooldown then
                 TriggerServerEvent("vorp_admin:requeststaff", player,"new")
                 VORP.NotifyRightTip(_U("requestsent"), 4000)
-            elseif data.current.value == "bug" then
+                TriggerServerEvent("vorp_admin:logs", Config.ReportLogs.RequestStaff, _U("report"),
+                    _U("requeststaff_disc"))
+                    cooldown = true
+            elseif data.current.value == "bug" and not cooldown then
                 TriggerServerEvent("vorp_admin:requeststaff",player, "bug")
                 VORP.NotifyRightTip(_U("requestsent"), 4000)
-            elseif data.current.value == "rules" then
+                TriggerServerEvent("vorp_admin:logs", Config.ReportLogs.BugReport, _U("report"),
+                    _U("requeststaff_bug"))
+                    cooldown = true
+            elseif data.current.value == "rules" and not cooldown then
                 TriggerServerEvent("vorp_admin:requeststaff", player,"rules")
                 VORP.NotifyRightTip(_U("requestsent"), 4000)
-            elseif data.current.value == "cheating" then
+                TriggerServerEvent("vorp_admin:logs", Config.ReportLogs.RulesBroken, _U("report"),
+                    _U("requeststaff_rulesbroke"))
+                    cooldown = true
+            elseif data.current.value == "cheating" and not cooldown then
                 TriggerServerEvent("vorp_admin:requeststaff",player, "cheating")
                 VORP.NotifyRightTip(_U("requestsent"), 4000)
+                TriggerServerEvent("vorp_admin:logs", Config.ReportLogs.Cheating, _U("report"),
+                    _U("requeststaff_cheating"))
+                    cooldown = true
+            elseif cooldown then
+                VORP.NotifyRightTip("Wait "..timer.." seconds to report again", 5000)
             end
         end,
 
@@ -205,6 +224,24 @@ function RequestStaff()
 
         end)
 end
+
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(10)
+	    if timer >= 0 and cooldown then
+	    	Citizen.Wait(1000)
+	    	if timer > 0 then
+	    		timer = timer - 1
+	    	end
+            if 0 >= timer and cooldown then 
+                cooldown = false 
+                timer = Config.AlertCooldown
+            end
+	    end
+    end
+end)
+
+---------------------------------------------------------------------------------------------------------
 
 function OpenCommands()
     MenuData.CloseAll()
@@ -254,11 +291,12 @@ function DelHorse()
         DeleteEntity(mount)
 
     else
-        TriggerEvent("vorp:TipRight", Config.Langs.sit, 3000)
+        TriggerEvent("vorp:TipRight", _U("youneedtobeseatead"), 3000)
     end
 end
 
 function Delwagon()
+    local player = PlayerPedId()
     local wagon = GetVehiclePedIsIn(player, true)
 
     if IsPedInAnyVehicle(player, true) then
