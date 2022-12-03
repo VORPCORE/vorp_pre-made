@@ -22,6 +22,9 @@
 
 * find other Public Resources in [Here](https://github.com/outsider31000/public-scripts) 
 
+* for voice resources you can use pma voice [pma-voice](https://github.com/AvarianKnight/pma-voice/releases)
+
+* or if you wish to use team speak with [salty chat](https://github.com/v10networkscom/saltychat-fivem/releases)
 
 ---
 
