@@ -36,7 +36,7 @@ Citizen.CreateThread(function()
             for k, loc in ipairs(Config.Locations) do
                 local jobcheck = CheckJob(loc.Job)
                 if jobcheck and uiopen == false then
-                    if loc.Blip and blipsadded == false then
+                    if loc.Blip and blipsadded == false and loc.Blip.enable then
                         blipcount = blipcount + 1
                         Blips.addBlipForCoords(k, loc.name, loc.Blip.Hash, loc.x, loc.y, loc.z)
                     end                
@@ -92,11 +92,5 @@ end)
 
 RegisterNetEvent("vorp:UpdateLocations")
 AddEventHandler("vorp:UpdateLocations", function(locations)
-    --for key, value in pairs(locations) do
-    --    print(value.name)
-    --end
     Config.Locations = locations
-    --for key, value in pairs(Config.Locations) do
-    --    print(value.name, value.id, value.Job)
-    --end
 end)

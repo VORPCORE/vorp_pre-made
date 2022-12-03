@@ -18,4 +18,6 @@ Locales["en_lang"] = {
     NotJob = 'You dont have the required job ',
     TooFull = 'Inventory is too full to craft',
     WeaponsFull = "You can't carry more weapons",
+    WebhookItem = 'Have crafted the item:',
+    WebhookWeapon = 'Have created the weapon:',
 }

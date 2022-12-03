@@ -20,18 +20,17 @@ end)
 RegisterNetEvent("vorp:AddCraftLocation")
 AddEventHandler("vorp:AddCraftLocation", function(location)
     local _source = source
-    print(location, location.id)
     table.insert(Config.Locations, location)
-    TriggerClientEvent("vorp:UpdateLocations", _source,  Config.Locations)
+    TriggerClientEvent("vorp:UpdateLocations", _source, Config.Locations)
 end)
 
 RegisterNetEvent("vorp:RemoveCraftLocation")
 AddEventHandler("vorp:RemoveCraftLocation", function(location)
     local _source = source
     for k,v in pairs(Config.Locations) do
-        if v.name == location.name then
+        if v.id == location.id then
             table.remove(Config.Locations, k)
-            TriggerClientEvent("vorp:UpdateLocations", _source,  Config.Locations)
+            TriggerClientEvent("vorp:UpdateLocations", _source, Config.Locations)
             break
         end
     end

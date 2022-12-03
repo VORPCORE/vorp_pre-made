@@ -90,8 +90,14 @@ AddEventHandler('vorp:startcrafting', function(craftable, countz)
                     local ammo = { ["nothing"] = 0 }
                     local components = {}
 
+                    local count = 0
+
+                    for k, rwd in pairs(crafting.Reward) do
+                        count = count + rwd.count
+                    end
+
                     -- Check that the user can carry weapons
-                    VorpInv.canCarryWeapons(_source, 1, function(canCarryWeapons)
+                    VorpInv.canCarryWeapons(_source, count * countz, function(canCarryWeapons)
                         if canCarryWeapons  then
                             -- Delete items to crafting
 
@@ -104,8 +110,13 @@ AddEventHandler('vorp:startcrafting', function(craftable, countz)
                             end
 
                             -- Give weapons from the crafting list
-                            for k, v in pairs(reward) do
-                                VorpInv.createWeapon(_source, v.name, ammo, components)
+                            for i = 1, countz do
+                                for k, v in pairs(reward) do
+                                    for i = 1, v.count do
+                                        VorpInv.createWeapon(_source, v.name, ammo, components)
+                                        VorpCore.AddWebhook(GetPlayerName(_source), Config.Webhook, _U('WebhookWeapon')..' '..v.name)
+                                    end
+                                end
                             end
 
                             TriggerClientEvent("vorp:crafting", _source, crafting.Animation)
@@ -145,6 +156,7 @@ AddEventHandler('vorp:startcrafting', function(craftable, countz)
                                 Character.addCurrency(crafting.CurrencyType, countx)
                             else
                                 VorpInv.addItem(_source, v.name, countx)
+                                VorpCore.AddWebhook(GetPlayerName(_source), Config.Webhook, _U('WebhookItem')..' x'..countx..' '..v.name)
                             end
                         end
 

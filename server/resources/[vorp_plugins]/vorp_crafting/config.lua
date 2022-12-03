@@ -2,6 +2,8 @@ Config = {}
 
 Config.defaultlang = "en_lang"
 
+Config.Webhook = '' -- WEBHOOK VORPCORE
+
 -- Crafting Key
 Config.Keys = {
     G = 0x760A9C6F
@@ -43,6 +45,7 @@ Config.Locations = {
         y = -1390.924, 
         z = 43.573,
         Blip = {
+            enable = true,
             Hash = 1754365229
         },
         Categories = 0, -- set to 0 to allow all categories or like {"food"} to restrict

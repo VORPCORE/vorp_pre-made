@@ -12,15 +12,6 @@ function CheckJob(joblist)
     end
 
     if joblist ~= 0 then
-        if job == nil then
-            TriggerServerEvent('vorp:findjob')
-        end    
-    
-        while(job == nil and dlq < backoff) do
-            dlq = dlq + 1
-            Wait(1)
-        end
-
         for k, v in pairs(joblist) do
             if v == job then
                 return true
@@ -30,6 +21,13 @@ function CheckJob(joblist)
 
     return false
 end
+
+Citizen.CreateThread(function()
+    while true do
+        TriggerServerEvent('vorp:findjob')
+        Wait(60000) --waiting five minutes for the next check
+    end
+end)
 
 RegisterNetEvent("vorp:setjob")
 AddEventHandler("vorp:setjob", function(rjob)
