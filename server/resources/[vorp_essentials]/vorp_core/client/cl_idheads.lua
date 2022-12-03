@@ -1,14 +1,10 @@
---NO ONE USES THIS AND ITS NOT EVEN WORKING
+--[[local UseIDHeads = Config["HeadId"]
+local UseKeyMode = Config["ModeKey"]
+local keyShow = Config["KeyShowIds"]
+local distanceConfig = Config["HeadIdDistance"]
 
---[[local UseIDHeads = Config.HeadId
-local UseKeyMode = Config.ModeKey
-local keyShow = Config.KeyShowIds
-local distanceConfig = Config.HeadIdDistance
 local PlayerTags = {}
 local showIds = true
-
-
-
 
 local function GetDistanceFromPlayer(p)
     local playerCoords = GetEntityCoords(GetPlayerPed(p), true, true)
@@ -23,6 +19,7 @@ Citizen.CreateThread(function()
         else
             showIds = false
         end
+        
         Citizen.Wait(0)
     end
 end)

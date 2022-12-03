@@ -1,12 +1,12 @@
 local firstSpawn = true
 local active = false
 local playerHash = GetHashKey("PLAYER")
+
 local mapTypeOnMount = Config.mapTypeOnMount
 local mapTypeOnFoot = Config.mapTypeOnFoot
 local enableTypeRadar = Config.enableTypeRadar
-local pvp = Config.PVP
-local HealthData = {}
 
+pvp = Config.PVP
 
 function setPVP()
     NetworkSetFriendlyFireOption(pvp)
@@ -62,6 +62,7 @@ RegisterNetEvent('vorp:initCharacter', function(coords, heading, isdead)
             Wait(1000)
             --shut down loading screen
             ShutdownLoadingScreen()
+
             Wait(7000)
             -- ensure health and stamina
             local health = GetAttributeCoreValue(PlayerPedId(), 0)
@@ -109,12 +110,18 @@ RegisterNetEvent('vorp:initCharacter', function(coords, heading, isdead)
         HealthData = {}
     end
 
+
+
 end)
 -------------------------------------------------------------------------------------------------
 
+
+
 RegisterNetEvent('vorp:SelectedCharacter', function()
     local playerId = PlayerId()
+
     firstSpawn = false
+
     SetMinimapHideFow(true)
 
     if Config.ActiveEagleEye then
@@ -128,15 +135,19 @@ RegisterNetEvent('vorp:SelectedCharacter', function()
     setPVP()
     DisplayRadar(true) -- show HUD
     SetMinimapHideFow(true) -- enable FOW
-    TriggerServerEvent("vorp:chatSuggestion") --- chat add suggestion trigger
+    TriggerServerEvent("vorp:chatSuggestion") --- chat add suggestion trigger 
     TriggerServerEvent('vorp_core:instanceplayers', 0) -- remove instanced players
+    TriggerServerEvent("vorp:SaveDate") -- Saves the date when logging in
 end)
+
+HealthData = {}
 
 RegisterNetEvent("vorp:GetHealthFromCore")
 AddEventHandler("vorp:GetHealthFromCore", function(healthData)
-    HealthData = healthData
-end)
 
+    HealthData = healthData
+
+end)
 
 AddEventHandler('playerSpawned', function(spawnInfo)
     TriggerServerEvent('vorp_core:instanceplayers', tonumber(GetPlayerServerId(PlayerId())) + 45557) --instance players
@@ -211,6 +222,7 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(1000)
         --print("Updating local data with Health and Stamina")
+
         local innerCoreHealth = Citizen.InvokeNative(0x36731AC041289BB1, PlayerPedId(), 0)
         local outerCoreStamina = Citizen.InvokeNative(0x22F2A386D43048A9, PlayerPedId())
         local innerCoreStamina = Citizen.InvokeNative(0x36731AC041289BB1, PlayerPedId(), 1)
@@ -224,6 +236,7 @@ CreateThread(function()
     while true do
         local player = PlayerPedId()
         Wait(300000)
+
         local innerCoreHealth = Citizen.InvokeNative(0x36731AC041289BB1, player, 0, Citizen.ResultAsInteger())
         local outerCoreStamina = Citizen.InvokeNative(0x22F2A386D43048A9, player)
         local innerCoreStamina = Citizen.InvokeNative(0x36731AC041289BB1, player, 1, Citizen.ResultAsInteger())
@@ -232,6 +245,7 @@ CreateThread(function()
         local innerStamina = tonumber(innerCoreStamina)
 
         if innerHealth and innerStamina and getHealth and outerCoreStamina then
+
             TriggerServerEvent("vorp:SaveHealth", getHealth, innerHealth)
             Wait(5)
             TriggerServerEvent("vorp:SaveStamina", outerCoreStamina, innerStamina)
@@ -241,8 +255,22 @@ end)
 
 -- To do in server side if is any problems
 Citizen.CreateThread(function()
-    while true do
-        Citizen.Wait(1800000)
+	while true do
+		Citizen.Wait(1800000)
         TriggerServerEvent("vorp:SaveHours")
+	end
+end)
+
+---------------------Guarama Check-------------------------
+RegisterNetEvent("vorp:SelectedCharacter") -- NPC loads after selecting character
+AddEventHandler("vorp:SelectedCharacter", function(charid)
+    Citizen.Wait(10000)
+    local player = PlayerPedId()
+    local pedCoords = GetEntityCoords(player)
+    local area = Citizen.InvokeNative(0x43AD8FC02B429D33 ,pedCoords.x,pedCoords.y,pedCoords.z,10)
+    if area == -512529193 then
+        Citizen.InvokeNative(0xA657EC9DBC6CC900, 1935063277) --guarma map
+        Citizen.InvokeNative(0xE8770EE02AEE45C2, 1) --guarma water
+        Citizen.InvokeNative(0x74E2261D2A66849A, true)
     end
 end)

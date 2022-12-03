@@ -1,5 +1,3 @@
--- NONE OF THESE WILL BE USED OR ITS EVEN WORKING
-
 --[[local activeVoiceChat = Config["ActiveVoiceChat"]
 local voiceRange = Config["VoiceRanges"]
 local voiceRangeSelected = Config["DefaultVoiceRange"]

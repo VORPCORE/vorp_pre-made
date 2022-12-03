@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------------------------------------
 --------------------------------------------- ADMIN ACTIONS ------------------------------------------------
 
-function TeleportAndFoundGroundAsync(tpCoords) -- not being used ?
+function TeleportAndFoundGroundAsync(tpCoords)
     local groundZ = 0.0
     local foundGround = false
     for i = 0, 1000 do
@@ -22,6 +22,7 @@ function TeleportToWaypoint()
     if (wayPoint.x == 0 and wayPoint.y == 0) then
         TriggerEvent("vorp:TipRight", Config.Langs.wayPoint, 3000)
     else
+
         local height = 1
 
         for height = 1, 1000 do
@@ -61,6 +62,7 @@ local entityEnumerator = {
         if enum.destructor and enum.handle then
             enum.destructor(enum.handle)
         end
+
         enum.destructor = nil
         enum.handle = nil
     end
@@ -158,6 +160,7 @@ function WarnPlayerByUserId(target, status)
 end
 
 function CharPlayerByUserId(target, status)
+    local player = PlayerPedId()
     TriggerServerEvent("vorpchar:addtodb", status, target)
 end
 

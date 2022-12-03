@@ -67,14 +67,8 @@ Config = {
     BanWarnWebhook    = "", --BANS/WARNS
     NewPlayerWebhook  = "", --NEWPLAYER
     CharPermWebhook   = "", --CHARPERMS
+    ChangeNameWebhook = "", -- CHANGECHARNAMES
   },
-
-  ------------------------------------------------------------------------------
-  ---------------------------- VOICE -------------------------------------------
-  ActiveVoiceChat   = false,
-  KeySwapVoiceRange = 0x80F28E95, --[L] KEY
-  DefaultVoiceRange = 5.0,
-  VoiceRanges       = { 2.0, 5.0, 12.0 },
 
   ------------------------------------------------------------------------------
   ------------------------- SHOW OR HIDE UI's ----------------------------------
@@ -93,13 +87,14 @@ Config = {
   DisableRecharge = true, --Disable auto recharge of health outer core (real ped health)
   RespawnTime = 10, --seconds
   RespawnKey = 0xDFF812F9, --[E] KEY
+  RespawnKeyTime = 5000, -- Milliseconds it will take to press the button
   RespawnTitleFont = 1, -- for the draw text message
   RespawnSubTitleFont = 1, -- for the draw text message sub title font
   CombatLogDeath = true, -- people who combat log now spawn in dead rather than force spawned
   ShowUiDeath = true, -- show or hide the UI if player is dead
-  camDeath = false, -- enable or disable the camera death function
+  camDeath = true, -- enable or disable the camera death function
   sprite = true, --- enable text with sprite or disable
-  spriteGrey = false, -- if set to false will enable RED sprite true will be grey
+  spriteColor = { r = 100, g = 1, b = 1 }, -- sprite rgb color
 
   hospital = {
     Valentine = {
@@ -139,34 +134,30 @@ Config = {
     },
   },
   -----------------------------------------------------------------------------
-  HeadId = false,
-  HeadIdDistance = 15,
-  ModeKey = true,
-  KeyShowIds = "0x8CC9CD42", -- Press X
+
   ActiveEagleEye = true,
   ActiveDeadEye = false,
   TimeZoneDifference = 1, -- Your time zone difference with UTC in winter time
 
   ----------------------------------------------------------------------------
   --------------------------- COMMAND PERMISSION -----------------------------
-  Group = {
-    Admin = "admin", --- group for all commands
-    Mod = "moderator", --- second group for all commands
-
-  },
+  SetUserDBadmin = true, -- should the command addGroup set admins on Users able? for characters table do false
+  GroupAllowed = { "admin" }, -- add here groups
+  Commands = { "addGroup", "addJob", "addItems", "addWeapons", "addMoney", "delMoney", "healplayer",
+    "reviveplayer", "tpm", "delhorse", "delwagons", "banplayer", "wlplayer", "unwlplayer", "warn",
+    "unban", "unwarn", "changeCharName" }, -- commands available
 
   --------------------------------------------------------------------------------------
   -----------------------------BUILT IN RICH PRESENCE DISCORD --------------------------
   maxplayers = 128, -- change to the number of players that can get in to your server
   appid = nil, -- Application ID (Replace this with you own)
-  biglogo = "synred", -- image assets name for the "large" icon.
+  biglogo = "LOGOname", -- image assets name for the "large" icon.
   biglogodesc = " Redm Server Connect: ", -- text when hover over image
-  smalllogo = "smallboy", -- image assets name for the "small" icon.(OPTIONAL)
+  smalllogo = "smallboy name", -- image assets name for the "small" icon.(OPTIONAL)
   smalllogodesc = "Join us for a good time", -- text when hover over image
   discordlink = "https://discord.gg/", -- discord link
   richpresencebutton = "Join Discord", --set button text for Rich Presence Button
   shownameandid = true, --show player steam name and id
-
 
   ---------------------------------------------------------------------------------------
   ------------------------------- TRANSLATE ---------------------------------------------

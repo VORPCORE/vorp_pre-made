@@ -3,9 +3,7 @@ RegisterNetEvent('vorp:updateUi', function(stringJson)
 end)
 
 RegisterNetEvent('vorp:showUi', function(active)
-    local jsonpost = { type = "ui", action = "hide" }
-    if active then
-        jsonpost = { type = "ui", action = "show" }
-    end
+    local jsonpost = {type="ui",action="hide"}
+    if active then jsonpost = {type="ui",action="show"} end
     SendNUIMessage(jsonpost)
 end)
