@@ -51,6 +51,16 @@ CREATE TABLE IF NOT EXISTS `bills` (
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `users` (
+  `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `group` varchar(50) DEFAULT 'user',
+  `warnings` int(11) DEFAULT 0,
+  `banned` tinyint(1) DEFAULT NULL,
+  `banneduntil` int(10) DEFAULT 0,
+  `char` varchar(50) NOT NULL DEFAULT 'false',
+  PRIMARY KEY (`identifier`),
+  UNIQUE KEY `identifier` (`identifier`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `characters` (
   `identifier` varchar(50) COLLATE utf8mb4_bin NOT NULL DEFAULT '',
@@ -293,18 +303,6 @@ CREATE TABLE IF NOT EXISTS `stables` (
   `inventory` longtext DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
-
-CREATE TABLE IF NOT EXISTS `users` (
-  `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `group` varchar(50) DEFAULT 'user',
-  `warnings` int(11) DEFAULT 0,
-  `banned` tinyint(1) DEFAULT NULL,
-  `banneduntil` int(10) DEFAULT 0,
-  `char` varchar(50) NOT NULL DEFAULT 'false',
-  PRIMARY KEY (`identifier`),
-  UNIQUE KEY `identifier` (`identifier`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `wagons` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
