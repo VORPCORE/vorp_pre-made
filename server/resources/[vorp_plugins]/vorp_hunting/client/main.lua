@@ -10,8 +10,8 @@ AddEventHandler("vorp:SelectedCharacter", function(charid)
     end
 end)
 
-RegisterNetEvent('vorp_hunting:findjob')
-AddEventHandler('vorp_hunting:findjob', function(job)
+RegisterNetEvent('vorp_hunting:findJob')
+AddEventHandler('vorp_hunting:findJob', function(job)
     playerJob = job
 end)
 
