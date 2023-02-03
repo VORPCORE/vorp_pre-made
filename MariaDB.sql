@@ -13,10 +13,10 @@ CREATE TABLE IF NOT EXISTS `banks` (
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `bank_users` (
+CREATE TABLE `bank_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
-  `identifier` varchar(50) NOT NULL,
+  `identifier` varchar(50) NOT NULL COLLATE 'utf8mb4_bin',
   `charidentifier` int(11) NOT NULL,
   `money` double(22,2) DEFAULT 0.00,
   `gold` double(22,2) DEFAULT 0.00,
@@ -24,8 +24,10 @@ CREATE TABLE IF NOT EXISTS `bank_users` (
   `invspace` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
-  CONSTRAINT `bank` FOREIGN KEY (`name`) REFERENCES `banks` (`name`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `bank` FOREIGN KEY (`name`) REFERENCES `banks` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `bankusers` FOREIGN KEY (`identifier`) REFERENCES `users` (`identifier`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
 
 CREATE TABLE IF NOT EXISTS `banneds` (
   `b_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -334,14 +336,25 @@ CREATE TABLE IF NOT EXISTS `whitelist` (
   UNIQUE KEY `identifier` (`identifier`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
-
+CREATE TABLE `whitelist` (
+`id` INT(11) NOT NULL AUTO_INCREMENT,
+`identifier` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_bin',
+`status` TINYINT(1) NULL DEFAULT NULL,
+`firstconnection` TINYINT(1) NULL DEFAULT '1',
+PRIMARY KEY (`id`) USING BTREE,
+UNIQUE INDEX `identifier` (`identifier`) USING BTREE,
+CONSTRAINT `FK_characters_whitelist` FOREIGN KEY (`identifier`) REFERENCES `vorpv2`.`users` (`identifier`) ON UPDATE CASCADE ON DELETE CASCADE
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+;
 
 
 INSERT IGNORE INTO `banks` (`name`) VALUES
 	('Blackwater'),
 	('Saint Denis'),
 	('Valentine');
-
 
 
 /*!40000 ALTER TABLE `items` DISABLE KEYS */;
