@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `characters` (
   `skinPlayer` longtext COLLATE utf8mb4_bin DEFAULT NULL,
   `compPlayer` longtext COLLATE utf8mb4_bin DEFAULT NULL,
   `jobgrade` int(11) DEFAULT 0,
-  `coords` varchar(75) COLLATE utf8mb4_bin DEFAULT '{}',
+  `coords` LONGTEXT COLLATE utf8mb4_bin DEFAULT '{}', 
   `isdead` tinyint(1) DEFAULT 0,
   `clanid` int(11) DEFAULT 0,
   `trust` int(11) DEFAULT 0,
