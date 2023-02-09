@@ -358,7 +358,7 @@ INSERT IGNORE INTO `banks` (`name`) VALUES
 
 
 /*!40000 ALTER TABLE `items` DISABLE KEYS */;
-INSERT IGNORE INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `id`, `metadata`, `desc`) VALUES
+INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `id`, `metadata`, `desc`) VALUES
 	('acid', 'Acid', 10, 1, 'item_standard', 1, 1, '{}', 'nice item'),
 	('Agarita', 'Agarita', 10, 1, 'item_standard', 1, 2, '{}', 'nice item'),
 	('Agarita_Seed', 'Agarita Seed', 10, 1, 'item_standard', 1, 3, '{}', 'nice item'),
