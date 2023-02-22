@@ -1,262 +1,309 @@
-exports('vorp_inventoryApi',function()
+exports('vorp_inventoryApi', function()
     local self = {}
 
-    self.registerInventory = function(id, name, limit, acceptWeapons, shared, ignoreItemStackLimit, whitelistItems)
-        TriggerEvent("vorpCore:registerInventory", id, name, limit, acceptWeapons, shared, ignoreItemStackLimit, whitelistItems)
+    ---@param query string
+    ---@param params table<string, string|number>|nil
+    ---@return any
+    local dbQuery = function(query, params)
+        local query_promise = promise.new()
+
+        params = params or {}
+
+        local on_result = function(result)
+            query_promise:resolve(result)
+        end
+
+        exports.oxmysql:execute(query, params, on_result)
+
+        return Citizen.Await(query_promise)
+    end
+
+    self.registerInventory = function(...)
+        TriggerEvent("vorpCore:registerInventory", ...)
     end
 
     self.removeInventory = function(id)
         TriggerEvent("vorpCore:removeInventory", id)
     end
 
+    self.BlackListCustomAny = function(...) -- items or weapons
+        TriggerEvent("vorp_inventory:Server:BlackListCustom", ...)
+    end
+
+    self.AddPermissionMoveToCustom = function(...)
+        TriggerEvent("vorp_inventory:Server:AddPermissionMoveToCustom", ...)
+    end
+
+    self.AddPermissionTakeFromCustom = function(...)
+        TriggerEvent("vorp_inventory:Server:AddPermissionTakeFromCustom", ...)
+    end
 
     self.setInventoryItemLimit = function(id, itemName, limit)
         TriggerEvent("vorpCore:setInventoryItemLimit", id, itemName, limit)
     end
 
-    self.setInventoryWeaponLimit = function(id, weaponName, limit) -- same event as setInventoryItemLimit
-        TriggerEvent("vorpCore:setInventoryItemLimit", id, weaponName, limit)
+    self.setInventoryWeaponLimit = function(id, weaponName, limit)
+        TriggerEvent("vorpCore:setInventoryWeaponLimit", id, weaponName, limit)
     end
 
-
-    self.subWeapon = function(source,weaponid)
-        TriggerEvent("vorpCore:subWeapon",source,tonumber(weaponid))
+    self.subWeapon = function(source, weaponid)
+        TriggerEvent("vorpCore:subWeapon", source, tonumber(weaponid))
     end
 
-    self.createWeapon = function(source,weaponName,ammoaux,compaux,comps)
-        TriggerEvent("vorpCore:registerWeapon",source,tostring(string.upper(weaponName)),ammoaux,compaux,comps)
+    self.createWeapon = function(source, weaponName, ammoaux, compaux, comps)
+        TriggerEvent("vorpCore:registerWeapon", source, tostring(string.upper(weaponName)), ammoaux, compaux, comps)
     end
 
-    self.deletegun = function(source,id)
-        TriggerEvent("vorpCore:deletegun",source,tonumber(id))
+    self.deletegun = function(source, id)
+        TriggerEvent("vorpCore:deletegun", source, tonumber(id))
     end
+
     self.canCarryWeapons = function(source, amount, cb)
         TriggerEvent("vorpCore:canCarryWeapons", source, amount, cb)
     end
 
     self.getcomps = function(source, weaponid)
-        local comps
+        local comps_promise = promise.new()
+
         TriggerEvent("vorpCore:getcomps", source, tonumber(weaponid), function(responseItem)
-            comps = responseItem
+            comps_promise:resolve(responseItem)
         end)
-        while comps == nil do 
-            Wait(50)
-        end
-        return comps 
+
+        return Citizen.Await(comps_promise)
     end
 
     self.getItem = function(source, itemName, metadata)
-        local item
-        
+        local item_promise = promise.new()
+
         TriggerEvent("vorpCore:getItem", source, tostring(itemName), function(responseItem)
-            item = responseItem
+            item_promise:resolve(responseItem)
         end, metadata)
 
-        return item
-    end
-    self.giveWeapon = function(source,weaponid,target)
-        TriggerEvent("vorpCore:giveWeapon",source,weaponid,target)
+        return Citizen.Await(item_promise)
     end
 
-    self.addItem = function(source,itemName,qty, metadata)
-        local result = nil
-        TriggerEvent("vorpCore:addItem",source,tostring(itemName),tonumber(qty), metadata, function (res)
-            result = res
+    self.getItemByMainId = function(source, mainid) --main id can be obtain by using an item.
+        local item_promise = promise.new()
+        TriggerEvent("vorpCore:getItemByMainId", source, mainid, function(responseItem)
+            item_promise:resolve(responseItem)
         end)
-        return result
+        return Citizen.Await(item_promise)
     end
 
-    self.subItem = function(source,itemName,qty, metadata)
-        local result = nil
-        TriggerEvent("vorpCore:subItem",source,tostring(itemName),tonumber(qty), metadata, function (res)
-            result = res
+    self.giveWeapon = function(source, weaponid, target)
+        TriggerEvent("vorpCore:giveWeapon", source, weaponid, target)
+    end
+
+    self.addItem = function(source, itemName, qty, metadata)
+        local result_promise = promise.new()
+
+        TriggerEvent("vorpCore:addItem", source, tostring(itemName), tonumber(qty), metadata, function(res)
+            result_promise:resolve(res)
         end)
-        return result
+
+        return Citizen.Await(result_promise)
+    end
+
+    self.subItem = function(source, itemName, qty, metadata)
+        local result_promise = promise.new()
+
+        TriggerEvent("vorpCore:subItem", source, tostring(itemName), tonumber(qty), metadata, function(res)
+            result_promise:resolve(res)
+        end)
+
+        return Citizen.Await(result_promise)
     end
 
     self.setItemMetadata = function(source, itemId, metadata)
-        local result = nil
-        TriggerEvent("vorpCore:setItemMetadata", source, tonumber(itemId), metadata, function (res)
-            result = res
+        local result_promise = promise.new()
+
+        TriggerEvent("vorpCore:setItemMetadata", source, tonumber(itemId), metadata, function(res)
+            result_promise:resolve(res)
         end)
-        return result
+
+        return Citizen.Await(result_promise)
     end
 
+    self.subItemID = function(source, id)
+        local result_promise = promise.new()
 
+        TriggerEvent("vorpCore:subItemID", source, id, function(res)
+            result_promise:resolve(res)
+        end)
+
+        return Citizen.Await(result_promise)
+    end
 
     self.getItemByName = function(source, itemName)
-        local item
-        
-        TriggerEvent("vorpCore:getItemByName", source, tostring(itemName), function(responseItem)
-            item = responseItem
-        end, metadata)
+        local item_promise = promise.new()
 
-        return item
+        TriggerEvent("vorpCore:getItemByName", source, tostring(itemName), function(responseItem)
+            item_promise:resolve(responseItem)
+        end)
+
+        return Citizen.Await(item_promise)
     end
 
     self.getItemContainingMetadata = function(source, itemName, metadata)
-        local item
-        
-        TriggerEvent("vorpCore:getItemContainingMetadata", source, tostring(itemName), metadata, function(responseItem)
-            item = responseItem
-        end)
+        local item_promise = promise.new()
 
-        return item
+        TriggerEvent("vorpCore:getItemContainingMetadata", source, tostring(itemName), metadata,
+            function(responseItem)
+                item_promise:resolve(responseItem)
+            end)
+
+        return Citizen.Await(item_promise)
     end
 
     self.getItemMatchingMetadata = function(source, itemName, metadata)
-        local item
-        
+        local item_promise = promise.new()
+
         TriggerEvent("vorpCore:getItemMatchingMetadata", source, tostring(itemName), metadata, function(responseItem)
-            item = responseItem
+            item_promise:resolve(responseItem)
         end)
 
-        return item
+        return Citizen.Await(item_promise)
     end
 
-    self.getItemCount = function(source,item, metadata)
-        local count = 0
-        TriggerEvent("vorpCore:getItemCount",source,function(itemcount)
-            count = itemcount
-        end,tostring(item), metadata)
-        return count
+    self.getItemCount = function(source, item, metadata)
+        local count_promise = promise.new()
+
+        TriggerEvent("vorpCore:getItemCount", source, function(itemcount)
+            count_promise:resolve(itemcount)
+        end, tostring(item), metadata)
+
+        return Citizen.Await(count_promise)
     end
 
+    ---@param source number
+    ---@param itemName string
+    ---@return table|nil
     self.getDBItem = function(source, itemName)
         local item
-        local done = false
+        local query = "SELECT * FROM items WHERE item=@id;"
+        local params = { ['@id'] = itemName }
+        local result = dbQuery(query, params)
 
-        exports.ghmattimysql:execute( "SELECT * FROM items WHERE item=@id;", {['@id'] = itemName}, 
-            function(result)
-                -- Add check for if the item exists.
-                if result[1] then
-                    item = result[1]
-                else
-                    print('Item does not exist in Items table. Item: '.. tostring(itemName))
-                end
-                done = true
-            end)
-
-        -- Wait for the call to finish (aka makes this task more syncronous)
-        while done == false do
-            Wait(500)
+        -- Add check for if the item exists.
+        if result[1] then
+            item = result[1]
+        else
+            print('Item does not exist in Items table. Item: ' .. tostring(itemName))
         end
 
         return item
     end
 
-    self.addBullets = function(source,weaponId,type,qty)
-        TriggerEvent("vorpCore:addBullets",source,weaponId,type,qty)
+    self.addBullets = function(source, weaponId, type, qty)
+        TriggerEvent("vorpCore:addBullets", source, weaponId, type, qty)
     end
 
-    self.subBullets = function(source,weaponId,type,qty)
-        TriggerEvent("vorpCore:subBullets",source,weaponId,type,qty)
+    self.subBullets = function(source, weaponId, type, qty)
+        TriggerEvent("vorpCore:subBullets", source, weaponId, type, qty)
     end
 
-    self.getWeaponBullets = function(source,weaponId)
-        local bull
-        TriggerEvent("vorpCore:getWeaponBullets",source,function(bullets)
-            bull = bullets
-        end,weaponId)
-        return bull
+    self.getWeaponBullets = function(source, weaponId)
+        local bullets_promise = promise.new()
+
+        TriggerEvent("vorpCore:getWeaponBullets", source, function(bullets)
+            bullets_promise:resolve(bullets)
+        end, weaponId)
+
+        return Citizen.Await(bullets_promise)
     end
-    
-    self.getWeaponComponents = function(source,weaponId)
-        local comp
-        TriggerEvent("vorpCore:getWeaponComponents",source,function(components)
-            comp = components
-        end,weaponId) 
-        return comp
+
+    self.getWeaponComponents = function(source, weaponId)
+        local components_promise = promise.new()
+
+        TriggerEvent("vorpCore:getWeaponComponents", source, function(components)
+            components_promise:resolve(components)
+        end, weaponId)
+
+        return Citizen.Await(components_promise)
     end
 
     self.getUserWeapons = function(source)
-        local weapList
-        TriggerEvent("vorpCore:getUserWeapons",source,function(weapons)
-            weapList = weapons
+        local weapons_promise = promise.new()
+
+        TriggerEvent("vorpCore:getUserWeapons", source, function(weapons)
+            weapons_promise:resolve(weapons)
         end)
-        return weapList
+
+        return Citizen.Await(weapons_promise)
     end
 
     self.canCarryItems = function(source, amount)
-        local can
-        TriggerEvent("vorpCore:canCarryItems",source,amount,function(data)
-            can = data
+        local can_promise = promise.new()
+
+        TriggerEvent("vorpCore:canCarryItems", source, amount, function(data)
+            can_promise:resolve(data)
         end)
-        return can
+
+        return Citizen.Await(can_promise)
     end
 
-    self.canCarryItem = function(source, item, amount) 
+    self.canCarryItem = function(source, item, amount)
         local can = false
-        local done = false
-        
+
         -- Limit is a restricted field in sql. Query for it directly gives an error.
-        exports.ghmattimysql:execute( "SELECT * FROM items WHERE item=@id;", {['@id'] = item}, 
-        function(result)
+        local query = "SELECT * FROM items WHERE item=@id;"
+        local params = { ['@id'] = item }
+        local result = dbQuery(query, params)
 
-            -- Add check for if the item exists.
-            local itemcount = self.getItemCount(source, item)
-            local reqCount = itemcount + amount
-            
-            if result[1] then
-                local limit = tonumber(result[1].limit)
-                if reqCount <= limit then
-                    can = true
-                else
-                    can = false
-                end
-            else
-                -- Object does not exist in inventory, it can not be added
-                print('Item does not exist in Items table. Item: '..item)
-                can = false
-            end
-            
-            done = true
-        end)
+        -- Add check for if the item exists.
+        local itemcount = self.getItemCount(source, item)
+        local reqCount = itemcount + amount
 
-        -- Wait for the call to finish (aka makes this task more syncronous)
-        while done == false do
-            Wait(500)
+        if result and result[1] then
+            local limit = tonumber(result[1].limit)
+            can = reqCount <= limit
+        else
+            -- Object does not exist in inventory, it can not be added
+            print('Item does not exist in Items table. Item: ' .. item)
         end
 
         return can
     end
 
-    self.getUserWeapon = function(source,weaponId)
-        local weap
-        TriggerEvent("vorpCore:getUserWeapon",source,function(weapon)
-            weap = weapon
-        end,weaponId)
-        return weap
+    self.getUserWeapon = function(source, weaponId)
+        local weapon_promise = promise.new()
+
+        TriggerEvent("vorpCore:getUserWeapon", source, function(weapon)
+            weapon_promise:resolve(weapon)
+        end, weaponId)
+
+        return Citizen.Await(weapon_promise)
     end
-        
-    self.RegisterUsableItem = function(itemName,cb)
-        TriggerEvent("vorpCore:registerUsableItem",itemName,cb)
+
+    self.RegisterUsableItem = function(itemName, cb)
+        TriggerEvent("vorpCore:registerUsableItem", itemName, cb)
     end
 
     self.getUserInventory = function(source)
-        local inv
+        local inventory_promise = promise.new()
+
         TriggerEvent("vorpCore:getUserInventory", source, function(invent)
-            inv = invent
+            inventory_promise:resolve(invent)
         end)
-        return inv
+
+        return Citizen.Await(inventory_promise)
     end
 
-    
-
-     self.CloseInv = function(source, invId) 
+    self.CloseInv = function(source, invId)
         if invId then
             TriggerEvent("vorpCore:closeCustomInventory", source, invId)
         else
-            TriggerClientEvent("vorp_inventory:CloseInv",source)
+            TriggerClientEvent("vorp_inventory:CloseInv", source)
         end
     end
+
     self.OpenInv = function(source, invId)
         if invId then
             TriggerEvent("vorpCore:openCustomInventory", source, invId)
         else
-            TriggerClientEvent("vorp_inventory:OpenInv",source)
+            TriggerClientEvent("vorp_inventory:OpenInv", source)
         end
     end
-    
+
     return self
 end)

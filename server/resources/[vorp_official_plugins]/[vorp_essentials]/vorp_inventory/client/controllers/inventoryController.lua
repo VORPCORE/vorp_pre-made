@@ -4,6 +4,9 @@ AddEventHandler("vorpInventory:giveItemsTable", InventoryService.processItems)
 RegisterNetEvent("vorpInventory:giveInventory")
 AddEventHandler("vorpInventory:giveInventory", InventoryService.getInventory)
 
+RegisterNetEvent("vorpCoreClient:SetItemMetadata")
+AddEventHandler("vorpCoreClient:SetItemMetadata", InventoryApiService.SetItemMetadata)
+
 RegisterNetEvent("vorpInventory:giveLoadout")
 AddEventHandler("vorpInventory:giveLoadout", InventoryService.getLoadout)
 

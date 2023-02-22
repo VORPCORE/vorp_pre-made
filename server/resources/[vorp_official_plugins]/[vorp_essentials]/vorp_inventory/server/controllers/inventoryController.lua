@@ -67,10 +67,8 @@ AddEventHandler("vorp_inventory:useItem", InventoryService.UseItem)
 RegisterServerEvent("vorp_inventory:getNearbyCharacters")
 AddEventHandler("vorp_inventory:getNearbyCharacters", InventoryService.getNearbyCharacters)
 
-
 RegisterServerEvent("vorp_inventory:MoveToCustom")
 AddEventHandler("vorp_inventory:MoveToCustom", InventoryService.MoveToCustom)
 
 RegisterServerEvent("vorp_inventory:TakeFromCustom")
 AddEventHandler("vorp_inventory:TakeFromCustom", InventoryService.TakeFromCustom)
-

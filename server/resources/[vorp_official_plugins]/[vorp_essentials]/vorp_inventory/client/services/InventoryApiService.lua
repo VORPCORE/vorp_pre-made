@@ -37,6 +37,14 @@ InventoryApiService.subItem = function (id, qty, metadata)
     NUIService.LoadInv()
 end
 
+InventoryApiService.SetItemMetadata = function (id, metadata)
+    if UserInventory[id] == nil then
+        return
+    end
+    UserInventory[id]:setMetadata(metadata)
+    NUIService.LoadInv()
+end
+
 ---@param weaponId number
 InventoryApiService.subWeapon = function (weaponId)
     if UserWeapons[weaponId] ~= nil then

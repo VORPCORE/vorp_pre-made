@@ -237,7 +237,18 @@ local Updates = {
         AND  Column_Name = 'LastLogin';
         ]],
         sql = [[
-            ALTER TABLE `characters` ADD COLUMN `LastLogin` date DEFAULT NULL
+            ALTER TABLE `characters` ADD COLUMN `LastLogin` date DEFAULT NULL;
+        ]]
+    },
+    {
+        name = "coords",
+        script = "vorp_core",
+        find = [[select *  from Information_Schema.Columns
+        where Table_Name = 'characters'
+        AND  Column_Name = 'coords';
+        ]],
+        sql = [[
+            ALTER TABLE `characters` MODIFY `coords`LONGTEXT;
         ]]
     }
 }
@@ -261,43 +272,45 @@ local function runSQLList(list, type)
     for index, it in ipairs(list) do
         local hascolumn = false
         if it.find then
-            local isfound = exports.ghmattimysql:executeSync(it.find)
-            if #isfound > 0 then
-                hascolumn = true
-                print('^4Database Auto Updater ^3(' .. it.script .. ')^2✅ Column Exists: ' .. it.name .. ' ^0')
-            end
+            MySQL.query(it.find, function(isfound)
+                if #isfound > 0 then
+                    hascolumn = true
+                    print('^4Database Auto Updater ^3(' .. it.script .. ')^2✅ Column Exists: ' .. it.name .. ' ^0')
+                end
+            end)
         end
 
         if hascolumn == false then
-            local result = exports.ghmattimysql:executeSync(it.sql)
-            if result and result.warningStatus > 0 then
-                local out = ''
-                if type == 'table' then
-                    out = '^1❌ (' .. dbversion .. ') Failed to Create: '
-                    if result.warningStatus == 1 or dbversion == 'MySQL' then
-                        out = '^2✅ ' .. 'Table exists: '
+            MySQL.query(it.sql, function(result)
+                if result and result.warningStatus > 0 then
+                    local out = ''
+                    if type == 'table' then
+                        out = '^1❌ (' .. dbversion .. ') Failed to Create: '
+                        if result.warningStatus == 1 or dbversion == 'MySQL' then
+                            out = '^2✅ ' .. 'Table exists: '
+                        end
+                    else
+                        out = '^1❌ (' .. dbversion .. ') Failed to Updated: '
                     end
+                    print('^4Database Auto Updater ^3(' .. it.script .. ')' .. out .. it.name .. ' ^0')
                 else
-                    out = '^1❌ (' .. dbversion .. ') Failed to Updated: '
+                    local out = ''
+                    if type == 'table' then
+                        out = 'Created Table: '
+                        tableupdated = true
+                    else
+                        out = 'Updated Column: '
+                    end
+                    print('^4Database Auto Updater ^3(' .. it.script .. ')^2✅ ' .. out .. it.name .. '^0')
                 end
-                print('^4Database Auto Updater ^3(' .. it.script .. ')' .. out .. it.name .. ' ^0')
-            else
-                local out = ''
-                if type == 'table' then
-                    out = 'Created Table: '
-                    tableupdated = true
-                else
-                    out = 'Updated Column: '
-                end
-                print('^4Database Auto Updater ^3(' .. it.script .. ')^2✅ ' .. out .. it.name .. '^0')
-            end
+            end)
         end
     end
 end
 
 function RunDBCheck()
-    local rversion = exports.ghmattimysql:executeSync('SELECT VERSION();')
-    local version = rversion[1]['VERSION()']
+    local rversion = MySQL.single.await('SELECT VERSION();')
+    local version = rversion['VERSION()']
 
     if string.match(version, "MariaDB") then
         dbversion = "MariaDB"
@@ -313,7 +326,7 @@ Citizen.CreateThread(function()
 
     repeat
         Wait(10)
-    until GetResourceState('ghmattimysql') == 'started' and VorpInitialized == true
+    until GetResourceState('oxmysql') == 'started' and VorpInitialized == true
 
     local filedata = LoadResourceFile(GetCurrentResourceName(), "./server/services/dbupdater/status.json")
     local status = json.decode(filedata)

@@ -16,8 +16,14 @@ AddEventHandler("vorpCore:subItem", InventoryAPI.subItem)
 RegisterServerEvent("vorpCore:setItemMetadata")
 AddEventHandler("vorpCore:setItemMetadata", InventoryAPI.setItemMetadata)
 
+RegisterServerEvent("vorpCore:subItemID")
+AddEventHandler("vorpCore:subItemID", InventoryAPI.subItemID)
+
 RegisterServerEvent("vorpCore:getItem")
 AddEventHandler("vorpCore:getItem", InventoryAPI.getItem)
+
+RegisterServerEvent("vorpCore:getItemByMainId")
+AddEventHandler("vorpCore:getItemByMainId", InventoryAPI.getItemByMainId)
 
 RegisterServerEvent("vorpCore:getItemByName")
 AddEventHandler("vorpCore:getItemByName", InventoryAPI.getItemByName)
@@ -90,5 +96,10 @@ AddEventHandler("vorpCore:closeCustomInventory", InventoryAPI.closeCustomInvento
 RegisterServerEvent("vorpCore:setInventoryItemLimit")
 AddEventHandler("vorpCore:setInventoryItemLimit", InventoryAPI.setCustomInventoryItemLimit)
 
---#endregion
+AddEventHandler("vorp_inventory:Server:AddPermissionMoveToCustom", InventoryAPI.AddPermissionMoveToCustom)
 
+AddEventHandler("vorp_inventory:Server:AddPermissionTakeFromCustom", InventoryAPI.AddPermissionTakeFromCustom)
+
+AddEventHandler("vorp_inventory:Server:BlackListCustom", InventoryAPI.BlackListCustom)
+
+AddEventHandler("vorpCore:setInventoryWeaponLimit", InventoryAPI.setCustomInventoryWeaponLimit)

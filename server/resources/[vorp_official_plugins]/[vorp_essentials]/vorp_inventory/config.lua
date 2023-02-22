@@ -3,32 +3,18 @@
 -- VORP INVENTORY LUA*
 
 Config = {
-
+  --======================= DEVELOPMENT ==============================--
   Debug = false, -- if your server is live set this to false.  to true only if you are testing things
   DevMode = false, -- if your server is live set this to false.  to true only if you are testing things (auto load inventory when script restart and before character selection. Alos add /getInv command)
-
-  defaultlang = "en_lang",
   dbupdater = true,
-  ShowCharacterNameOnGive = false, -- when giving an item, show the character name of nearby players instead of their player ID. if set to false, show the player ID
 
+  --======================= CONFIGURATION =============================--
+  defaultlang = "en_lang",
+  ShowCharacterNameOnGive = false, -- when giving an item, show the character name of nearby players instead of their player ID. if set to false, show the player ID
   DoubleClickToUse = true, -- if toggled to false, items in inventory will right click then left click "use"
-  
   NewPlayers = false, --- if you dont want new players to give money or items then set to true. this can avoid cheaters giving stuff on first join
 
-  -- items that dont get added up torwards your max weapon count
-  notweapons = {
-    "WEAPON_KIT_BINOCULARS_IMPROVED",
-    "WEAPON_KIT_BINOCULARS",
-    "WEAPON_FISHINGROD",
-    "WEAPON_KIT_CAMERA",
-    "WEAPON_kIT_CAMERA_ADVANCED",
-    "WEAPON_MELEE_LANTERN",
-    "WEAPON_MELEE_DAVY_LANTERN",
-    "WEAPON_MELEE_LANTERN_HALLOWEEN",
-    "WEAPON_KIT_METAL_DETECTOR",
-    "WEAPON_MELEE_HAMMER",
-    "WEAPON_MELEE_KNIFE",
-  },
+
   -- GOLD ITEM LIKE DOLLARS
   UseGoldItem = false,
   AddGoldItem = false, -- Should there be an item in inventory to represent gold
@@ -46,11 +32,11 @@ Config = {
   --RMB mouse PROMPT PICKUP
   PickupKey = 0xF84FA74F,
 
-  -- LOGS
+  -- NORMAL LOGS
   webhookavatar = "",
   webhook = "",
-  discordid = true, -- turn to true if ur using discord whitelist
 
+  discordid = true, -- turn to true if ur using discord whitelist
   -- WEBHOOK LANGUAGE
   Language = {
     gaveitem = "item transfer",
@@ -59,14 +45,36 @@ Config = {
     withid = " with the weapon ID: ",
   },
 
+  -- =================== CUSTOM INVENTORY LOGS =====================--
+  WebHook = {
+    color = nil,
+    title = "INV logs",
+    avatar = nil,
+    logo = nil,
+    footerlogo = nil,
+    webhookname = "webhook name",
+    CustomInventoryTakeFrom = "",
+    CustomInventoryMoveTo = ""
+  },
+
+  NetDupWebHook = { -- somone tries to use dev tools to cheat
+    Active = true,
+    Language = {
+      title = "Possible Cheater Detected",
+      descriptionstart = "Invalid NUI Callback performed by...\n **Playername** `",
+      descriptionend = "`\n"
+    }
+  },
+
+
   -- NEED TO TEST
   DropOnRespawn = {
-    AllMoney   = false,
-    PartMoney = false,
+    AllMoney       = false,
+    PartMoney      = false,
     PartPercentage = 25,
-    Gold    = false, -- TRUE ONLY IF UseGoldItem = true
-    Weapons = false,
-    Items   = false
+    Gold           = false, -- TRUE ONLY IF UseGoldItem = true
+    Weapons        = false,
+    Items          = false
   },
 
   -- HOW MANY WEAPONS AND ITEMS ALLOWED PER PLAYER
@@ -86,15 +94,40 @@ Config = {
     WEAPON_MELEE_KNIFE = {} --WEAPON HASH NAME
   },
 
-  Ammotypes = { 
-    ["416676503"] = {"AMMO_PISTOL","AMMO_PISTOL_EXPRESS","AMMO_PISTOL_EXPRESS_EXPLOSIVE","AMMO_PISTOL_HIGH_VELOCITY","AMMO_PISTOL_SPLIT_POINT"},
-    ["-594562071"] = {"AMMO_REPEATER","AMMO_REPEATER_EXPRESS","AMMO_REPEATER_EXPRESS_EXPLOSIVE","AMMO_REPEATER_HIGH_VELOCITY","AMMO_REPEATER_SPLIT_POINT"},
-    ["-1101297303"] = {"AMMO_REVOLVER","AMMO_REVOLVER_EXPRESS","AMMO_REVOLVER_EXPRESS_EXPLOSIVE","AMMO_REVOLVER_HIGH_VELOCITY","AMMO_REVOLVER_SPLIT_POINT","AMMO_SHOTGUN","AMMO_SHOTGUN_BUCKSHOT_INCENDIARY","AMMO_SHOTGUN_EXPRESS_EXPLOSIVE","AMMO_SHOTGUN_SLUG"},
-    ["970310034"] = {"AMMO_RIFLE","AMMO_RIFLE_ELEPHANT","AMMO_RIFLE_EXPRESS","AMMO_RIFLE_EXPRESS_EXPLOSIVE","AMMO_RIFLE_HIGH_VELOCITY","AMMO_RIFLE_SPLIT_POINT","AMMO_22","AMMO_22_TRANQUILIZER"},
-    ["-1212426201"] = {"AMMO_RIFLE","AMMO_RIFLE_EXPRESS","AMMO_RIFLE_EXPRESS_EXPLOSIVE","AMMO_RIFLE_HIGH_VELOCITY","AMMO_RIFLE_SPLIT_POINT"},
-    ["860033945"] = {"AMMO_SHOTGUN","AMMO_SHOTGUN_BUCKSHOT_INCENDIARY","AMMO_SHOTGUN_EXPRESS_EXPLOSIVE","AMMO_SHOTGUN_SLUG"},
-    ["-1241684019"] = {"AMMO_ARROW","AMMO_ARROW_DYNAMITE","AMMO_ARROW_FIRE","AMMO_ARROW_IMPROVED","AMMO_ARROW_SMALL_GAME","AMMO_ARROW_POISON"},
-    ["1548507267"] = {"AMMO_THROWING_KNIVES","AMMO_TOMAHAWK","AMMO_POISONBOTTLE","AMMO_BOLAS","AMMO_BOLAS_HAWKMOTH","AMMO_BOLAS_INTERTWINED","AMMO_BOLAS_IRONSPIKED","AMMO_DYNAMITE","AMMO_DYNAMITE_VOLATILE","AMMO_MOLOTOV","AMMO_MOLOTOV_VOLATILE"}
+  -- items that dont get added up torwards your max weapon count
+  notweapons = {
+    "WEAPON_KIT_BINOCULARS_IMPROVED",
+    "WEAPON_KIT_BINOCULARS",
+    "WEAPON_FISHINGROD",
+    "WEAPON_KIT_CAMERA",
+    "WEAPON_kIT_CAMERA_ADVANCED",
+    "WEAPON_MELEE_LANTERN",
+    "WEAPON_MELEE_DAVY_LANTERN",
+    "WEAPON_MELEE_LANTERN_HALLOWEEN",
+    "WEAPON_KIT_METAL_DETECTOR",
+    "WEAPON_MELEE_HAMMER",
+    "WEAPON_MELEE_KNIFE",
+  },
+
+  Ammotypes = {
+    ["416676503"] = { "AMMO_PISTOL", "AMMO_PISTOL_EXPRESS", "AMMO_PISTOL_EXPRESS_EXPLOSIVE", "AMMO_PISTOL_HIGH_VELOCITY",
+      "AMMO_PISTOL_SPLIT_POINT" },
+    ["-594562071"] = { "AMMO_REPEATER", "AMMO_REPEATER_EXPRESS", "AMMO_REPEATER_EXPRESS_EXPLOSIVE",
+      "AMMO_REPEATER_HIGH_VELOCITY", "AMMO_REPEATER_SPLIT_POINT" },
+    ["-1101297303"] = { "AMMO_REVOLVER", "AMMO_REVOLVER_EXPRESS", "AMMO_REVOLVER_EXPRESS_EXPLOSIVE",
+      "AMMO_REVOLVER_HIGH_VELOCITY", "AMMO_REVOLVER_SPLIT_POINT", "AMMO_SHOTGUN", "AMMO_SHOTGUN_BUCKSHOT_INCENDIARY",
+      "AMMO_SHOTGUN_EXPRESS_EXPLOSIVE", "AMMO_SHOTGUN_SLUG" },
+    ["970310034"] = { "AMMO_RIFLE", "AMMO_RIFLE_ELEPHANT", "AMMO_RIFLE_EXPRESS", "AMMO_RIFLE_EXPRESS_EXPLOSIVE",
+      "AMMO_RIFLE_HIGH_VELOCITY", "AMMO_RIFLE_SPLIT_POINT", "AMMO_22", "AMMO_22_TRANQUILIZER" },
+    ["-1212426201"] = { "AMMO_RIFLE", "AMMO_RIFLE_EXPRESS", "AMMO_RIFLE_EXPRESS_EXPLOSIVE", "AMMO_RIFLE_HIGH_VELOCITY",
+      "AMMO_RIFLE_SPLIT_POINT" },
+    ["860033945"] = { "AMMO_SHOTGUN", "AMMO_SHOTGUN_BUCKSHOT_INCENDIARY", "AMMO_SHOTGUN_EXPRESS_EXPLOSIVE",
+      "AMMO_SHOTGUN_SLUG" },
+    ["-1241684019"] = { "AMMO_ARROW", "AMMO_ARROW_DYNAMITE", "AMMO_ARROW_FIRE", "AMMO_ARROW_IMPROVED",
+      "AMMO_ARROW_SMALL_GAME", "AMMO_ARROW_POISON" },
+    ["1548507267"] = { "AMMO_THROWING_KNIVES", "AMMO_TOMAHAWK", "AMMO_POISONBOTTLE", "AMMO_BOLAS", "AMMO_BOLAS_HAWKMOTH",
+      "AMMO_BOLAS_INTERTWINED", "AMMO_BOLAS_IRONSPIKED", "AMMO_DYNAMITE", "AMMO_DYNAMITE_VOLATILE", "AMMO_MOLOTOV",
+      "AMMO_MOLOTOV_VOLATILE" }
   },
 
   maxammo = { -- max ammo allowed to transfer between players

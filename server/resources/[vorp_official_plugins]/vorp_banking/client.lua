@@ -3,8 +3,7 @@ local PromptGroup2 = GetRandomIntInRange(0, 0xffffff)
 local openmenu
 local CloseBanks
 local inmenu = false
-local bank
-local bankinfo
+local bankinfo = {}
 local blips = {}
 
 TriggerEvent("menuapi:getData", function(call)
@@ -66,8 +65,9 @@ function SpawnNPC(index)
         Citizen.InvokeNative(0x283978A15512B2FE, npc, true)
         SetEntityCanBeDamaged(npc, false)
         SetEntityInvincible(npc, true)
-        Wait(500)
-        FreezeEntityPosition(npc, true)
+        Wait(1000)
+        TaskStandStill(npc, 10, -1)
+        -- FreezeEntityPosition(npc, true)
         SetBlockingOfNonTemporaryEvents(npc, true)
         Config.banks[index].NPC = npc
     end
@@ -113,15 +113,12 @@ AddEventHandler("vorp_bank:ready", function()
 end)
 
 RegisterNetEvent("vorp_bank:ReloadBankMenu")
-AddEventHandler("vorp_bank:ReloadBankMenu", function(_bankinfo)
-    local Menu = MenuData.GetOpened ("default", GetCurrentResourceName(), "menuapi")
+AddEventHandler("vorp_bank:ReloadBankMenu", function(_bankinfo, index)
+    local Menu = MenuData.GetOpened("default", GetCurrentResourceName(), "menuapi")
     bankinfo = _bankinfo
+    Wait(200)
 
-    while bankinfo == nil do
-        Citizen.Wait(50)
-    end
-
-    Openbank(Menu.data.title)
+    Openbank(Menu.data.title, bankinfo.name)
 end)
 
 Citizen.CreateThread(function()
@@ -186,15 +183,12 @@ Citizen.CreateThread(function()
 
                             if Citizen.InvokeNative(0xC92AC953F0A982AE, openmenu) then
                                 inmenu = true
-                                bank = bankConfig.city
-                                TriggerServerEvent("vorp_bank:getinfo", bank)
-                                Wait(100) -- needed
-                                while bankinfo == nil do
-                                    Citizen.Wait(500)
-                                end
+
+                                TriggerServerEvent("vorp_bank:getinfo", bankConfig.city)
+                                Wait(400) -- needed
                                 TaskStandStill(PlayerPedId(), -1)
                                 DisplayRadar(false)
-                                Openbank(bankConfig.name)
+                                Openbank(bankConfig.name, index)
                             end
                         end
 
@@ -219,13 +213,11 @@ Citizen.CreateThread(function()
 
                         if Citizen.InvokeNative(0xC92AC953F0A982AE, openmenu) then
                             inmenu = true
-                            bank = bankConfig.city
-                            TriggerServerEvent("vorp_bank:getinfo", bank)
-                            while bankinfo == nil do
-                                Citizen.Wait(500)
-                            end
+                            TriggerServerEvent("vorp_bank:getinfo", bankConfig.city)
+                            Wait(200)
                             TaskStandStill(PlayerPedId(), -1)
-                            Openbank(bankConfig.name)
+                            Openbank(bankConfig.name, index)
+
                         end
                     end
                 end
@@ -237,36 +229,43 @@ Citizen.CreateThread(function()
     end
 end)
 
-function Openbank(bankName)
-    local pedCoords = GetEntityCoords(PlayerPedId())
-    local town_hash = Citizen.InvokeNative(0x43AD8FC02B429D33, pedCoords, 1)
+function Openbank(bankName, index)
+
     MenuData.CloseAll()
-    DisplayRadar(false)
+    if not bankinfo.money then
+        print("no money?", bankinfo.money)
+        DisplayRadar(true)
+        ClearPedTasks(PlayerPedId())
+        inmenu = false
+        return
+    end
+
     local elements = {
         { label = Config.language.cashbalance .. bankinfo.money, value = 'nothing', desc = Config.language.cashbalance2 },
         { label = Config.language.depocash, value = 'dcash', desc = Config.language.depocash2 },
         { label = Config.language.takecash, value = 'wcash', desc = Config.language.takecash2 }
     }
-    for index, bankConfig in pairs(Config.banks) do
-        if bankConfig.name == bankName and town_hash == GetHashKey(index) then
-            if bankConfig.items then
-                elements[#elements + 1] = { label = Config.language.depoitem, value = 'bitem',
-                    desc = Config.language.depoitem2 .. bankinfo.invspace }
-            end
-            if bankConfig.upgrade then
-                elements[#elements + 1] = { label = Config.language.upgradeitem, value = 'upitem',
-                    desc = Config.language.upgradeitem2 .. bankConfig.costslot }
-            end
-            if bankConfig.gold then
-                elements[#elements + 1] = { label = Config.language.goldbalance .. bankinfo.gold, value = 'nothing',
-                    desc = Config.language.cashbalance2 }
-                elements[#elements + 1] = { label = Config.language.depogold, value = 'dgold',
-                    desc = Config.language.depogold2 }
-                elements[#elements + 1] = { label = Config.language.takegold, value = 'wgold',
-                    desc = Config.language.takegold2 }
-            end
-        end
+    print(index)
+    if Config.banks[index].items then
+        elements[#elements + 1] = { label = Config.language.depoitem, value = 'bitem',
+            desc = Config.language.depoitem2 .. bankinfo.invspace }
     end
+
+    if Config.banks[index].upgrade then
+        elements[#elements + 1] = { label = Config.language.upgradeitem, value = 'upitem',
+            desc = Config.language.upgradeitem2 .. Config.banks[index].costslot }
+    end
+
+    if Config.banks[index].gold then
+        elements[#elements + 1] = { label = Config.language.goldbalance .. bankinfo.gold, value = 'nothing',
+            desc = Config.language.cashbalance2 }
+        elements[#elements + 1] = { label = Config.language.depogold, value = 'dgold',
+            desc = Config.language.depogold2 }
+        elements[#elements + 1] = { label = Config.language.takegold, value = 'wgold',
+            desc = Config.language.takegold2 }
+    end
+
+
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
             title    = bankName,
@@ -294,7 +293,7 @@ function Openbank(bankName)
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
                     local result = tonumber(cb)
                     if result ~= "" and result then
-                        TriggerServerEvent("vorp_bank:depositcash", result, bank, bankinfo)
+                        TriggerServerEvent("vorp_bank:depositcash", result, Config.banks[index].city, bankinfo)
                     else
                         TriggerEvent("vorp:TipBottom", Config.language.invalid, 6000)
                         inmenu = false
@@ -321,7 +320,7 @@ function Openbank(bankName)
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
                     local result = tonumber(cb)
                     if result ~= "" and result then
-                        TriggerServerEvent("vorp_bank:depositgold", result, bank, bankinfo)
+                        TriggerServerEvent("vorp_bank:depositgold", result, Config.banks[index].city, bankinfo)
                     else
                         TriggerEvent("vorp:TipBottom", Config.language.invalid, 6000)
                         inmenu = false
@@ -348,7 +347,7 @@ function Openbank(bankName)
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
                     local result = tonumber(cb)
                     if result ~= "" and result then
-                        TriggerServerEvent("vorp_bank:withcash", result, bank, bankinfo)
+                        TriggerServerEvent("vorp_bank:withcash", result, Config.banks[index].city, bankinfo)
                     else
                         TriggerEvent("vorp:TipBottom", Config.language.invalid, 6000)
                         inmenu = false
@@ -375,7 +374,7 @@ function Openbank(bankName)
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
                     local result = tonumber(cb)
                     if result ~= "" and result then
-                        TriggerServerEvent("vorp_bank:withgold", result, bank, bankinfo)
+                        TriggerServerEvent("vorp_bank:withgold", result, Config.banks[index].city, bankinfo)
                     else
                         TriggerEvent("vorp:TipBottom", Config.language.invalid, 6000)
                         inmenu = false
@@ -384,47 +383,51 @@ function Openbank(bankName)
 
             end
             if (data.current.value == 'bitem') then
-                TriggerServerEvent("vorp_bank:ReloadBankInventory", bank)
-                TriggerEvent("vorp_inventory:OpenBankInventory", Config.language.namebank, bank, bankinfo.invspace)
+                TriggerServerEvent("vorp_bank:ReloadBankInventory", Config.banks[index].city)
+                Wait(300)
+                TriggerEvent("vorp_inventory:OpenBankInventory", Config.language.namebank, Config.banks[index].city,
+                    bankinfo.invspace)
                 menu.close()
                 DisplayRadar(true)
                 inmenu = false
                 ClearPedTasks(PlayerPedId())
             end
             if (data.current.value == 'upitem') then
-                for index, bankConfig in pairs(Config.banks) do
-                    if bankConfig.name == bankName then
 
-                        local invspace = bankinfo.invspace
-                        local maxslots = bankConfig.maxslots
-                        local costslot = bankConfig.costslot
-                        local myInput = {
-                            type = "enableinput", -- don't touch
-                            inputType = "input", -- input type
-                            button = "Confirm", -- button name
-                            placeholder = "insertamount", -- placeholder name
-                            style = "block", -- don't touch
-                            attributes = {
-                                inputHeader = "UP SLOTS", -- header
-                                type = "text", -- inputype text, number,date,textarea
-                                pattern = "[0-9.]{1,10}", --  only numbers "[0-9]" | for letters only "[A-Za-z]+"
-                                title = "numbers only", -- if input doesnt match show this message
-                                style = "border-radius: 10px; background-color: ; border:none;" -- style
-                            }
-                        }
 
-                        TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
-                            local result = tonumber(cb)
-                            if result ~= "" and result then
-                                TriggerServerEvent("vorp_bank:UpgradeSafeBox", costslot, maxslots, result, bank, invspace)
-                            else
-                                TriggerEvent("vorp:TipBottom", Config.language.invalid, 6000)
-                                inmenu = false
-                            end
-                        end)
+                local invspace = bankinfo.invspace
+                local maxslots = Config.banks[index].maxslots
+                local costslot = Config.banks[index].costslot
+                local myInput = {
+                    type = "enableinput", -- don't touch
+                    inputType = "input", -- input type
+                    button = "Confirm", -- button name
+                    placeholder = "insertamount", -- placeholder name
+                    style = "block", -- don't touch
+                    attributes = {
+                        inputHeader = "UP SLOTS", -- header
+                        type = "text", -- inputype text, number,date,textarea
+                        pattern = "[0-9]{1,10}", --  only numbers "[0-9]" | for letters only "[A-Za-z]+"
+                        title = "numbers only", -- if input doesnt match show this message
+                        style = "border-radius: 10px; background-color: ; border:none;" -- style
+                    }
+                }
 
+                TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
+                    local result = tonumber(cb)
+                    if result ~= "" and result then
+                        TriggerServerEvent("vorp_bank:UpgradeSafeBox", costslot, maxslots, math.floor(result),
+                            Config.banks[index].city,
+                            invspace)
+                        menu.close()
+                        inmenu = false
+                    else
+                        TriggerEvent("vorp:TipBottom", Config.language.invalid, 6000)
+                        inmenu = false
                     end
-                end
+                end)
+
+
             end
         end,
         function(data, menu)
@@ -434,6 +437,7 @@ function Openbank(bankName)
             ClearPedTasks(PlayerPedId())
         end)
 end
+
 -- open doors
 CreateThread(function()
     for door, state in pairs(Config.Doors) do

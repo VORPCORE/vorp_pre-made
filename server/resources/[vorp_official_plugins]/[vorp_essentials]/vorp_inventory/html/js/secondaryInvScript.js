@@ -26,6 +26,17 @@ function initSecondaryInventoryHandlers() {
                                 return;
                             }
 
+                            if (value <= 0) {
+                                dialog.close()
+                                return;
+                            }
+
+                            if (value > 200) {/*limite to a certain number currently it does accpet any bits*/
+                                console.log("amount was greater than 200")
+                                dialog.close()
+                                return;
+                            }
+                            
                             if (!isInt(value)) {
                                 return;
                             }
@@ -493,7 +504,17 @@ function initSecondaryInventoryHandlers() {
                             autofocus: "true"
                         },
                         validate: function (value, item, type) {
-                            if (!value) {
+                           if (!value) {
+                                dialog.close()
+                                return;
+                            }
+
+                            if (value <= 0) {
+                                dialog.close()
+                                return;
+                            }
+
+                            if (value > 200) {/*limite to a certain number currently it does accpet any bits*/
                                 dialog.close()
                                 return;
                             }
@@ -501,7 +522,7 @@ function initSecondaryInventoryHandlers() {
                             if (!isInt(value)) {
                                 return;
                             }
-
+                         
                             if (!isValidating) {
                                 processEventValidation();
                                 $.post("http://vorp_inventory/MoveToCustom", JSON.stringify({

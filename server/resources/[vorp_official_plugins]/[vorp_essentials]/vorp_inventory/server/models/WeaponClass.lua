@@ -106,7 +106,7 @@ function Weapon:quitComponent(component)
 	return false
 end
 
-function Weapon:getAmmo(type) 
+function Weapon:getAmmo(type)
 	return self.ammo[type]
 end
 
@@ -116,27 +116,30 @@ function Weapon:addAmmo(type, amount)
 	else
 		self.ammo[type] = tonumber(amount)
 	end
-	exports.ghmattimysql:execute('UPDATE loadout SET ammo = @ammo WHERE id=@id', { ['ammo'] = json.encode(self:getAllAmmo()), ['id'] = self.id})
+	exports.oxmysql:execute('UPDATE loadout SET ammo = @ammo WHERE id=@id',
+		{ ['ammo'] = json.encode(self:getAllAmmo()), ['id'] = self.id })
 end
 
 function Weapon:setAmmo(type, amount)
 	self.ammo[type] = tonumber(amount)
-	exports.ghmattimysql:execute('UPDATE loadout SET ammo = @ammo WHERE id=@id', { ['ammo'] = json.encode(self:getAllAmmo()), ['id'] = self.id})
+	exports.oxmysql:execute('UPDATE loadout SET ammo = @ammo WHERE id=@id',
+		{ ['ammo'] = json.encode(self:getAllAmmo()), ['id'] = self.id })
 end
 
 function Weapon:subAmmo(type, amount)
 	if self.ammo[type] ~= nil then
 		self.ammo[type] = self.ammo[type] - amount
-		
+
 		if self.ammo[type] <= 0 then
 			self.ammo[type] = nil
 		end
-		exports.ghmattimysql:execute('UPDATE loadout SET ammo = @ammo WHERE id=@id', { ['ammo'] = json.encode(self:getAllAmmo()), ['id'] = self.id})
+		exports.oxmysql:execute('UPDATE loadout SET ammo = @ammo WHERE id=@id',
+			{ ['ammo'] = json.encode(self:getAllAmmo()), ['id'] = self.id })
 	end
 end
 
 ---@return Weapon
-function Weapon:New (t)
+function Weapon:New(t)
 	t = t or {}
 	setmetatable(t, self)
 	self.__index = self
@@ -144,7 +147,7 @@ function Weapon:New (t)
 end
 
 function FindIndexOf(table, value)
-	for k,v in pairs(table) do
+	for k, v in pairs(table) do
 		if v == value then
 			return k
 		end

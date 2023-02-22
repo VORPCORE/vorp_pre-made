@@ -6,11 +6,13 @@ $("document").ready(function () {
     $("#inventoryHud").hide();
     $("#secondInventoryHud").hide();
     $('#character-selection').hide();
+    $('#disabler').hide();
 
     $("body").on("keyup", function (key) {
         if (Config.closeKeys.includes(key.which)) {
             if ($('#character-selection').is(":visible")) {
                 $('#character-selection').hide();
+                $('#disabler').hide();
             } else {
                 closeInventory();
             }
@@ -18,7 +20,6 @@ $("document").ready(function () {
     });
 
     initSecondaryInventoryHandlers();
-
 });
 
 window.onload = initDivMouseOver;
@@ -123,7 +124,7 @@ window.addEventListener('message', function (event) {
 
         $("#search").bind('input', function () {
             searchFor = $("#search").val().toLowerCase();
-            $(".item").each(function () {
+            $("#inventoryElement .item").each(function () {
                 label = $(this).data("label").toLowerCase();
                 if (label.indexOf(searchFor) < 0) {
                     $(this).hide();
@@ -184,7 +185,9 @@ window.addEventListener('message', function (event) {
 
         if (event.data.autofocus == true) {
             $(document).on('keydown', function (event) {
-                $("#search").focus();
+                if (!(event.target && event.target.id === 'secondarysearch')) {
+                    $("#search").focus();
+                }
             });
         }
 

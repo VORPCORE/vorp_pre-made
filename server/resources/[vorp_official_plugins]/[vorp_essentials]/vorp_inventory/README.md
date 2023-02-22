@@ -35,7 +35,7 @@
 
 
 ## Wiki
-[Wiki VORP Inventory](http://docs.vorpcore.com:3000/vorp-inventory)
+[Wiki VORP Inventory](https://outsider31000.github.io/VORP_API-docs/posts/inventory-lua)
 
 ## Credits
 - To [Val3ro](https://github.com/Val3ro) for the initial work.

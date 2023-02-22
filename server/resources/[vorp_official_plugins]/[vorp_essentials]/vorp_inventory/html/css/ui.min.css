@@ -39,7 +39,7 @@ body {
     z-index: 10;
 }
 
-#inventoryHud {
+#inventoryHud, #disabler {
     min-width: 1200px;
     min-height: 1290px;
     overflow: hidden;
@@ -350,7 +350,7 @@ body {
     
 }
 
-.controls #search {
+.controls #search, .controls #secondarysearch {
     float: left;
     width: 40%;
     color: #ffffff;
@@ -393,7 +393,7 @@ button {
     font-size: 19px;
 }
 
-input#search {
+input#search, input#secondarysearch {
     background: transparent;
     border: none;
     float: left;
@@ -410,19 +410,15 @@ input#search {
     background-size: 200px 90px;
 }
 
-input#search::-webkit-input-placeholder {
+input#search::-webkit-input-placeholder, input#secondarysearch::-webkit-input-placeholder {
     color: #ffffff;
 }
 
-input#search:-moz-placeholder {
+input#search:-moz-placeholder, input#secondarysearch:-moz-placeholder {
     color: #ffffff;
 }
 
-input#search::-moz-placeholder {
-    color: #ffffff;
-}
-
-input#search:-ms-input-placeholder {
+input#search:-ms-input-placeholder, input#secondarysearch:-ms-input-placeholder {
     color: #ffffff;
 }
 
@@ -604,7 +600,7 @@ span.emoji {
         margin-top: -2px;
     }
 
-    #inventoryHud {
+    #inventoryHud, #disabler {
         min-width: 1200px;
         min-height: 1120px;
         background-size: 510px 800px;
@@ -668,7 +664,7 @@ span.emoji {
         margin-top: 5rem;
     }
     
-    #inventoryHud {
+    #inventoryHud, #disabler {
         min-width: 1200px;
         min-height: 1120px;
         background-size: 710px 1000px;
@@ -755,6 +751,13 @@ span.emoji {
         height: 35px;   
     }
     
+}
+
+
+#disabler {
+    z-index: 9999;
+    display: none;
+    background: none;
 }
 
 /* Animations */

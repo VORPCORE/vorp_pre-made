@@ -39,5 +39,5 @@ Languages["it"] = {
     of        = " di ", 
     withitem = "Hai ritirato ",
     cant = "Non puoi depositare questo oggetto",
-    closed = "The bank is currently closed"
+    closed = "La banca è chiusa"
 }

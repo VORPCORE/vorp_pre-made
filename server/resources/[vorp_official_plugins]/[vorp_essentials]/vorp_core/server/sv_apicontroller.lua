@@ -1,7 +1,6 @@
 ---@param player number
 ---@return table|nil
 local function _getUsedCharacter(player)
-
     local sid = GetSteamID(player)
 
     if not sid then
@@ -22,7 +21,6 @@ end
 ---@param player number
 ---@return table|nil
 local function _getCharDetails(player)
-
     local used_char = _getUsedCharacter(player)
 
     if not used_char then
@@ -35,7 +33,7 @@ local function _getCharDetails(player)
 end
 
 AddEventHandler('vorp:getCharacter', function(player, cb)
-    local char_details  = _getCharDetails(player)
+    local char_details = _getCharDetails(player)
 
     if char_details ~= nil then
         cb(char_details)
@@ -43,7 +41,7 @@ AddEventHandler('vorp:getCharacter', function(player, cb)
 end)
 
 AddEventHandler('vorp:addMoney', function(player, typeCash, quantity)
-    local used_char  = _getUsedCharacter(player)
+    local used_char = _getUsedCharacter(player)
 
     if used_char ~= nil then
         used_char.addCurrency(typeCash, quantity)
@@ -52,7 +50,7 @@ AddEventHandler('vorp:addMoney', function(player, typeCash, quantity)
 end)
 
 AddEventHandler('vorp:removeMoney', function(player, typeCash, quantity)
-    local used_char  = _getUsedCharacter(player)
+    local used_char = _getUsedCharacter(player)
 
     if used_char ~= nil then
         used_char.removeCurrency(typeCash, quantity)
@@ -61,7 +59,7 @@ AddEventHandler('vorp:removeMoney', function(player, typeCash, quantity)
 end)
 
 AddEventHandler('vorp:addXp', function(player, quantity)
-    local used_char  = _getUsedCharacter(player)
+    local used_char = _getUsedCharacter(player)
 
     if used_char ~= nil then
         used_char.addXp(quantity)
@@ -70,7 +68,7 @@ AddEventHandler('vorp:addXp', function(player, quantity)
 end)
 
 AddEventHandler('vorp:removeXp', function(player, quantity)
-    local used_char  = _getUsedCharacter(player)
+    local used_char = _getUsedCharacter(player)
 
     if used_char ~= nil then
         used_char.removeXp(quantity)
@@ -79,7 +77,7 @@ AddEventHandler('vorp:removeXp', function(player, quantity)
 end)
 
 AddEventHandler('vorp:setJob', function(player, job, jobgrade)
-    local used_char  = _getUsedCharacter(player)
+    local used_char = _getUsedCharacter(player)
 
     if used_char ~= nil then
         used_char.setJob(job)
@@ -88,7 +86,7 @@ AddEventHandler('vorp:setJob', function(player, job, jobgrade)
 end)
 
 AddEventHandler('vorp:setGroup', function(player, group)
-    local used_char  = _getUsedCharacter(player)
+    local used_char = _getUsedCharacter(player)
 
     if used_char ~= nil then
         used_char.setGroup(group)
@@ -121,8 +119,6 @@ AddEventHandler('getCore', function(cb)
     coreData.maxCharacters = Config["MaxCharacters"]
 
     coreData.addRpcCallback = function(name, callback)
-        print('Callback registered -> ' .. name)
-        --ServerCallBacks[name] = callback
         TriggerEvent("vorp:addNewCallBack", name, callback)
     end
 
@@ -173,9 +169,10 @@ AddEventHandler('getCore', function(cb)
         TriggerClientEvent('vorp:ShowTopNotification', _source, text, subtitle, duration)
     end
 
-    coreData.NotifyAvanced = function(source, text, dict, icon, text_color, duration)
+    coreData.NotifyAvanced = function(source, text, dict, icon, text_color, duration, quality, showquality)
         local _source = source
-        TriggerClientEvent('vorp:ShowAdvancedRightNotification', _source, text, dict, icon, text_color, duration)
+        TriggerClientEvent('vorp:ShowAdvancedRightNotification', _source, text, dict, icon, text_color, duration, quality
+            , showquality)
     end
 
     coreData.NotifyCenter = function(source, text, duration, color)

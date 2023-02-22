@@ -8,7 +8,7 @@ UsersInventories = {
 	default = {}
 }
 
----@type table<invId, table<weaponId, Weapon>>
+---@type table<invId, table<weaponId, Weapon>> 
 UsersWeapons = {
 	default = {}
 }
@@ -17,7 +17,7 @@ svItems = {}
 
 
 function LoadDatabase()
-	exports.ghmattimysql:execute('SELECT * FROM items', { }, function(result) 
+	exports.oxmysql:execute('SELECT * FROM items', {}, function(result)
 		if next(result) ~= nil then
 			for _, db_item in pairs(result) do
 				local item = Item:New({
@@ -32,13 +32,14 @@ function LoadDatabase()
 					desc = db_item.desc
 				})
 				svItems[item.item] = item
-				--svItems[item.item] = item
+
 			end
 		end
-	end)
-	exports.ghmattimysql:execute('SELECT * FROM loadout', { }, function(result) 
+    end)
+	
+	exports.oxmysql:execute('SELECT * FROM loadout', {}, function(result)
 		if next(result) ~= nil then
-			for _, db_weapon in pairs (result) do
+			for _, db_weapon in pairs(result) do
 				local ammo = json.decode(db_weapon.ammo)
 				local comp = json.decode(db_weapon.components)
 				local charId = nil
@@ -70,7 +71,7 @@ function LoadDatabase()
 						currInv = db_weapon.curr_inv,
 						dropped = db_weapon.dropped
 					})
-	
+
 					if UsersWeapons[db_weapon.curr_inv] == nil then
 						UsersWeapons[db_weapon.curr_inv] = {}
 					end
@@ -83,5 +84,5 @@ function LoadDatabase()
 end
 
 Citizen.CreateThread(function()
-    LoadDatabase()
+	LoadDatabase()
 end)

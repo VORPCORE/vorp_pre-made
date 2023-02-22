@@ -49,6 +49,22 @@ function hideSecondaryCapacity() {
 }
 
 function initiateSecondaryInventory(id, title, capacity) {
+    $("#secondInventoryHud").append(
+        `<div class='controls'><div class='controls-center'><input type='text' id='secondarysearch' placeholder='Search'/></div></div>`
+    );
+
+    $("#secondarysearch").bind('input', function () {
+        searchFor = $("#secondarysearch").val().toLowerCase();
+        $("#secondInventoryElement .item").each(function () {
+            label = $(this).data("label").toLowerCase();
+            if (label.indexOf(searchFor) < 0) {
+                $(this).hide();
+            } else {
+                $(this).show();
+            }
+        });
+    });
+    
     $("#secondInventoryHud").fadeIn();
     secondarySetTitle(title);
 
@@ -141,11 +157,12 @@ function disableInventory(ms) {
 
 function validatePlayerSelection(player) {
     const data = objToGive;
-
-    $.post("http://vorp_inventory/GiveItem", JSON.stringify({
+    secureCallbackToNui("vorp_inventory", "GiveItem", {
         player: player,
         data: data
-    }));
+    });
+
+    $('#disabler').hide();
     $('#character-selection').hide();
 
     // reset obj to give, for security
@@ -157,6 +174,7 @@ function validatePlayerSelection(player) {
  }**/
 function selectPlayerToGive(data)
 {
+    $('#disabler').show();
     objToGive = data; // save obj to give during process
     const characters = data.players;
 
@@ -173,6 +191,7 @@ function selectPlayerToGive(data)
 function closeCharacterSelection() {
     // reset obj to give, for security
     objToGive = {}
+    $('#disabler').hide();
     $('#character-selection').hide();
 }
 
@@ -195,24 +214,25 @@ function dropGetHowMany(item, type, hash, id, metadata) {
                 }
                 if (!isInt(value)) {
                         return;
-                } 
-                $.post("http://vorp_inventory/DropItem", JSON.stringify({
+                }
+                secureCallbackToNui("vorp_inventory", "DropItem", {
                     item: item,
                     id: id,
                     type: type,
                     number: value,
                     metadata: metadata
-                }));
+                });
+
                 return true;
             }
         });
     } else {
-        $.post("http://vorp_inventory/DropItem", JSON.stringify({
+        secureCallbackToNui("vorp_inventory", "DropItem", {
             item: item,
             type: type,
             hash: hash,
             id: parseInt(id)
-        }));
+        });
     }
 }
 

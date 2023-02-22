@@ -1,7 +1,10 @@
+--================================ VORP CORE API =====================================--
+-- for examples look at vorp codumentation
+
 AddEventHandler('getCore', function(cb)
     local corefunctions = {}
 
-    --callback
+
     corefunctions.RpcCall = function(name, callback, args)
         TriggerEvent('vorp:ExecuteServerCallBack', name, callback, args)
     end
@@ -27,11 +30,12 @@ AddEventHandler('getCore', function(cb)
         exports.vorp_core:DisplayTip(tostring(text), tonumber(duration))
     end
 
-    corefunctions.NotifyLeft = function(title, subtitle, dict, icon, duration, colors)
-        local color = colors or "COLOR_WHITE"
-        LoadTexture(dict)
+    corefunctions.NotifyLeft = function(title, subtitle, dict, icon, duration, color)
+        if not LoadTexture(dict) then
+            LoadTexture(dict)
+        end
         exports.vorp_core:DisplayLeftNotification(tostring(title), tostring(subtitle), tostring(dict), tostring(icon),
-            tonumber(duration), tostring(color))
+            tonumber(duration), tostring(color or "COLOR_WHITE"))
     end
 
     corefunctions.NotifyRightTip = function(text, duration)
@@ -50,16 +54,12 @@ AddEventHandler('getCore', function(cb)
         exports.vorp_core:ShowTopNotification(tostring(text), tostring(subtitle), tonumber(duration))
     end
 
-    corefunctions.NotifyAvanced = function(text, dict, icon, text_color, duration)
-        local _dict = dict
-        local _icon = icon
-        if not LoadTexture(_dict) then
-            _dict = "generic_textures"
-            LoadTexture(_dict)
-            _icon = "tick"
+    corefunctions.NotifyAvanced = function(text, dict, icon, text_color, duration, quality, showquality)
+        if not LoadTexture(dict) then
+            LoadTexture(dict)
         end
-        exports.vorp_core:ShowAdvancedRightNotification(tostring(text), tostring(_dict), tostring(_icon),
-            tostring(text_color), tonumber(duration))
+        exports.vorp_core:ShowAdvancedRightNotification(tostring(text), tostring(dict), tostring(icon),
+            tostring(text_color), tonumber(duration), quality, showquality)
     end
 
     corefunctions.NotifyCenter = function(text, duration, text_color)
@@ -71,7 +71,7 @@ AddEventHandler('getCore', function(cb)
     end
 
     corefunctions.NotifyFail = function(text, subtitle, duration)
-        exports.vorp_core:failmissioNotifY(tostring(title), tostring(subtitle), tonumber(duration))
+        exports.vorp_core:failmissioNotifY(tostring(text), tostring(subtitle), tonumber(duration))
     end
 
     corefunctions.NotifyDead = function(title, audioRef, audioName, duration)
@@ -93,3 +93,5 @@ AddEventHandler('getCore', function(cb)
 
     cb(corefunctions)
 end)
+
+--==========================================================================================--

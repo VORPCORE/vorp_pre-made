@@ -247,7 +247,7 @@ PickupsService.dropAllPlease = function()
 			local itemCount = item:getCount()
 			local itemMetadata = item:getMetadata()
 
-			TriggerServerEvent("vorpinventory:serverDropItem", itemName, itemCount, itemMetadata)
+			TriggerServerEvent("vorpinventory:serverDropItem", itemName, item["id"], itemCount, itemMetadata)
 			item:quitCount(itemCount)
 
 			if item:getCount() == 0 then

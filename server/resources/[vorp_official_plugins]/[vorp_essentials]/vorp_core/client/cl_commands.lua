@@ -1,51 +1,52 @@
--------------------------------------------------------------------------------------------------------------
--------------------------------------------- HIDEUI ---------------------------------------------------------
-local hideUI = true
+--============================================ PLAYER COMMANDS ==============================================--
 
-RegisterCommand("hideui", function()
+PlayersCommands = {
+    hideui = {
+        command = "hideui",
+        suggestion = "VORPcore command to HIDE all UI's from screen, nice to take screenshots.",
+        run = ToggleAllUI,
+        restricted = false
+    },
+    toggleui = {
+        command = "toggleui",
+        suggestion = "VORPcore command to toggle vorp UI's from screen",
+        run = ToggleVorpUI,
+        restricted = false
+    },
+    clear = {
+        command = "cleartask",
+        suggestion = "VORPcore command to use if you are stuck on an animation.",
+        run = function ()
+            local player = PlayerPedId()
+            ClearPedTasksImmediately(player)
+        end,
+        restricted = false
+    },
+    pvp = {
+        command = "pvp",
+        suggestion = "VORPcore command to TOGGLE pvp for your character.",
+        run = function ()
+            local pvp = TogglePVP()
 
+            if pvp then
+                TriggerEvent("vorp:TipRight", Config.Langs.PVPNotifyOn, 4000)
+            else
+                TriggerEvent("vorp:TipRight", Config.Langs.PVPNotifyOff, 4000)
+            end
+        end,
+        restricted = not Config.PVPToggle -- false means it should not display, so we have to negate with the not
+    }
+}
 
-    if hideUI then
-        ExecuteCommand("togglechat")
-        DisplayRadar(false)
-        TriggerEvent("syn_displayrange", false)
-        TriggerEvent("vorp:showUi", false)
-        hideUI = false
-    else
-        ExecuteCommand("togglechat")
-        DisplayRadar(true)
-        TriggerEvent("syn_displayrange", true)
-        TriggerEvent("vorp:showUi", true)
-        hideUI = true
-    end
-end, false)
-
-TriggerEvent("chat:addSuggestion", "/hideui", " VORPcore command to HIDE all UI's from screen, nice to take screenshots.")
-
--------------------------------------------------------------------------------------------------------------
--------------------------------------------- CLEAR PED TASKS ---------------------------------------------------------
-
-RegisterCommand('cleartask', function()
-    local player = PlayerPedId()
-
-    ClearPedTasksImmediately(player)
-
-end, false)
-
-TriggerEvent("chat:addSuggestion", "/cleartask", " VORPcore command to use if you are stuck on an animation.")
-
--------------------------------------------------------------------------------------------------------------
--------------------------------------------- PVP Toggle ---------------------------------------------------------
-if Config.PVPToggle then
-    RegisterCommand("pvp", function()
-        pvp = not pvp
-
-        if pvp then
-            TriggerEvent("vorp:TipRight", Config.Langs.PVPNotifyOn, 4000)
-        else
-            TriggerEvent("vorp:TipRight", Config.Langs.PVPNotifyOff, 4000)
+CreateThread(function()
+    for _, value in pairs(PlayersCommands) do
+        if not value.restricted then
+            RegisterCommand(value.command, function()
+                value.run()
+            end)
+            TriggerEvent("chat:addSuggestion", "/" .. value.command, value.suggestion)
         end
-    end)
-    TriggerEvent("chat:addSuggestion", "/pvp", " VORPcore command to TOGGLE pvp for your character.")
-end
--------------------------------------------------------------------------------------------------------------
+    end
+end)
+
+--============================================================================================================--
