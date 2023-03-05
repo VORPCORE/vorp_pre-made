@@ -36,14 +36,30 @@ AddEventHandler('vorp_bountyhunting:valreward', function()
     -- Character.addXp(xp)
 end)
 
+function CheckTable(table, element)
+    for k, v in pairs(table) do
+        if v == element then
+            return true
+        end
+    end
+    return false
+end
+
 RegisterServerEvent('bounty:checkcard')
 AddEventHandler('bounty:checkcard', function()
-	local _source = source
-	local Character = VorpCore.getUser(_source).getUsedCharacter
-    local job = Character.job
-	local item = true
-    --[[ if job == "bountyhunter" then
-		item = true
-	end ]]
-	TriggerClientEvent('bounty:findcard', _source,item,cooldown)
+    local _source = source -- id 
+    local Character = VorpCore.getUser(_source).getUsedCharacter
+    local job = Character.job -- player job
+    local count = VORPInv.getItemCount(_source, "license") -- item needed
+    
+        if CheckTable(Config.Jobs,job) then -- if job exist in table then pass
+
+        TriggerClientEvent('bounty:findcard', _source)
+
+        elseif count > 0 then -- if item is greaer than 0 then pass 
+            TriggerClientEvent('bounty:findcard', _source)
+
+        else
+        TriggerClientEvent("vorp:TipRight",_source,"you need the job or item",4000)
+        end        
 end)
