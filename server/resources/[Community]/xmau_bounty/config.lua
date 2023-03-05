@@ -7,6 +7,7 @@ Config.DeadMessage = "You have died, you have lost your target"
 Config.Price = math.random(10,20)
 Config.Priceval = math.random(10,20)
 Config.cooldowntimer = 30 -- minutes
+Config.Jobs = {"police","sheriff","bountyhunter"} -- table of jobs
 -- Config.Xp = 10
 
 Config.Locations = {
