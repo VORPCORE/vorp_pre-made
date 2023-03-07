@@ -34,6 +34,11 @@ files {
 
 ui_page 'ui/index.html'
 
+
+dependencies {
+  '/onesync',
+  'oxmysql',
+} 
 --========================================== DEPRECATED ====================================================--
 
 server_exports { 'vorpAPI' } -- deprecated refer to the API docs

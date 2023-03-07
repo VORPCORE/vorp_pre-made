@@ -78,7 +78,7 @@ CreateThread(function()
             local _source = source
             local User = VorpCore.getUser(_source)
             --local Character = User.getUsedCharacter
-            local group = User.getGroup  -- User DB table group
+            local group = User.getGroup -- User DB table group
             local Identifier = GetPlayerIdentifier(_source)
             local discordIdentity = GetIdentity(_source, "discord")
             local discordId = string.sub(discordIdentity, 9)
