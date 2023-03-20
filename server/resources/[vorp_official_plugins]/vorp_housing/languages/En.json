@@ -12,5 +12,4 @@
   "WeaponsNotAllowed": "Weapons cannot yet be stored in the vehicle's inventory",
   "ItemInBlacklist": "This item cannot be transferred",
   "MaxWeightQuantity": "You exceed the maximum house weight {0}/{1}"
-
 }
