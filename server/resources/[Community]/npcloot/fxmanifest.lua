@@ -10,6 +10,7 @@ exports {
     'DataViewNativeGetEventData2'
 }
 
-server_script { 'server.lua', 'config.lua' }
-
 client_scripts { 'client.lua', 'client.js' }
+shared_script { 'config.lua' }
+
+server_script 'server.lua'
