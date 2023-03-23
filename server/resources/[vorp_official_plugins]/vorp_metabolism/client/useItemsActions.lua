@@ -89,8 +89,18 @@ RegisterNetEvent('vorpmetabolism:useItem', function(index, label)
         PlayAnimDrink(Config["ItemsToUse"][index]["PropName"])
     end
 
+    if (Config["ItemsToUse"][index]["Effect"] ~= "") then
+        ScreenEffect(Config["ItemsToUse"][index]["Effect"], Config["ItemsToUse"][index]["EffectDuration"])
+    end
+        
     TriggerEvent("vorp:Tip", string.format(Translation["OnUseItem"], label), 3000)
 end)
+
+function ScreenEffect(effect, time)
+    AnimpostfxPlay(effect)
+    Citizen.Wait(time)
+    AnimpostfxStop(effect)
+end
 
 function PlayAnimDrink(propName)
     local playerCoords = GetEntityCoords(PlayerPedId(), true, true)
