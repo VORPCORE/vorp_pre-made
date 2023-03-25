@@ -13,10 +13,10 @@ CREATE TABLE IF NOT EXISTS `banks` (
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `bank_users` (
+CREATE TABLE `bank_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
-  `identifier` varchar(50) NOT NULL,
+  `identifier` varchar(50) NOT NULL COLLATE 'utf8mb4_bin',
   `charidentifier` int(11) NOT NULL,
   `money` double(22,2) DEFAULT 0.00,
   `gold` double(22,2) DEFAULT 0.00,
@@ -24,8 +24,10 @@ CREATE TABLE IF NOT EXISTS `bank_users` (
   `invspace` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
-  CONSTRAINT `bank` FOREIGN KEY (`name`) REFERENCES `banks` (`name`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `bank` FOREIGN KEY (`name`) REFERENCES `banks` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `bankusers` FOREIGN KEY (`identifier`) REFERENCES `users` (`identifier`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
 
 CREATE TABLE IF NOT EXISTS `banneds` (
   `b_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -86,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `characters` (
   `skinPlayer` longtext COLLATE utf8mb4_bin DEFAULT NULL,
   `compPlayer` longtext COLLATE utf8mb4_bin DEFAULT NULL,
   `jobgrade` int(11) DEFAULT 0,
-  `coords` varchar(75) COLLATE utf8mb4_bin DEFAULT '{}',
+  `coords` LONGTEXT COLLATE utf8mb4_bin DEFAULT '{}', 
   `isdead` tinyint(1) DEFAULT 0,
   `clanid` int(11) DEFAULT 0,
   `trust` int(11) DEFAULT 0,
@@ -325,17 +327,19 @@ CREATE TABLE IF NOT EXISTS `wagon_water` (
   `wagon_name` varchar(50) COLLATE latin1_general_cs DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_cs;
 
-CREATE TABLE IF NOT EXISTS `whitelist` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `status` tinyint(1) DEFAULT NULL,
-  `firstconnection` tinyint(1) DEFAULT 1,
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `identifier` (`identifier`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
-
-
+CREATE TABLE `whitelist` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `identifier` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_bin',
+    `status` TINYINT(1) NULL DEFAULT NULL,
+    `firstconnection` TINYINT(1) NULL DEFAULT '1',
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE INDEX `identifier` (`identifier`) USING BTREE,
+    CONSTRAINT `FK_characters_whitelist` FOREIGN KEY (`identifier`) REFERENCES `vorpv2`.`users` (`identifier`) ON UPDATE CASCADE ON DELETE CASCADE
+    )
+    COLLATE='utf8mb4_general_ci'
+    ENGINE=InnoDB
+    ROW_FORMAT=DYNAMIC
+;
 
 INSERT IGNORE INTO `banks` (`name`) VALUES
 	('Blackwater'),
@@ -343,9 +347,8 @@ INSERT IGNORE INTO `banks` (`name`) VALUES
 	('Valentine');
 
 
-
 /*!40000 ALTER TABLE `items` DISABLE KEYS */;
-INSERT IGNORE INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `id`, `metadata`, `desc`) VALUES
+INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `id`, `metadata`, `desc`) VALUES
 	('acid', 'Acid', 10, 1, 'item_standard', 1, 1, '{}', 'nice item'),
 	('Agarita', 'Agarita', 10, 1, 'item_standard', 1, 2, '{}', 'nice item'),
 	('Agarita_Seed', 'Agarita Seed', 10, 1, 'item_standard', 1, 3, '{}', 'nice item'),

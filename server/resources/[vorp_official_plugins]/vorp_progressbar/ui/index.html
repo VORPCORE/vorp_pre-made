@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div class="wrapper linear-progress" v-if="visible && theme == 'linear'" :style="{'--maincolor': maincolor, 'width':width}">
+        <div
+          class="loader"
+          :style="`animation-name: growprogress; animation-duration: ${time}ms; animation-timing-function: linear;`"
+        ></div>
+        <div class="message">{{message}}</div>
+      </div>
+      <div class="wrapper" v-if="visible && theme == 'circle'" :style="{'--maincolor': maincolor}">
+        <div class="circle-progress">
+          <svg width="64" height="64" viewBox="0 0 64 64">
+            <circle
+              cx="32"
+              cy="32"
+              r="26"
+              fill="none"
+              stroke="rgb(73, 72, 72)"
+              stroke-width="8"
+              pathLength="100"
+            />
+            <circle
+              class="percent"
+              :style="`animation-name: circleprogress; animation-duration: ${time}ms; animation-timing-function: linear;`"
+              cx="32"
+              cy="32"
+              r="26"
+              fill="none"
+              stroke="#F9F9F9"
+              stroke-width="10"
+              pathLength="100"
+            />
+          </svg>
+          <div>{{message}}</div>
+        </div>
+      </div>
+      <div class="wrapper" v-if="visible && theme == 'innercircle'" :style="{'--maincolor': maincolor}">
+        <div class="circle-progress">
+          <div style="position:relative;">
+            <svg width="64" height="64" viewBox="0 0 64 64">
+              <circle
+                cx="32"
+                cy="32"
+                r="26"
+                fill="none"
+                stroke="rgb(73, 72, 72)"
+                stroke-width="8"
+                pathLength="100"
+              />
+              <circle
+                class="percent"
+                :style="`animation-name: circleprogress; animation-duration: ${time}ms; animation-timing-function: linear;`"
+                cx="32"
+                cy="32"
+                r="26"
+                fill="none"
+                stroke="#F9F9F9"
+                stroke-width="10"
+                pathLength="100"
+              />
+            </svg>
+            <div class="center-count">{{counter}}s</div>
+          </div>
+          <div>{{message}}</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<!-- Import your JS and JS Vendor (vue.js) -->
+<script src="https://unpkg.com/vue@3.1.1/dist/vue.global.prod.js"></script>
+<script src="app.js"></script>
