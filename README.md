@@ -15,7 +15,7 @@
 ## Instalation
    * Please do not edit anything rather than whats in the guide bellow. we can only support you if you follow our instructions first.
    * once you have it working then make your edits
-   * Follow this [guide](https://outsider31000.github.io/VORP_API-docs/posts/intro/) on how to set up your server
+   * Follow this [guide](https://vorpcore.github.io/VORP_Documentation/guide) on how to set up your server
 
 ---
 ## Server SetUp
