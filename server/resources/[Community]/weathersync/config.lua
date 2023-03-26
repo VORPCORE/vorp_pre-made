@@ -1,9 +1,11 @@
 Config = {}
 
+Config.debug = false
+
 -- Default time when the server starts
 Config.Time = HMSToTime(6, 0, 0)
 
--- Default ratio of in-game seconds to real seconds. Standard game time is 30:1, or 1 in-game minute = 2 real secons
+-- Default ratio of in-game seconds to real seconds. Standard game time is 30:1, or 1 in-game minute = 2 real seconds
 Config.Timescale = 30
 
 -- Whether time is frozen at server start
@@ -17,6 +19,9 @@ Config.WeatherInterval = HMSToTime(1, 0, 0)
 
 -- Whether weather is frozen at server start
 Config.WeatherIsFrozen = false
+
+-- Toggle Whether Snow should be able to occur all over the world or not
+Config.ToggleSnow = false
 
 -- Whether to permanently add snow on the ground, or only during snowy weather
 Config.PermanentSnow = false
@@ -35,6 +40,28 @@ Config.WindIsFrozen = false
 
 -- How often in milliseconds to sync with clients
 Config.SyncDelay = 5000
+
+-- TXAdmin Restart Integration 
+Config.ToggleTxAdmin = true      -- true is on | false is off
+Config.ToggleWeatherTips = false  -- true is on | false is off
+
+Config.FirstTimeToRestart = 1800 -- 30 mins
+Config.FirstAlert = "Weather Alert Goes Here"
+Config.Firstweather = 'drizzle'
+Config.Firsttransition = 60
+Config.FirstpermanentSnow = 0
+
+Config.SecondTimeToRestart = 900 -- 15 mins
+Config.SecondAlert = "Weather Alert Goes Here"
+Config.Secondweather = 'rain'
+Config.Secondtransition = 60
+Config.SecondpermanentSnow = 0
+
+Config.ThirdTimeToRestart = 300 -- 5 mins
+Config.ThirdAlert = "Weather Alert Goes Here"
+Config.Thirdweather = 'thunderstorm'
+Config.Thirdtransition = 60
+Config.ThirdpermanentSnow = 0
 
 -- The following table describes the weather pattern of the world. For every type of weather that may occur, the types of weather that may follow are given with a number representing the percentage of their likeliness. For example:
 --
@@ -86,7 +113,7 @@ Config.WeatherPattern = {
 		['drizzle']      = 30,
 		['shower']       = 10,
 		['rain']         = 15,
-		--['snow']         = 1
+		['snow']         = 1
 	},
 
 	['drizzle'] = {
@@ -133,10 +160,10 @@ Config.WeatherPattern = {
 		['overcastdark'] = 85
 	},
 
-	--[[ ['snow'] = {
-		['snow'] = 1,
-		['overcastdark'] = 99
-	} ]]
+	['snow'] = {
+		['snow'] = 60,
+		['overcastdark'] = 40
+	} 
 }
 
 Config.WeatherIcons = {

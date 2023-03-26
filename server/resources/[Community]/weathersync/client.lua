@@ -75,13 +75,19 @@ function TranslateWeatherForRegion(weather)
 	elseif weather == 'snow' then
 		if IsInGuarma(x, y, z) then
 			return 'sunny'
+		elseif not Config.ToggleSnow then
+			return 'sunny'
 		end
 	elseif weather == 'snowlight' then
 		if IsInGuarma(x, y, z) then
 			return 'sunny'
+		elseif not Config.ToggleSnow then
+			return 'sunny'
 		end
 	elseif weather == 'blizzard' then
 		if IsInGuarma(x, y, z) then
+			return 'sunny'
+		elseif not Config.ToggleSnow then
 			return 'sunny'
 		end
 	end
