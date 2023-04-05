@@ -1,3 +1,49 @@
+const gtaWeatherIcons = {
+	blizzard:       "❄️",
+	clear:          "☀️",
+	clearing:       "🌦️",
+	clouds:         "⛅",
+	extrasunny:     "☀️",
+	foggy:          "🌫️",
+	halloween:      "🎃",
+	neutral:        "🌧️",
+	overcast:       "☁️",
+	rain:           "🌧️",
+	smog:           "🌫️",
+	snow:           "🌨️",
+	snowlight:      "🌨️",
+	thunder:        "⛈️",
+	xmas:           "🌨️"
+};
+
+const rdrWeatherIcons = {
+	blizzard:       "❄️",
+	clouds:         "⛅",
+	drizzle:        "🌦️",
+	fog:            "🌫️",
+	groundblizzard: "❄️",
+	hail:           "🌨️",
+	highpressure:   "☀️",
+	hurricane:      "🌀",
+	misty:          "🌫️",
+	overcast:       "☁️",
+	overcastdark:   "☁️",
+	rain:           "🌧️",
+	sandstorm:      "🌪️",
+	shower:         "🌧️",
+	sleet:          "🌧️",
+	snow:           "🌨️",
+	snowlight:      "🌨️",
+	sunny:          "☀️",
+	thunder:        "🌩️",
+	thunderstorm:   "⛈️",
+	whiteout:       "❄️"
+};
+
+var weatherIcons = {};
+
+var isRDR = false;
+
 function toggleDisplay(e, display) {
 	if (e.style.display == display) {
 		e.style.display = 'none';
@@ -8,8 +54,17 @@ function toggleDisplay(e, display) {
 
 function toggleForecast() {
 	toggleDisplay(document.querySelector('#forecast'), 'table');
-	toggleDisplay(document.querySelector('#temperature'), 'block');
+	toggleDisplay(document.querySelector('#sync'), 'block');
+	toggleDisplay(document.querySelector('#altimeter'), 'block');
 	toggleDisplay(document.querySelector('#wind'), 'block');
+
+	if (isRDR) {
+		toggleDisplay(document.querySelector('#temperature'), 'block');
+	}
+}
+
+function dayOfWeek(day) {
+	return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][day];
 }
 
 function updateForecast(data) {
@@ -17,13 +72,26 @@ function updateForecast(data) {
 	var t = document.querySelector('#temperature');
 	var w = document.querySelector('#wind');
 
+	var as = document.getElementById('altitude-sea');
+	var at = document.getElementById('altitude-terrain');
+
 	var forecastData = JSON.parse(data.forecast)
 
 	f.innerHTML = '';
 
+	var prevDay;
+
 	for (var i = 0; i < forecastData.length; ++i) {
 		var hour = document.createElement('div');
 		hour.className = 'forecast-hour';
+
+		var day = document.createElement('div');
+		day.className = 'forecast-day';
+
+		if (forecastData[i].day != prevDay) {
+			day.innerHTML = dayOfWeek(forecastData[i].day);
+			prevDay = forecastData[i].day;
+		}
 		
 		var time = document.createElement('div');
 		time.className = 'forecast-time';
@@ -31,12 +99,13 @@ function updateForecast(data) {
 		
 		var weather = document.createElement('div');
 		weather.className = 'forecast-weather';
-		weather.innerHTML = forecastData[i].weather;
+		weather.innerHTML = weatherIcons[forecastData[i].weather] || forecastData[i].weather;
 
 		var wind = document.createElement('div');
 		wind.className = 'forecast-wind';
 		wind.innerHTML = forecastData[i].wind;
 
+		hour.appendChild(day);
 		hour.appendChild(time);
 		hour.appendChild(weather);
 		hour.appendChild(wind);
@@ -46,6 +115,15 @@ function updateForecast(data) {
 	t.innerHTML = data.temperature;
 
 	w.innerHTML = data.wind;
+
+	as.innerHTML = data.altitudeSea;
+	at.innerHTML = data.altitudeTerrain;
+
+	if (data.syncEnabled) {
+		document.getElementById('sync-status').innerHTML = '✔️';
+	} else {
+		document.getElementById('sync-status').innerHTML = '🚫';
+	}
 }
 
 function openAdminUi(data) {
@@ -54,7 +132,7 @@ function openAdminUi(data) {
 
 function updateAdminUi(data) {
 	var weatherTypes = JSON.parse(data.weatherTypes);
-	var weatherIcons = JSON.parse(data.weatherIcons);
+	var curDay = document.querySelector('#cur-day');
 	var curHour = document.querySelector('#cur-hour');
 	var curMin = document.querySelector('#cur-min');
 	var curSec = document.querySelector('#cur-sec');
@@ -64,6 +142,7 @@ function updateAdminUi(data) {
 	var windSpeed = document.querySelector('#cur-wind-speed');
 	var syncDelay = document.querySelector('#sync-delay');
 
+	curDay.value = dayOfWeek(data.day);
 	curHour.value = data.hour;
 	curMin.value = data.min;
 	curSec.value = data.sec;
@@ -102,7 +181,18 @@ window.addEventListener('message', function (event) {
 });
 
 window.addEventListener('load', function() {
+	fetch(`https://${GetParentResourceName()}/getGameName`).then(resp => resp.json()).then(resp => {
+		if (resp.gameName == "rdr3") {
+			isRDR = true;
+			weatherIcons = rdrWeatherIcons;
+		} else {
+			isRDR = false;
+			weatherIcons = gtaWeatherIcons;
+		}
+	});
+
 	document.querySelector('#apply-time-btn').addEventListener('click', function(event) {
+		var day = document.querySelector('#new-day');
 		var hour = document.querySelector('#new-hour');
 		var min = document.querySelector('#new-min');
 		var sec = document.querySelector('#new-sec');
@@ -115,6 +205,7 @@ window.addEventListener('load', function() {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
+				day: parseInt(day.value),
 				hour: parseInt(hour.value),
 				min: parseInt(min.value),
 				sec: parseInt(sec.value),
