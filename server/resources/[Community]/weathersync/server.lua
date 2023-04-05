@@ -495,7 +495,7 @@ if toggleTxAdmin then
 		local TimeToRestart = firstTimetoRestart / 60
 		if eventData.secondsRemaining == firstTimetoRestart then 
 			setWeather(firstWeather, weatherTransition * 1.0, 1, Config.TxpermanentSnow)
-			if toggleWeatherTips then TriggerClientEvent("vorp:TipBottom", -1, Config.FirstAlert, 25) end
+			if toggleWeatherTips then TriggerClientEvent("vorp:TipBottom", -1, Config.FirstAlert, 3000) end
 			if debug then print(debugstringOne .. TimeToRestart .. debugstringTwo .. currentWeather .. " ") end
 			syncWeather(-1)
 			Citizen.Wait(1000)
@@ -507,7 +507,7 @@ if toggleTxAdmin then
 		local TimeToRestart = secondTimetoRestart / 60
 		if eventData.secondsRemaining == secondTimetoRestart then 
 			setWeather(secondWeather, weatherTransition * 1.0, 1, Config.TxpermanentSnow)
-			if toggleWeatherTips then TriggerClientEvent("vorp:TipBottom", -1, Config.SecondAlert, 25) end
+			if toggleWeatherTips then TriggerClientEvent("vorp:TipBottom", -1, Config.SecondAlert, 3000) end
 			if debug then print(debugstringOne .. TimeToRestart .. debugstringTwo .. currentWeather .. " ") end
 			syncWeather(-1)
 			Citizen.Wait(1000)
@@ -519,7 +519,7 @@ if toggleTxAdmin then
 		local TimeToRestart = thirdTimetoRestart / 60
 		if eventData.secondsRemaining == thirdTimetoRestart then 
 			setWeather(thirdWeather, weatherTransition * 1.0, 1, Config.TxpermanentSnow)
-			if toggleWeatherTips then TriggerClientEvent("vorp:TipBottom", -1, Config.ThirdAlert, 25) end
+			if toggleWeatherTips then TriggerClientEvent("vorp:TipBottom", -1, Config.ThirdAlert, 3000) end
 			if debug then print(debugstringOne .. TimeToRestart .. debugstringTwo .. currentWeather .. " ") end
 			syncWeather(-1)
 			Citizen.Wait(1000)
