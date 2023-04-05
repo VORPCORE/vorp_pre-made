@@ -83,7 +83,7 @@ RegisterNetEvent('vorpmetabolism:useItem', function(index, label)
         EnableAttributeOverpower(PlayerPedId(), 1, Config["ItemsToUse"][index]["InnerCoreStaminaGold"], true)
     end
 
-    if (Config["ItemsToUse"][index]["Animation"]['eat']) then
+    if (Config["ItemsToUse"][index]["Animation"]) == 'eat' then
         PlayAnimEat(Config["ItemsToUse"][index]["PropName"])
     else
         PlayAnimDrink(Config["ItemsToUse"][index]["PropName"])
