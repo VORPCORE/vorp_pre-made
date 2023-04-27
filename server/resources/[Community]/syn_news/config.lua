@@ -1,2 +1,0 @@
-Config = {}
-Config.jobs = {"news"}
