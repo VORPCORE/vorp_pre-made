@@ -4,38 +4,30 @@
 
 Config = {
   --======================= DEVELOPMENT ==============================--
-  Debug = false, -- if your server is live set this to false.  to true only if you are testing things
+  Debug = false,   -- if your server is live set this to false.  to true only if you are testing things
   DevMode = false, -- if your server is live set this to false.  to true only if you are testing things (auto load inventory when script restart and before character selection. Alos add /getInv command)
   dbupdater = true,
-
   --======================= CONFIGURATION =============================--
   defaultlang = "en_lang",
   ShowCharacterNameOnGive = false, -- when giving an item, show the character name of nearby players instead of their player ID. if set to false, show the player ID
-  DoubleClickToUse = true, -- if toggled to false, items in inventory will right click then left click "use"
-  NewPlayers = false, --- if you dont want new players to give money or items then set to true. this can avoid cheaters giving stuff on first join
-
-
+  DoubleClickToUse = true,         -- if toggled to false, items in inventory will right click then left click "use"
+  NewPlayers = false,              --- if you dont want new players to give money or items then set to true. this can avoid cheaters giving stuff on first join
   -- GOLD ITEM LIKE DOLLARS
   UseGoldItem = false,
-  AddGoldItem = false, -- Should there be an item in inventory to represent gold
-  AddDollarItem = true, -- Should there be an item in inventory to represent dollars
-  AddAmmoItem = true, -- Should there be an item in inventory to represent the gun belt
-
-  InventorySearchable = true, -- Should the search bar appear in inventories
+  AddGoldItem = false,             -- Should there be an item in inventory to represent gold
+  AddDollarItem = true,            -- Should there be an item in inventory to represent dollars
+  AddAmmoItem = true,              -- Should there be an item in inventory to represent the gun belt
+  InventorySearchable = true,      -- Should the search bar appear in inventories
   InventorySearchAutoFocus = true, -- Search autoofocuses when you type
   -- DEATH FUNCTIONS
-  DisableDeathInventory = true, -- prevent the ability to access inventory while dead
-
+  DisableDeathInventory = true,    -- prevent the ability to access inventory while dead
   --{ I } OPEN INVENTORY
   OpenKey = 0xC1989F95,
-
   --RMB mouse PROMPT PICKUP
   PickupKey = 0xF84FA74F,
-
   -- NORMAL LOGS
   webhookavatar = "",
   webhook = "",
-
   discordid = true, -- turn to true if ur using discord whitelist
   -- WEBHOOK LANGUAGE
   Language = {
@@ -44,7 +36,6 @@ Config = {
     to = " to ",
     withid = " with the weapon ID: ",
   },
-
   -- =================== CUSTOM INVENTORY LOGS =====================--
   WebHook = {
     color = nil,
@@ -56,8 +47,8 @@ Config = {
     CustomInventoryTakeFrom = "",
     CustomInventoryMoveTo = ""
   },
-
-  NetDupWebHook = { -- somone tries to use dev tools to cheat
+  NetDupWebHook = {
+                    -- somone tries to use dev tools to cheat
     Active = true,
     Language = {
       title = "Possible Cheater Detected",
@@ -65,8 +56,6 @@ Config = {
       descriptionend = "`\n"
     }
   },
-
-
   -- NEED TO TEST
   DropOnRespawn = {
     AllMoney       = false,
@@ -76,24 +65,23 @@ Config = {
     Weapons        = false,
     Items          = false
   },
-
   -- HOW MANY WEAPONS AND ITEMS ALLOWED PER PLAYER
   MaxItemsInInventory = {
     Weapons = 6,
     Items = 200,
   },
-
-
+  -- HERE YOU CAN SET THE MAX AMOUNT OF WEAPONS PER JOB (IF YOU WANT)
+  JobsAllowed = {
+    police = 10 -- job name and max weapons allowed dont allow less than the above
+  },
   -- FIRST JOIN
   startItems = {
     consumable_raspberrywater = 2, --ITEMS SAME NAME AS IN DATABASE
-    ammorevolvernormal = 1 --AMMO SAME NAME AS I NTHE DATABASE
+    ammorevolvernormal = 1         --AMMO SAME NAME AS I NTHE DATABASE
   },
-
   startWeapons = {
     WEAPON_MELEE_KNIFE = {} --WEAPON HASH NAME
   },
-
   -- items that dont get added up torwards your max weapon count
   notweapons = {
     "WEAPON_KIT_BINOCULARS_IMPROVED",
@@ -108,7 +96,6 @@ Config = {
     "WEAPON_MELEE_HAMMER",
     "WEAPON_MELEE_KNIFE",
   },
-
   Ammotypes = {
     ["416676503"] = { "AMMO_PISTOL", "AMMO_PISTOL_EXPRESS", "AMMO_PISTOL_EXPRESS_EXPLOSIVE", "AMMO_PISTOL_HIGH_VELOCITY",
       "AMMO_PISTOL_SPLIT_POINT" },
@@ -129,8 +116,8 @@ Config = {
       "AMMO_BOLAS_INTERTWINED", "AMMO_BOLAS_IRONSPIKED", "AMMO_DYNAMITE", "AMMO_DYNAMITE_VOLATILE", "AMMO_MOLOTOV",
       "AMMO_MOLOTOV_VOLATILE" }
   },
-
-  maxammo = { -- max ammo allowed to transfer between players
+  maxammo = {
+              -- max ammo allowed to transfer between players
     AMMO_PISTOL = 100,
     AMMO_PISTOL_EXPRESS = 100,
     AMMO_PISTOL_EXPRESS_EXPLOSIVE = 100,
@@ -176,7 +163,8 @@ Config = {
     AMMO_MOLOTOV = 5,
     AMMO_MOLOTOV_VOLATILE = 5
   },
-  Ammolabels = { -- you can change this to your language
+  Ammolabels = {
+                 -- you can change this to your language
     AMMO_PISTOL = "Normal Pistol",
     AMMO_PISTOL_EXPRESS = "Express Pistol",
     AMMO_PISTOL_EXPRESS_EXPLOSIVE = "Explosives Pistol",
@@ -225,9 +213,9 @@ Config = {
   --DON'T TOUCH BESIDES NAME OF WEAPON
   Weapons = {
     {
-      Name     = "Lasso", -- TRANSLATE NAME ONLY
+      Name     = "Lasso",                                                                          -- TRANSLATE NAME ONLY
       Desc     = "Used Up When You Hogtie Someone, The Reinforced one has unlimited hogtie usage", -- CHANGE DESCRIPTION ONLY
-      HashName = "WEAPON_LASSO", -- DONT TOUCH
+      HashName = "WEAPON_LASSO",                                                                   -- DONT TOUCH
     },
     {
       Name     = "Reinforced Lasso",
@@ -313,7 +301,6 @@ Config = {
       Name = "Throwing Knifes",
       Desc = "Folks love playing with these",
       HashName = "WEAPON_THROWN_THROWING_KNIVES",
-
     },
     {
       Name = "Machete",
@@ -384,25 +371,21 @@ Config = {
       Name = "Varmint Rifle",
       Desc = "A rifle useful for hunting critters",
       HashName = "WEAPON_RIFLE_VARMINT",
-
     },
     {
       Name = "Winchester Repeater",
       Desc = "lever-action repeating rifles manufactured by the Winchester Repeating Arms Company",
       HashName = "WEAPON_REPEATER_WINCHESTER",
-
     },
     {
       Name = "Henry Reapeater",
       Desc = " lever-action tubular magazine rifle",
       HashName = "WEAPON_REPEATER_HENRY",
-
     },
     {
       Name = "Evans Repeater",
       Desc = "a lever-action repeating rifle designed by Warren R. Evans as a high capacity rifle",
       HashName = "WEAPON_REPEATER_EVANS",
-
     },
     {
       Name = "Carabine Reapeater",
@@ -458,7 +441,6 @@ Config = {
       Name = "Pump Shotgun",
       Desc = "repeating firearm action that is operated manually by moving a sliding handguard",
       HashName = "WEAPON_SHOTGUN_PUMP",
-
     },
     {
       Name = "Double Barrel Shotgun",
@@ -519,13 +501,11 @@ Config = {
       Name = "Dynamite",
       Desc = "boomstick",
       HashName = "WEAPON_THROWN_DYNAMITE",
-
     },
     {
       Name = "Molotov",
       Desc = "an arsonists bestfriend",
       HashName = "WEAPON_THROWN_MOLOTOV",
-
     },
     {
       Name = "Improved Bow",
@@ -551,7 +531,6 @@ Config = {
       Name = "Moonshine Jug",
       Desc = "those are very fun",
       HashName = "WEAPON_MOONSHINEJUG_MP",
-
     },
     {
       Name = "Bolas",
@@ -567,13 +546,11 @@ Config = {
       Name = "Bolas Ironspiked",
       Desc = "a more edgy bola",
       HashName = "WEAPON_THROWN_BOLAS_IRONSPIKED",
-
     },
     {
       Name = "Bolas Intertwined",
       Desc = "a stronger bola",
       HashName = "WEAPON_THROWN_BOLAS_INTERTWINED",
-
     },
     {
       Name = "Fishing Rod",
@@ -589,13 +566,11 @@ Config = {
       Name = "Lantern Haloween",
       Desc = "made with a real human skull",
       HashName = "WEAPON_MELEE_LANTERN_HALOWEEN",
-
     },
     {
       Name = "Hammer",
       Desc = "Richards Hammer!",
       HashName = "WEAPON_MELEE_HAMMER",
-
     }
   }
 }

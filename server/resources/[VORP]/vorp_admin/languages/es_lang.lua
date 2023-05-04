@@ -34,6 +34,28 @@ Locales["es_lang"] = {
     PlyaerWhitelist           = "Lista blanca: ",
     PlayerWarnings            = "Advertencias: ",
     ------------------------------------------------
+    -- submenu TROLL ACTIONS
+    TrollActions              = "Acciones de troleo",
+    KillPlayer                = 'Matar jugador',
+    InvisPlayer               = 'Hacer invisible al jugador',
+    LightningStrikePlayer             = 'Jugador de rayos',
+    SetPlayerOnFire           = 'Prender fuego al jugador',
+    TPToHeaven                = 'teletransportar al jugador al cielo',
+    RagdollPlayer             = 'Jugador de ragdoll ',
+    DrainPlayerStam           = 'drenar la resistencia del jugador ',
+    CuffPlayer                = 'Jugador de esposas ',
+    TempHighPlayer            = 'temperatura alta ',
+    --Descriptions of above
+    killplayer_desc          = 'Matar jugador?',
+    InvisPlayer_desc         = 'Hacer invisible al jugador?',
+    LightningStrikePlayer_desc       = 'Jugador de rayos?',
+    SetPlayerOnFire_desc      = 'Prender fuego al jugador?',
+    TPToHeaven_desc           = 'teletransportar al jugador al cielo?',
+    RagdollPlayer_desc        = 'muñeco de trapo el jugador? ',
+    DrainPlayerStam_desc          = '¿Drenar la resistencia de los jugadores? ',
+    CuffPlayer_desc           = 'Jugador de esposas? ',
+    TempHighPlayer_desc       = 'Hacer que el jugador temporalmente alto? ',
+    ------------------------------------------------
     -- submenu ADMIN ACTIONS
     MenuSubtitle2             = "Conectados",
     kick_p                    = "Echar",
@@ -111,6 +133,7 @@ Locales["es_lang"] = {
     inserthashmodel           = "insert hashmodel",
     spawnhorse_desc           = "Spawnear un caballo",
     spawnwagon_desc           = "Spawnear un carro",
+    invis = 'Invisibilidad',
     ---------------------------------------------------
     -- TELEPORTS
     teleports                 = "Teletransportes",
@@ -118,6 +141,8 @@ Locales["es_lang"] = {
     tpm                       = "TPM",
     tptocoords                = "TP a las coordenadas",
     tptoplayer                = "TP al jugador",
+    autotpm                   = "TPM automático",
+    autotpm_desc              = "Teletransportarse automáticamente a Waypoint",
     tpbackadmin               = "Teleport Back",
     bringplayer               = "Traer jugador",
     teleporttomarker_desc     = "teletransportarse al punto de ruta",
@@ -242,6 +267,7 @@ Locales["es_lang"] = {
     kickednotify1             = "!Por favor sigue las reglas!",
     respawned                 = "VAS A REAPARECER",
     lostall                   = " perderás todos tus artículos",
+    invisnotif = 'Volverse invisible',
     received                  = "Has recibido: ~o~",
     of                        = "~q~ de: ~o~",
     itemlimit                 = "El jugador no puede llevar este artículo, alcanzó el límite",

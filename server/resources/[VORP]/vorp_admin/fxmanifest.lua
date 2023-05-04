@@ -27,7 +27,7 @@ files { -- Credits to https://github.com/LVRP-BEN/bl_coords for clipboard copy m
     'html/index.js'
 }
 --version check dont touch
-version '1.3'
+version '2.1'
 vorp_checker 'yes'
 vorp_name '^4Resource version Check^3'
 vorp_github 'https://github.com/VORPCORE/vorp_admin'

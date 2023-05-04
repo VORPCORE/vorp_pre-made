@@ -30,7 +30,7 @@ function LoadUser(source, setKickReason, deferrals, identifier, license)
         if Config.UseCharPermission then
             _users[identifier] = User(source, identifier, user["group"], user["warnings"], license, user["char"])
         else
-            _users[identifier] = User(source, identifier, user["group"], user["warnings"], license)
+            _users[identifier] = User(source, identifier, user["group"], user["warnings"], license, false)
         end
 
         _users[identifier].LoadCharacters()
@@ -51,33 +51,30 @@ AddEventHandler('playerDropped', function()
     local pCoords, pHeading
 
     if Config.onesync then
-        pCoords = GetEntityCoords(GetPlayerPed(_source))
-        pHeading = GetEntityHeading(GetPlayerPed(_source))
+        local ped = GetPlayerPed(_source)
+        pCoords = GetEntityCoords(ped)
+        pHeading = GetEntityHeading(ped)
     end
 
-    if _users[identifier] and not _usersLoading[identifier] then
-        if _users[identifier].GetUsedCharacter() then
-            if Config.SavePlayersStatus then
-                _users[identifier].GetUsedCharacter().HealthOuter(_healthData[identifier].hOuter)
-                _users[identifier].GetUsedCharacter().HealthInner(_healthData[identifier].hInner)
-                _users[identifier].GetUsedCharacter().StaminaOuter(_healthData[identifier].sOuter)
-                _users[identifier].GetUsedCharacter().StaminaInner(_healthData[identifier].sInner)
-            end
-            _users[identifier].SaveUser(pCoords, pHeading)
-            if Config.PrintPlayerInfoOnLeave then
-                print("Player ^2", steamName .. " ^7steam:^3 " .. identifier .. "^7 saved")
-            end
-            Wait(10000)
-            _users[identifier] = nil
+    if _users[identifier] and _users[identifier].GetUsedCharacter() then
+        if Config.SavePlayersStatus then
+            _users[identifier].GetUsedCharacter().HealthOuter(_healthData[identifier].hOuter)
+            _users[identifier].GetUsedCharacter().HealthInner(_healthData[identifier].hInner)
+            _users[identifier].GetUsedCharacter().StaminaOuter(_healthData[identifier].sOuter)
+            _users[identifier].GetUsedCharacter().StaminaInner(_healthData[identifier].sInner)
         end
+        _users[identifier].SaveUser(pCoords, pHeading)
+        if Config.PrintPlayerInfoOnLeave then
+            print('Player ^2' .. steamName .. ' ^7steam:^3 ' .. identifier .. '^7 saved')
+        end
+        _users[identifier] = nil
     end
 
     if Config.SaveSteamNameDB then
-        MySQL.update("UPDATE characters SET `steamname` = ? WHERE `identifier` = ? ",
+        MySQL.update('UPDATE characters SET `steamname` = ? WHERE `identifier` = ? ',
             { steamName, identifier })
     end
 end)
-
 
 
 
@@ -86,88 +83,74 @@ AddEventHandler('playerJoining', function()
     local identifier = GetSteamID(_source)
     local isWhiteListed = MySQL.single.await('SELECT * FROM whitelist WHERE identifier = ?', { identifier })
 
-    if not Config.Whitelist then
-        if not isWhiteListed then
-            MySQL.insert.await("INSERT INTO whitelist (identifier, status, firstconnection) VALUES (?,?,?)"
-                , { identifier, false, true })
+    if not Config.Whitelist and not isWhiteListed then
+        MySQL.insert.await("INSERT INTO whitelist (identifier, status, firstconnection) VALUES (?,?,?)"
+        , { identifier, false, true })
 
-            isWhiteListed = MySQL.single.await('SELECT * FROM whitelist WHERE identifier = ?', { identifier })
-        end
-    end
-    -- Wait(30000) -- why do we wait here 30 seconds ?
-    local discordIdentity = GetIdentity(_source, "discord")
-    local discordId
-    if discordIdentity then
-        discordId = discordIdentity:sub(9)
-    else
-        discordId = ""
+        isWhiteListed = MySQL.single.await('SELECT * FROM whitelist WHERE identifier = ?', { identifier })
     end
 
-    local userid
-    if isWhiteListed then
-        local entry = isWhiteListed
-        userid = entry.id
-    end
+    local discordIdentity = GetPlayerIdentifierByType(_source, 'discord')
+    local discordId = discordIdentity and discordIdentity:sub(9) or ""
+
+    local userid = isWhiteListed and isWhiteListed.id
     if not _whitelist[userid] then
         _whitelist[userid] = Whitelist(userid, identifier, false, true)
     end
 
+    local entry = _whitelist[userid].GetEntry()
+    if entry.getFirstconnection() then
+        local steamName = GetPlayerName(_source) or ""
+        local message = string.format(Translation[Lang].addWebhook.whitelistid, steamName, identifier,
+            discordId, userid)
+        TriggerEvent("vorp_core:addWebhook", Translation[Lang].addWebhook.whitelistid1, Config.NewPlayerWebhook,
+            message)
 
-    if _whitelist[userid].GetEntry().getFirstconnection() then
-        local steamName = GetPlayerName(_source)
-        if steamName == nil then
-            local message = "`**\nIdentifier:** `" ..
-                identifier .. "` \n**Discord:** <@" .. discordId .. ">\n **User-Id:** `" .. userid .. "`"
-            TriggerEvent("vorp_core:addWebhook", "📋` New player joined server` ", Config.Logs.NewPlayerWebhook,
-                message)
-        else
-            local message = "**Steam name: **`" .. steamName .. "`**\nIdentifier:** `" ..
-                identifier .. "` \n**Discord:** <@" .. discordId .. ">\n **User-Id:** `" .. userid .. "`"
-
-            TriggerEvent("vorp_core:addWebhook", "📋` New player joined server` ", Config.Logs.NewPlayerWebhook,
-                message)
-        end
-        _whitelist[userid].GetEntry().setFirstconnection(false)
+        entry.setFirstconnection(false)
     end
 end)
 
+--* character selection
 RegisterNetEvent('vorp:playerSpawn', function()
     local source = source
     local identifier = GetSteamID(source)
-    if identifier then
-        _usersLoading[identifier] = false
 
-        if _users[identifier] then
-            _users[identifier].Source(source)
-            if _users[identifier].Numofcharacters() <= 0 then
-                TriggerEvent("vorp_CreateNewCharacter", source)
-                Wait(7000)
-                TriggerClientEvent('vorp:NotifyLeft', source, "~e~IMPORTANT!", Config.Langs.NotifyChar, "minigames_hud",
-                    "five_finger_burnout", 6000, "COLOR_RED")
+    if not identifier then
+        return
+    end
+
+    _usersLoading[identifier] = false
+
+    local user = _users[identifier]
+
+    if not user then
+        return
+    end
+
+    user.Source(source)
+
+    local numCharacters = user.Numofcharacters()
+
+    if numCharacters <= 0 then
+        return TriggerEvent("vorp_CreateNewCharacter", source)
+    else
+        --* if chosen maxchars is more than 1 then allow to choose character
+        if not Config.UseCharPermission then
+            if Config.MaxCharacters > 1 then
+                return TriggerEvent("vorp_GoToSelectionMenu", source)
             else
-                if Config.UseCharPermission then
-                    if _users[identifier]._charperm == "false" and _users[identifier].Numofcharacters() <= 1 then
-                        TriggerEvent("vorp_SpawnUniqueCharacter", source)
-                    elseif _users[identifier]._charperm == "true" then
-                        TriggerEvent("vorp_GoToSelectionMenu", source)
-                        Wait(14000)
-                        TriggerClientEvent('vorp:NotifyLeft', source, "~e~IMPORTANT!", Config.Langs.NotifyCharSelect,
-                            "minigames_hud", "five_finger_burnout", 6000, "COLOR_RED")
-                    end
-                else
-                    if Config["MaxCharacters"] == 1 and _users[identifier].Numofcharacters() <= 1 then
-                        TriggerEvent("vorp_SpawnUniqueCharacter", source)
-                    else
-                        TriggerEvent("vorp_GoToSelectionMenu", source)
-                        Wait(14000)
-                        TriggerClientEvent('vorp:NotifyLeft', source, "~e~IMPORTANT!", Config.Langs.NotifyCharSelect,
-                            "minigames_hud", "five_finger_burnout", 6000, "COLOR_RED")
-                    end
-                end
+                return TriggerEvent("vorp_SpawnUniqueCharacter", source)
             end
+        end
+
+        if tostring(user._charperm) == "true" then
+            TriggerEvent("vorp_GoToSelectionMenu", source)
+        else
+            TriggerEvent("vorp_SpawnUniqueCharacter", source)
         end
     end
 end)
+
 
 RegisterNetEvent('vorp:getUser', function(cb)
     --[[{
@@ -247,7 +230,7 @@ end)
 
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(Config.savePlayersTimer * 60000) -- this should be above 10 minutes
+        Citizen.Wait(Config.savePlayersTimer * 60000)             -- this should be above 10 minutes
         for k, v in pairs(_users) do
             if v.usedCharacterId and v.usedCharacterId ~= -1 then -- save only when player has selected char and save only that char
                 v.SaveUser()
@@ -256,9 +239,9 @@ Citizen.CreateThread(function()
     end
 end)
 
-RegisterNetEvent("vorpchar:addtodb")
+
 AddEventHandler("vorpchar:addtodb", function(status, identifier)
-    local resultList = MySQL.prepare.await("SELECT 1 FROM users WHERE identifier = ?", { identifier })
+    local resultList = MySQL.prepare.await("SELECT * FROM users WHERE identifier = ?", { identifier })
     local char
     if resultList then
         for _, player in ipairs(GetPlayers()) do

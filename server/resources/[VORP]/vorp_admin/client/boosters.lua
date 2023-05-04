@@ -5,12 +5,11 @@ local god = false
 local goldenCores = false
 local infiniteammo = false
 local NoClipActive = false
-local timer
+local invis = false
 
 function GODmode()
     local player = PlayerPedId()
     if not god then
-
         TriggerEvent('vorp:TipRight', _U("switchedon"), 3000)
         SetEntityCanBeDamaged(player, false)
         SetEntityInvincible(player, true)
@@ -27,7 +26,6 @@ function GODmode()
         end
         god = true
     else
-
         TriggerEvent('vorp:TipRight', _U("switchedoff"), 3000)
         SetEntityCanBeDamaged(player, true)
         SetEntityInvincible(player, false)
@@ -48,15 +46,15 @@ function GoldenCores()
         -- inner cores
         Citizen.InvokeNative(0xC6258F41D86676E0, player, 0, 100)
         Citizen.InvokeNative(0xC6258F41D86676E0, player, 1, 100)
-        Citizen.InvokeNative(0xC6258F41D86676E0, player, 2, 100)
+        -- Citizen.InvokeNative(0xC6258F41D86676E0, player, 2, 100) -- dead eye
 
         --outter cores
         Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 0, 5000.0)
         Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 1, 5000.0)
-        Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 2, 5000.0)
+        -- Citizen.InvokeNative(0x4AF5A4C7B9157D14, player, 2, 5000.0) -- dead eye
 
         Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 1, 5000.0)
-        Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 2, 5000.0)
+        -- Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 2, 5000.0)-- dead eye
         Citizen.InvokeNative(0xF6A7C08DF2E28B28, player, 0, 5000.0)
         if Config.BoosterLogs.GoldenCores then
             TriggerServerEvent("vorp_admin:logs", Config.BoosterLogs.GoldenCores, _U("titlebooster"),
@@ -64,7 +62,6 @@ function GoldenCores()
         end
         goldenCores = true
     else
-
         TriggerEvent('vorp:TipRight', _U("switchedoff"), 3000)
         --inner cores
         Citizen.InvokeNative(0xC6258F41D86676E0, player, 0, 100)
@@ -87,7 +84,6 @@ function InfiAmmo()
     local player = PlayerPedId()
     local _, weaponHash = GetCurrentPedWeapon(player, false, 0, false)
     if not infiniteammo then
-
         infiniteammo = true
         local unarmed = -1569615261
         TriggerEvent("vorp:TipRight", _U("switchedon"), 3000)
@@ -110,19 +106,18 @@ end
 function Boost()
     MenuData.CloseAll()
 
-
-
     local elements = {
-        { label = _U("godMode"), value = 'god', desc = _U("godMode_desc") },
+        { label = _U("godMode"),      value = 'god',          desc = _U("godMode_desc") },
         { label = _U("noclipMode"), value = 'noclip',
             desc = "<span>" ..
-                _U("move") .. "</span><br><span>" .. _U("speedMode") .. "</span><br>" .. _U("Cammode") .. "" },
-        { label = _U("goldenCores"), value = 'goldcores', desc = _U("goldCores_desc") },
+            _U("move") .. "</span><br><span>" .. _U("speedMode") .. "</span><br>" .. _U("Cammode") .. "" },
+        { label = _U("goldenCores"),  value = 'goldcores',    desc = _U("goldCores_desc") },
         { label = _U("infiniteammo"), value = 'infiniteammo', desc = _U("infammo_desc") },
-        { label = _U("spawnwagon"), value = 'spawnwagon', desc = _U("spawnwagon_desc") },
-        { label = _U("spawnhorse"), value = 'spawnhorse', desc = _U("spawnhorse_desc") },
-        { label = _U("selfheal"), value = 'selfheal', desc = _U("selfheal_desc") },
-        { label = _U("selfrevive"), value = 'selfrevive', desc = _U("selfrevive_desc") },
+        { label = _U("spawnwagon"),   value = 'spawnwagon',   desc = _U("spawnwagon_desc") },
+        { label = _U("spawnhorse"),   value = 'spawnhorse',   desc = _U("spawnhorse_desc") },
+        { label = _U("selfheal"),     value = 'selfheal',     desc = _U("selfheal_desc") },
+        { label = _U("selfrevive"),   value = 'selfrevive',   desc = _U("selfrevive_desc") },
+        { label = _U("invis"), value = 'invisibility', desc = _U('invisnotif') },
         --{ label = "players blip map", value = 'playerblip', desc = "show players blip on the map" }, todo
         --{ label = "players id", value = 'showid', desc = "show players id over head", }, todo
     }
@@ -139,13 +134,26 @@ function Boost()
         function(data)
             if data.current == "backup" then
                 _G[data.trigger]()
-
             end
             if data.current.value == "god" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.Godmode")
                 Wait(100)
                 if AdminAllowed then
                     GODmode()
+                else
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
+                end
+            elseif data.current.value == "invisibility" then
+                TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.Invisibility")
+                Wait(100)
+                if AdminAllowed then
+                    if invis == false then --if invis is false then
+                        SetEntityVisible(PlayerPedId(), false) --sets you invisible
+                        invis = true --changes the variable to true so if you hit the button again it runs the elseif statment below
+                    elseif invis == true then --if invis variable is true then
+                        SetEntityVisible(PlayerPedId(), true) --sets you too visible
+                        invis = false --changes variable back to false so the next time this is ran it sets you back invisible
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -163,7 +171,6 @@ function Boost()
                 Wait(100)
                 if AdminAllowed then
                     if not NoClipActive then
-
                         NoClipActive = true
                         TriggerEvent('vorp:TipRight', _U("switchedon"), 3000)
                         if Config.FrozenPosition then
@@ -175,7 +182,6 @@ function Boost()
                         end
                     else
                         NoClipActive = false
-                        timer = 5000
                         TriggerEvent('vorp:TipRight', _U("switchedoff"), 3000)
                     end
                 else
@@ -213,6 +219,7 @@ function Boost()
                             , _U("titlebooster"), _U("usedheal"))
                     end
                     TriggerEvent('vorp:heal')
+                    Config.Heal.Players()
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -259,7 +266,6 @@ function Boost()
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             elseif data.current.value == "spawnwagon" then
                 local player = PlayerPedId()
                 TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.SpawnWagon")
@@ -311,34 +317,109 @@ function Boost()
         function(menu)
             menu.close()
         end)
-
-
 end
 
-function DisableControls()
+local function DisableControls()
     DisableControlAction(0, 0xB238FE0B, true) --disable controls here
     DisableControlAction(0, 0x3C0A40F2, true) --disable controls here
 end
 
-function DrawText(text, x, y, centred)
-    SetTextScale(0.35, 0.35)
-    SetTextColor(255, 255, 255, 255)
-    SetTextCentre(centred)
-    SetTextDropshadow(1, 0, 0, 0, 200)
-    SetTextFontForCurrentCommand(22)
-    DisplayText(CreateVarString(10, "LITERAL_STRING", text), x, y)
-end
 
---CREDITS to the author for the noclip
+local Prompt1
+local Prompt2
+local Prompt3
+local Prompt4
+local Prompt5
+local Prompt6
+local PromptGroup = GetRandomIntInRange(0, 0xffffff)
+
+
+--PROMPTS
+CreateThread(function()
+    local str = "DOWN"
+    Prompt1 = PromptRegisterBegin()
+    PromptSetControlAction(Prompt1, Config.Controls.goDown)
+    str = CreateVarString(10, 'LITERAL_STRING', str)
+    PromptSetText(Prompt1, str)
+    PromptSetEnabled(Prompt1, 1)
+    PromptSetVisible(Prompt1, 1)
+    PromptSetStandardMode(Prompt1, 1)
+    PromptSetGroup(Prompt1, PromptGroup)
+    Citizen.InvokeNative(0xC5F428EE08FA7F2C, Prompt1, true)
+    PromptRegisterEnd(Prompt1)
+
+    local str = "SPEED"
+    Prompt2 = PromptRegisterBegin()
+    PromptSetControlAction(Prompt2, Config.Controls.changeSpeed) -- shift
+    str = CreateVarString(10, 'LITERAL_STRING', str)
+    PromptSetText(Prompt2, str)
+    PromptSetEnabled(Prompt2, 1)
+    PromptSetVisible(Prompt2, 1)
+    PromptSetStandardMode(Prompt2, 1)
+    PromptSetGroup(Prompt2, PromptGroup)
+    Citizen.InvokeNative(0xC5F428EE08FA7F2C, Prompt2, true)
+    PromptRegisterEnd(Prompt2)
+
+    local str = "FOWARD"
+    Prompt3 = PromptRegisterBegin()
+    PromptSetControlAction(Prompt3, Config.Controls.goForward)
+    str = CreateVarString(10, 'LITERAL_STRING', str)
+    PromptSetText(Prompt3, str)
+    PromptSetEnabled(Prompt3, 1)
+    PromptSetVisible(Prompt3, 1)
+    PromptSetStandardMode(Prompt3, 1)
+    PromptSetGroup(Prompt3, PromptGroup)
+    Citizen.InvokeNative(0xC5F428EE08FA7F2C, Prompt3, true)
+    PromptRegisterEnd(Prompt3)
+
+    local str = "BACKWARD"
+    Prompt4 = PromptRegisterBegin()
+    PromptSetControlAction(Prompt4, Config.Controls.goBackward)
+    str = CreateVarString(10, 'LITERAL_STRING', str)
+    PromptSetText(Prompt4, str)
+    PromptSetEnabled(Prompt4, 1)
+    PromptSetVisible(Prompt4, 1)
+    PromptSetStandardMode(Prompt4, 1)
+    PromptSetGroup(Prompt4, PromptGroup)
+    Citizen.InvokeNative(0xC5F428EE08FA7F2C, Prompt4, true)
+    PromptRegisterEnd(Prompt4)
+
+    local str = "UP"
+    Prompt5 = PromptRegisterBegin()
+    PromptSetControlAction(Prompt5, Config.Controls.goUp)
+    str = CreateVarString(10, 'LITERAL_STRING', str)
+    PromptSetText(Prompt5, str)
+    PromptSetEnabled(Prompt5, 1)
+    PromptSetVisible(Prompt5, 1)
+    PromptSetStandardMode(Prompt5, 1)
+    PromptSetGroup(Prompt5, PromptGroup)
+    Citizen.InvokeNative(0xC5F428EE08FA7F2C, Prompt5, true)
+    PromptRegisterEnd(Prompt5)
+
+
+    local str = "Cancel"
+    Prompt6 = PromptRegisterBegin()
+    PromptSetControlAction(Prompt6, Config.Controls.Cancel)
+    str = CreateVarString(10, 'LITERAL_STRING', str)
+    PromptSetText(Prompt6, str)
+    PromptSetEnabled(Prompt6, 1)
+    PromptSetVisible(Prompt6, 1)
+    PromptSetStandardMode(Prompt6, 1)
+    PromptSetGroup(Prompt6, PromptGroup)
+    Citizen.InvokeNative(0xC5F428EE08FA7F2C, Prompt6, true)
+    PromptRegisterEnd(Prompt6)
+end)
+
+
 Citizen.CreateThread(function()
     local player = PlayerPedId()
     local index = 1
     local CurrentSpeed = Config.Speeds[index].speed
     local FollowCamMode = true
+    local Label = Config.Speeds[index].label
 
     while true do
         while NoClipActive do
-
             if IsPedInAnyVehicle(PlayerPedId(), false) then
                 player = GetVehiclePedIsIn(PlayerPedId(), false)
             else
@@ -351,25 +432,23 @@ Citizen.CreateThread(function()
             DisableControls()
 
             if IsDisabledControlJustPressed(1, Config.Controls.camMode) then
-                timer = 2000
                 FollowCamMode = not FollowCamMode
             end
-
+            local label = CreateVarString(10, 'LITERAL_STRING', "No clip | Speed " .. Label .. " " .. CurrentSpeed)
+            PromptSetActiveGroupThisFrame(PromptGroup, label)
 
             if IsDisabledControlJustPressed(1, Config.Controls.changeSpeed) then
-                timer = 2000
                 if index ~= #Config.Speeds then
                     index = index + 1
                     CurrentSpeed = Config.Speeds[index].speed
+                    Label = Config.Speeds[index].label
                 else
                     CurrentSpeed = Config.Speeds[1].speed
                     index = 1
+                    Label = Config.Speeds[index].label
                 end
+            end
 
-            end
-            if Config.ShowControls then
-                DrawText(string.format('NoClip Speed: %.1f', CurrentSpeed), 0.5, 0.90, true)
-            end
             if IsDisabledControlPressed(0, Config.Controls.goForward) then
                 if Config.FrozenPosition then
                     yoff = -Config.Offsets.y
@@ -401,6 +480,12 @@ Citizen.CreateThread(function()
             if IsDisabledControlPressed(0, Config.Controls.goDown) then
                 zoff = -Config.Offsets.z
             end
+            
+            if IsDisabledControlPressed(0, Config.Controls.Cancel) then
+                NoClipActive = false
+                break
+            end
+
 
             local newPos = GetOffsetFromEntityInWorldCoords(player, 0.0, yoff * (CurrentSpeed + 0.3),
                 zoff * (CurrentSpeed + 0.3))
@@ -447,9 +532,6 @@ Citizen.CreateThread(function()
             SetEntityVisible(player, true, false)
             SetEveryoneIgnorePlayer(PlayerPedId(), false)
             SetPedCanBeTargetted(player, true)
-            if Config.ShowControls then
-                DrawText('W/A/S/D/Q/Z- Move, LShift  Change speed,  H- Relative mode', 0.5, 0.95, true)
-            end
         end
         Citizen.Wait(0)
     end

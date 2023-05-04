@@ -34,6 +34,28 @@ Locales["en_lang"] = {
     PlyaerWhitelist           = "Player Is whitelist: ",
     PlayerWarnings            = "Player warnings: ",
     ------------------------------------------------
+    -- submenu TROLL ACTIONS
+    TrollActions              = "Troll Actions ",
+    KillPlayer                = 'Kill Player ',
+    InvisPlayer               = 'Make Player Invisible ',
+    LightningStrikePlayer             = 'Lightning Strike Player ',
+    SetPlayerOnFire           = 'Set Player On Fire ',
+    TPToHeaven                = 'Teleport Player To Heaven ',
+    RagdollPlayer             = 'Ragdoll Player ',
+    DrainPlayerStam           = 'Drain Player Stamina ',
+    CuffPlayer                = 'Handcuff Player ',
+    TempHighPlayer            = 'Temp High ',
+    --Descriptions of above
+    killplayer_desc          = 'Kill Player? ',
+    InvisPlayer_desc         = 'Make Player Invisible? ',
+    LightningStrikePlayer_desc       = 'Strike Player With Lightning? ',
+    SetPlayerOnFire_desc      = 'Set Player On Fire? ',
+    TPToHeaven_desc           = 'Teleport Player To Heaven? ',
+    RagdollPlayer_desc        = 'Ragdoll The Player? ',
+    DrainPlayerStam_desc          = 'Drain Players Stamina? ',
+    CuffPlayer_desc           = 'Handcuff Player? ',
+    TempHighPlayer_desc       = 'Make the player temporarily high? ',
+    ------------------------------------------------
     -- submenu ADMIN ACTIONS
     MenuSubtitle2             = "Players online",
     kick_p                    = "Kick",
@@ -111,9 +133,11 @@ Locales["en_lang"] = {
     inserthashmodel           = "insert hashmodel",
     spawnhorse_desc           = "spawn a horse",
     spawnwagon_desc           = "spawn a wagon",
+    invis = 'Invisibility',
     ---------------------------------------------------
     -- TELEPORTS
     teleports                 = "Teleports",
+    autotpm                   = "Auto tpm",
     insert                    = "INSERT X Y Z",
     tpm                       = "TPM",
     tptocoords                = "TP to Coords",
@@ -124,6 +148,7 @@ Locales["en_lang"] = {
     teleporttocoords_desc     = "Teleport to location",
     teleportplayer_desc       = "Teleport to the player",
     bringplayer_desc          = "Bring player to you",
+    autotpm_desc              = "Automatically Teleport too Waypoint",
     insertid                  = "Insert player ID",
     sendback                  = "send player back",
     sendback_desc             = "send player back to his/hers last location",
@@ -240,6 +265,7 @@ Locales["en_lang"] = {
     itemgiven                 = "the item was given",
     weapongiven               = "the Weapon was given",
     sent                      = "Sent!!",
+    invisnotif = 'Go Invisible',
     horsegiven                = "you gave a horse to the player",
     kickednotify              = "YOU HAVE BEEN KICKED",
     banned                    = "YOU HAVE BEEN BANNED",

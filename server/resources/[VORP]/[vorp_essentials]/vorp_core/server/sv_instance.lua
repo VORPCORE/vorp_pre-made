@@ -1,16 +1,15 @@
-
 Namedinstances = {}
 
 RegisterServerEvent("vorp_core:instanceplayers")
-AddEventHandler("vorp_core:instanceplayers", function(setName)
-
-    local _source = source
+AddEventHandler("vorp_core:instanceplayers", function(setRoom)
+    local src = source
     local instanceSource = nil
 
-    if setName == 0 then
+    -- if setRoom is 0, then we are leaving the instance
+    if setRoom == 0 then
         for k, v in pairs(Namedinstances) do
             for k2, v2 in pairs(v.people) do
-                if v2 == _source then
+                if v2 == src then
                     table.remove(v.people, k2)
                 end
             end
@@ -18,41 +17,37 @@ AddEventHandler("vorp_core:instanceplayers", function(setName)
                 Namedinstances[k] = nil
             end
         end
-        instanceSource = setName
-
+        instanceSource = setRoom
     else
         for k, v in pairs(Namedinstances) do
-            if v.name == setName then
+            if v.name == setRoom then
                 instanceSource = k
             end
         end
 
         if instanceSource == nil then
-            instanceSource = setName
+            instanceSource = setRoom
 
             while Namedinstances[instanceSource] and #Namedinstances[instanceSource] >= 1 do
-                instanceSource = setName
-                Wait(1)
+                instanceSource = setRoom
+                Citizen.Wait(1)
             end
         end
     end
 
     if instanceSource ~= 0 then
-
         if not Namedinstances[instanceSource] then
             Namedinstances[instanceSource] = {
-                name = setName,
+                name = setRoom,
                 people = {}
             }
         end
 
-        table.insert(Namedinstances[instanceSource].people, _source)
-
-
+        table.insert(Namedinstances[instanceSource].people, src)
     end
 
     SetPlayerRoutingBucket(
-        _source,
+        src,
         instanceSource
     )
 end)

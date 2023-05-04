@@ -1,3 +1,4 @@
+"use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -22,7 +23,10 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target, mod));
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
 
 // node_modules/.pnpm/sqlstring@2.3.3/node_modules/sqlstring/lib/SqlString.js
 var require_SqlString = __commonJS({
@@ -227,19 +231,20 @@ var require_sqlstring = __commonJS({
   }
 });
 
-// node_modules/.pnpm/denque@2.0.1/node_modules/denque/index.js
+// node_modules/.pnpm/denque@2.1.0/node_modules/denque/index.js
 var require_denque = __commonJS({
-  "node_modules/.pnpm/denque@2.0.1/node_modules/denque/index.js"(exports, module2) {
+  "node_modules/.pnpm/denque@2.1.0/node_modules/denque/index.js"(exports, module2) {
     "use strict";
     function Denque(array, options) {
       var options = options || {};
+      this._capacity = options.capacity;
       this._head = 0;
       this._tail = 0;
-      this._capacity = options.capacity;
-      this._capacityMask = 3;
-      this._list = new Array(4);
       if (Array.isArray(array)) {
         this._fromArray(array);
+      } else {
+        this._capacityMask = 3;
+        this._list = new Array(4);
       }
     }
     Denque.prototype.peekAt = function peekAt(index) {
@@ -508,6 +513,7 @@ var require_denque = __commonJS({
       }
     };
     Denque.prototype.clear = function clear() {
+      this._list = new Array(this._list.length);
       this._head = 0;
       this._tail = 0;
     };
@@ -518,696 +524,896 @@ var require_denque = __commonJS({
       return this._copyArray(false);
     };
     Denque.prototype._fromArray = function _fromArray(array) {
-      for (var i2 = 0; i2 < array.length; i2++)
-        this.push(array[i2]);
+      var length = array.length;
+      var capacity = this._nextPowerOf2(length);
+      this._list = new Array(capacity);
+      this._capacityMask = capacity - 1;
+      this._tail = length;
+      for (var i2 = 0; i2 < length; i2++)
+        this._list[i2] = array[i2];
     };
-    Denque.prototype._copyArray = function _copyArray(fullCopy) {
-      var newArray = [];
-      var list = this._list;
-      var len = list.length;
+    Denque.prototype._copyArray = function _copyArray(fullCopy, size) {
+      var src = this._list;
+      var capacity = src.length;
+      var length = this.length;
+      size = size | length;
+      if (size == length && this._head < this._tail) {
+        return this._list.slice(this._head, this._tail);
+      }
+      var dest = new Array(size);
+      var k = 0;
       var i2;
       if (fullCopy || this._head > this._tail) {
-        for (i2 = this._head; i2 < len; i2++)
-          newArray.push(list[i2]);
+        for (i2 = this._head; i2 < capacity; i2++)
+          dest[k++] = src[i2];
         for (i2 = 0; i2 < this._tail; i2++)
-          newArray.push(list[i2]);
+          dest[k++] = src[i2];
       } else {
         for (i2 = this._head; i2 < this._tail; i2++)
-          newArray.push(list[i2]);
+          dest[k++] = src[i2];
       }
-      return newArray;
+      return dest;
     };
     Denque.prototype._growArray = function _growArray() {
-      if (this._head) {
-        this._list = this._copyArray(true);
+      if (this._head != 0) {
+        var newList = this._copyArray(true, this._list.length << 1);
+        this._tail = this._list.length;
         this._head = 0;
+        this._list = newList;
+      } else {
+        this._tail = this._list.length;
+        this._list.length <<= 1;
       }
-      this._tail = this._list.length;
-      this._list.length <<= 1;
       this._capacityMask = this._capacityMask << 1 | 1;
     };
     Denque.prototype._shrinkArray = function _shrinkArray() {
       this._list.length >>>= 1;
       this._capacityMask >>>= 1;
     };
+    Denque.prototype._nextPowerOf2 = function _nextPowerOf2(num) {
+      var log2 = Math.log(num) / Math.log(2);
+      var nextPow2 = 1 << log2 + 1;
+      return Math.max(nextPow2, 4);
+    };
     module2.exports = Denque;
   }
 });
 
-// node_modules/.pnpm/yallist@4.0.0/node_modules/yallist/iterator.js
-var require_iterator = __commonJS({
-  "node_modules/.pnpm/yallist@4.0.0/node_modules/yallist/iterator.js"(exports, module2) {
-    "use strict";
-    module2.exports = function(Yallist) {
-      Yallist.prototype[Symbol.iterator] = function* () {
-        for (let walker = this.head; walker; walker = walker.next) {
-          yield walker.value;
-        }
-      };
-    };
-  }
-});
-
-// node_modules/.pnpm/yallist@4.0.0/node_modules/yallist/yallist.js
-var require_yallist = __commonJS({
-  "node_modules/.pnpm/yallist@4.0.0/node_modules/yallist/yallist.js"(exports, module2) {
-    "use strict";
-    module2.exports = Yallist;
-    Yallist.Node = Node;
-    Yallist.create = Yallist;
-    function Yallist(list) {
-      var self2 = this;
-      if (!(self2 instanceof Yallist)) {
-        self2 = new Yallist();
-      }
-      self2.tail = null;
-      self2.head = null;
-      self2.length = 0;
-      if (list && typeof list.forEach === "function") {
-        list.forEach(function(item) {
-          self2.push(item);
-        });
-      } else if (arguments.length > 0) {
-        for (var i2 = 0, l = arguments.length; i2 < l; i2++) {
-          self2.push(arguments[i2]);
-        }
-      }
-      return self2;
-    }
-    Yallist.prototype.removeNode = function(node) {
-      if (node.list !== this) {
-        throw new Error("removing node which does not belong to this list");
-      }
-      var next = node.next;
-      var prev = node.prev;
-      if (next) {
-        next.prev = prev;
-      }
-      if (prev) {
-        prev.next = next;
-      }
-      if (node === this.head) {
-        this.head = next;
-      }
-      if (node === this.tail) {
-        this.tail = prev;
-      }
-      node.list.length--;
-      node.next = null;
-      node.prev = null;
-      node.list = null;
-      return next;
-    };
-    Yallist.prototype.unshiftNode = function(node) {
-      if (node === this.head) {
-        return;
-      }
-      if (node.list) {
-        node.list.removeNode(node);
-      }
-      var head = this.head;
-      node.list = this;
-      node.next = head;
-      if (head) {
-        head.prev = node;
-      }
-      this.head = node;
-      if (!this.tail) {
-        this.tail = node;
-      }
-      this.length++;
-    };
-    Yallist.prototype.pushNode = function(node) {
-      if (node === this.tail) {
-        return;
-      }
-      if (node.list) {
-        node.list.removeNode(node);
-      }
-      var tail = this.tail;
-      node.list = this;
-      node.prev = tail;
-      if (tail) {
-        tail.next = node;
-      }
-      this.tail = node;
-      if (!this.head) {
-        this.head = node;
-      }
-      this.length++;
-    };
-    Yallist.prototype.push = function() {
-      for (var i2 = 0, l = arguments.length; i2 < l; i2++) {
-        push(this, arguments[i2]);
-      }
-      return this.length;
-    };
-    Yallist.prototype.unshift = function() {
-      for (var i2 = 0, l = arguments.length; i2 < l; i2++) {
-        unshift(this, arguments[i2]);
-      }
-      return this.length;
-    };
-    Yallist.prototype.pop = function() {
-      if (!this.tail) {
-        return void 0;
-      }
-      var res = this.tail.value;
-      this.tail = this.tail.prev;
-      if (this.tail) {
-        this.tail.next = null;
-      } else {
-        this.head = null;
-      }
-      this.length--;
-      return res;
-    };
-    Yallist.prototype.shift = function() {
-      if (!this.head) {
-        return void 0;
-      }
-      var res = this.head.value;
-      this.head = this.head.next;
-      if (this.head) {
-        this.head.prev = null;
-      } else {
-        this.tail = null;
-      }
-      this.length--;
-      return res;
-    };
-    Yallist.prototype.forEach = function(fn, thisp) {
-      thisp = thisp || this;
-      for (var walker = this.head, i2 = 0; walker !== null; i2++) {
-        fn.call(thisp, walker.value, i2, this);
-        walker = walker.next;
-      }
-    };
-    Yallist.prototype.forEachReverse = function(fn, thisp) {
-      thisp = thisp || this;
-      for (var walker = this.tail, i2 = this.length - 1; walker !== null; i2--) {
-        fn.call(thisp, walker.value, i2, this);
-        walker = walker.prev;
-      }
-    };
-    Yallist.prototype.get = function(n) {
-      for (var i2 = 0, walker = this.head; walker !== null && i2 < n; i2++) {
-        walker = walker.next;
-      }
-      if (i2 === n && walker !== null) {
-        return walker.value;
-      }
-    };
-    Yallist.prototype.getReverse = function(n) {
-      for (var i2 = 0, walker = this.tail; walker !== null && i2 < n; i2++) {
-        walker = walker.prev;
-      }
-      if (i2 === n && walker !== null) {
-        return walker.value;
-      }
-    };
-    Yallist.prototype.map = function(fn, thisp) {
-      thisp = thisp || this;
-      var res = new Yallist();
-      for (var walker = this.head; walker !== null; ) {
-        res.push(fn.call(thisp, walker.value, this));
-        walker = walker.next;
-      }
-      return res;
-    };
-    Yallist.prototype.mapReverse = function(fn, thisp) {
-      thisp = thisp || this;
-      var res = new Yallist();
-      for (var walker = this.tail; walker !== null; ) {
-        res.push(fn.call(thisp, walker.value, this));
-        walker = walker.prev;
-      }
-      return res;
-    };
-    Yallist.prototype.reduce = function(fn, initial) {
-      var acc;
-      var walker = this.head;
-      if (arguments.length > 1) {
-        acc = initial;
-      } else if (this.head) {
-        walker = this.head.next;
-        acc = this.head.value;
-      } else {
-        throw new TypeError("Reduce of empty list with no initial value");
-      }
-      for (var i2 = 0; walker !== null; i2++) {
-        acc = fn(acc, walker.value, i2);
-        walker = walker.next;
-      }
-      return acc;
-    };
-    Yallist.prototype.reduceReverse = function(fn, initial) {
-      var acc;
-      var walker = this.tail;
-      if (arguments.length > 1) {
-        acc = initial;
-      } else if (this.tail) {
-        walker = this.tail.prev;
-        acc = this.tail.value;
-      } else {
-        throw new TypeError("Reduce of empty list with no initial value");
-      }
-      for (var i2 = this.length - 1; walker !== null; i2--) {
-        acc = fn(acc, walker.value, i2);
-        walker = walker.prev;
-      }
-      return acc;
-    };
-    Yallist.prototype.toArray = function() {
-      var arr = new Array(this.length);
-      for (var i2 = 0, walker = this.head; walker !== null; i2++) {
-        arr[i2] = walker.value;
-        walker = walker.next;
-      }
-      return arr;
-    };
-    Yallist.prototype.toArrayReverse = function() {
-      var arr = new Array(this.length);
-      for (var i2 = 0, walker = this.tail; walker !== null; i2++) {
-        arr[i2] = walker.value;
-        walker = walker.prev;
-      }
-      return arr;
-    };
-    Yallist.prototype.slice = function(from, to) {
-      to = to || this.length;
-      if (to < 0) {
-        to += this.length;
-      }
-      from = from || 0;
-      if (from < 0) {
-        from += this.length;
-      }
-      var ret = new Yallist();
-      if (to < from || to < 0) {
-        return ret;
-      }
-      if (from < 0) {
-        from = 0;
-      }
-      if (to > this.length) {
-        to = this.length;
-      }
-      for (var i2 = 0, walker = this.head; walker !== null && i2 < from; i2++) {
-        walker = walker.next;
-      }
-      for (; walker !== null && i2 < to; i2++, walker = walker.next) {
-        ret.push(walker.value);
-      }
-      return ret;
-    };
-    Yallist.prototype.sliceReverse = function(from, to) {
-      to = to || this.length;
-      if (to < 0) {
-        to += this.length;
-      }
-      from = from || 0;
-      if (from < 0) {
-        from += this.length;
-      }
-      var ret = new Yallist();
-      if (to < from || to < 0) {
-        return ret;
-      }
-      if (from < 0) {
-        from = 0;
-      }
-      if (to > this.length) {
-        to = this.length;
-      }
-      for (var i2 = this.length, walker = this.tail; walker !== null && i2 > to; i2--) {
-        walker = walker.prev;
-      }
-      for (; walker !== null && i2 > from; i2--, walker = walker.prev) {
-        ret.push(walker.value);
-      }
-      return ret;
-    };
-    Yallist.prototype.splice = function(start, deleteCount, ...nodes) {
-      if (start > this.length) {
-        start = this.length - 1;
-      }
-      if (start < 0) {
-        start = this.length + start;
-      }
-      for (var i2 = 0, walker = this.head; walker !== null && i2 < start; i2++) {
-        walker = walker.next;
-      }
-      var ret = [];
-      for (var i2 = 0; walker && i2 < deleteCount; i2++) {
-        ret.push(walker.value);
-        walker = this.removeNode(walker);
-      }
-      if (walker === null) {
-        walker = this.tail;
-      }
-      if (walker !== this.head && walker !== this.tail) {
-        walker = walker.prev;
-      }
-      for (var i2 = 0; i2 < nodes.length; i2++) {
-        walker = insert(this, walker, nodes[i2]);
-      }
-      return ret;
-    };
-    Yallist.prototype.reverse = function() {
-      var head = this.head;
-      var tail = this.tail;
-      for (var walker = head; walker !== null; walker = walker.prev) {
-        var p = walker.prev;
-        walker.prev = walker.next;
-        walker.next = p;
-      }
-      this.head = tail;
-      this.tail = head;
-      return this;
-    };
-    function insert(self2, node, value) {
-      var inserted = node === self2.head ? new Node(value, null, node, self2) : new Node(value, node, node.next, self2);
-      if (inserted.next === null) {
-        self2.tail = inserted;
-      }
-      if (inserted.prev === null) {
-        self2.head = inserted;
-      }
-      self2.length++;
-      return inserted;
-    }
-    function push(self2, item) {
-      self2.tail = new Node(item, self2.tail, null, self2);
-      if (!self2.head) {
-        self2.head = self2.tail;
-      }
-      self2.length++;
-    }
-    function unshift(self2, item) {
-      self2.head = new Node(item, null, self2.head, self2);
-      if (!self2.tail) {
-        self2.tail = self2.head;
-      }
-      self2.length++;
-    }
-    function Node(value, prev, next, list) {
-      if (!(this instanceof Node)) {
-        return new Node(value, prev, next, list);
-      }
-      this.list = list;
-      this.value = value;
-      if (prev) {
-        prev.next = this;
-        this.prev = prev;
-      } else {
-        this.prev = null;
-      }
-      if (next) {
-        next.prev = this;
-        this.next = next;
-      } else {
-        this.next = null;
-      }
-    }
-    try {
-      require_iterator()(Yallist);
-    } catch (er) {
-    }
-  }
-});
-
-// node_modules/.pnpm/lru-cache@6.0.0/node_modules/lru-cache/index.js
+// node_modules/.pnpm/lru-cache@7.14.1/node_modules/lru-cache/index.js
 var require_lru_cache = __commonJS({
-  "node_modules/.pnpm/lru-cache@6.0.0/node_modules/lru-cache/index.js"(exports, module2) {
-    "use strict";
-    var Yallist = require_yallist();
-    var MAX = Symbol("max");
-    var LENGTH = Symbol("length");
-    var LENGTH_CALCULATOR = Symbol("lengthCalculator");
-    var ALLOW_STALE = Symbol("allowStale");
-    var MAX_AGE = Symbol("maxAge");
-    var DISPOSE = Symbol("dispose");
-    var NO_DISPOSE_ON_SET = Symbol("noDisposeOnSet");
-    var LRU_LIST = Symbol("lruList");
-    var CACHE = Symbol("cache");
-    var UPDATE_AGE_ON_GET = Symbol("updateAgeOnGet");
-    var naiveLength = () => 1;
-    var LRUCache = class {
-      constructor(options) {
-        if (typeof options === "number")
-          options = { max: options };
-        if (!options)
-          options = {};
-        if (options.max && (typeof options.max !== "number" || options.max < 0))
-          throw new TypeError("max must be a non-negative number");
-        const max = this[MAX] = options.max || Infinity;
-        const lc = options.length || naiveLength;
-        this[LENGTH_CALCULATOR] = typeof lc !== "function" ? naiveLength : lc;
-        this[ALLOW_STALE] = options.stale || false;
-        if (options.maxAge && typeof options.maxAge !== "number")
-          throw new TypeError("maxAge must be a number");
-        this[MAX_AGE] = options.maxAge || 0;
-        this[DISPOSE] = options.dispose;
-        this[NO_DISPOSE_ON_SET] = options.noDisposeOnSet || false;
-        this[UPDATE_AGE_ON_GET] = options.updateAgeOnGet || false;
-        this.reset();
+  "node_modules/.pnpm/lru-cache@7.14.1/node_modules/lru-cache/index.js"(exports, module2) {
+    var perf = typeof performance === "object" && performance && typeof performance.now === "function" ? performance : Date;
+    var hasAbortController = typeof AbortController === "function";
+    var AC = hasAbortController ? AbortController : class AbortController {
+      constructor() {
+        this.signal = new AS();
       }
-      set max(mL) {
-        if (typeof mL !== "number" || mL < 0)
-          throw new TypeError("max must be a non-negative number");
-        this[MAX] = mL || Infinity;
-        trim(this);
+      abort() {
+        this.signal.dispatchEvent("abort");
       }
-      get max() {
-        return this[MAX];
+    };
+    var hasAbortSignal = typeof AbortSignal === "function";
+    var hasACAbortSignal = typeof AC.AbortSignal === "function";
+    var AS = hasAbortSignal ? AbortSignal : hasACAbortSignal ? AC.AbortController : class AbortSignal {
+      constructor() {
+        this.aborted = false;
+        this._listeners = [];
       }
-      set allowStale(allowStale) {
-        this[ALLOW_STALE] = !!allowStale;
-      }
-      get allowStale() {
-        return this[ALLOW_STALE];
-      }
-      set maxAge(mA) {
-        if (typeof mA !== "number")
-          throw new TypeError("maxAge must be a non-negative number");
-        this[MAX_AGE] = mA;
-        trim(this);
-      }
-      get maxAge() {
-        return this[MAX_AGE];
-      }
-      set lengthCalculator(lC) {
-        if (typeof lC !== "function")
-          lC = naiveLength;
-        if (lC !== this[LENGTH_CALCULATOR]) {
-          this[LENGTH_CALCULATOR] = lC;
-          this[LENGTH] = 0;
-          this[LRU_LIST].forEach((hit) => {
-            hit.length = this[LENGTH_CALCULATOR](hit.value, hit.key);
-            this[LENGTH] += hit.length;
-          });
-        }
-        trim(this);
-      }
-      get lengthCalculator() {
-        return this[LENGTH_CALCULATOR];
-      }
-      get length() {
-        return this[LENGTH];
-      }
-      get itemCount() {
-        return this[LRU_LIST].length;
-      }
-      rforEach(fn, thisp) {
-        thisp = thisp || this;
-        for (let walker = this[LRU_LIST].tail; walker !== null; ) {
-          const prev = walker.prev;
-          forEachStep(this, fn, walker, thisp);
-          walker = prev;
+      dispatchEvent(type) {
+        if (type === "abort") {
+          this.aborted = true;
+          const e2 = { type, target: this };
+          this.onabort(e2);
+          this._listeners.forEach((f3) => f3(e2), this);
         }
       }
-      forEach(fn, thisp) {
-        thisp = thisp || this;
-        for (let walker = this[LRU_LIST].head; walker !== null; ) {
-          const next = walker.next;
-          forEachStep(this, fn, walker, thisp);
-          walker = next;
+      onabort() {
+      }
+      addEventListener(ev, fn) {
+        if (ev === "abort") {
+          this._listeners.push(fn);
         }
       }
-      keys() {
-        return this[LRU_LIST].toArray().map((k) => k.key);
-      }
-      values() {
-        return this[LRU_LIST].toArray().map((k) => k.value);
-      }
-      reset() {
-        if (this[DISPOSE] && this[LRU_LIST] && this[LRU_LIST].length) {
-          this[LRU_LIST].forEach((hit) => this[DISPOSE](hit.key, hit.value));
+      removeEventListener(ev, fn) {
+        if (ev === "abort") {
+          this._listeners = this._listeners.filter((f3) => f3 !== fn);
         }
-        this[CACHE] = /* @__PURE__ */ new Map();
-        this[LRU_LIST] = new Yallist();
-        this[LENGTH] = 0;
       }
-      dump() {
-        return this[LRU_LIST].map((hit) => isStale(this, hit) ? false : {
-          k: hit.key,
-          v: hit.value,
-          e: hit.now + (hit.maxAge || 0)
-        }).toArray().filter((h2) => h2);
+    };
+    var warned = /* @__PURE__ */ new Set();
+    var deprecatedOption = (opt, instead) => {
+      const code = `LRU_CACHE_OPTION_${opt}`;
+      if (shouldWarn(code)) {
+        warn(code, `${opt} option`, `options.${instead}`, LRUCache);
       }
-      dumpLru() {
-        return this[LRU_LIST];
+    };
+    var deprecatedMethod = (method, instead) => {
+      const code = `LRU_CACHE_METHOD_${method}`;
+      if (shouldWarn(code)) {
+        const { prototype } = LRUCache;
+        const { get } = Object.getOwnPropertyDescriptor(prototype, method);
+        warn(code, `${method} method`, `cache.${instead}()`, get);
       }
-      set(key, value, maxAge) {
-        maxAge = maxAge || this[MAX_AGE];
-        if (maxAge && typeof maxAge !== "number")
-          throw new TypeError("maxAge must be a number");
-        const now = maxAge ? Date.now() : 0;
-        const len = this[LENGTH_CALCULATOR](value, key);
-        if (this[CACHE].has(key)) {
-          if (len > this[MAX]) {
-            del(this, this[CACHE].get(key));
-            return false;
-          }
-          const node = this[CACHE].get(key);
-          const item = node.value;
-          if (this[DISPOSE]) {
-            if (!this[NO_DISPOSE_ON_SET])
-              this[DISPOSE](key, item.value);
-          }
-          item.now = now;
-          item.maxAge = maxAge;
-          item.value = value;
-          this[LENGTH] += len - item.length;
-          item.length = len;
-          this.get(key);
-          trim(this);
-          return true;
+    };
+    var deprecatedProperty = (field, instead) => {
+      const code = `LRU_CACHE_PROPERTY_${field}`;
+      if (shouldWarn(code)) {
+        const { prototype } = LRUCache;
+        const { get } = Object.getOwnPropertyDescriptor(prototype, field);
+        warn(code, `${field} property`, `cache.${instead}`, get);
+      }
+    };
+    var emitWarning = (...a) => {
+      typeof process === "object" && process && typeof process.emitWarning === "function" ? process.emitWarning(...a) : console.error(...a);
+    };
+    var shouldWarn = (code) => !warned.has(code);
+    var warn = (code, what, instead, fn) => {
+      warned.add(code);
+      const msg = `The ${what} is deprecated. Please use ${instead} instead.`;
+      emitWarning(msg, "DeprecationWarning", code, fn);
+    };
+    var isPosInt = (n) => n && n === Math.floor(n) && n > 0 && isFinite(n);
+    var getUintArray = (max) => !isPosInt(max) ? null : max <= Math.pow(2, 8) ? Uint8Array : max <= Math.pow(2, 16) ? Uint16Array : max <= Math.pow(2, 32) ? Uint32Array : max <= Number.MAX_SAFE_INTEGER ? ZeroArray : null;
+    var ZeroArray = class extends Array {
+      constructor(size) {
+        super(size);
+        this.fill(0);
+      }
+    };
+    var Stack = class {
+      constructor(max) {
+        if (max === 0) {
+          return [];
         }
-        const hit = new Entry(key, value, len, now, maxAge);
-        if (hit.length > this[MAX]) {
-          if (this[DISPOSE])
-            this[DISPOSE](key, value);
-          return false;
-        }
-        this[LENGTH] += hit.length;
-        this[LRU_LIST].unshift(hit);
-        this[CACHE].set(key, this[LRU_LIST].head);
-        trim(this);
-        return true;
+        const UintArray = getUintArray(max);
+        this.heap = new UintArray(max);
+        this.length = 0;
       }
-      has(key) {
-        if (!this[CACHE].has(key))
-          return false;
-        const hit = this[CACHE].get(key).value;
-        return !isStale(this, hit);
-      }
-      get(key) {
-        return get(this, key, true);
-      }
-      peek(key) {
-        return get(this, key, false);
+      push(n) {
+        this.heap[this.length++] = n;
       }
       pop() {
-        const node = this[LRU_LIST].tail;
-        if (!node)
-          return null;
-        del(this, node);
-        return node.value;
+        return this.heap[--this.length];
       }
-      del(key) {
-        del(this, this[CACHE].get(key));
+    };
+    var LRUCache = class {
+      constructor(options = {}) {
+        const {
+          max = 0,
+          ttl,
+          ttlResolution = 1,
+          ttlAutopurge,
+          updateAgeOnGet,
+          updateAgeOnHas,
+          allowStale,
+          dispose,
+          disposeAfter,
+          noDisposeOnSet,
+          noUpdateTTL,
+          maxSize = 0,
+          maxEntrySize = 0,
+          sizeCalculation,
+          fetchMethod,
+          fetchContext,
+          noDeleteOnFetchRejection,
+          noDeleteOnStaleGet
+        } = options;
+        const { length, maxAge, stale } = options instanceof LRUCache ? {} : options;
+        if (max !== 0 && !isPosInt(max)) {
+          throw new TypeError("max option must be a nonnegative integer");
+        }
+        const UintArray = max ? getUintArray(max) : Array;
+        if (!UintArray) {
+          throw new Error("invalid max value: " + max);
+        }
+        this.max = max;
+        this.maxSize = maxSize;
+        this.maxEntrySize = maxEntrySize || this.maxSize;
+        this.sizeCalculation = sizeCalculation || length;
+        if (this.sizeCalculation) {
+          if (!this.maxSize && !this.maxEntrySize) {
+            throw new TypeError(
+              "cannot set sizeCalculation without setting maxSize or maxEntrySize"
+            );
+          }
+          if (typeof this.sizeCalculation !== "function") {
+            throw new TypeError("sizeCalculation set to non-function");
+          }
+        }
+        this.fetchMethod = fetchMethod || null;
+        if (this.fetchMethod && typeof this.fetchMethod !== "function") {
+          throw new TypeError(
+            "fetchMethod must be a function if specified"
+          );
+        }
+        this.fetchContext = fetchContext;
+        if (!this.fetchMethod && fetchContext !== void 0) {
+          throw new TypeError(
+            "cannot set fetchContext without fetchMethod"
+          );
+        }
+        this.keyMap = /* @__PURE__ */ new Map();
+        this.keyList = new Array(max).fill(null);
+        this.valList = new Array(max).fill(null);
+        this.next = new UintArray(max);
+        this.prev = new UintArray(max);
+        this.head = 0;
+        this.tail = 0;
+        this.free = new Stack(max);
+        this.initialFill = 1;
+        this.size = 0;
+        if (typeof dispose === "function") {
+          this.dispose = dispose;
+        }
+        if (typeof disposeAfter === "function") {
+          this.disposeAfter = disposeAfter;
+          this.disposed = [];
+        } else {
+          this.disposeAfter = null;
+          this.disposed = null;
+        }
+        this.noDisposeOnSet = !!noDisposeOnSet;
+        this.noUpdateTTL = !!noUpdateTTL;
+        this.noDeleteOnFetchRejection = !!noDeleteOnFetchRejection;
+        if (this.maxEntrySize !== 0) {
+          if (this.maxSize !== 0) {
+            if (!isPosInt(this.maxSize)) {
+              throw new TypeError(
+                "maxSize must be a positive integer if specified"
+              );
+            }
+          }
+          if (!isPosInt(this.maxEntrySize)) {
+            throw new TypeError(
+              "maxEntrySize must be a positive integer if specified"
+            );
+          }
+          this.initializeSizeTracking();
+        }
+        this.allowStale = !!allowStale || !!stale;
+        this.noDeleteOnStaleGet = !!noDeleteOnStaleGet;
+        this.updateAgeOnGet = !!updateAgeOnGet;
+        this.updateAgeOnHas = !!updateAgeOnHas;
+        this.ttlResolution = isPosInt(ttlResolution) || ttlResolution === 0 ? ttlResolution : 1;
+        this.ttlAutopurge = !!ttlAutopurge;
+        this.ttl = ttl || maxAge || 0;
+        if (this.ttl) {
+          if (!isPosInt(this.ttl)) {
+            throw new TypeError(
+              "ttl must be a positive integer if specified"
+            );
+          }
+          this.initializeTTLTracking();
+        }
+        if (this.max === 0 && this.ttl === 0 && this.maxSize === 0) {
+          throw new TypeError(
+            "At least one of max, maxSize, or ttl is required"
+          );
+        }
+        if (!this.ttlAutopurge && !this.max && !this.maxSize) {
+          const code = "LRU_CACHE_UNBOUNDED";
+          if (shouldWarn(code)) {
+            warned.add(code);
+            const msg = "TTL caching without ttlAutopurge, max, or maxSize can result in unbounded memory consumption.";
+            emitWarning(msg, "UnboundedCacheWarning", code, LRUCache);
+          }
+        }
+        if (stale) {
+          deprecatedOption("stale", "allowStale");
+        }
+        if (maxAge) {
+          deprecatedOption("maxAge", "ttl");
+        }
+        if (length) {
+          deprecatedOption("length", "sizeCalculation");
+        }
       }
-      load(arr) {
-        this.reset();
-        const now = Date.now();
-        for (let l = arr.length - 1; l >= 0; l--) {
-          const hit = arr[l];
-          const expiresAt = hit.e || 0;
-          if (expiresAt === 0)
-            this.set(hit.k, hit.v);
-          else {
-            const maxAge = expiresAt - now;
-            if (maxAge > 0) {
-              this.set(hit.k, hit.v, maxAge);
+      getRemainingTTL(key) {
+        return this.has(key, { updateAgeOnHas: false }) ? Infinity : 0;
+      }
+      initializeTTLTracking() {
+        this.ttls = new ZeroArray(this.max);
+        this.starts = new ZeroArray(this.max);
+        this.setItemTTL = (index, ttl, start = perf.now()) => {
+          this.starts[index] = ttl !== 0 ? start : 0;
+          this.ttls[index] = ttl;
+          if (ttl !== 0 && this.ttlAutopurge) {
+            const t2 = setTimeout(() => {
+              if (this.isStale(index)) {
+                this.delete(this.keyList[index]);
+              }
+            }, ttl + 1);
+            if (t2.unref) {
+              t2.unref();
+            }
+          }
+        };
+        this.updateItemAge = (index) => {
+          this.starts[index] = this.ttls[index] !== 0 ? perf.now() : 0;
+        };
+        let cachedNow = 0;
+        const getNow = () => {
+          const n = perf.now();
+          if (this.ttlResolution > 0) {
+            cachedNow = n;
+            const t2 = setTimeout(
+              () => cachedNow = 0,
+              this.ttlResolution
+            );
+            if (t2.unref) {
+              t2.unref();
+            }
+          }
+          return n;
+        };
+        this.getRemainingTTL = (key) => {
+          const index = this.keyMap.get(key);
+          if (index === void 0) {
+            return 0;
+          }
+          return this.ttls[index] === 0 || this.starts[index] === 0 ? Infinity : this.starts[index] + this.ttls[index] - (cachedNow || getNow());
+        };
+        this.isStale = (index) => {
+          return this.ttls[index] !== 0 && this.starts[index] !== 0 && (cachedNow || getNow()) - this.starts[index] > this.ttls[index];
+        };
+      }
+      updateItemAge(index) {
+      }
+      setItemTTL(index, ttl, start) {
+      }
+      isStale(index) {
+        return false;
+      }
+      initializeSizeTracking() {
+        this.calculatedSize = 0;
+        this.sizes = new ZeroArray(this.max);
+        this.removeItemSize = (index) => {
+          this.calculatedSize -= this.sizes[index];
+          this.sizes[index] = 0;
+        };
+        this.requireSize = (k, v, size, sizeCalculation) => {
+          if (this.isBackgroundFetch(v)) {
+            return 0;
+          }
+          if (!isPosInt(size)) {
+            if (sizeCalculation) {
+              if (typeof sizeCalculation !== "function") {
+                throw new TypeError("sizeCalculation must be a function");
+              }
+              size = sizeCalculation(v, k);
+              if (!isPosInt(size)) {
+                throw new TypeError(
+                  "sizeCalculation return invalid (expect positive integer)"
+                );
+              }
+            } else {
+              throw new TypeError(
+                "invalid size value (must be positive integer)"
+              );
+            }
+          }
+          return size;
+        };
+        this.addItemSize = (index, size) => {
+          this.sizes[index] = size;
+          if (this.maxSize) {
+            const maxSize = this.maxSize - this.sizes[index];
+            while (this.calculatedSize > maxSize) {
+              this.evict(true);
+            }
+          }
+          this.calculatedSize += this.sizes[index];
+        };
+      }
+      removeItemSize(index) {
+      }
+      addItemSize(index, size) {
+      }
+      requireSize(k, v, size, sizeCalculation) {
+        if (size || sizeCalculation) {
+          throw new TypeError(
+            "cannot set size without setting maxSize or maxEntrySize on cache"
+          );
+        }
+      }
+      *indexes({ allowStale = this.allowStale } = {}) {
+        if (this.size) {
+          for (let i2 = this.tail; true; ) {
+            if (!this.isValidIndex(i2)) {
+              break;
+            }
+            if (allowStale || !this.isStale(i2)) {
+              yield i2;
+            }
+            if (i2 === this.head) {
+              break;
+            } else {
+              i2 = this.prev[i2];
             }
           }
         }
       }
-      prune() {
-        this[CACHE].forEach((value, key) => get(this, key, false));
-      }
-    };
-    var get = (self2, key, doUse) => {
-      const node = self2[CACHE].get(key);
-      if (node) {
-        const hit = node.value;
-        if (isStale(self2, hit)) {
-          del(self2, node);
-          if (!self2[ALLOW_STALE])
-            return void 0;
-        } else {
-          if (doUse) {
-            if (self2[UPDATE_AGE_ON_GET])
-              node.value.now = Date.now();
-            self2[LRU_LIST].unshiftNode(node);
+      *rindexes({ allowStale = this.allowStale } = {}) {
+        if (this.size) {
+          for (let i2 = this.head; true; ) {
+            if (!this.isValidIndex(i2)) {
+              break;
+            }
+            if (allowStale || !this.isStale(i2)) {
+              yield i2;
+            }
+            if (i2 === this.tail) {
+              break;
+            } else {
+              i2 = this.next[i2];
+            }
           }
         }
-        return hit.value;
       }
-    };
-    var isStale = (self2, hit) => {
-      if (!hit || !hit.maxAge && !self2[MAX_AGE])
-        return false;
-      const diff = Date.now() - hit.now;
-      return hit.maxAge ? diff > hit.maxAge : self2[MAX_AGE] && diff > self2[MAX_AGE];
-    };
-    var trim = (self2) => {
-      if (self2[LENGTH] > self2[MAX]) {
-        for (let walker = self2[LRU_LIST].tail; self2[LENGTH] > self2[MAX] && walker !== null; ) {
-          const prev = walker.prev;
-          del(self2, walker);
-          walker = prev;
+      isValidIndex(index) {
+        return this.keyMap.get(this.keyList[index]) === index;
+      }
+      *entries() {
+        for (const i2 of this.indexes()) {
+          yield [this.keyList[i2], this.valList[i2]];
         }
       }
-    };
-    var del = (self2, node) => {
-      if (node) {
-        const hit = node.value;
-        if (self2[DISPOSE])
-          self2[DISPOSE](hit.key, hit.value);
-        self2[LENGTH] -= hit.length;
-        self2[CACHE].delete(hit.key);
-        self2[LRU_LIST].removeNode(node);
+      *rentries() {
+        for (const i2 of this.rindexes()) {
+          yield [this.keyList[i2], this.valList[i2]];
+        }
       }
-    };
-    var Entry = class {
-      constructor(key, value, length, now, maxAge) {
-        this.key = key;
-        this.value = value;
-        this.length = length;
-        this.now = now;
-        this.maxAge = maxAge || 0;
+      *keys() {
+        for (const i2 of this.indexes()) {
+          yield this.keyList[i2];
+        }
       }
-    };
-    var forEachStep = (self2, fn, node, thisp) => {
-      let hit = node.value;
-      if (isStale(self2, hit)) {
-        del(self2, node);
-        if (!self2[ALLOW_STALE])
-          hit = void 0;
+      *rkeys() {
+        for (const i2 of this.rindexes()) {
+          yield this.keyList[i2];
+        }
       }
-      if (hit)
-        fn.call(thisp, hit.value, hit.key, self2);
+      *values() {
+        for (const i2 of this.indexes()) {
+          yield this.valList[i2];
+        }
+      }
+      *rvalues() {
+        for (const i2 of this.rindexes()) {
+          yield this.valList[i2];
+        }
+      }
+      [Symbol.iterator]() {
+        return this.entries();
+      }
+      find(fn, getOptions = {}) {
+        for (const i2 of this.indexes()) {
+          if (fn(this.valList[i2], this.keyList[i2], this)) {
+            return this.get(this.keyList[i2], getOptions);
+          }
+        }
+      }
+      forEach(fn, thisp = this) {
+        for (const i2 of this.indexes()) {
+          fn.call(thisp, this.valList[i2], this.keyList[i2], this);
+        }
+      }
+      rforEach(fn, thisp = this) {
+        for (const i2 of this.rindexes()) {
+          fn.call(thisp, this.valList[i2], this.keyList[i2], this);
+        }
+      }
+      get prune() {
+        deprecatedMethod("prune", "purgeStale");
+        return this.purgeStale;
+      }
+      purgeStale() {
+        let deleted = false;
+        for (const i2 of this.rindexes({ allowStale: true })) {
+          if (this.isStale(i2)) {
+            this.delete(this.keyList[i2]);
+            deleted = true;
+          }
+        }
+        return deleted;
+      }
+      dump() {
+        const arr = [];
+        for (const i2 of this.indexes({ allowStale: true })) {
+          const key = this.keyList[i2];
+          const v = this.valList[i2];
+          const value = this.isBackgroundFetch(v) ? v.__staleWhileFetching : v;
+          const entry = { value };
+          if (this.ttls) {
+            entry.ttl = this.ttls[i2];
+            const age = perf.now() - this.starts[i2];
+            entry.start = Math.floor(Date.now() - age);
+          }
+          if (this.sizes) {
+            entry.size = this.sizes[i2];
+          }
+          arr.unshift([key, entry]);
+        }
+        return arr;
+      }
+      load(arr) {
+        this.clear();
+        for (const [key, entry] of arr) {
+          if (entry.start) {
+            const age = Date.now() - entry.start;
+            entry.start = perf.now() - age;
+          }
+          this.set(key, entry.value, entry);
+        }
+      }
+      dispose(v, k, reason) {
+      }
+      set(k, v, {
+        ttl = this.ttl,
+        start,
+        noDisposeOnSet = this.noDisposeOnSet,
+        size = 0,
+        sizeCalculation = this.sizeCalculation,
+        noUpdateTTL = this.noUpdateTTL
+      } = {}) {
+        size = this.requireSize(k, v, size, sizeCalculation);
+        if (this.maxEntrySize && size > this.maxEntrySize) {
+          this.delete(k);
+          return this;
+        }
+        let index = this.size === 0 ? void 0 : this.keyMap.get(k);
+        if (index === void 0) {
+          index = this.newIndex();
+          this.keyList[index] = k;
+          this.valList[index] = v;
+          this.keyMap.set(k, index);
+          this.next[this.tail] = index;
+          this.prev[index] = this.tail;
+          this.tail = index;
+          this.size++;
+          this.addItemSize(index, size);
+          noUpdateTTL = false;
+        } else {
+          const oldVal = this.valList[index];
+          if (v !== oldVal) {
+            if (this.isBackgroundFetch(oldVal)) {
+              oldVal.__abortController.abort();
+            } else {
+              if (!noDisposeOnSet) {
+                this.dispose(oldVal, k, "set");
+                if (this.disposeAfter) {
+                  this.disposed.push([oldVal, k, "set"]);
+                }
+              }
+            }
+            this.removeItemSize(index);
+            this.valList[index] = v;
+            this.addItemSize(index, size);
+          }
+          this.moveToTail(index);
+        }
+        if (ttl !== 0 && this.ttl === 0 && !this.ttls) {
+          this.initializeTTLTracking();
+        }
+        if (!noUpdateTTL) {
+          this.setItemTTL(index, ttl, start);
+        }
+        if (this.disposeAfter) {
+          while (this.disposed.length) {
+            this.disposeAfter(...this.disposed.shift());
+          }
+        }
+        return this;
+      }
+      newIndex() {
+        if (this.size === 0) {
+          return this.tail;
+        }
+        if (this.size === this.max && this.max !== 0) {
+          return this.evict(false);
+        }
+        if (this.free.length !== 0) {
+          return this.free.pop();
+        }
+        return this.initialFill++;
+      }
+      pop() {
+        if (this.size) {
+          const val = this.valList[this.head];
+          this.evict(true);
+          return val;
+        }
+      }
+      evict(free) {
+        const head = this.head;
+        const k = this.keyList[head];
+        const v = this.valList[head];
+        if (this.isBackgroundFetch(v)) {
+          v.__abortController.abort();
+        } else {
+          this.dispose(v, k, "evict");
+          if (this.disposeAfter) {
+            this.disposed.push([v, k, "evict"]);
+          }
+        }
+        this.removeItemSize(head);
+        if (free) {
+          this.keyList[head] = null;
+          this.valList[head] = null;
+          this.free.push(head);
+        }
+        this.head = this.next[head];
+        this.keyMap.delete(k);
+        this.size--;
+        return head;
+      }
+      has(k, { updateAgeOnHas = this.updateAgeOnHas } = {}) {
+        const index = this.keyMap.get(k);
+        if (index !== void 0) {
+          if (!this.isStale(index)) {
+            if (updateAgeOnHas) {
+              this.updateItemAge(index);
+            }
+            return true;
+          }
+        }
+        return false;
+      }
+      peek(k, { allowStale = this.allowStale } = {}) {
+        const index = this.keyMap.get(k);
+        if (index !== void 0 && (allowStale || !this.isStale(index))) {
+          const v = this.valList[index];
+          return this.isBackgroundFetch(v) ? v.__staleWhileFetching : v;
+        }
+      }
+      backgroundFetch(k, index, options, context) {
+        const v = index === void 0 ? void 0 : this.valList[index];
+        if (this.isBackgroundFetch(v)) {
+          return v;
+        }
+        const ac = new AC();
+        const fetchOpts = {
+          signal: ac.signal,
+          options,
+          context
+        };
+        const cb = (v2) => {
+          if (!ac.signal.aborted) {
+            this.set(k, v2, fetchOpts.options);
+          }
+          return v2;
+        };
+        const eb = (er) => {
+          if (this.valList[index] === p) {
+            const del = !options.noDeleteOnFetchRejection || p.__staleWhileFetching === void 0;
+            if (del) {
+              this.delete(k);
+            } else {
+              this.valList[index] = p.__staleWhileFetching;
+            }
+          }
+          if (p.__returned === p) {
+            throw er;
+          }
+        };
+        const pcall = (res) => res(this.fetchMethod(k, v, fetchOpts));
+        const p = new Promise(pcall).then(cb, eb);
+        p.__abortController = ac;
+        p.__staleWhileFetching = v;
+        p.__returned = null;
+        if (index === void 0) {
+          this.set(k, p, fetchOpts.options);
+          index = this.keyMap.get(k);
+        } else {
+          this.valList[index] = p;
+        }
+        return p;
+      }
+      isBackgroundFetch(p) {
+        return p && typeof p === "object" && typeof p.then === "function" && Object.prototype.hasOwnProperty.call(
+          p,
+          "__staleWhileFetching"
+        ) && Object.prototype.hasOwnProperty.call(p, "__returned") && (p.__returned === p || p.__returned === null);
+      }
+      async fetch(k, {
+        allowStale = this.allowStale,
+        updateAgeOnGet = this.updateAgeOnGet,
+        noDeleteOnStaleGet = this.noDeleteOnStaleGet,
+        ttl = this.ttl,
+        noDisposeOnSet = this.noDisposeOnSet,
+        size = 0,
+        sizeCalculation = this.sizeCalculation,
+        noUpdateTTL = this.noUpdateTTL,
+        noDeleteOnFetchRejection = this.noDeleteOnFetchRejection,
+        fetchContext = this.fetchContext,
+        forceRefresh = false
+      } = {}) {
+        if (!this.fetchMethod) {
+          return this.get(k, {
+            allowStale,
+            updateAgeOnGet,
+            noDeleteOnStaleGet
+          });
+        }
+        const options = {
+          allowStale,
+          updateAgeOnGet,
+          noDeleteOnStaleGet,
+          ttl,
+          noDisposeOnSet,
+          size,
+          sizeCalculation,
+          noUpdateTTL,
+          noDeleteOnFetchRejection
+        };
+        let index = this.keyMap.get(k);
+        if (index === void 0) {
+          const p = this.backgroundFetch(k, index, options, fetchContext);
+          return p.__returned = p;
+        } else {
+          const v = this.valList[index];
+          if (this.isBackgroundFetch(v)) {
+            return allowStale && v.__staleWhileFetching !== void 0 ? v.__staleWhileFetching : v.__returned = v;
+          }
+          if (!forceRefresh && !this.isStale(index)) {
+            this.moveToTail(index);
+            if (updateAgeOnGet) {
+              this.updateItemAge(index);
+            }
+            return v;
+          }
+          const p = this.backgroundFetch(k, index, options, fetchContext);
+          return allowStale && p.__staleWhileFetching !== void 0 ? p.__staleWhileFetching : p.__returned = p;
+        }
+      }
+      get(k, {
+        allowStale = this.allowStale,
+        updateAgeOnGet = this.updateAgeOnGet,
+        noDeleteOnStaleGet = this.noDeleteOnStaleGet
+      } = {}) {
+        const index = this.keyMap.get(k);
+        if (index !== void 0) {
+          const value = this.valList[index];
+          const fetching = this.isBackgroundFetch(value);
+          if (this.isStale(index)) {
+            if (!fetching) {
+              if (!noDeleteOnStaleGet) {
+                this.delete(k);
+              }
+              return allowStale ? value : void 0;
+            } else {
+              return allowStale ? value.__staleWhileFetching : void 0;
+            }
+          } else {
+            if (fetching) {
+              return void 0;
+            }
+            this.moveToTail(index);
+            if (updateAgeOnGet) {
+              this.updateItemAge(index);
+            }
+            return value;
+          }
+        }
+      }
+      connect(p, n) {
+        this.prev[n] = p;
+        this.next[p] = n;
+      }
+      moveToTail(index) {
+        if (index !== this.tail) {
+          if (index === this.head) {
+            this.head = this.next[index];
+          } else {
+            this.connect(this.prev[index], this.next[index]);
+          }
+          this.connect(this.tail, index);
+          this.tail = index;
+        }
+      }
+      get del() {
+        deprecatedMethod("del", "delete");
+        return this.delete;
+      }
+      delete(k) {
+        let deleted = false;
+        if (this.size !== 0) {
+          const index = this.keyMap.get(k);
+          if (index !== void 0) {
+            deleted = true;
+            if (this.size === 1) {
+              this.clear();
+            } else {
+              this.removeItemSize(index);
+              const v = this.valList[index];
+              if (this.isBackgroundFetch(v)) {
+                v.__abortController.abort();
+              } else {
+                this.dispose(v, k, "delete");
+                if (this.disposeAfter) {
+                  this.disposed.push([v, k, "delete"]);
+                }
+              }
+              this.keyMap.delete(k);
+              this.keyList[index] = null;
+              this.valList[index] = null;
+              if (index === this.tail) {
+                this.tail = this.prev[index];
+              } else if (index === this.head) {
+                this.head = this.next[index];
+              } else {
+                this.next[this.prev[index]] = this.next[index];
+                this.prev[this.next[index]] = this.prev[index];
+              }
+              this.size--;
+              this.free.push(index);
+            }
+          }
+        }
+        if (this.disposed) {
+          while (this.disposed.length) {
+            this.disposeAfter(...this.disposed.shift());
+          }
+        }
+        return deleted;
+      }
+      clear() {
+        for (const index of this.rindexes({ allowStale: true })) {
+          const v = this.valList[index];
+          if (this.isBackgroundFetch(v)) {
+            v.__abortController.abort();
+          } else {
+            const k = this.keyList[index];
+            this.dispose(v, k, "delete");
+            if (this.disposeAfter) {
+              this.disposed.push([v, k, "delete"]);
+            }
+          }
+        }
+        this.keyMap.clear();
+        this.valList.fill(null);
+        this.keyList.fill(null);
+        if (this.ttls) {
+          this.ttls.fill(0);
+          this.starts.fill(0);
+        }
+        if (this.sizes) {
+          this.sizes.fill(0);
+        }
+        this.head = 0;
+        this.tail = 0;
+        this.initialFill = 1;
+        this.free.length = 0;
+        this.calculatedSize = 0;
+        this.size = 0;
+        if (this.disposed) {
+          while (this.disposed.length) {
+            this.disposeAfter(...this.disposed.shift());
+          }
+        }
+      }
+      get reset() {
+        deprecatedMethod("reset", "clear");
+        return this.clear;
+      }
+      get length() {
+        deprecatedProperty("length", "size");
+        return this.size;
+      }
+      static get AbortController() {
+        return AC;
+      }
+      static get AbortSignal() {
+        return AS;
+      }
     };
     module2.exports = LRUCache;
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/errors.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/errors.js
 var require_errors = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/errors.js"(exports) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/errors.js"(exports) {
     "use strict";
     exports.EE_CANTCREATEFILE = 1;
     exports.EE_READ = 2;
@@ -3288,828 +3494,591 @@ var require_errors = __commonJS({
   }
 });
 
-// node_modules/.pnpm/long@4.0.0/node_modules/long/src/long.js
-var require_long = __commonJS({
-  "node_modules/.pnpm/long@4.0.0/node_modules/long/src/long.js"(exports, module2) {
-    module2.exports = Long;
-    var wasm = null;
-    try {
-      wasm = new WebAssembly.Instance(new WebAssembly.Module(new Uint8Array([
-        0,
-        97,
-        115,
-        109,
-        1,
-        0,
-        0,
-        0,
-        1,
-        13,
-        2,
-        96,
-        0,
-        1,
-        127,
-        96,
-        4,
-        127,
-        127,
-        127,
-        127,
-        1,
-        127,
-        3,
-        7,
-        6,
-        0,
-        1,
-        1,
-        1,
-        1,
-        1,
-        6,
-        6,
-        1,
-        127,
-        1,
-        65,
-        0,
-        11,
-        7,
-        50,
-        6,
-        3,
-        109,
-        117,
-        108,
-        0,
-        1,
-        5,
-        100,
-        105,
-        118,
-        95,
-        115,
-        0,
-        2,
-        5,
-        100,
-        105,
-        118,
-        95,
-        117,
-        0,
-        3,
-        5,
-        114,
-        101,
-        109,
-        95,
-        115,
-        0,
-        4,
-        5,
-        114,
-        101,
-        109,
-        95,
-        117,
-        0,
-        5,
-        8,
-        103,
-        101,
-        116,
-        95,
-        104,
-        105,
-        103,
-        104,
-        0,
-        0,
-        10,
-        191,
-        1,
-        6,
-        4,
-        0,
-        35,
-        0,
-        11,
-        36,
-        1,
-        1,
-        126,
-        32,
-        0,
-        173,
-        32,
-        1,
-        173,
-        66,
-        32,
-        134,
-        132,
-        32,
-        2,
-        173,
-        32,
-        3,
-        173,
-        66,
-        32,
-        134,
-        132,
-        126,
-        34,
-        4,
-        66,
-        32,
-        135,
-        167,
-        36,
-        0,
-        32,
-        4,
-        167,
-        11,
-        36,
-        1,
-        1,
-        126,
-        32,
-        0,
-        173,
-        32,
-        1,
-        173,
-        66,
-        32,
-        134,
-        132,
-        32,
-        2,
-        173,
-        32,
-        3,
-        173,
-        66,
-        32,
-        134,
-        132,
-        127,
-        34,
-        4,
-        66,
-        32,
-        135,
-        167,
-        36,
-        0,
-        32,
-        4,
-        167,
-        11,
-        36,
-        1,
-        1,
-        126,
-        32,
-        0,
-        173,
-        32,
-        1,
-        173,
-        66,
-        32,
-        134,
-        132,
-        32,
-        2,
-        173,
-        32,
-        3,
-        173,
-        66,
-        32,
-        134,
-        132,
-        128,
-        34,
-        4,
-        66,
-        32,
-        135,
-        167,
-        36,
-        0,
-        32,
-        4,
-        167,
-        11,
-        36,
-        1,
-        1,
-        126,
-        32,
-        0,
-        173,
-        32,
-        1,
-        173,
-        66,
-        32,
-        134,
-        132,
-        32,
-        2,
-        173,
-        32,
-        3,
-        173,
-        66,
-        32,
-        134,
-        132,
-        129,
-        34,
-        4,
-        66,
-        32,
-        135,
-        167,
-        36,
-        0,
-        32,
-        4,
-        167,
-        11,
-        36,
-        1,
-        1,
-        126,
-        32,
-        0,
-        173,
-        32,
-        1,
-        173,
-        66,
-        32,
-        134,
-        132,
-        32,
-        2,
-        173,
-        32,
-        3,
-        173,
-        66,
-        32,
-        134,
-        132,
-        130,
-        34,
-        4,
-        66,
-        32,
-        135,
-        167,
-        36,
-        0,
-        32,
-        4,
-        167,
-        11
-      ])), {}).exports;
-    } catch (e2) {
-    }
-    function Long(low, high, unsigned) {
-      this.low = low | 0;
-      this.high = high | 0;
-      this.unsigned = !!unsigned;
-    }
-    Long.prototype.__isLong__;
-    Object.defineProperty(Long.prototype, "__isLong__", { value: true });
-    function isLong(obj) {
-      return (obj && obj["__isLong__"]) === true;
-    }
-    Long.isLong = isLong;
-    var INT_CACHE = {};
-    var UINT_CACHE = {};
-    function fromInt(value, unsigned) {
-      var obj, cachedObj, cache;
-      if (unsigned) {
-        value >>>= 0;
-        if (cache = 0 <= value && value < 256) {
-          cachedObj = UINT_CACHE[value];
-          if (cachedObj)
-            return cachedObj;
-        }
-        obj = fromBits(value, (value | 0) < 0 ? -1 : 0, true);
-        if (cache)
-          UINT_CACHE[value] = obj;
-        return obj;
-      } else {
-        value |= 0;
-        if (cache = -128 <= value && value < 128) {
-          cachedObj = INT_CACHE[value];
-          if (cachedObj)
-            return cachedObj;
-        }
-        obj = fromBits(value, value < 0 ? -1 : 0, false);
-        if (cache)
-          INT_CACHE[value] = obj;
-        return obj;
+// node_modules/.pnpm/long@5.2.1/node_modules/long/umd/index.js
+var require_umd = __commonJS({
+  "node_modules/.pnpm/long@5.2.1/node_modules/long/umd/index.js"(exports, module2) {
+    var Long = function(exports2) {
+      "use strict";
+      Object.defineProperty(exports2, "__esModule", {
+        value: true
+      });
+      exports2.default = void 0;
+      var wasm = null;
+      try {
+        wasm = new WebAssembly.Instance(new WebAssembly.Module(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 13, 2, 96, 0, 1, 127, 96, 4, 127, 127, 127, 127, 1, 127, 3, 7, 6, 0, 1, 1, 1, 1, 1, 6, 6, 1, 127, 1, 65, 0, 11, 7, 50, 6, 3, 109, 117, 108, 0, 1, 5, 100, 105, 118, 95, 115, 0, 2, 5, 100, 105, 118, 95, 117, 0, 3, 5, 114, 101, 109, 95, 115, 0, 4, 5, 114, 101, 109, 95, 117, 0, 5, 8, 103, 101, 116, 95, 104, 105, 103, 104, 0, 0, 10, 191, 1, 6, 4, 0, 35, 0, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 126, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 127, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 128, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 129, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 130, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11])), {}).exports;
+      } catch (e2) {
       }
-    }
-    Long.fromInt = fromInt;
-    function fromNumber(value, unsigned) {
-      if (isNaN(value))
-        return unsigned ? UZERO : ZERO;
-      if (unsigned) {
-        if (value < 0)
-          return UZERO;
-        if (value >= TWO_PWR_64_DBL)
-          return MAX_UNSIGNED_VALUE;
-      } else {
-        if (value <= -TWO_PWR_63_DBL)
-          return MIN_VALUE;
-        if (value + 1 >= TWO_PWR_63_DBL)
-          return MAX_VALUE;
+      function Long2(low, high, unsigned) {
+        this.low = low | 0;
+        this.high = high | 0;
+        this.unsigned = !!unsigned;
       }
-      if (value < 0)
-        return fromNumber(-value, unsigned).neg();
-      return fromBits(value % TWO_PWR_32_DBL | 0, value / TWO_PWR_32_DBL | 0, unsigned);
-    }
-    Long.fromNumber = fromNumber;
-    function fromBits(lowBits, highBits, unsigned) {
-      return new Long(lowBits, highBits, unsigned);
-    }
-    Long.fromBits = fromBits;
-    var pow_dbl = Math.pow;
-    function fromString(str, unsigned, radix) {
-      if (str.length === 0)
-        throw Error("empty string");
-      if (str === "NaN" || str === "Infinity" || str === "+Infinity" || str === "-Infinity")
-        return ZERO;
-      if (typeof unsigned === "number") {
-        radix = unsigned, unsigned = false;
-      } else {
-        unsigned = !!unsigned;
+      Long2.prototype.__isLong__;
+      Object.defineProperty(Long2.prototype, "__isLong__", {
+        value: true
+      });
+      function isLong(obj) {
+        return (obj && obj["__isLong__"]) === true;
       }
-      radix = radix || 10;
-      if (radix < 2 || 36 < radix)
-        throw RangeError("radix");
-      var p;
-      if ((p = str.indexOf("-")) > 0)
-        throw Error("interior hyphen");
-      else if (p === 0) {
-        return fromString(str.substring(1), unsigned, radix).neg();
+      function ctz32(value) {
+        var c = Math.clz32(value & -value);
+        return value ? 31 - c : c;
       }
-      var radixToPower = fromNumber(pow_dbl(radix, 8));
-      var result = ZERO;
-      for (var i2 = 0; i2 < str.length; i2 += 8) {
-        var size = Math.min(8, str.length - i2), value = parseInt(str.substring(i2, i2 + size), radix);
-        if (size < 8) {
-          var power = fromNumber(pow_dbl(radix, size));
-          result = result.mul(power).add(fromNumber(value));
-        } else {
-          result = result.mul(radixToPower);
-          result = result.add(fromNumber(value));
-        }
-      }
-      result.unsigned = unsigned;
-      return result;
-    }
-    Long.fromString = fromString;
-    function fromValue(val, unsigned) {
-      if (typeof val === "number")
-        return fromNumber(val, unsigned);
-      if (typeof val === "string")
-        return fromString(val, unsigned);
-      return fromBits(val.low, val.high, typeof unsigned === "boolean" ? unsigned : val.unsigned);
-    }
-    Long.fromValue = fromValue;
-    var TWO_PWR_16_DBL = 1 << 16;
-    var TWO_PWR_24_DBL = 1 << 24;
-    var TWO_PWR_32_DBL = TWO_PWR_16_DBL * TWO_PWR_16_DBL;
-    var TWO_PWR_64_DBL = TWO_PWR_32_DBL * TWO_PWR_32_DBL;
-    var TWO_PWR_63_DBL = TWO_PWR_64_DBL / 2;
-    var TWO_PWR_24 = fromInt(TWO_PWR_24_DBL);
-    var ZERO = fromInt(0);
-    Long.ZERO = ZERO;
-    var UZERO = fromInt(0, true);
-    Long.UZERO = UZERO;
-    var ONE = fromInt(1);
-    Long.ONE = ONE;
-    var UONE = fromInt(1, true);
-    Long.UONE = UONE;
-    var NEG_ONE = fromInt(-1);
-    Long.NEG_ONE = NEG_ONE;
-    var MAX_VALUE = fromBits(4294967295 | 0, 2147483647 | 0, false);
-    Long.MAX_VALUE = MAX_VALUE;
-    var MAX_UNSIGNED_VALUE = fromBits(4294967295 | 0, 4294967295 | 0, true);
-    Long.MAX_UNSIGNED_VALUE = MAX_UNSIGNED_VALUE;
-    var MIN_VALUE = fromBits(0, 2147483648 | 0, false);
-    Long.MIN_VALUE = MIN_VALUE;
-    var LongPrototype = Long.prototype;
-    LongPrototype.toInt = function toInt() {
-      return this.unsigned ? this.low >>> 0 : this.low;
-    };
-    LongPrototype.toNumber = function toNumber() {
-      if (this.unsigned)
-        return (this.high >>> 0) * TWO_PWR_32_DBL + (this.low >>> 0);
-      return this.high * TWO_PWR_32_DBL + (this.low >>> 0);
-    };
-    LongPrototype.toString = function toString(radix) {
-      radix = radix || 10;
-      if (radix < 2 || 36 < radix)
-        throw RangeError("radix");
-      if (this.isZero())
-        return "0";
-      if (this.isNegative()) {
-        if (this.eq(MIN_VALUE)) {
-          var radixLong = fromNumber(radix), div = this.div(radixLong), rem1 = div.mul(radixLong).sub(this);
-          return div.toString(radix) + rem1.toInt().toString(radix);
-        } else
-          return "-" + this.neg().toString(radix);
-      }
-      var radixToPower = fromNumber(pow_dbl(radix, 6), this.unsigned), rem = this;
-      var result = "";
-      while (true) {
-        var remDiv = rem.div(radixToPower), intval = rem.sub(remDiv.mul(radixToPower)).toInt() >>> 0, digits = intval.toString(radix);
-        rem = remDiv;
-        if (rem.isZero())
-          return digits + result;
-        else {
-          while (digits.length < 6)
-            digits = "0" + digits;
-          result = "" + digits + result;
-        }
-      }
-    };
-    LongPrototype.getHighBits = function getHighBits() {
-      return this.high;
-    };
-    LongPrototype.getHighBitsUnsigned = function getHighBitsUnsigned() {
-      return this.high >>> 0;
-    };
-    LongPrototype.getLowBits = function getLowBits() {
-      return this.low;
-    };
-    LongPrototype.getLowBitsUnsigned = function getLowBitsUnsigned() {
-      return this.low >>> 0;
-    };
-    LongPrototype.getNumBitsAbs = function getNumBitsAbs() {
-      if (this.isNegative())
-        return this.eq(MIN_VALUE) ? 64 : this.neg().getNumBitsAbs();
-      var val = this.high != 0 ? this.high : this.low;
-      for (var bit = 31; bit > 0; bit--)
-        if ((val & 1 << bit) != 0)
-          break;
-      return this.high != 0 ? bit + 33 : bit + 1;
-    };
-    LongPrototype.isZero = function isZero() {
-      return this.high === 0 && this.low === 0;
-    };
-    LongPrototype.eqz = LongPrototype.isZero;
-    LongPrototype.isNegative = function isNegative() {
-      return !this.unsigned && this.high < 0;
-    };
-    LongPrototype.isPositive = function isPositive() {
-      return this.unsigned || this.high >= 0;
-    };
-    LongPrototype.isOdd = function isOdd() {
-      return (this.low & 1) === 1;
-    };
-    LongPrototype.isEven = function isEven() {
-      return (this.low & 1) === 0;
-    };
-    LongPrototype.equals = function equals(other) {
-      if (!isLong(other))
-        other = fromValue(other);
-      if (this.unsigned !== other.unsigned && this.high >>> 31 === 1 && other.high >>> 31 === 1)
-        return false;
-      return this.high === other.high && this.low === other.low;
-    };
-    LongPrototype.eq = LongPrototype.equals;
-    LongPrototype.notEquals = function notEquals(other) {
-      return !this.eq(other);
-    };
-    LongPrototype.neq = LongPrototype.notEquals;
-    LongPrototype.ne = LongPrototype.notEquals;
-    LongPrototype.lessThan = function lessThan(other) {
-      return this.comp(other) < 0;
-    };
-    LongPrototype.lt = LongPrototype.lessThan;
-    LongPrototype.lessThanOrEqual = function lessThanOrEqual(other) {
-      return this.comp(other) <= 0;
-    };
-    LongPrototype.lte = LongPrototype.lessThanOrEqual;
-    LongPrototype.le = LongPrototype.lessThanOrEqual;
-    LongPrototype.greaterThan = function greaterThan(other) {
-      return this.comp(other) > 0;
-    };
-    LongPrototype.gt = LongPrototype.greaterThan;
-    LongPrototype.greaterThanOrEqual = function greaterThanOrEqual(other) {
-      return this.comp(other) >= 0;
-    };
-    LongPrototype.gte = LongPrototype.greaterThanOrEqual;
-    LongPrototype.ge = LongPrototype.greaterThanOrEqual;
-    LongPrototype.compare = function compare(other) {
-      if (!isLong(other))
-        other = fromValue(other);
-      if (this.eq(other))
-        return 0;
-      var thisNeg = this.isNegative(), otherNeg = other.isNegative();
-      if (thisNeg && !otherNeg)
-        return -1;
-      if (!thisNeg && otherNeg)
-        return 1;
-      if (!this.unsigned)
-        return this.sub(other).isNegative() ? -1 : 1;
-      return other.high >>> 0 > this.high >>> 0 || other.high === this.high && other.low >>> 0 > this.low >>> 0 ? -1 : 1;
-    };
-    LongPrototype.comp = LongPrototype.compare;
-    LongPrototype.negate = function negate() {
-      if (!this.unsigned && this.eq(MIN_VALUE))
-        return MIN_VALUE;
-      return this.not().add(ONE);
-    };
-    LongPrototype.neg = LongPrototype.negate;
-    LongPrototype.add = function add(addend) {
-      if (!isLong(addend))
-        addend = fromValue(addend);
-      var a48 = this.high >>> 16;
-      var a32 = this.high & 65535;
-      var a16 = this.low >>> 16;
-      var a00 = this.low & 65535;
-      var b48 = addend.high >>> 16;
-      var b32 = addend.high & 65535;
-      var b16 = addend.low >>> 16;
-      var b00 = addend.low & 65535;
-      var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
-      c00 += a00 + b00;
-      c16 += c00 >>> 16;
-      c00 &= 65535;
-      c16 += a16 + b16;
-      c32 += c16 >>> 16;
-      c16 &= 65535;
-      c32 += a32 + b32;
-      c48 += c32 >>> 16;
-      c32 &= 65535;
-      c48 += a48 + b48;
-      c48 &= 65535;
-      return fromBits(c16 << 16 | c00, c48 << 16 | c32, this.unsigned);
-    };
-    LongPrototype.subtract = function subtract(subtrahend) {
-      if (!isLong(subtrahend))
-        subtrahend = fromValue(subtrahend);
-      return this.add(subtrahend.neg());
-    };
-    LongPrototype.sub = LongPrototype.subtract;
-    LongPrototype.multiply = function multiply(multiplier) {
-      if (this.isZero())
-        return ZERO;
-      if (!isLong(multiplier))
-        multiplier = fromValue(multiplier);
-      if (wasm) {
-        var low = wasm.mul(this.low, this.high, multiplier.low, multiplier.high);
-        return fromBits(low, wasm.get_high(), this.unsigned);
-      }
-      if (multiplier.isZero())
-        return ZERO;
-      if (this.eq(MIN_VALUE))
-        return multiplier.isOdd() ? MIN_VALUE : ZERO;
-      if (multiplier.eq(MIN_VALUE))
-        return this.isOdd() ? MIN_VALUE : ZERO;
-      if (this.isNegative()) {
-        if (multiplier.isNegative())
-          return this.neg().mul(multiplier.neg());
-        else
-          return this.neg().mul(multiplier).neg();
-      } else if (multiplier.isNegative())
-        return this.mul(multiplier.neg()).neg();
-      if (this.lt(TWO_PWR_24) && multiplier.lt(TWO_PWR_24))
-        return fromNumber(this.toNumber() * multiplier.toNumber(), this.unsigned);
-      var a48 = this.high >>> 16;
-      var a32 = this.high & 65535;
-      var a16 = this.low >>> 16;
-      var a00 = this.low & 65535;
-      var b48 = multiplier.high >>> 16;
-      var b32 = multiplier.high & 65535;
-      var b16 = multiplier.low >>> 16;
-      var b00 = multiplier.low & 65535;
-      var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
-      c00 += a00 * b00;
-      c16 += c00 >>> 16;
-      c00 &= 65535;
-      c16 += a16 * b00;
-      c32 += c16 >>> 16;
-      c16 &= 65535;
-      c16 += a00 * b16;
-      c32 += c16 >>> 16;
-      c16 &= 65535;
-      c32 += a32 * b00;
-      c48 += c32 >>> 16;
-      c32 &= 65535;
-      c32 += a16 * b16;
-      c48 += c32 >>> 16;
-      c32 &= 65535;
-      c32 += a00 * b32;
-      c48 += c32 >>> 16;
-      c32 &= 65535;
-      c48 += a48 * b00 + a32 * b16 + a16 * b32 + a00 * b48;
-      c48 &= 65535;
-      return fromBits(c16 << 16 | c00, c48 << 16 | c32, this.unsigned);
-    };
-    LongPrototype.mul = LongPrototype.multiply;
-    LongPrototype.divide = function divide(divisor) {
-      if (!isLong(divisor))
-        divisor = fromValue(divisor);
-      if (divisor.isZero())
-        throw Error("division by zero");
-      if (wasm) {
-        if (!this.unsigned && this.high === -2147483648 && divisor.low === -1 && divisor.high === -1) {
-          return this;
-        }
-        var low = (this.unsigned ? wasm.div_u : wasm.div_s)(this.low, this.high, divisor.low, divisor.high);
-        return fromBits(low, wasm.get_high(), this.unsigned);
-      }
-      if (this.isZero())
-        return this.unsigned ? UZERO : ZERO;
-      var approx, rem, res;
-      if (!this.unsigned) {
-        if (this.eq(MIN_VALUE)) {
-          if (divisor.eq(ONE) || divisor.eq(NEG_ONE))
-            return MIN_VALUE;
-          else if (divisor.eq(MIN_VALUE))
-            return ONE;
-          else {
-            var halfThis = this.shr(1);
-            approx = halfThis.div(divisor).shl(1);
-            if (approx.eq(ZERO)) {
-              return divisor.isNegative() ? ONE : NEG_ONE;
-            } else {
-              rem = this.sub(divisor.mul(approx));
-              res = approx.add(rem.div(divisor));
-              return res;
-            }
+      Long2.isLong = isLong;
+      var INT_CACHE = {};
+      var UINT_CACHE = {};
+      function fromInt(value, unsigned) {
+        var obj, cachedObj, cache;
+        if (unsigned) {
+          value >>>= 0;
+          if (cache = 0 <= value && value < 256) {
+            cachedObj = UINT_CACHE[value];
+            if (cachedObj)
+              return cachedObj;
           }
-        } else if (divisor.eq(MIN_VALUE))
-          return this.unsigned ? UZERO : ZERO;
-        if (this.isNegative()) {
-          if (divisor.isNegative())
-            return this.neg().div(divisor.neg());
-          return this.neg().div(divisor).neg();
-        } else if (divisor.isNegative())
-          return this.div(divisor.neg()).neg();
-        res = ZERO;
-      } else {
-        if (!divisor.unsigned)
-          divisor = divisor.toUnsigned();
-        if (divisor.gt(this))
-          return UZERO;
-        if (divisor.gt(this.shru(1)))
-          return UONE;
-        res = UZERO;
-      }
-      rem = this;
-      while (rem.gte(divisor)) {
-        approx = Math.max(1, Math.floor(rem.toNumber() / divisor.toNumber()));
-        var log2 = Math.ceil(Math.log(approx) / Math.LN2), delta = log2 <= 48 ? 1 : pow_dbl(2, log2 - 48), approxRes = fromNumber(approx), approxRem = approxRes.mul(divisor);
-        while (approxRem.isNegative() || approxRem.gt(rem)) {
-          approx -= delta;
-          approxRes = fromNumber(approx, this.unsigned);
-          approxRem = approxRes.mul(divisor);
+          obj = fromBits(value, 0, true);
+          if (cache)
+            UINT_CACHE[value] = obj;
+          return obj;
+        } else {
+          value |= 0;
+          if (cache = -128 <= value && value < 128) {
+            cachedObj = INT_CACHE[value];
+            if (cachedObj)
+              return cachedObj;
+          }
+          obj = fromBits(value, value < 0 ? -1 : 0, false);
+          if (cache)
+            INT_CACHE[value] = obj;
+          return obj;
         }
-        if (approxRes.isZero())
-          approxRes = ONE;
-        res = res.add(approxRes);
-        rem = rem.sub(approxRem);
       }
-      return res;
-    };
-    LongPrototype.div = LongPrototype.divide;
-    LongPrototype.modulo = function modulo(divisor) {
-      if (!isLong(divisor))
-        divisor = fromValue(divisor);
-      if (wasm) {
-        var low = (this.unsigned ? wasm.rem_u : wasm.rem_s)(this.low, this.high, divisor.low, divisor.high);
-        return fromBits(low, wasm.get_high(), this.unsigned);
+      Long2.fromInt = fromInt;
+      function fromNumber(value, unsigned) {
+        if (isNaN(value))
+          return unsigned ? UZERO : ZERO;
+        if (unsigned) {
+          if (value < 0)
+            return UZERO;
+          if (value >= TWO_PWR_64_DBL)
+            return MAX_UNSIGNED_VALUE;
+        } else {
+          if (value <= -TWO_PWR_63_DBL)
+            return MIN_VALUE;
+          if (value + 1 >= TWO_PWR_63_DBL)
+            return MAX_VALUE;
+        }
+        if (value < 0)
+          return fromNumber(-value, unsigned).neg();
+        return fromBits(value % TWO_PWR_32_DBL | 0, value / TWO_PWR_32_DBL | 0, unsigned);
       }
-      return this.sub(this.div(divisor).mul(divisor));
-    };
-    LongPrototype.mod = LongPrototype.modulo;
-    LongPrototype.rem = LongPrototype.modulo;
-    LongPrototype.not = function not() {
-      return fromBits(~this.low, ~this.high, this.unsigned);
-    };
-    LongPrototype.and = function and(other) {
-      if (!isLong(other))
-        other = fromValue(other);
-      return fromBits(this.low & other.low, this.high & other.high, this.unsigned);
-    };
-    LongPrototype.or = function or(other) {
-      if (!isLong(other))
-        other = fromValue(other);
-      return fromBits(this.low | other.low, this.high | other.high, this.unsigned);
-    };
-    LongPrototype.xor = function xor(other) {
-      if (!isLong(other))
-        other = fromValue(other);
-      return fromBits(this.low ^ other.low, this.high ^ other.high, this.unsigned);
-    };
-    LongPrototype.shiftLeft = function shiftLeft(numBits) {
-      if (isLong(numBits))
-        numBits = numBits.toInt();
-      if ((numBits &= 63) === 0)
-        return this;
-      else if (numBits < 32)
-        return fromBits(this.low << numBits, this.high << numBits | this.low >>> 32 - numBits, this.unsigned);
-      else
-        return fromBits(0, this.low << numBits - 32, this.unsigned);
-    };
-    LongPrototype.shl = LongPrototype.shiftLeft;
-    LongPrototype.shiftRight = function shiftRight(numBits) {
-      if (isLong(numBits))
-        numBits = numBits.toInt();
-      if ((numBits &= 63) === 0)
-        return this;
-      else if (numBits < 32)
-        return fromBits(this.low >>> numBits | this.high << 32 - numBits, this.high >> numBits, this.unsigned);
-      else
-        return fromBits(this.high >> numBits - 32, this.high >= 0 ? 0 : -1, this.unsigned);
-    };
-    LongPrototype.shr = LongPrototype.shiftRight;
-    LongPrototype.shiftRightUnsigned = function shiftRightUnsigned(numBits) {
-      if (isLong(numBits))
-        numBits = numBits.toInt();
-      numBits &= 63;
-      if (numBits === 0)
-        return this;
-      else {
-        var high = this.high;
-        if (numBits < 32) {
-          var low = this.low;
-          return fromBits(low >>> numBits | high << 32 - numBits, high >>> numBits, this.unsigned);
-        } else if (numBits === 32)
-          return fromBits(high, 0, this.unsigned);
+      Long2.fromNumber = fromNumber;
+      function fromBits(lowBits, highBits, unsigned) {
+        return new Long2(lowBits, highBits, unsigned);
+      }
+      Long2.fromBits = fromBits;
+      var pow_dbl = Math.pow;
+      function fromString(str, unsigned, radix) {
+        if (str.length === 0)
+          throw Error("empty string");
+        if (typeof unsigned === "number") {
+          radix = unsigned;
+          unsigned = false;
+        } else {
+          unsigned = !!unsigned;
+        }
+        if (str === "NaN" || str === "Infinity" || str === "+Infinity" || str === "-Infinity")
+          return unsigned ? UZERO : ZERO;
+        radix = radix || 10;
+        if (radix < 2 || 36 < radix)
+          throw RangeError("radix");
+        var p;
+        if ((p = str.indexOf("-")) > 0)
+          throw Error("interior hyphen");
+        else if (p === 0) {
+          return fromString(str.substring(1), unsigned, radix).neg();
+        }
+        var radixToPower = fromNumber(pow_dbl(radix, 8));
+        var result = ZERO;
+        for (var i2 = 0; i2 < str.length; i2 += 8) {
+          var size = Math.min(8, str.length - i2), value = parseInt(str.substring(i2, i2 + size), radix);
+          if (size < 8) {
+            var power = fromNumber(pow_dbl(radix, size));
+            result = result.mul(power).add(fromNumber(value));
+          } else {
+            result = result.mul(radixToPower);
+            result = result.add(fromNumber(value));
+          }
+        }
+        result.unsigned = unsigned;
+        return result;
+      }
+      Long2.fromString = fromString;
+      function fromValue(val, unsigned) {
+        if (typeof val === "number")
+          return fromNumber(val, unsigned);
+        if (typeof val === "string")
+          return fromString(val, unsigned);
+        return fromBits(val.low, val.high, typeof unsigned === "boolean" ? unsigned : val.unsigned);
+      }
+      Long2.fromValue = fromValue;
+      var TWO_PWR_16_DBL = 1 << 16;
+      var TWO_PWR_24_DBL = 1 << 24;
+      var TWO_PWR_32_DBL = TWO_PWR_16_DBL * TWO_PWR_16_DBL;
+      var TWO_PWR_64_DBL = TWO_PWR_32_DBL * TWO_PWR_32_DBL;
+      var TWO_PWR_63_DBL = TWO_PWR_64_DBL / 2;
+      var TWO_PWR_24 = fromInt(TWO_PWR_24_DBL);
+      var ZERO = fromInt(0);
+      Long2.ZERO = ZERO;
+      var UZERO = fromInt(0, true);
+      Long2.UZERO = UZERO;
+      var ONE = fromInt(1);
+      Long2.ONE = ONE;
+      var UONE = fromInt(1, true);
+      Long2.UONE = UONE;
+      var NEG_ONE = fromInt(-1);
+      Long2.NEG_ONE = NEG_ONE;
+      var MAX_VALUE = fromBits(4294967295 | 0, 2147483647 | 0, false);
+      Long2.MAX_VALUE = MAX_VALUE;
+      var MAX_UNSIGNED_VALUE = fromBits(4294967295 | 0, 4294967295 | 0, true);
+      Long2.MAX_UNSIGNED_VALUE = MAX_UNSIGNED_VALUE;
+      var MIN_VALUE = fromBits(0, 2147483648 | 0, false);
+      Long2.MIN_VALUE = MIN_VALUE;
+      var LongPrototype = Long2.prototype;
+      LongPrototype.toInt = function toInt() {
+        return this.unsigned ? this.low >>> 0 : this.low;
+      };
+      LongPrototype.toNumber = function toNumber() {
+        if (this.unsigned)
+          return (this.high >>> 0) * TWO_PWR_32_DBL + (this.low >>> 0);
+        return this.high * TWO_PWR_32_DBL + (this.low >>> 0);
+      };
+      LongPrototype.toString = function toString(radix) {
+        radix = radix || 10;
+        if (radix < 2 || 36 < radix)
+          throw RangeError("radix");
+        if (this.isZero())
+          return "0";
+        if (this.isNegative()) {
+          if (this.eq(MIN_VALUE)) {
+            var radixLong = fromNumber(radix), div = this.div(radixLong), rem1 = div.mul(radixLong).sub(this);
+            return div.toString(radix) + rem1.toInt().toString(radix);
+          } else
+            return "-" + this.neg().toString(radix);
+        }
+        var radixToPower = fromNumber(pow_dbl(radix, 6), this.unsigned), rem = this;
+        var result = "";
+        while (true) {
+          var remDiv = rem.div(radixToPower), intval = rem.sub(remDiv.mul(radixToPower)).toInt() >>> 0, digits = intval.toString(radix);
+          rem = remDiv;
+          if (rem.isZero())
+            return digits + result;
+          else {
+            while (digits.length < 6)
+              digits = "0" + digits;
+            result = "" + digits + result;
+          }
+        }
+      };
+      LongPrototype.getHighBits = function getHighBits() {
+        return this.high;
+      };
+      LongPrototype.getHighBitsUnsigned = function getHighBitsUnsigned() {
+        return this.high >>> 0;
+      };
+      LongPrototype.getLowBits = function getLowBits() {
+        return this.low;
+      };
+      LongPrototype.getLowBitsUnsigned = function getLowBitsUnsigned() {
+        return this.low >>> 0;
+      };
+      LongPrototype.getNumBitsAbs = function getNumBitsAbs() {
+        if (this.isNegative())
+          return this.eq(MIN_VALUE) ? 64 : this.neg().getNumBitsAbs();
+        var val = this.high != 0 ? this.high : this.low;
+        for (var bit = 31; bit > 0; bit--)
+          if ((val & 1 << bit) != 0)
+            break;
+        return this.high != 0 ? bit + 33 : bit + 1;
+      };
+      LongPrototype.isZero = function isZero() {
+        return this.high === 0 && this.low === 0;
+      };
+      LongPrototype.eqz = LongPrototype.isZero;
+      LongPrototype.isNegative = function isNegative() {
+        return !this.unsigned && this.high < 0;
+      };
+      LongPrototype.isPositive = function isPositive() {
+        return this.unsigned || this.high >= 0;
+      };
+      LongPrototype.isOdd = function isOdd() {
+        return (this.low & 1) === 1;
+      };
+      LongPrototype.isEven = function isEven() {
+        return (this.low & 1) === 0;
+      };
+      LongPrototype.equals = function equals(other) {
+        if (!isLong(other))
+          other = fromValue(other);
+        if (this.unsigned !== other.unsigned && this.high >>> 31 === 1 && other.high >>> 31 === 1)
+          return false;
+        return this.high === other.high && this.low === other.low;
+      };
+      LongPrototype.eq = LongPrototype.equals;
+      LongPrototype.notEquals = function notEquals(other) {
+        return !this.eq(
+          other
+        );
+      };
+      LongPrototype.neq = LongPrototype.notEquals;
+      LongPrototype.ne = LongPrototype.notEquals;
+      LongPrototype.lessThan = function lessThan(other) {
+        return this.comp(
+          other
+        ) < 0;
+      };
+      LongPrototype.lt = LongPrototype.lessThan;
+      LongPrototype.lessThanOrEqual = function lessThanOrEqual(other) {
+        return this.comp(
+          other
+        ) <= 0;
+      };
+      LongPrototype.lte = LongPrototype.lessThanOrEqual;
+      LongPrototype.le = LongPrototype.lessThanOrEqual;
+      LongPrototype.greaterThan = function greaterThan(other) {
+        return this.comp(
+          other
+        ) > 0;
+      };
+      LongPrototype.gt = LongPrototype.greaterThan;
+      LongPrototype.greaterThanOrEqual = function greaterThanOrEqual(other) {
+        return this.comp(
+          other
+        ) >= 0;
+      };
+      LongPrototype.gte = LongPrototype.greaterThanOrEqual;
+      LongPrototype.ge = LongPrototype.greaterThanOrEqual;
+      LongPrototype.compare = function compare(other) {
+        if (!isLong(other))
+          other = fromValue(other);
+        if (this.eq(other))
+          return 0;
+        var thisNeg = this.isNegative(), otherNeg = other.isNegative();
+        if (thisNeg && !otherNeg)
+          return -1;
+        if (!thisNeg && otherNeg)
+          return 1;
+        if (!this.unsigned)
+          return this.sub(other).isNegative() ? -1 : 1;
+        return other.high >>> 0 > this.high >>> 0 || other.high === this.high && other.low >>> 0 > this.low >>> 0 ? -1 : 1;
+      };
+      LongPrototype.comp = LongPrototype.compare;
+      LongPrototype.negate = function negate() {
+        if (!this.unsigned && this.eq(MIN_VALUE))
+          return MIN_VALUE;
+        return this.not().add(ONE);
+      };
+      LongPrototype.neg = LongPrototype.negate;
+      LongPrototype.add = function add(addend) {
+        if (!isLong(addend))
+          addend = fromValue(addend);
+        var a48 = this.high >>> 16;
+        var a32 = this.high & 65535;
+        var a16 = this.low >>> 16;
+        var a00 = this.low & 65535;
+        var b48 = addend.high >>> 16;
+        var b32 = addend.high & 65535;
+        var b16 = addend.low >>> 16;
+        var b00 = addend.low & 65535;
+        var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
+        c00 += a00 + b00;
+        c16 += c00 >>> 16;
+        c00 &= 65535;
+        c16 += a16 + b16;
+        c32 += c16 >>> 16;
+        c16 &= 65535;
+        c32 += a32 + b32;
+        c48 += c32 >>> 16;
+        c32 &= 65535;
+        c48 += a48 + b48;
+        c48 &= 65535;
+        return fromBits(c16 << 16 | c00, c48 << 16 | c32, this.unsigned);
+      };
+      LongPrototype.subtract = function subtract(subtrahend) {
+        if (!isLong(subtrahend))
+          subtrahend = fromValue(subtrahend);
+        return this.add(subtrahend.neg());
+      };
+      LongPrototype.sub = LongPrototype.subtract;
+      LongPrototype.multiply = function multiply(multiplier) {
+        if (this.isZero())
+          return this;
+        if (!isLong(multiplier))
+          multiplier = fromValue(multiplier);
+        if (wasm) {
+          var low = wasm["mul"](this.low, this.high, multiplier.low, multiplier.high);
+          return fromBits(low, wasm["get_high"](), this.unsigned);
+        }
+        if (multiplier.isZero())
+          return this.unsigned ? UZERO : ZERO;
+        if (this.eq(MIN_VALUE))
+          return multiplier.isOdd() ? MIN_VALUE : ZERO;
+        if (multiplier.eq(MIN_VALUE))
+          return this.isOdd() ? MIN_VALUE : ZERO;
+        if (this.isNegative()) {
+          if (multiplier.isNegative())
+            return this.neg().mul(multiplier.neg());
+          else
+            return this.neg().mul(multiplier).neg();
+        } else if (multiplier.isNegative())
+          return this.mul(multiplier.neg()).neg();
+        if (this.lt(TWO_PWR_24) && multiplier.lt(TWO_PWR_24))
+          return fromNumber(this.toNumber() * multiplier.toNumber(), this.unsigned);
+        var a48 = this.high >>> 16;
+        var a32 = this.high & 65535;
+        var a16 = this.low >>> 16;
+        var a00 = this.low & 65535;
+        var b48 = multiplier.high >>> 16;
+        var b32 = multiplier.high & 65535;
+        var b16 = multiplier.low >>> 16;
+        var b00 = multiplier.low & 65535;
+        var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
+        c00 += a00 * b00;
+        c16 += c00 >>> 16;
+        c00 &= 65535;
+        c16 += a16 * b00;
+        c32 += c16 >>> 16;
+        c16 &= 65535;
+        c16 += a00 * b16;
+        c32 += c16 >>> 16;
+        c16 &= 65535;
+        c32 += a32 * b00;
+        c48 += c32 >>> 16;
+        c32 &= 65535;
+        c32 += a16 * b16;
+        c48 += c32 >>> 16;
+        c32 &= 65535;
+        c32 += a00 * b32;
+        c48 += c32 >>> 16;
+        c32 &= 65535;
+        c48 += a48 * b00 + a32 * b16 + a16 * b32 + a00 * b48;
+        c48 &= 65535;
+        return fromBits(c16 << 16 | c00, c48 << 16 | c32, this.unsigned);
+      };
+      LongPrototype.mul = LongPrototype.multiply;
+      LongPrototype.divide = function divide(divisor) {
+        if (!isLong(divisor))
+          divisor = fromValue(divisor);
+        if (divisor.isZero())
+          throw Error("division by zero");
+        if (wasm) {
+          if (!this.unsigned && this.high === -2147483648 && divisor.low === -1 && divisor.high === -1) {
+            return this;
+          }
+          var low = (this.unsigned ? wasm["div_u"] : wasm["div_s"])(this.low, this.high, divisor.low, divisor.high);
+          return fromBits(low, wasm["get_high"](), this.unsigned);
+        }
+        if (this.isZero())
+          return this.unsigned ? UZERO : ZERO;
+        var approx, rem, res;
+        if (!this.unsigned) {
+          if (this.eq(MIN_VALUE)) {
+            if (divisor.eq(ONE) || divisor.eq(NEG_ONE))
+              return MIN_VALUE;
+            else if (divisor.eq(MIN_VALUE))
+              return ONE;
+            else {
+              var halfThis = this.shr(1);
+              approx = halfThis.div(divisor).shl(1);
+              if (approx.eq(ZERO)) {
+                return divisor.isNegative() ? ONE : NEG_ONE;
+              } else {
+                rem = this.sub(divisor.mul(approx));
+                res = approx.add(rem.div(divisor));
+                return res;
+              }
+            }
+          } else if (divisor.eq(MIN_VALUE))
+            return this.unsigned ? UZERO : ZERO;
+          if (this.isNegative()) {
+            if (divisor.isNegative())
+              return this.neg().div(divisor.neg());
+            return this.neg().div(divisor).neg();
+          } else if (divisor.isNegative())
+            return this.div(divisor.neg()).neg();
+          res = ZERO;
+        } else {
+          if (!divisor.unsigned)
+            divisor = divisor.toUnsigned();
+          if (divisor.gt(this))
+            return UZERO;
+          if (divisor.gt(this.shru(1)))
+            return UONE;
+          res = UZERO;
+        }
+        rem = this;
+        while (rem.gte(divisor)) {
+          approx = Math.max(1, Math.floor(rem.toNumber() / divisor.toNumber()));
+          var log2 = Math.ceil(Math.log(approx) / Math.LN2), delta = log2 <= 48 ? 1 : pow_dbl(2, log2 - 48), approxRes = fromNumber(approx), approxRem = approxRes.mul(divisor);
+          while (approxRem.isNegative() || approxRem.gt(rem)) {
+            approx -= delta;
+            approxRes = fromNumber(approx, this.unsigned);
+            approxRem = approxRes.mul(divisor);
+          }
+          if (approxRes.isZero())
+            approxRes = ONE;
+          res = res.add(approxRes);
+          rem = rem.sub(approxRem);
+        }
+        return res;
+      };
+      LongPrototype.div = LongPrototype.divide;
+      LongPrototype.modulo = function modulo(divisor) {
+        if (!isLong(divisor))
+          divisor = fromValue(divisor);
+        if (wasm) {
+          var low = (this.unsigned ? wasm["rem_u"] : wasm["rem_s"])(this.low, this.high, divisor.low, divisor.high);
+          return fromBits(low, wasm["get_high"](), this.unsigned);
+        }
+        return this.sub(this.div(divisor).mul(divisor));
+      };
+      LongPrototype.mod = LongPrototype.modulo;
+      LongPrototype.rem = LongPrototype.modulo;
+      LongPrototype.not = function not() {
+        return fromBits(~this.low, ~this.high, this.unsigned);
+      };
+      LongPrototype.countLeadingZeros = function countLeadingZeros() {
+        return this.high ? Math.clz32(this.high) : Math.clz32(this.low) + 32;
+      };
+      LongPrototype.clz = LongPrototype.countLeadingZeros;
+      LongPrototype.countTrailingZeros = function countTrailingZeros() {
+        return this.low ? ctz32(this.low) : ctz32(this.high) + 32;
+      };
+      LongPrototype.ctz = LongPrototype.countTrailingZeros;
+      LongPrototype.and = function and(other) {
+        if (!isLong(other))
+          other = fromValue(other);
+        return fromBits(this.low & other.low, this.high & other.high, this.unsigned);
+      };
+      LongPrototype.or = function or(other) {
+        if (!isLong(other))
+          other = fromValue(other);
+        return fromBits(this.low | other.low, this.high | other.high, this.unsigned);
+      };
+      LongPrototype.xor = function xor(other) {
+        if (!isLong(other))
+          other = fromValue(other);
+        return fromBits(this.low ^ other.low, this.high ^ other.high, this.unsigned);
+      };
+      LongPrototype.shiftLeft = function shiftLeft(numBits) {
+        if (isLong(numBits))
+          numBits = numBits.toInt();
+        if ((numBits &= 63) === 0)
+          return this;
+        else if (numBits < 32)
+          return fromBits(this.low << numBits, this.high << numBits | this.low >>> 32 - numBits, this.unsigned);
         else
-          return fromBits(high >>> numBits - 32, 0, this.unsigned);
-      }
-    };
-    LongPrototype.shru = LongPrototype.shiftRightUnsigned;
-    LongPrototype.shr_u = LongPrototype.shiftRightUnsigned;
-    LongPrototype.toSigned = function toSigned() {
-      if (!this.unsigned)
-        return this;
-      return fromBits(this.low, this.high, false);
-    };
-    LongPrototype.toUnsigned = function toUnsigned() {
-      if (this.unsigned)
-        return this;
-      return fromBits(this.low, this.high, true);
-    };
-    LongPrototype.toBytes = function toBytes(le) {
-      return le ? this.toBytesLE() : this.toBytesBE();
-    };
-    LongPrototype.toBytesLE = function toBytesLE() {
-      var hi = this.high, lo = this.low;
-      return [
-        lo & 255,
-        lo >>> 8 & 255,
-        lo >>> 16 & 255,
-        lo >>> 24,
-        hi & 255,
-        hi >>> 8 & 255,
-        hi >>> 16 & 255,
-        hi >>> 24
-      ];
-    };
-    LongPrototype.toBytesBE = function toBytesBE() {
-      var hi = this.high, lo = this.low;
-      return [
-        hi >>> 24,
-        hi >>> 16 & 255,
-        hi >>> 8 & 255,
-        hi & 255,
-        lo >>> 24,
-        lo >>> 16 & 255,
-        lo >>> 8 & 255,
-        lo & 255
-      ];
-    };
-    Long.fromBytes = function fromBytes(bytes, unsigned, le) {
-      return le ? Long.fromBytesLE(bytes, unsigned) : Long.fromBytesBE(bytes, unsigned);
-    };
-    Long.fromBytesLE = function fromBytesLE(bytes, unsigned) {
-      return new Long(bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24, bytes[4] | bytes[5] << 8 | bytes[6] << 16 | bytes[7] << 24, unsigned);
-    };
-    Long.fromBytesBE = function fromBytesBE(bytes, unsigned) {
-      return new Long(bytes[4] << 24 | bytes[5] << 16 | bytes[6] << 8 | bytes[7], bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3], unsigned);
-    };
+          return fromBits(0, this.low << numBits - 32, this.unsigned);
+      };
+      LongPrototype.shl = LongPrototype.shiftLeft;
+      LongPrototype.shiftRight = function shiftRight(numBits) {
+        if (isLong(numBits))
+          numBits = numBits.toInt();
+        if ((numBits &= 63) === 0)
+          return this;
+        else if (numBits < 32)
+          return fromBits(this.low >>> numBits | this.high << 32 - numBits, this.high >> numBits, this.unsigned);
+        else
+          return fromBits(this.high >> numBits - 32, this.high >= 0 ? 0 : -1, this.unsigned);
+      };
+      LongPrototype.shr = LongPrototype.shiftRight;
+      LongPrototype.shiftRightUnsigned = function shiftRightUnsigned(numBits) {
+        if (isLong(numBits))
+          numBits = numBits.toInt();
+        if ((numBits &= 63) === 0)
+          return this;
+        if (numBits < 32)
+          return fromBits(this.low >>> numBits | this.high << 32 - numBits, this.high >>> numBits, this.unsigned);
+        if (numBits === 32)
+          return fromBits(this.high, 0, this.unsigned);
+        return fromBits(this.high >>> numBits - 32, 0, this.unsigned);
+      };
+      LongPrototype.shru = LongPrototype.shiftRightUnsigned;
+      LongPrototype.shr_u = LongPrototype.shiftRightUnsigned;
+      LongPrototype.rotateLeft = function rotateLeft(numBits) {
+        var b;
+        if (isLong(numBits))
+          numBits = numBits.toInt();
+        if ((numBits &= 63) === 0)
+          return this;
+        if (numBits === 32)
+          return fromBits(this.high, this.low, this.unsigned);
+        if (numBits < 32) {
+          b = 32 - numBits;
+          return fromBits(this.low << numBits | this.high >>> b, this.high << numBits | this.low >>> b, this.unsigned);
+        }
+        numBits -= 32;
+        b = 32 - numBits;
+        return fromBits(this.high << numBits | this.low >>> b, this.low << numBits | this.high >>> b, this.unsigned);
+      };
+      LongPrototype.rotl = LongPrototype.rotateLeft;
+      LongPrototype.rotateRight = function rotateRight(numBits) {
+        var b;
+        if (isLong(numBits))
+          numBits = numBits.toInt();
+        if ((numBits &= 63) === 0)
+          return this;
+        if (numBits === 32)
+          return fromBits(this.high, this.low, this.unsigned);
+        if (numBits < 32) {
+          b = 32 - numBits;
+          return fromBits(this.high << b | this.low >>> numBits, this.low << b | this.high >>> numBits, this.unsigned);
+        }
+        numBits -= 32;
+        b = 32 - numBits;
+        return fromBits(this.low << b | this.high >>> numBits, this.high << b | this.low >>> numBits, this.unsigned);
+      };
+      LongPrototype.rotr = LongPrototype.rotateRight;
+      LongPrototype.toSigned = function toSigned() {
+        if (!this.unsigned)
+          return this;
+        return fromBits(this.low, this.high, false);
+      };
+      LongPrototype.toUnsigned = function toUnsigned() {
+        if (this.unsigned)
+          return this;
+        return fromBits(this.low, this.high, true);
+      };
+      LongPrototype.toBytes = function toBytes(le) {
+        return le ? this.toBytesLE() : this.toBytesBE();
+      };
+      LongPrototype.toBytesLE = function toBytesLE() {
+        var hi = this.high, lo = this.low;
+        return [lo & 255, lo >>> 8 & 255, lo >>> 16 & 255, lo >>> 24, hi & 255, hi >>> 8 & 255, hi >>> 16 & 255, hi >>> 24];
+      };
+      LongPrototype.toBytesBE = function toBytesBE() {
+        var hi = this.high, lo = this.low;
+        return [hi >>> 24, hi >>> 16 & 255, hi >>> 8 & 255, hi & 255, lo >>> 24, lo >>> 16 & 255, lo >>> 8 & 255, lo & 255];
+      };
+      Long2.fromBytes = function fromBytes(bytes, unsigned, le) {
+        return le ? Long2.fromBytesLE(bytes, unsigned) : Long2.fromBytesBE(bytes, unsigned);
+      };
+      Long2.fromBytesLE = function fromBytesLE(bytes, unsigned) {
+        return new Long2(bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24, bytes[4] | bytes[5] << 8 | bytes[6] << 16 | bytes[7] << 24, unsigned);
+      };
+      Long2.fromBytesBE = function fromBytesBE(bytes, unsigned) {
+        return new Long2(bytes[4] << 24 | bytes[5] << 16 | bytes[6] << 8 | bytes[7], bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3], unsigned);
+      };
+      var _default = Long2;
+      exports2.default = _default;
+      return "default" in exports2 ? exports2.default : exports2;
+    }({});
+    if (typeof define === "function" && define.amd)
+      define([], function() {
+        return Long;
+      });
+    else if (typeof module2 === "object" && typeof exports === "object")
+      module2.exports = Long;
   }
 });
 
@@ -7696,9 +7665,9 @@ var require_lib = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/parsers/string.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/parsers/string.js
 var require_string = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/parsers/string.js"(exports) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/parsers/string.js"(exports) {
     "use strict";
     var Iconv = require_lib();
     exports.decode = function(buffer, encoding, start, end, options) {
@@ -7722,13 +7691,13 @@ var require_string = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/packet.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/packet.js
 var require_packet = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/packet.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/packet.js"(exports, module2) {
     "use strict";
     var ErrorCodeToName = require_errors();
     var NativeBuffer = require("buffer").Buffer;
-    var Long = require_long();
+    var Long = require_umd();
     var StringParser = require_string();
     var INVALID_DATE = new Date(NaN);
     var pad = "000000000000";
@@ -7763,7 +7732,12 @@ var require_packet = __commonJS({
         return this.buffer.slice(this.start, this.end);
       }
       dump() {
-        console.log([this.buffer.asciiSlice(this.start, this.end)], this.buffer.slice(this.start, this.end), this.length(), this.sequenceId);
+        console.log(
+          [this.buffer.asciiSlice(this.start, this.end)],
+          this.buffer.slice(this.start, this.end),
+          this.length(),
+          this.sequenceId
+        );
       }
       haveMoreData() {
         return this.end > this.offset;
@@ -8022,7 +7996,12 @@ var require_packet = __commonJS({
           return null;
         }
         this.offset += len;
-        return StringParser.decode(this.buffer, encoding, this.offset - len, this.offset);
+        return StringParser.decode(
+          this.buffer,
+          encoding,
+          this.offset - len,
+          this.offset
+        );
       }
       readLengthCodedBuffer() {
         const len = this.readLengthCodedNumber();
@@ -8049,7 +8028,12 @@ var require_packet = __commonJS({
           len = this.end - this.offset;
         }
         this.offset += len;
-        return StringParser.decode(this.buffer, encoding, this.offset - len, this.offset);
+        return StringParser.decode(
+          this.buffer,
+          encoding,
+          this.offset - len,
+          this.offset
+        );
       }
       parseInt(len, supportBigNumbers) {
         if (len === null) {
@@ -8215,7 +8199,9 @@ var require_packet = __commonJS({
         if (timezone === "Z") {
           return new Date(Date.UTC(y, m2 - 1, d));
         }
-        return new Date(`${leftPad(4, y)}-${leftPad(2, m2)}-${leftPad(2, d)}T00:00:00${timezone}`);
+        return new Date(
+          `${leftPad(4, y)}-${leftPad(2, m2)}-${leftPad(2, d)}T00:00:00${timezone}`
+        );
       }
       parseDateTime(timezone) {
         const str = this.readLengthCodedString("binary");
@@ -8465,9 +8451,9 @@ var require_packet = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packet_parser.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packet_parser.js
 var require_packet_parser = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packet_parser.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packet_parser.js"(exports, module2) {
     "use strict";
     var Packet = require_packet();
     var MAX_PACKET_LENGTH = 16777215;
@@ -8522,12 +8508,24 @@ var require_packet_parser = __commonJS({
           if (end - start >= this.length + this.packetHeaderLength) {
             const sequenceId = chunk[start + 3];
             if (this.length < MAX_PACKET_LENGTH && this.largePacketParts.length === 0) {
-              this.onPacket(new Packet(sequenceId, chunk, start, start + this.packetHeaderLength + this.length));
+              this.onPacket(
+                new Packet(
+                  sequenceId,
+                  chunk,
+                  start,
+                  start + this.packetHeaderLength + this.length
+                )
+              );
             } else {
               if (this.largePacketParts.length === 0) {
                 this.firstPacketSequenceId = sequenceId;
               }
-              this.largePacketParts.push(chunk.slice(start + this.packetHeaderLength, start + this.packetHeaderLength + this.length));
+              this.largePacketParts.push(
+                chunk.slice(
+                  start + this.packetHeaderLength,
+                  start + this.packetHeaderLength + this.length
+                )
+              );
               if (this.length < MAX_PACKET_LENGTH) {
                 this._flushLargePacket();
               }
@@ -8565,12 +8563,24 @@ var require_packet_parser = __commonJS({
           chunk.copy(payload, offset, start, start + remainingPayload);
           const sequenceId = payload[3];
           if (this.length < MAX_PACKET_LENGTH && this.largePacketParts.length === 0) {
-            this.onPacket(new Packet(sequenceId, payload, 0, this.length + this.packetHeaderLength));
+            this.onPacket(
+              new Packet(
+                sequenceId,
+                payload,
+                0,
+                this.length + this.packetHeaderLength
+              )
+            );
           } else {
             if (this.largePacketParts.length === 0) {
               this.firstPacketSequenceId = sequenceId;
             }
-            this.largePacketParts.push(payload.slice(this.packetHeaderLength, this.packetHeaderLength + this.length));
+            this.largePacketParts.push(
+              payload.slice(
+                this.packetHeaderLength,
+                this.packetHeaderLength + this.length
+              )
+            );
             if (this.length < MAX_PACKET_LENGTH) {
               this._flushLargePacket();
             }
@@ -8608,9 +8618,43 @@ var require_packet_parser = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/auth_switch_request.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/auth_next_factor.js
+var require_auth_next_factor = __commonJS({
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/auth_next_factor.js"(exports, module2) {
+    "use strict";
+    var Packet = require_packet();
+    var AuthNextFactor = class {
+      constructor(opts) {
+        this.pluginName = opts.pluginName;
+        this.pluginData = opts.pluginData;
+      }
+      toPacket(encoding) {
+        const length = 6 + this.pluginName.length + this.pluginData.length;
+        const buffer = Buffer.allocUnsafe(length);
+        const packet = new Packet(0, buffer, 0, length);
+        packet.offset = 4;
+        packet.writeInt8(2);
+        packet.writeNullTerminatedString(this.pluginName, encoding);
+        packet.writeBuffer(this.pluginData);
+        return packet;
+      }
+      static fromPacket(packet, encoding) {
+        packet.readInt8();
+        const name = packet.readNullTerminatedString(encoding);
+        const data = packet.readBuffer();
+        return new AuthNextFactor({
+          pluginName: name,
+          pluginData: data
+        });
+      }
+    };
+    module2.exports = AuthNextFactor;
+  }
+});
+
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/auth_switch_request.js
 var require_auth_switch_request = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/auth_switch_request.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/auth_switch_request.js"(exports, module2) {
     "use strict";
     var Packet = require_packet();
     var AuthSwitchRequest = class {
@@ -8642,9 +8686,9 @@ var require_auth_switch_request = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/auth_switch_request_more_data.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/auth_switch_request_more_data.js
 var require_auth_switch_request_more_data = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/auth_switch_request_more_data.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/auth_switch_request_more_data.js"(exports, module2) {
     "use strict";
     var Packet = require_packet();
     var AuthSwitchRequestMoreData = class {
@@ -8673,9 +8717,9 @@ var require_auth_switch_request_more_data = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/auth_switch_response.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/auth_switch_response.js
 var require_auth_switch_response = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/auth_switch_response.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/auth_switch_response.js"(exports, module2) {
     "use strict";
     var Packet = require_packet();
     var AuthSwitchResponse = class {
@@ -8702,44 +8746,74 @@ var require_auth_switch_response = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/types.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/types.js
 var require_types = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/types.js"(exports) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/types.js"(exports, module2) {
     "use strict";
-    exports.DECIMAL = 0;
-    exports.TINY = 1;
-    exports.SHORT = 2;
-    exports.LONG = 3;
-    exports.FLOAT = 4;
-    exports.DOUBLE = 5;
-    exports.NULL = 6;
-    exports.TIMESTAMP = 7;
-    exports.LONGLONG = 8;
-    exports.INT24 = 9;
-    exports.DATE = 10;
-    exports.TIME = 11;
-    exports.DATETIME = 12;
-    exports.YEAR = 13;
-    exports.NEWDATE = 14;
-    exports.VARCHAR = 15;
-    exports.BIT = 16;
-    exports.JSON = 245;
-    exports.NEWDECIMAL = 246;
-    exports.ENUM = 247;
-    exports.SET = 248;
-    exports.TINY_BLOB = 249;
-    exports.MEDIUM_BLOB = 250;
-    exports.LONG_BLOB = 251;
-    exports.BLOB = 252;
-    exports.VAR_STRING = 253;
-    exports.STRING = 254;
-    exports.GEOMETRY = 255;
+    module2.exports = {
+      0: "DECIMAL",
+      1: "TINY",
+      2: "SHORT",
+      3: "LONG",
+      4: "FLOAT",
+      5: "DOUBLE",
+      6: "NULL",
+      7: "TIMESTAMP",
+      8: "LONGLONG",
+      9: "INT24",
+      10: "DATE",
+      11: "TIME",
+      12: "DATETIME",
+      13: "YEAR",
+      14: "NEWDATE",
+      15: "VARCHAR",
+      16: "BIT",
+      245: "JSON",
+      246: "NEWDECIMAL",
+      247: "ENUM",
+      248: "SET",
+      249: "TINY_BLOB",
+      250: "MEDIUM_BLOB",
+      251: "LONG_BLOB",
+      252: "BLOB",
+      253: "VAR_STRING",
+      254: "STRING",
+      255: "GEOMETRY"
+    };
+    module2.exports.DECIMAL = 0;
+    module2.exports.TINY = 1;
+    module2.exports.SHORT = 2;
+    module2.exports.LONG = 3;
+    module2.exports.FLOAT = 4;
+    module2.exports.DOUBLE = 5;
+    module2.exports.NULL = 6;
+    module2.exports.TIMESTAMP = 7;
+    module2.exports.LONGLONG = 8;
+    module2.exports.INT24 = 9;
+    module2.exports.DATE = 10;
+    module2.exports.TIME = 11;
+    module2.exports.DATETIME = 12;
+    module2.exports.YEAR = 13;
+    module2.exports.NEWDATE = 14;
+    module2.exports.VARCHAR = 15;
+    module2.exports.BIT = 16;
+    module2.exports.JSON = 245;
+    module2.exports.NEWDECIMAL = 246;
+    module2.exports.ENUM = 247;
+    module2.exports.SET = 248;
+    module2.exports.TINY_BLOB = 249;
+    module2.exports.MEDIUM_BLOB = 250;
+    module2.exports.LONG_BLOB = 251;
+    module2.exports.BLOB = 252;
+    module2.exports.VAR_STRING = 253;
+    module2.exports.STRING = 254;
+    module2.exports.GEOMETRY = 255;
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/binary_row.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/binary_row.js
 var require_binary_row = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/binary_row.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/binary_row.js"(exports, module2) {
     "use strict";
     var Types = require_types();
     var Packet = require_packet();
@@ -8748,8 +8822,49 @@ var require_binary_row = __commonJS({
       constructor(columns) {
         this.columns = columns || [];
       }
-      toPacket() {
-        throw new Error("Not implemented");
+      static toPacket(columns, encoding) {
+        const sequenceId = 0;
+        let length = 0;
+        columns.forEach((val) => {
+          if (val === null || typeof val === "undefined") {
+            ++length;
+            return;
+          }
+          length += Packet.lengthCodedStringLength(val.toString(10), encoding);
+        });
+        length = length + 2;
+        const buffer = Buffer.allocUnsafe(length + 4);
+        const packet = new Packet(sequenceId, buffer, 0, length + 4);
+        packet.offset = 4;
+        packet.writeInt8(0);
+        let bitmap = 0;
+        let bitValue = 1;
+        columns.forEach((parameter) => {
+          if (parameter.type === Types.NULL) {
+            bitmap += bitValue;
+          }
+          bitValue *= 2;
+          if (bitValue === 256) {
+            packet.writeInt8(bitmap);
+            bitmap = 0;
+            bitValue = 1;
+          }
+        });
+        if (bitValue !== 1) {
+          packet.writeInt8(bitmap);
+        }
+        columns.forEach((val) => {
+          if (val === null) {
+            packet.writeNull();
+            return;
+          }
+          if (typeof val === "undefined") {
+            packet.writeInt8(0);
+            return;
+          }
+          packet.writeLengthCodedString(val.toString(10), encoding);
+        });
+        return packet;
       }
       static fromPacket(fields, packet) {
         const columns = new Array(fields.length);
@@ -8781,9 +8896,9 @@ var require_binary_row = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/commands.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/commands.js
 var require_commands = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/commands.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/commands.js"(exports, module2) {
     "use strict";
     module2.exports = {
       SLEEP: 0,
@@ -8822,9 +8937,9 @@ var require_commands = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/binlog_dump.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/binlog_dump.js
 var require_binlog_dump = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/binlog_dump.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/binlog_dump.js"(exports, module2) {
     "use strict";
     var Packet = require_packet();
     var CommandCodes = require_commands();
@@ -8852,9 +8967,9 @@ var require_binlog_dump = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/client.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/client.js
 var require_client = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/client.js"(exports) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/client.js"(exports) {
     "use strict";
     exports.LONG_PASSWORD = 1;
     exports.FOUND_ROWS = 2;
@@ -8883,12 +8998,13 @@ var require_client = __commonJS({
     exports.DEPRECATE_EOF = 16777216;
     exports.SSL_VERIFY_SERVER_CERT = 1073741824;
     exports.REMEMBER_OPTIONS = 2147483648;
+    exports.MULTI_FACTOR_AUTHENTICATION = 268435456;
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/auth_41.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/auth_41.js
 var require_auth_41 = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/auth_41.js"(exports) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/auth_41.js"(exports) {
     "use strict";
     var crypto = require("crypto");
     function sha1(msg, msg1, msg2) {
@@ -8903,12 +9019,6 @@ var require_auth_41 = __commonJS({
       return hash.digest();
     }
     function xor(a, b) {
-      if (!Buffer.isBuffer(a)) {
-        a = Buffer.from(a, "binary");
-      }
-      if (!Buffer.isBuffer(b)) {
-        b = Buffer.from(b, "binary");
-      }
       const result = Buffer.allocUnsafe(a.length);
       for (let i2 = 0; i2 < a.length; i2++) {
         result[i2] = a[i2] ^ b[i2];
@@ -8940,12 +9050,6 @@ var require_auth_41 = __commonJS({
       return sha1(sha1(password));
     };
     function xorRotating(a, seed) {
-      if (!Buffer.isBuffer(a)) {
-        a = Buffer.from(a, "binary");
-      }
-      if (!Buffer.isBuffer(seed)) {
-        seed = Buffer.from(seed, "binary");
-      }
       const result = Buffer.allocUnsafe(a.length);
       const seedLen = seed.length;
       for (let i2 = 0; i2 < a.length; i2++) {
@@ -8957,9 +9061,9 @@ var require_auth_41 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/charset_encodings.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/charset_encodings.js
 var require_charset_encodings = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/charset_encodings.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/charset_encodings.js"(exports, module2) {
     "use strict";
     module2.exports = [
       "utf8",
@@ -9062,7 +9166,7 @@ var require_charset_encodings = __commonJS({
       "eucjpms",
       "eucjpms",
       "cp1250",
-      "utf8",
+      "utf16",
       "utf16",
       "utf16",
       "utf16",
@@ -9213,6 +9317,9 @@ var require_charset_encodings = __commonJS({
       "gb18030",
       "gb18030",
       "gb18030",
+      "utf8",
+      "utf8",
+      "utf8",
       "utf8",
       "utf8",
       "utf8",
@@ -9272,9 +9379,9 @@ var require_charset_encodings = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/change_user.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/change_user.js
 var require_change_user = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/change_user.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/change_user.js"(exports, module2) {
     "use strict";
     var CommandCode = require_commands();
     var ClientConstants = require_client();
@@ -9293,9 +9400,17 @@ var require_change_user = __commonJS({
         this.connectAttributes = opts.connectAttrinutes || {};
         let authToken;
         if (this.passwordSha1) {
-          authToken = auth41.calculateTokenFromPasswordSha(this.passwordSha1, this.authPluginData1, this.authPluginData2);
+          authToken = auth41.calculateTokenFromPasswordSha(
+            this.passwordSha1,
+            this.authPluginData1,
+            this.authPluginData2
+          );
         } else {
-          authToken = auth41.calculateToken(this.password, this.authPluginData1, this.authPluginData2);
+          authToken = auth41.calculateToken(
+            this.password,
+            this.authPluginData1,
+            this.authPluginData2
+          );
         }
         this.authToken = authToken;
         this.charsetNumber = opts.charsetNumber;
@@ -9325,12 +9440,18 @@ var require_change_user = __commonJS({
           let keysLength = 0;
           for (let k = 0; k < attrNames.length; ++k) {
             keysLength += Packet.lengthCodedStringLength(attrNames[k], encoding);
-            keysLength += Packet.lengthCodedStringLength(connectAttributes[attrNames[k]], encoding);
+            keysLength += Packet.lengthCodedStringLength(
+              connectAttributes[attrNames[k]],
+              encoding
+            );
           }
           packet.writeLengthCodedNumber(keysLength);
           for (let k = 0; k < attrNames.length; ++k) {
             packet.writeLengthCodedString(attrNames[k], encoding);
-            packet.writeLengthCodedString(connectAttributes[attrNames[k]], encoding);
+            packet.writeLengthCodedString(
+              connectAttributes[attrNames[k]],
+              encoding
+            );
           }
         }
         return packet;
@@ -9350,9 +9471,9 @@ var require_change_user = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/close_statement.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/close_statement.js
 var require_close_statement = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/close_statement.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/close_statement.js"(exports, module2) {
     "use strict";
     var Packet = require_packet();
     var CommandCodes = require_commands();
@@ -9372,9 +9493,9 @@ var require_close_statement = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/column_definition.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/column_definition.js
 var require_column_definition = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/column_definition.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/column_definition.js"(exports, module2) {
     "use strict";
     var Packet = require_packet();
     var StringParser = require_string();
@@ -9405,9 +9526,15 @@ var require_column_definition = __commonJS({
         packet.skip(1);
         this.characterSet = packet.readInt16();
         this.encoding = CharsetToEncoding[this.characterSet];
-        this.name = StringParser.decode(this._buf, this.encoding === "binary" ? this._clientEncoding : this.encoding, _nameStart, _nameStart + _nameLength);
+        this.name = StringParser.decode(
+          this._buf,
+          this.encoding === "binary" ? this._clientEncoding : this.encoding,
+          _nameStart,
+          _nameStart + _nameLength
+        );
         this.columnLength = packet.readInt32();
         this.columnType = packet.readInt8();
+        this.type = this.columnType;
         this.flags = packet.readInt16();
         this.decimals = packet.readInt8();
       }
@@ -9422,6 +9549,7 @@ var require_column_definition = __commonJS({
           characterSet: this.characterSet,
           columnLength: this.columnLength,
           columnType: this.columnType,
+          type: this.columnType,
           flags: this.flags,
           decimals: this.decimals
         };
@@ -9429,12 +9557,18 @@ var require_column_definition = __commonJS({
       static toPacket(column, sequenceId) {
         let length = 17;
         fields.forEach((field) => {
-          length += Packet.lengthCodedStringLength(column[field], CharsetToEncoding[column.characterSet]);
+          length += Packet.lengthCodedStringLength(
+            column[field],
+            CharsetToEncoding[column.characterSet]
+          );
         });
         const buffer = Buffer.allocUnsafe(length);
         const packet = new Packet(sequenceId, buffer, 0, length);
         function writeField(name) {
-          packet.writeLengthCodedString(column[name], CharsetToEncoding[column.characterSet]);
+          packet.writeLengthCodedString(
+            column[name],
+            CharsetToEncoding[column.characterSet]
+          );
         }
         packet.offset = 4;
         fields.forEach(writeField);
@@ -9456,7 +9590,12 @@ var require_column_definition = __commonJS({
         get: function() {
           const start = this[`_${name}Start`];
           const end = start + this[`_${name}Length`];
-          const val = StringParser.decode(this._buf, this.encoding === "binary" ? this._clientEncoding : this.encoding, start, end);
+          const val = StringParser.decode(
+            this._buf,
+            this.encoding === "binary" ? this._clientEncoding : this.encoding,
+            start,
+            end
+          );
           Object.defineProperty(this, name, {
             value: val,
             writable: false,
@@ -9476,9 +9615,9 @@ var require_column_definition = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/cursor.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/cursor.js
 var require_cursor = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/cursor.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/cursor.js"(exports, module2) {
     "use strict";
     module2.exports = {
       NO_CURSOR: 0,
@@ -9489,9 +9628,9 @@ var require_cursor = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/execute.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/execute.js
 var require_execute = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/execute.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/execute.js"(exports, module2) {
     "use strict";
     var CursorType = require_cursor();
     var CommandCodes = require_commands();
@@ -9558,6 +9697,46 @@ var require_execute = __commonJS({
         this.encoding = CharsetToEncoding[charsetNumber];
         this.timezone = timezone;
       }
+      static fromPacket(packet, encoding) {
+        const stmtId = packet.readInt32();
+        const flags = packet.readInt8();
+        const iterationCount = packet.readInt32();
+        let i2 = packet.offset;
+        while (i2 < packet.end - 1) {
+          if ((packet.buffer[i2 + 1] === Types.VAR_STRING || packet.buffer[i2 + 1] === Types.NULL || packet.buffer[i2 + 1] === Types.DOUBLE || packet.buffer[i2 + 1] === Types.TINY || packet.buffer[i2 + 1] === Types.DATETIME || packet.buffer[i2 + 1] === Types.JSON) && packet.buffer[i2] === 1 && packet.buffer[i2 + 2] === 0) {
+            break;
+          } else {
+            packet.readInt8();
+          }
+          i2++;
+        }
+        const types3 = [];
+        for (let i3 = packet.offset + 1; i3 < packet.end - 1; i3++) {
+          if ((packet.buffer[i3] === Types.VAR_STRING || packet.buffer[i3] === Types.NULL || packet.buffer[i3] === Types.DOUBLE || packet.buffer[i3] === Types.TINY || packet.buffer[i3] === Types.DATETIME || packet.buffer[i3] === Types.JSON) && packet.buffer[i3 + 1] === 0) {
+            types3.push(packet.buffer[i3]);
+            packet.skip(2);
+          }
+        }
+        packet.skip(1);
+        const values = [];
+        for (let i3 = 0; i3 < types3.length; i3++) {
+          if (types3[i3] === Types.VAR_STRING) {
+            values.push(packet.readLengthCodedString(encoding));
+          } else if (types3[i3] === Types.DOUBLE) {
+            values.push(packet.readDouble());
+          } else if (types3[i3] === Types.TINY) {
+            values.push(packet.readInt8());
+          } else if (types3[i3] === Types.DATETIME) {
+            values.push(packet.readDateTime());
+          } else if (types3[i3] === Types.JSON) {
+            values.push(JSON.parse(packet.readLengthCodedString(encoding)));
+          }
+          if (types3[i3] === Types.NULL) {
+            values.push(null);
+          }
+        }
+        return { stmtId, flags, iterationCount, values };
+      }
       toPacket() {
         let length = 14;
         let parameters;
@@ -9565,8 +9744,13 @@ var require_execute = __commonJS({
           length += Math.floor((this.parameters.length + 7) / 8);
           length += 1;
           length += 2 * this.parameters.length;
-          parameters = this.parameters.map((value) => toParameter(value, this.encoding, this.timezone));
-          length += parameters.reduce((accumulator, parameter) => accumulator + parameter.length, 0);
+          parameters = this.parameters.map(
+            (value) => toParameter(value, this.encoding, this.timezone)
+          );
+          length += parameters.reduce(
+            (accumulator, parameter) => accumulator + parameter.length,
+            0
+          );
         }
         const buffer = Buffer.allocUnsafe(length);
         const packet = new Packet(0, buffer, 0, length);
@@ -9610,9 +9794,9 @@ var require_execute = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/handshake.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/handshake.js
 var require_handshake = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/handshake.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/handshake.js"(exports, module2) {
     "use strict";
     var Packet = require_packet();
     var ClientConstants = require_client();
@@ -9712,9 +9896,9 @@ var require_handshake = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/handshake_response.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/handshake_response.js
 var require_handshake_response = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/handshake_response.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/handshake_response.js"(exports, module2) {
     "use strict";
     var ClientConstants = require_client();
     var CharsetToEncoding = require_charset_encodings();
@@ -9732,9 +9916,17 @@ var require_handshake_response = __commonJS({
         this.clientFlags = handshake.flags;
         let authToken;
         if (this.passwordSha1) {
-          authToken = auth41.calculateTokenFromPasswordSha(this.passwordSha1, this.authPluginData1, this.authPluginData2);
+          authToken = auth41.calculateTokenFromPasswordSha(
+            this.passwordSha1,
+            this.authPluginData1,
+            this.authPluginData2
+          );
         } else {
-          authToken = auth41.calculateToken(this.password, this.authPluginData1, this.authPluginData2);
+          authToken = auth41.calculateToken(
+            this.password,
+            this.authPluginData1,
+            this.authPluginData2
+          );
         }
         this.authToken = authToken;
         this.charsetNumber = handshake.charsetNumber;
@@ -9774,12 +9966,18 @@ var require_handshake_response = __commonJS({
           let keysLength = 0;
           for (k = 0; k < attrNames.length; ++k) {
             keysLength += Packet.lengthCodedStringLength(attrNames[k], encoding);
-            keysLength += Packet.lengthCodedStringLength(connectAttributes[attrNames[k]], encoding);
+            keysLength += Packet.lengthCodedStringLength(
+              connectAttributes[attrNames[k]],
+              encoding
+            );
           }
           packet.writeLengthCodedNumber(keysLength);
           for (k = 0; k < attrNames.length; ++k) {
             packet.writeLengthCodedString(attrNames[k], encoding);
-            packet.writeLengthCodedString(connectAttributes[attrNames[k]], encoding);
+            packet.writeLengthCodedString(
+              connectAttributes[attrNames[k]],
+              encoding
+            );
           }
         }
         return packet;
@@ -9838,9 +10036,9 @@ var require_handshake_response = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/prepare_statement.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/prepare_statement.js
 var require_prepare_statement = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/prepare_statement.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/prepare_statement.js"(exports, module2) {
     "use strict";
     var Packet = require_packet();
     var CommandCodes = require_commands();
@@ -9867,9 +10065,9 @@ var require_prepare_statement = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/prepared_statement_header.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/prepared_statement_header.js
 var require_prepared_statement_header = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/prepared_statement_header.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/prepared_statement_header.js"(exports, module2) {
     "use strict";
     var PreparedStatementHeader = class {
       constructor(packet) {
@@ -9885,9 +10083,9 @@ var require_prepared_statement_header = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/query.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/query.js
 var require_query = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/query.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/query.js"(exports, module2) {
     "use strict";
     var Packet = require_packet();
     var CommandCode = require_commands();
@@ -9914,9 +10112,9 @@ var require_query = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/register_slave.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/register_slave.js
 var require_register_slave = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/register_slave.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/register_slave.js"(exports, module2) {
     "use strict";
     var Packet = require_packet();
     var CommandCodes = require_commands();
@@ -9953,9 +10151,9 @@ var require_register_slave = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/server_status.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/server_status.js
 var require_server_status = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/server_status.js"(exports) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/server_status.js"(exports) {
     "use strict";
     exports.SERVER_STATUS_IN_TRANS = 1;
     exports.SERVER_STATUS_AUTOCOMMIT = 2;
@@ -9974,9 +10172,9 @@ var require_server_status = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/encoding_charset.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/encoding_charset.js
 var require_encoding_charset = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/encoding_charset.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/encoding_charset.js"(exports, module2) {
     "use strict";
     module2.exports = {
       big5: 1,
@@ -10025,9 +10223,9 @@ var require_encoding_charset = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/session_track.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/session_track.js
 var require_session_track = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/session_track.js"(exports) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/session_track.js"(exports) {
     "use strict";
     exports.SYSTEM_VARIABLES = 0;
     exports.SCHEMA = 1;
@@ -10040,9 +10238,9 @@ var require_session_track = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/resultset_header.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/resultset_header.js
 var require_resultset_header = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/resultset_header.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/resultset_header.js"(exports, module2) {
     "use strict";
     var Packet = require_packet();
     var ClientConstants = require_client();
@@ -10104,7 +10302,9 @@ var require_resultset_header = __commonJS({
                 key = packet.readLengthCodedString(encoding);
                 stateChanges.schema = key;
               } else if (type === sessionInfoTypes.STATE_CHANGE) {
-                stateChanges.trackStateChange = packet.readLengthCodedString(encoding);
+                stateChanges.trackStateChange = packet.readLengthCodedString(
+                  encoding
+                );
               } else {
               }
               packet.offset = stateEnd;
@@ -10140,9 +10340,9 @@ var require_resultset_header = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/ssl_request.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/ssl_request.js
 var require_ssl_request = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/ssl_request.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/ssl_request.js"(exports, module2) {
     "use strict";
     var ClientConstants = require_client();
     var Packet = require_packet();
@@ -10167,9 +10367,9 @@ var require_ssl_request = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/text_row.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/text_row.js
 var require_text_row = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/text_row.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/text_row.js"(exports, module2) {
     "use strict";
     var Packet = require_packet();
     var TextRow = class {
@@ -10214,11 +10414,12 @@ var require_text_row = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/index.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/index.js
 var require_packets = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/index.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/index.js"(exports, module2) {
     "use strict";
     var process2 = require("process");
+    var AuthNextFactor = require_auth_next_factor();
     var AuthSwitchRequest = require_auth_switch_request();
     var AuthSwitchRequestMoreData = require_auth_switch_request_more_data();
     var AuthSwitchResponse = require_auth_switch_response();
@@ -10238,6 +10439,7 @@ var require_packets = __commonJS({
     var SSLRequest = require_ssl_request();
     var TextRow = require_text_row();
     var ctorMap = {
+      AuthNextFactor,
       AuthSwitchRequest,
       AuthSwitchRequestMoreData,
       AuthSwitchResponse,
@@ -10342,9 +10544,9 @@ var require_packets = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/command.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/command.js
 var require_command = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/command.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/command.js"(exports, module2) {
     "use strict";
     var EventEmitter = require("events").EventEmitter;
     var Timers = require("timers");
@@ -10395,19 +10597,22 @@ var require_command = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/auth_plugins/sha256_password.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/auth_plugins/sha256_password.js
 var require_sha256_password = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/auth_plugins/sha256_password.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/auth_plugins/sha256_password.js"(exports, module2) {
     "use strict";
     var PLUGIN_NAME = "sha256_password";
     var crypto = require("crypto");
-    var { xor } = require_auth_41();
+    var { xorRotating } = require_auth_41();
     var REQUEST_SERVER_KEY_PACKET = Buffer.from([1]);
     var STATE_INITIAL = 0;
     var STATE_WAIT_SERVER_KEY = 1;
     var STATE_FINAL = -1;
     function encrypt(password, scramble, key) {
-      const stage1 = xor(Buffer.from(`${password}\0`, "utf8").toString("binary"), scramble.toString("binary"));
+      const stage1 = xorRotating(
+        Buffer.from(`${password}\0`, "utf8"),
+        scramble
+      );
       return crypto.publicEncrypt(key, stage1);
     }
     module2.exports = (pluginOptions = {}) => ({ connection }) => {
@@ -10434,17 +10639,21 @@ var require_sha256_password = __commonJS({
             }
             return authWithKey(data);
           case STATE_FINAL:
-            throw new Error(`Unexpected data in AuthMoreData packet received by ${PLUGIN_NAME} plugin in STATE_FINAL state.`);
+            throw new Error(
+              `Unexpected data in AuthMoreData packet received by ${PLUGIN_NAME} plugin in STATE_FINAL state.`
+            );
         }
-        throw new Error(`Unexpected data in AuthMoreData packet received by ${PLUGIN_NAME} plugin in state ${state}`);
+        throw new Error(
+          `Unexpected data in AuthMoreData packet received by ${PLUGIN_NAME} plugin in state ${state}`
+        );
       };
     };
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/auth_plugins/caching_sha2_password.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/auth_plugins/caching_sha2_password.js
 var require_caching_sha2_password = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/auth_plugins/caching_sha2_password.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/auth_plugins/caching_sha2_password.js"(exports, module2) {
     "use strict";
     var PLUGIN_NAME = "caching_sha2_password";
     var crypto = require("crypto");
@@ -10458,20 +10667,23 @@ var require_caching_sha2_password = __commonJS({
     var STATE_FINAL = -1;
     function sha256(msg) {
       const hash = crypto.createHash("sha256");
-      hash.update(msg, "binary");
-      return hash.digest("binary");
+      hash.update(msg);
+      return hash.digest();
     }
     function calculateToken(password, scramble) {
       if (!password) {
         return Buffer.alloc(0);
       }
-      const stage1 = sha256(Buffer.from(password, "utf8").toString("binary"));
+      const stage1 = sha256(Buffer.from(password));
       const stage2 = sha256(stage1);
-      const stage3 = sha256(stage2 + scramble.toString("binary"));
+      const stage3 = sha256(Buffer.concat([stage2, scramble]));
       return xor(stage1, stage3);
     }
     function encrypt(password, scramble, key) {
-      const stage1 = xorRotating(Buffer.from(`${password}\0`, "utf8").toString("binary"), scramble.toString("binary"));
+      const stage1 = xorRotating(
+        Buffer.from(`${password}\0`, "utf8"),
+        scramble
+      );
       return crypto.publicEncrypt(key, stage1);
     }
     module2.exports = (pluginOptions = {}) => ({ connection }) => {
@@ -10506,24 +10718,30 @@ var require_caching_sha2_password = __commonJS({
               state = STATE_WAIT_SERVER_KEY;
               return REQUEST_SERVER_KEY_PACKET;
             }
-            throw new Error(`Invalid AuthMoreData packet received by ${PLUGIN_NAME} plugin in STATE_TOKEN_SENT state.`);
+            throw new Error(
+              `Invalid AuthMoreData packet received by ${PLUGIN_NAME} plugin in STATE_TOKEN_SENT state.`
+            );
           case STATE_WAIT_SERVER_KEY:
             if (pluginOptions.onServerPublicKey) {
               pluginOptions.onServerPublicKey(data);
             }
             return authWithKey(data);
           case STATE_FINAL:
-            throw new Error(`Unexpected data in AuthMoreData packet received by ${PLUGIN_NAME} plugin in STATE_FINAL state.`);
+            throw new Error(
+              `Unexpected data in AuthMoreData packet received by ${PLUGIN_NAME} plugin in STATE_FINAL state.`
+            );
         }
-        throw new Error(`Unexpected data in AuthMoreData packet received by ${PLUGIN_NAME} plugin in state ${state}`);
+        throw new Error(
+          `Unexpected data in AuthMoreData packet received by ${PLUGIN_NAME} plugin in state ${state}`
+        );
       };
     };
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/auth_plugins/mysql_native_password.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/auth_plugins/mysql_native_password.js
 var require_mysql_native_password = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/auth_plugins/mysql_native_password.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/auth_plugins/mysql_native_password.js"(exports, module2) {
     "use strict";
     var auth41 = require_auth_41();
     module2.exports = (pluginOptions) => ({ connection, command }) => {
@@ -10534,9 +10752,17 @@ var require_mysql_native_password = __commonJS({
         const authPluginData2 = data.slice(8, 20);
         let authToken;
         if (passwordSha1) {
-          authToken = auth41.calculateTokenFromPasswordSha(passwordSha1, authPluginData1, authPluginData2);
+          authToken = auth41.calculateTokenFromPasswordSha(
+            passwordSha1,
+            authPluginData1,
+            authPluginData2
+          );
         } else {
-          authToken = auth41.calculateToken(password, authPluginData1, authPluginData2);
+          authToken = auth41.calculateToken(
+            password,
+            authPluginData1,
+            authPluginData2
+          );
         }
         return authToken;
       };
@@ -10544,21 +10770,42 @@ var require_mysql_native_password = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/auth_switch.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/auth_plugins/mysql_clear_password.js
+var require_mysql_clear_password = __commonJS({
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/auth_plugins/mysql_clear_password.js"(exports, module2) {
+    "use strict";
+    function bufferFromStr(str) {
+      return Buffer.from(`${str}\0`);
+    }
+    var create_mysql_clear_password_plugin = (pluginOptions) => function mysql_clear_password_plugin({ connection, command }) {
+      const password = command.password || pluginOptions.password || connection.config.password;
+      return function() {
+        return bufferFromStr(password);
+      };
+    };
+    module2.exports = create_mysql_clear_password_plugin;
+  }
+});
+
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/auth_switch.js
 var require_auth_switch = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/auth_switch.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/auth_switch.js"(exports, module2) {
     "use strict";
     var Packets = require_packets();
     var sha256_password = require_sha256_password();
     var caching_sha2_password = require_caching_sha2_password();
     var mysql_native_password = require_mysql_native_password();
+    var mysql_clear_password = require_mysql_clear_password();
     var standardAuthPlugins = {
       sha256_password: sha256_password({}),
       caching_sha2_password: caching_sha2_password({}),
-      mysql_native_password: mysql_native_password({})
+      mysql_native_password: mysql_native_password({}),
+      mysql_clear_password: mysql_clear_password({})
     };
     function warnLegacyAuthSwitch() {
-      console.warn("WARNING! authSwitchHandler api is deprecated, please use new authPlugins api");
+      console.warn(
+        "WARNING! authSwitchHandler api is deprecated, please use new authPlugins api"
+      );
     }
     function authSwitchPluginError(error, command) {
       error.code = "AUTH_SWITCH_PLUGIN_ERROR";
@@ -10566,7 +10813,9 @@ var require_auth_switch = __commonJS({
       command.emit("error", error);
     }
     function authSwitchRequest(packet, connection, command) {
-      const { pluginName, pluginData } = Packets.AuthSwitchRequest.fromPacket(packet);
+      const { pluginName, pluginData } = Packets.AuthSwitchRequest.fromPacket(
+        packet
+      );
       let authPlugin = connection.config.authPlugins && connection.config.authPlugins[pluginName];
       if (connection.config.authSwitchHandler && pluginName !== "mysql_native_password") {
         const legacySwitchHandler = connection.config.authSwitchHandler;
@@ -10583,7 +10832,9 @@ var require_auth_switch = __commonJS({
         authPlugin = standardAuthPlugins[pluginName];
       }
       if (!authPlugin) {
-        throw new Error(`Server requests authentication using unknown plugin ${pluginName}. See ${"TODO: add plugins doco here"} on how to configure or author authentication plugins.`);
+        throw new Error(
+          `Server requests authentication using unknown plugin ${pluginName}. See ${"TODO: add plugins doco here"} on how to configure or author authentication plugins.`
+        );
       }
       connection._authPlugin = authPlugin({ connection, command });
       Promise.resolve(connection._authPlugin(pluginData)).then((data) => {
@@ -10608,7 +10859,9 @@ var require_auth_switch = __commonJS({
         return;
       }
       if (!connection._authPlugin) {
-        throw new Error("AuthPluginMoreData received but no auth plugin instance found");
+        throw new Error(
+          "AuthPluginMoreData received but no auth plugin instance found"
+        );
       }
       Promise.resolve(connection._authPlugin(data)).then((data2) => {
         if (data2) {
@@ -10746,9 +10999,9 @@ var require_seq_queue2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/compressed_protocol.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/compressed_protocol.js
 var require_compressed_protocol = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/compressed_protocol.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/compressed_protocol.js"(exports, module2) {
     "use strict";
     var zlib2 = require("zlib");
     var PacketParser = require_packet_parser();
@@ -10781,7 +11034,10 @@ var require_compressed_protocol = __commonJS({
       let start;
       if (buffer.length > MAX_COMPRESSED_LENGTH) {
         for (start = 0; start < buffer.length; start += MAX_COMPRESSED_LENGTH) {
-          writeCompressed.call(this, buffer.slice(start, start + MAX_COMPRESSED_LENGTH));
+          writeCompressed.call(
+            this,
+            buffer.slice(start, start + MAX_COMPRESSED_LENGTH)
+          );
         }
         return;
       }
@@ -10844,9 +11100,9 @@ var require_compressed_protocol = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/client_handshake.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/client_handshake.js
 var require_client_handshake = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/client_handshake.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/client_handshake.js"(exports, module2) {
     "use strict";
     var Command = require_command();
     var Packets = require_packets();
@@ -10867,20 +11123,31 @@ var require_client_handshake = __commonJS({
         super();
         this.handshake = null;
         this.clientFlags = clientFlags;
+        this.authenticationFactor = 0;
       }
       start() {
         return ClientHandshake.prototype.handshakeInit;
       }
       sendSSLRequest(connection) {
-        const sslRequest = new Packets.SSLRequest(this.clientFlags, connection.config.charsetNumber);
+        const sslRequest = new Packets.SSLRequest(
+          this.clientFlags,
+          connection.config.charsetNumber
+        );
         connection.writePacket(sslRequest.toPacket());
       }
       sendCredentials(connection) {
         if (connection.config.debug) {
-          console.log("Sending handshake packet: flags:%d=(%s)", this.clientFlags, flagNames(this.clientFlags).join(", "));
+          console.log(
+            "Sending handshake packet: flags:%d=(%s)",
+            this.clientFlags,
+            flagNames(this.clientFlags).join(", ")
+          );
         }
         this.user = connection.config.user;
         this.password = connection.config.password;
+        this.password1 = connection.config.password;
+        this.password2 = connection.config.password2;
+        this.password3 = connection.config.password3;
         this.passwordSha1 = connection.config.passwordSha1;
         this.database = connection.config.database;
         this.autPluginName = this.handshake.autPluginName;
@@ -10903,9 +11170,17 @@ var require_client_handshake = __commonJS({
         const authPluginData2 = authPluginData.slice(8, 20);
         let authToken;
         if (this.passwordSha1) {
-          authToken = auth41.calculateTokenFromPasswordSha(this.passwordSha1, authPluginData1, authPluginData2);
+          authToken = auth41.calculateTokenFromPasswordSha(
+            this.passwordSha1,
+            authPluginData1,
+            authPluginData2
+          );
         } else {
-          authToken = auth41.calculateToken(this.password, authPluginData1, authPluginData2);
+          authToken = auth41.calculateToken(
+            this.password,
+            authPluginData1,
+            authPluginData2
+          );
         }
         return authToken;
       }
@@ -10916,12 +11191,18 @@ var require_client_handshake = __commonJS({
         });
         this.handshake = Packets.Handshake.fromPacket(helloPacket);
         if (connection.config.debug) {
-          console.log("Server hello packet: capability flags:%d=(%s)", this.handshake.capabilityFlags, flagNames(this.handshake.capabilityFlags).join(", "));
+          console.log(
+            "Server hello packet: capability flags:%d=(%s)",
+            this.handshake.capabilityFlags,
+            flagNames(this.handshake.capabilityFlags).join(", ")
+          );
         }
         connection.serverCapabilityFlags = this.handshake.capabilityFlags;
         connection.serverEncoding = CharsetToEncoding[this.handshake.characterSet];
         connection.connectionId = this.handshake.connectionId;
         const serverSSLSupport = this.handshake.capabilityFlags & ClientConstants.SSL;
+        const multiFactorAuthentication = this.handshake.capabilityFlags & ClientConstants.MULTI_FACTOR_AUTHENTICATION;
+        this.clientFlags = this.clientFlags | multiFactorAuthentication;
         connection.config.compress = connection.config.compress && this.handshake.capabilityFlags & ClientConstants.COMPRESS;
         this.clientFlags = this.clientFlags | connection.config.compress;
         if (connection.config.ssl) {
@@ -10946,16 +11227,23 @@ var require_client_handshake = __commonJS({
         } else {
           this.sendCredentials(connection);
         }
+        if (multiFactorAuthentication) {
+          this.authenticationFactor = 1;
+        }
         return ClientHandshake.prototype.handshakeResult;
       }
       handshakeResult(packet, connection) {
         const marker = packet.peekByte();
-        if (marker === 254 || marker === 1) {
+        if (marker === 254 || marker === 1 || marker === 2) {
           const authSwitch = require_auth_switch();
           try {
             if (marker === 1) {
               authSwitch.authSwitchRequestMoreData(packet, connection, this);
             } else {
+              if (this.authenticationFactor !== 0) {
+                connection.config.password = this[`password${this.authenticationFactor}`];
+                this.authenticationFactor += 1;
+              }
               authSwitch.authSwitchRequest(packet, connection, this);
             }
             return ClientHandshake.prototype.handshakeResult;
@@ -10998,9 +11286,9 @@ var require_client_handshake = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/server_handshake.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/server_handshake.js
 var require_server_handshake = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/server_handshake.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/server_handshake.js"(exports, module2) {
     "use strict";
     var CommandCode = require_commands();
     var Errors = require_errors();
@@ -11027,34 +11315,63 @@ var require_server_handshake = __commonJS({
         const clientHelloReply = Packets.HandshakeResponse.fromPacket(packet);
         connection.clientHelloReply = clientHelloReply;
         if (this.args.authCallback) {
-          this.args.authCallback({
-            user: clientHelloReply.user,
-            database: clientHelloReply.database,
-            address: connection.stream.remoteAddress,
-            authPluginData1: this.serverHello.authPluginData1,
-            authPluginData2: this.serverHello.authPluginData2,
-            authToken: clientHelloReply.authToken
-          }, (err, mysqlError) => {
-            if (!mysqlError) {
-              connection.writeOk();
-            } else {
-              connection.writeError({
-                message: mysqlError.message || "",
-                code: mysqlError.code || 1045
-              });
-              connection.close();
+          this.args.authCallback(
+            {
+              user: clientHelloReply.user,
+              database: clientHelloReply.database,
+              address: connection.stream.remoteAddress,
+              authPluginData1: this.serverHello.authPluginData1,
+              authPluginData2: this.serverHello.authPluginData2,
+              authToken: clientHelloReply.authToken
+            },
+            (err, mysqlError) => {
+              if (!mysqlError) {
+                connection.writeOk();
+              } else {
+                connection.writeError({
+                  message: mysqlError.message || "",
+                  code: mysqlError.code || 1045
+                });
+                connection.close();
+              }
             }
-          });
+          );
         } else {
           connection.writeOk();
         }
         return ServerHandshake.prototype.dispatchCommands;
+      }
+      _isStatement(query, name) {
+        const firstWord = query.split(" ")[0].toUpperCase();
+        return firstWord === name;
       }
       dispatchCommands(packet, connection) {
         let knownCommand = true;
         const encoding = connection.clientHelloReply.encoding;
         const commandCode = packet.readInt8();
         switch (commandCode) {
+          case CommandCode.STMT_PREPARE:
+            if (connection.listeners("stmt_prepare").length) {
+              const query = packet.readString(void 0, encoding);
+              connection.emit("stmt_prepare", query);
+            } else {
+              connection.writeError({
+                code: Errors.HA_ERR_INTERNAL_ERROR,
+                message: "No query handler for prepared statements."
+              });
+            }
+            break;
+          case CommandCode.STMT_EXECUTE:
+            if (connection.listeners("stmt_execute").length) {
+              const { stmtId, flags, iterationCount, values } = Packets.Execute.fromPacket(packet, encoding);
+              connection.emit("stmt_execute", stmtId, flags, iterationCount, values);
+            } else {
+              connection.writeError({
+                code: Errors.HA_ERR_INTERNAL_ERROR,
+                message: "No query handler for execute statements."
+              });
+            }
+            break;
           case CommandCode.QUIT:
             if (connection.listeners("quit").length) {
               connection.emit("quit");
@@ -11073,7 +11390,12 @@ var require_server_handshake = __commonJS({
           case CommandCode.QUERY:
             if (connection.listeners("query").length) {
               const query = packet.readString(void 0, encoding);
-              connection.emit("query", query);
+              if (this._isStatement(query, "PREPARE") || this._isStatement(query, "SET")) {
+                connection.emit("stmt_prepare", query);
+              } else if (this._isStatement(query, "EXECUTE")) {
+                connection.emit("stmt_execute", null, null, null, null, query);
+              } else
+                connection.emit("query", query);
             } else {
               connection.writeError({
                 code: Errors.HA_ERR_INTERNAL_ERROR,
@@ -11115,9 +11437,9 @@ var require_server_handshake = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/charsets.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/charsets.js
 var require_charsets = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/charsets.js"(exports) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/charsets.js"(exports) {
     "use strict";
     exports.BIG5_CHINESE_CI = 1;
     exports.LATIN2_CZECH_CS = 2;
@@ -11344,26 +11666,54 @@ var require_charsets = __commonJS({
     exports.GB18030_UNICODE_520_CI = 250;
     exports.UTF8_GENERAL50_CI = 253;
     exports.UTF8MB4_0900_AI_CI = 255;
-    exports.UTF8MB4_CS_0900_AI_CI = 266;
-    exports.UTF8MB4_DA_0900_AI_CI = 267;
     exports.UTF8MB4_DE_PB_0900_AI_CI = 256;
-    exports.UTF8MB4_EO_0900_AI_CI = 273;
-    exports.UTF8MB4_ES_0900_AI_CI = 263;
-    exports.UTF8MB4_ES_TRAD_0900_AI_CI = 270;
-    exports.UTF8MB4_ET_0900_AI_CI = 262;
-    exports.UTF8MB4_HR_0900_AI_CI = 275;
-    exports.UTF8MB4_HU_0900_AI_CI = 274;
     exports.UTF8MB4_IS_0900_AI_CI = 257;
-    exports.UTF8MB4_LA_0900_AI_CI = 271;
-    exports.UTF8MB4_LT_0900_AI_CI = 268;
     exports.UTF8MB4_LV_0900_AI_CI = 258;
-    exports.UTF8MB4_PL_0900_AI_CI = 261;
     exports.UTF8MB4_RO_0900_AI_CI = 259;
-    exports.UTF8MB4_SK_0900_AI_CI = 269;
     exports.UTF8MB4_SL_0900_AI_CI = 260;
+    exports.UTF8MB4_PL_0900_AI_CI = 261;
+    exports.UTF8MB4_ET_0900_AI_CI = 262;
+    exports.UTF8MB4_ES_0900_AI_CI = 263;
     exports.UTF8MB4_SV_0900_AI_CI = 264;
     exports.UTF8MB4_TR_0900_AI_CI = 265;
+    exports.UTF8MB4_CS_0900_AI_CI = 266;
+    exports.UTF8MB4_DA_0900_AI_CI = 267;
+    exports.UTF8MB4_LT_0900_AI_CI = 268;
+    exports.UTF8MB4_SK_0900_AI_CI = 269;
+    exports.UTF8MB4_ES_TRAD_0900_AI_CI = 270;
+    exports.UTF8MB4_LA_0900_AI_CI = 271;
+    exports.UTF8MB4_EO_0900_AI_CI = 273;
+    exports.UTF8MB4_HU_0900_AI_CI = 274;
+    exports.UTF8MB4_HR_0900_AI_CI = 275;
     exports.UTF8MB4_VI_0900_AI_CI = 277;
+    exports.UTF8MB4_0900_AS_CS = 278;
+    exports.UTF8MB4_DE_PB_0900_AS_CS = 279;
+    exports.UTF8MB4_IS_0900_AS_CS = 280;
+    exports.UTF8MB4_LV_0900_AS_CS = 281;
+    exports.UTF8MB4_RO_0900_AS_CS = 282;
+    exports.UTF8MB4_SL_0900_AS_CS = 283;
+    exports.UTF8MB4_PL_0900_AS_CS = 284;
+    exports.UTF8MB4_ET_0900_AS_CS = 285;
+    exports.UTF8MB4_ES_0900_AS_CS = 286;
+    exports.UTF8MB4_SV_0900_AS_CS = 287;
+    exports.UTF8MB4_TR_0900_AS_CS = 288;
+    exports.UTF8MB4_CS_0900_AS_CS = 289;
+    exports.UTF8MB4_DA_0900_AS_CS = 290;
+    exports.UTF8MB4_LT_0900_AS_CS = 291;
+    exports.UTF8MB4_SK_0900_AS_CS = 292;
+    exports.UTF8MB4_ES_TRAD_0900_AS_CS = 293;
+    exports.UTF8MB4_LA_0900_AS_CS = 294;
+    exports.UTF8MB4_EO_0900_AS_CS = 296;
+    exports.UTF8MB4_HU_0900_AS_CS = 297;
+    exports.UTF8MB4_HR_0900_AS_CS = 298;
+    exports.UTF8MB4_VI_0900_AS_CS = 300;
+    exports.UTF8MB4_JA_0900_AS_CS = 303;
+    exports.UTF8MB4_JA_0900_AS_CS_KS = 304;
+    exports.UTF8MB4_0900_AS_CI = 305;
+    exports.UTF8MB4_RU_0900_AI_CI = 306;
+    exports.UTF8MB4_RU_0900_AS_CS = 307;
+    exports.UTF8MB4_ZH_0900_AS_CS = 308;
+    exports.UTF8MB4_0900_BIN = 309;
     exports.BIG5 = exports.BIG5_CHINESE_CI;
     exports.DEC8 = exports.DEC8_SWEDISH_CI;
     exports.CP850 = exports.CP850_GENERAL_CI;
@@ -11407,9 +11757,9 @@ var require_charsets = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/helpers.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/helpers.js
 var require_helpers = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/helpers.js"(exports) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/helpers.js"(exports) {
     "use strict";
     function srcEscape(str) {
       return JSON.stringify({
@@ -11420,7 +11770,8 @@ var require_helpers = __commonJS({
     var highlightFn;
     var cardinalRecommended = false;
     try {
-      highlightFn = require("cardinal").highlight;
+      const REQUIRE_TERMINATOR = "";
+      highlightFn = require(`cardinal${REQUIRE_TERMINATOR}`).highlight;
     } catch (err) {
       highlightFn = (text) => {
         if (!cardinalRecommended) {
@@ -11627,9 +11978,9 @@ var require_generate_function = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/parsers/parser_cache.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/parsers/parser_cache.js
 var require_parser_cache = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/parsers/parser_cache.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/parsers/parser_cache.js"(exports, module2) {
     "use strict";
     var LRU = require_lru_cache();
     var parserCache = new LRU({
@@ -11657,7 +12008,7 @@ var require_parser_cache = __commonJS({
       parserCache.max = max;
     }
     function clearCache() {
-      parserCache.reset();
+      parserCache.clear();
     }
     module2.exports = {
       getParser,
@@ -11667,9 +12018,9 @@ var require_parser_cache = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/parsers/text_parser.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/parsers/text_parser.js
 var require_text_parser = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/parsers/text_parser.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/parsers/text_parser.js"(exports, module2) {
     "use strict";
     var Types = require_types();
     var Charsets = require_charsets();
@@ -11744,8 +12095,11 @@ var require_text_parser = __commonJS({
           table: field.table,
           name: field.name,
           charset: field.characterSet,
-          string: function() {
-            return _this.packet.readLengthCodedString(field.encoding);
+          string: function(encoding = field.encoding) {
+            if (field.columnType === Types.JSON && encoding === field.encoding) {
+              console.warn(`typeCast: JSON column "${field.name}" is interpreted as BINARY by default, recommended to manually set utf8 encoding: \`field.string("utf8")\``);
+            }
+            return _this.packet.readLengthCodedString(encoding);
           },
           buffer: function() {
             return _this.packet.readLengthCodedBuffer();
@@ -11756,7 +12110,9 @@ var require_text_parser = __commonJS({
         };
       }
       const parserFn = genFunc();
-      parserFn("(function () {")("return class TextRow {");
+      parserFn("(function () {")(
+        "return class TextRow {"
+      );
       parserFn("constructor(fields) {");
       if (typeof options.typeCast === "function") {
         parserFn("const _this = this;");
@@ -11789,7 +12145,9 @@ var require_text_parser = __commonJS({
         fieldName = helpers.srcEscape(fields[i2].name);
         parserFn(`// ${fieldName}: ${typeNames[fields[i2].columnType]}`);
         if (typeof options.nestTables === "string") {
-          lvalue = `result[${helpers.srcEscape(fields[i2].table + options.nestTables + fields[i2].name)}]`;
+          lvalue = `result[${helpers.srcEscape(
+            fields[i2].table + options.nestTables + fields[i2].name
+          )}]`;
         } else if (options.nestTables === true) {
           lvalue = `result[${helpers.srcEscape(fields[i2].table)}][${fieldName}]`;
         } else if (options.rowsAsArray) {
@@ -11801,7 +12159,13 @@ var require_text_parser = __commonJS({
           parserFn(`${lvalue} = packet.readLengthCodedBuffer();`);
         } else {
           const encodingExpr = `fields[${i2}].encoding`;
-          const readCode = readCodeFor(fields[i2].columnType, fields[i2].characterSet, encodingExpr, config, options);
+          const readCode = readCodeFor(
+            fields[i2].columnType,
+            fields[i2].characterSet,
+            encodingExpr,
+            config,
+            options
+          );
           if (typeof options.typeCast === "function") {
             parserFn(`${lvalue} = options.typeCast(this.wrap${i2}, function() { return ${readCode} });`);
           } else {
@@ -11813,7 +12177,10 @@ var require_text_parser = __commonJS({
       parserFn("}");
       parserFn("};")("})()");
       if (config.debug) {
-        helpers.printDebugWithCode("Compiled text protocol row parser", parserFn.toString());
+        helpers.printDebugWithCode(
+          "Compiled text protocol row parser",
+          parserFn.toString()
+        );
       }
       if (typeof options.typeCast === "function") {
         return parserFn.toFunction({ wrap });
@@ -11827,10 +12194,11 @@ var require_text_parser = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/query.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/query.js
 var require_query2 = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/query.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/query.js"(exports, module2) {
     "use strict";
+    var process2 = require("process");
     var Timers = require("timers");
     var Readable = require("stream").Readable;
     var Command = require_command();
@@ -11871,8 +12239,11 @@ var require_query2 = __commonJS({
         this._connection = connection;
         this.options = Object.assign({}, connection.config, this._queryOptions);
         this._setTimeout();
-        this._time = process.hrtime();
-        const cmdPacket = new Packets.Query(this.sql, connection.config.charsetNumber);
+        this._time = process2.hrtime();
+        const cmdPacket = new Packets.Query(
+          this.sql,
+          connection.config.charsetNumber
+        );
         connection.writePacket(cmdPacket.toPacket(1));
         return Query.prototype.resultsetHeader;
       }
@@ -11895,13 +12266,13 @@ var require_query2 = __commonJS({
             fields = this._fields;
           }
           if (this._time)
-            time = process.hrtime(this._time)[1] / 1e6;
+            time = process2.hrtime(this._time)[1] / 1e6;
           if (fields) {
-            process.nextTick(() => {
+            process2.nextTick(() => {
               this.onResult(null, rows, fields, time);
             });
           } else {
-            process.nextTick(() => {
+            process2.nextTick(() => {
               this.onResult(null, rows, void 0, time);
             });
           }
@@ -11931,7 +12302,9 @@ var require_query2 = __commonJS({
         const rs = new Packets.ResultSetHeader(packet, connection);
         this._fieldCount = rs.fieldCount;
         if (connection.config.debug) {
-          console.log(`        Resultset header received, expecting ${rs.fieldCount} column definition packets`);
+          console.log(
+            `        Resultset header received, expecting ${rs.fieldCount} column definition packets`
+          );
         }
         if (this._fieldCount === 0) {
           return this.doneInsert(rs);
@@ -11948,7 +12321,9 @@ var require_query2 = __commonJS({
         if (this._streamFactory) {
           this._localStream = this._streamFactory(path);
         } else {
-          this._localStreamError = new Error(`As a result of LOCAL INFILE command server wants to read ${path} file, but as of v2.0 you must provide streamFactory option returning ReadStream.`);
+          this._localStreamError = new Error(
+            `As a result of LOCAL INFILE command server wants to read ${path} file, but as of v2.0 you must provide streamFactory option returning ReadStream.`
+          );
           connection.writePacket(EmptyPacket);
           return this.infileOk;
         }
@@ -11964,7 +12339,9 @@ var require_query2 = __commonJS({
         const onData = function(data) {
           const dataWithHeader = Buffer.allocUnsafe(data.length + 4);
           data.copy(dataWithHeader, 4);
-          connection.writePacket(new Packets.Packet(0, dataWithHeader, 0, dataWithHeader.length));
+          connection.writePacket(
+            new Packets.Packet(0, dataWithHeader, 0, dataWithHeader.length)
+          );
         };
         const onEnd = () => {
           connection.removeListener("error", onConnectionError);
@@ -11993,7 +12370,10 @@ var require_query2 = __commonJS({
       readField(packet, connection) {
         this._receivedFieldsCount++;
         if (this._fields[this._resultIndex].length !== this._fieldCount) {
-          const field = new Packets.ColumnDefinition(packet, connection.clientEncoding);
+          const field = new Packets.ColumnDefinition(
+            packet,
+            connection.clientEncoding
+          );
           this._fields[this._resultIndex].push(field);
           if (connection.config.debug) {
             console.log("        Column definition:");
@@ -12028,7 +12408,11 @@ var require_query2 = __commonJS({
         }
         let row;
         try {
-          row = this._rowParser.next(packet, this._fields[this._resultIndex], this.options);
+          row = this._rowParser.next(
+            packet,
+            this._fields[this._resultIndex],
+            this.options
+          );
         } catch (err) {
           this._localStreamError = err;
           return this.doneInsert(null);
@@ -12072,7 +12456,10 @@ var require_query2 = __commonJS({
       _setTimeout() {
         if (this.timeout) {
           const timeoutHandler = this._handleTimeoutError.bind(this);
-          this.queryTimeout = Timers.setTimeout(timeoutHandler, this.timeout);
+          this.queryTimeout = Timers.setTimeout(
+            timeoutHandler,
+            this.timeout
+          );
         }
       }
       _handleTimeoutError() {
@@ -12096,9 +12483,9 @@ var require_query2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/close_statement.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/close_statement.js
 var require_close_statement2 = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/close_statement.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/close_statement.js"(exports, module2) {
     "use strict";
     var Command = require_command();
     var Packets = require_packets();
@@ -12116,9 +12503,9 @@ var require_close_statement2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/field_flags.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/field_flags.js
 var require_field_flags = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/field_flags.js"(exports) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/field_flags.js"(exports) {
     "use strict";
     exports.NOT_NULL = 1;
     exports.PRI_KEY = 2;
@@ -12138,9 +12525,9 @@ var require_field_flags = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/parsers/binary_parser.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/parsers/binary_parser.js
 var require_binary_parser = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/parsers/binary_parser.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/parsers/binary_parser.js"(exports, module2) {
     "use strict";
     var FieldFlags = require_field_flags();
     var Charsets = require_charsets();
@@ -12248,7 +12635,9 @@ var require_binary_parser = __commonJS({
         parserFn(`// ${fieldName}: ${typeNames[fields[i2].columnType]}`);
         if (typeof options.nestTables === "string") {
           tableName = helpers.srcEscape(fields[i2].table);
-          lvalue = `result[${helpers.srcEscape(fields[i2].table + options.nestTables + fields[i2].name)}]`;
+          lvalue = `result[${helpers.srcEscape(
+            fields[i2].table + options.nestTables + fields[i2].name
+          )}]`;
         } else if (options.nestTables === true) {
           tableName = helpers.srcEscape(fields[i2].table);
           lvalue = `result[${tableName}][${fieldName}]`;
@@ -12271,7 +12660,10 @@ var require_binary_parser = __commonJS({
       parserFn("}");
       parserFn("};")("})()");
       if (config.debug) {
-        helpers.printDebugWithCode("Compiled binary protocol row parser", parserFn.toString());
+        helpers.printDebugWithCode(
+          "Compiled binary protocol row parser",
+          parserFn.toString()
+        );
       }
       return parserFn.toFunction();
     }
@@ -12282,9 +12674,9 @@ var require_binary_parser = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/execute.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/execute.js
 var require_execute2 = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/execute.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/execute.js"(exports, module2) {
     "use strict";
     var Command = require_command();
     var Query = require_query2();
@@ -12321,7 +12713,12 @@ var require_execute2 = __commonJS({
         this._connection = connection;
         this.options = Object.assign({}, connection.config, this._executeOptions);
         this._setTimeout();
-        const executePacket = new Packets.Execute(this.statement.id, this.parameters, connection.config.charsetNumber, connection.config.timezone);
+        const executePacket = new Packets.Execute(
+          this.statement.id,
+          this.parameters,
+          connection.config.charsetNumber,
+          connection.config.timezone
+        );
         try {
           connection.writePacket(executePacket.toPacket(1));
         } catch (error) {
@@ -12331,7 +12728,10 @@ var require_execute2 = __commonJS({
       }
       readField(packet, connection) {
         let fields;
-        const field = new Packets.ColumnDefinition(packet, connection.clientEncoding);
+        const field = new Packets.ColumnDefinition(
+          packet,
+          connection.clientEncoding
+        );
         this._receivedFieldsCount++;
         this._fields[this._resultIndex].push(field);
         if (this._receivedFieldsCount === this._fieldCount) {
@@ -12345,7 +12745,10 @@ var require_execute2 = __commonJS({
         if (!packet.isEOF()) {
           return connection.protocolError("Expected EOF packet");
         }
-        this._rowParser = new (this.buildParserFromFields(this._fields[this._resultIndex], connection))();
+        this._rowParser = new (this.buildParserFromFields(
+          this._fields[this._resultIndex],
+          connection
+        ))();
         return Execute.prototype.row;
       }
     };
@@ -12362,9 +12765,9 @@ var require_execute2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/prepare.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/prepare.js
 var require_prepare = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/prepare.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/prepare.js"(exports, module2) {
     "use strict";
     var Packets = require_packets();
     var Command = require_command();
@@ -12387,7 +12790,9 @@ var require_prepare = __commonJS({
           callback = parameters;
           parameters = [];
         }
-        return this._connection.addCommand(new Execute({ statement: this, values: parameters }, callback));
+        return this._connection.addCommand(
+          new Execute({ statement: this, values: parameters }, callback)
+        );
       }
     };
     var Prepare = class extends Command {
@@ -12412,7 +12817,11 @@ var require_prepare = __commonJS({
           }
           return null;
         }
-        const cmdPacket = new Packets.PrepareStatement(this.query, connection.config.charsetNumber);
+        const cmdPacket = new Packets.PrepareStatement(
+          this.query,
+          connection.config.charsetNumber,
+          this.options.values
+        );
         connection.writePacket(cmdPacket.toPacket(1));
         return Prepare.prototype.prepareHeader;
       }
@@ -12461,7 +12870,13 @@ var require_prepare = __commonJS({
         return this.prepareDone(connection);
       }
       prepareDone(connection) {
-        const statement = new PreparedStatementInfo(this.query, this.id, this.fields, this.parameterDefinitions, connection);
+        const statement = new PreparedStatementInfo(
+          this.query,
+          this.id,
+          this.fields,
+          this.parameterDefinitions,
+          connection
+        );
         connection._statements.set(this.key, statement);
         if (this.onResult) {
           this.onResult(null, statement);
@@ -12473,9 +12888,9 @@ var require_prepare = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/ping.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/ping.js
 var require_ping = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/ping.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/ping.js"(exports, module2) {
     "use strict";
     var Command = require_command();
     var CommandCode = require_commands();
@@ -12486,7 +12901,12 @@ var require_ping = __commonJS({
         this.onResult = callback;
       }
       start(packet, connection) {
-        const ping = new Packet(0, Buffer.from([1, 0, 0, 0, CommandCode.PING]), 0, 5);
+        const ping = new Packet(
+          0,
+          Buffer.from([1, 0, 0, 0, CommandCode.PING]),
+          0,
+          5
+        );
         connection.writePacket(ping);
         return Ping.prototype.pingResponse;
       }
@@ -12501,9 +12921,9 @@ var require_ping = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/register_slave.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/register_slave.js
 var require_register_slave2 = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/register_slave.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/register_slave.js"(exports, module2) {
     "use strict";
     var Command = require_command();
     var Packets = require_packets();
@@ -12529,9 +12949,9 @@ var require_register_slave2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/binlog_query_statusvars.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/binlog_query_statusvars.js
 var require_binlog_query_statusvars = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/packets/binlog_query_statusvars.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/packets/binlog_query_statusvars.js"(exports, module2) {
     "use strict";
     var keys = {
       FLAGS2: 0,
@@ -12604,10 +13024,18 @@ var require_binlog_query_statusvars = __commonJS({
             break;
           case keys.INVOKERS:
             length = buffer[offset++];
-            result.invokerUsername = buffer.toString("utf8", offset, offset + length);
+            result.invokerUsername = buffer.toString(
+              "utf8",
+              offset,
+              offset + length
+            );
             offset += length;
             length = buffer[offset++];
-            result.invokerHostname = buffer.toString("utf8", offset, offset + length);
+            result.invokerHostname = buffer.toString(
+              "utf8",
+              offset,
+              offset + length
+            );
             offset += length;
             break;
           case keys.UPDATED_DB_NAMES:
@@ -12617,7 +13045,9 @@ var require_binlog_query_statusvars = __commonJS({
               prevOffset = offset;
               while (buffer[offset++] && offset < buffer.length) {
               }
-              result.updatedDBs.push(buffer.toString("utf8", prevOffset, offset - 1));
+              result.updatedDBs.push(
+                buffer.toString("utf8", prevOffset, offset - 1)
+              );
             }
             break;
           case keys.MICROSECONDS:
@@ -12630,9 +13060,9 @@ var require_binlog_query_statusvars = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/binlog_dump.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/binlog_dump.js
 var require_binlog_dump2 = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/binlog_dump.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/binlog_dump.js"(exports, module2) {
     "use strict";
     var Command = require_command();
     var Packets = require_packets();
@@ -12727,12 +13157,13 @@ var require_binlog_dump2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/change_user.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/change_user.js
 var require_change_user2 = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/change_user.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/change_user.js"(exports, module2) {
     "use strict";
     var Command = require_command();
     var Packets = require_packets();
+    var ClientConstants = require_client();
     var ClientHandshake = require_client_handshake();
     var CharsetToEncoding = require_charset_encodings();
     var ChangeUser = class extends Command {
@@ -12741,10 +13172,14 @@ var require_change_user2 = __commonJS({
         this.onResult = callback;
         this.user = options.user;
         this.password = options.password;
+        this.password1 = options.password;
+        this.password2 = options.password2;
+        this.password3 = options.password3;
         this.database = options.database;
         this.passwordSha1 = options.passwordSha1;
         this.charsetNumber = options.charsetNumber;
         this.currentConfig = options.currentConfig;
+        this.authenticationFactor = 0;
       }
       start(packet, connection) {
         const newPacket = new Packets.ChangeUser({
@@ -12762,8 +13197,12 @@ var require_change_user2 = __commonJS({
         this.currentConfig.database = this.database;
         this.currentConfig.charsetNumber = this.charsetNumber;
         connection.clientEncoding = CharsetToEncoding[this.charsetNumber];
-        connection._statements.reset();
+        connection._statements.clear();
         connection.writePacket(newPacket.toPacket());
+        const multiFactorAuthentication = connection.serverCapabilityFlags & ClientConstants.MULTI_FACTOR_AUTHENTICATION;
+        if (multiFactorAuthentication) {
+          this.authenticationFactor = 1;
+        }
         return ChangeUser.prototype.handshakeResult;
       }
     };
@@ -12773,9 +13212,9 @@ var require_change_user2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/quit.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/quit.js
 var require_quit = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/quit.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/quit.js"(exports, module2) {
     "use strict";
     var Command = require_command();
     var CommandCode = require_commands();
@@ -12783,13 +13222,18 @@ var require_quit = __commonJS({
     var Quit = class extends Command {
       constructor(callback) {
         super();
-        this.done = callback;
+        this.onResult = callback;
       }
       start(packet, connection) {
         connection._closing = true;
-        const quit = new Packet(0, Buffer.from([1, 0, 0, 0, CommandCode.QUIT]), 0, 5);
-        if (this.done) {
-          this.done();
+        const quit = new Packet(
+          0,
+          Buffer.from([1, 0, 0, 0, CommandCode.QUIT]),
+          0,
+          5
+        );
+        if (this.onResult) {
+          this.onResult();
         }
         connection.writePacket(quit);
         return null;
@@ -12799,9 +13243,9 @@ var require_quit = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/index.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/index.js
 var require_commands2 = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/commands/index.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/commands/index.js"(exports, module2) {
     "use strict";
     var ClientHandshake = require_client_handshake();
     var ServerHandshake = require_server_handshake();
@@ -12830,9 +13274,107 @@ var require_commands2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/ssl_profiles.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/package.json
+var require_package = __commonJS({
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/package.json"(exports, module2) {
+    module2.exports = {
+      name: "mysql2",
+      version: "3.2.0",
+      description: "fast mysql driver. Implements core protocol, prepared statements, ssl and compression in native JS",
+      main: "index.js",
+      directories: {
+        example: "examples"
+      },
+      typings: "typings/mysql/index",
+      scripts: {
+        lint: "npm run lint:docs && npm run lint:code",
+        "lint:code": 'eslint index.js promise.js "lib/**/*.js" "test/**/*.js" "benchmarks/**/*.js"',
+        "lint:docs": 'eslint Contributing.md "documentation/**/*.md" "examples/*.js"',
+        test: "node ./test/run.js",
+        "coverage-test": "c8 -r cobertura -r lcov -r text node ./test/run.js",
+        benchmark: "node ./benchmarks/benchmark.js",
+        prettier: 'prettier --single-quote --trailing-comma none --write "{lib,examples,test}/**/*.js"',
+        "prettier:docs": "prettier --single-quote --trailing-comma none --write README.md documentation/*",
+        precommit: "lint-staged",
+        "eslint-check": "eslint --print-config .eslintrc | eslint-config-prettier-check",
+        "wait-port": "wait-on",
+        "type-test": "node ./node_modules/typescript/bin/tsc -p tests.json && mocha typings/test --timeout 10000"
+      },
+      "lint-staged": {
+        "*.js": [
+          "prettier --single-quote --trailing-comma none --write",
+          "git add"
+        ]
+      },
+      repository: {
+        type: "git",
+        url: "https://github.com/sidorares/node-mysql2"
+      },
+      keywords: [
+        "mysql",
+        "client",
+        "server"
+      ],
+      files: [
+        "lib",
+        "typings/mysql",
+        "index.js",
+        "index.d.ts",
+        "promise.js",
+        "promise.d.ts"
+      ],
+      exports: {
+        ".": "./index.js",
+        "./promise": "./promise.js",
+        "./promise.js": "./promise.js"
+      },
+      engines: {
+        node: ">= 8.0"
+      },
+      author: "Andrey Sidorov <sidorares@yandex.ru>",
+      license: "MIT",
+      dependencies: {
+        denque: "^2.1.0",
+        "generate-function": "^2.3.1",
+        "iconv-lite": "^0.6.3",
+        long: "^5.2.1",
+        "lru-cache": "^7.14.1",
+        "named-placeholders": "^1.1.3",
+        "seq-queue": "^0.0.5",
+        sqlstring: "^2.3.2"
+      },
+      devDependencies: {
+        "@types/chai": "^4.3.4",
+        "@types/mocha": "^10.0.0",
+        "@types/node": "^18.7.1",
+        "@typescript-eslint/eslint-plugin": "^5.42.1",
+        "@typescript-eslint/parser": "^5.42.1",
+        "assert-diff": "^3.0.2",
+        benchmark: "^2.1.4",
+        c8: "^7.10.0",
+        chai: "^4.3.7",
+        "error-stack-parser": "^2.0.3",
+        eslint: "^8.27.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-async-await": "0.0.0",
+        "eslint-plugin-markdown": "^3.0.0",
+        husky: "^8.0.2",
+        "lint-staged": "^13.0.3",
+        mocha: "^10.0.0",
+        portfinder: "^1.0.28",
+        prettier: "^2.4.1",
+        progress: "^2.0.3",
+        typescript: "^4.4.3",
+        urun: "0.0.8",
+        utest: "0.0.8"
+      }
+    };
+  }
+});
+
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/ssl_profiles.js
 var require_ssl_profiles = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/constants/ssl_profiles.js"(exports) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/constants/ssl_profiles.js"(exports) {
     "use strict";
     exports["Amazon RDS"] = {
       ca: [
@@ -12881,19 +13423,31 @@ var require_ssl_profiles = __commonJS({
         "-----BEGIN CERTIFICATE-----\nMIIEDDCCAvSgAwIBAgICcEUwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\nMRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\nDBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\nMSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTgxNjU2\nMjBaFw0yNDA4MjIxNzA4NTBaMIGZMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\naGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\nZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzEqMCgGA1UEAwwhQW1h\nem9uIFJEUyBhcC1ub3J0aGVhc3QtMSAyMDE5IENBMIIBIjANBgkqhkiG9w0BAQEF\nAAOCAQ8AMIIBCgKCAQEAndtkldmHtk4TVQAyqhAvtEHSMb6pLhyKrIFved1WO3S7\n+I+bWwv9b2W/ljJxLq9kdT43bhvzonNtI4a1LAohS6bqyirmk8sFfsWT3akb+4Sx\n1sjc8Ovc9eqIWJCrUiSvv7+cS7ZTA9AgM1PxvHcsqrcUXiK3Jd/Dax9jdZE1e15s\nBEhb2OEPE+tClFZ+soj8h8Pl2Clo5OAppEzYI4LmFKtp1X/BOf62k4jviXuCSst3\nUnRJzE/CXtjmN6oZySVWSe0rQYuyqRl6//9nK40cfGKyxVnimB8XrrcxUN743Vud\nQQVU0Esm8OVTX013mXWQXJHP2c0aKkog8LOga0vobQIDAQABo2YwZDAOBgNVHQ8B\nAf8EBAMCAQYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHQ4EFgQULmoOS1mFSjj+\nsnUPx4DgS3SkLFYwHwYDVR0jBBgwFoAUc19g2LzLA5j0Kxc0LjZapmD/vB8wDQYJ\nKoZIhvcNAQELBQADggEBAAkVL2P1M2/G9GM3DANVAqYOwmX0Xk58YBHQu6iiQg4j\nb4Ky/qsZIsgT7YBsZA4AOcPKQFgGTWhe9pvhmXqoN3RYltN8Vn7TbUm/ZVDoMsrM\ngwv0+TKxW1/u7s8cXYfHPiTzVSJuOogHx99kBW6b2f99GbP7O1Sv3sLq4j6lVvBX\nFiacf5LAWC925nvlTzLlBgIc3O9xDtFeAGtZcEtxZJ4fnGXiqEnN4539+nqzIyYq\nnvlgCzyvcfRAxwltrJHuuRu6Maw5AGcd2Y0saMhqOVq9KYKFKuD/927BTrbd2JVf\n2sGWyuPZPCk3gq+5pCjbD0c6DkhcMGI6WwxvM5V/zSM=\n-----END CERTIFICATE-----\n",
         "-----BEGIN CERTIFICATE-----\nMIIEBzCCAu+gAwIBAgICJDQwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\nMRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\nDBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\nMSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTgxNzAz\nMTVaFw0yNDA4MjIxNzA4NTBaMIGUMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\naGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\nZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzElMCMGA1UEAwwcQW1h\nem9uIFJEUyBldS13ZXN0LTMgMjAxOSBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEP\nADCCAQoCggEBAL9bL7KE0n02DLVtlZ2PL+g/BuHpMYFq2JnE2RgompGurDIZdjmh\n1pxfL3nT+QIVMubuAOy8InRfkRxfpxyjKYdfLJTPJG+jDVL+wDcPpACFVqoV7Prg\npVYEV0lc5aoYw4bSeYFhdzgim6F8iyjoPnObjll9mo4XsHzSoqJLCd0QC+VG9Fw2\nq+GDRZrLRmVM2oNGDRbGpGIFg77aRxRapFZa8SnUgs2AqzuzKiprVH5i0S0M6dWr\ni+kk5epmTtkiDHceX+dP/0R1NcnkCPoQ9TglyXyPdUdTPPRfKCq12dftqll+u4mV\nARdN6WFjovxax8EAP2OAUTi1afY+1JFMj+sCAwEAAaNmMGQwDgYDVR0PAQH/BAQD\nAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFLfhrbrO5exkCVgxW0x3\nY2mAi8lNMB8GA1UdIwQYMBaAFHNfYNi8ywOY9CsXNC42WqZg/7wfMA0GCSqGSIb3\nDQEBCwUAA4IBAQAigQ5VBNGyw+OZFXwxeJEAUYaXVoP/qrhTOJ6mCE2DXUVEoJeV\nSxScy/TlFA9tJXqmit8JH8VQ/xDL4ubBfeMFAIAo4WzNWDVoeVMqphVEcDWBHsI1\nAETWzfsapRS9yQekOMmxg63d/nV8xewIl8aNVTHdHYXMqhhik47VrmaVEok1UQb3\nO971RadLXIEbVd9tjY5bMEHm89JsZDnDEw1hQXBb67Elu64OOxoKaHBgUH8AZn/2\nzFsL1ynNUjOhCSAA15pgd1vjwc0YsBbAEBPcHBWYBEyME6NLNarjOzBl4FMtATSF\nwWCKRGkvqN8oxYhwR2jf2rR5Mu4DWkK5Q8Ep\n-----END CERTIFICATE-----\n",
         "-----BEGIN CERTIFICATE-----\nMIIEBzCCAu+gAwIBAgICJVUwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\nMRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\nDBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\nMSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTkxODE2\nNTNaFw0yNDA4MjIxNzA4NTBaMIGUMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\naGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\nZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzElMCMGA1UEAwwcQW1h\nem9uIFJEUyB1cy1lYXN0LTEgMjAxOSBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEP\nADCCAQoCggEBAM3i/k2u6cqbMdcISGRvh+m+L0yaSIoOXjtpNEoIftAipTUYoMhL\nInXGlQBVA4shkekxp1N7HXe1Y/iMaPEyb3n+16pf3vdjKl7kaSkIhjdUz3oVUEYt\ni8Z/XeJJ9H2aEGuiZh3kHixQcZczn8cg3dA9aeeyLSEnTkl/npzLf//669Ammyhs\nXcAo58yvT0D4E0D/EEHf2N7HRX7j/TlyWvw/39SW0usiCrHPKDLxByLojxLdHzso\nQIp/S04m+eWn6rmD+uUiRteN1hI5ncQiA3wo4G37mHnUEKo6TtTUh+sd/ku6a8HK\nglMBcgqudDI90s1OpuIAWmuWpY//8xEG2YECAwEAAaNmMGQwDgYDVR0PAQH/BAQD\nAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFPqhoWZcrVY9mU7tuemR\nRBnQIj1jMB8GA1UdIwQYMBaAFHNfYNi8ywOY9CsXNC42WqZg/7wfMA0GCSqGSIb3\nDQEBCwUAA4IBAQB6zOLZ+YINEs72heHIWlPZ8c6WY8MDU+Be5w1M+BK2kpcVhCUK\nPJO4nMXpgamEX8DIiaO7emsunwJzMSvavSPRnxXXTKIc0i/g1EbiDjnYX9d85DkC\nE1LaAUCmCZBVi9fIe0H2r9whIh4uLWZA41oMnJx/MOmo3XyMfQoWcqaSFlMqfZM4\n0rNoB/tdHLNuV4eIdaw2mlHxdWDtF4oH+HFm+2cVBUVC1jXKrFv/euRVtsTT+A6i\nh2XBHKxQ1Y4HgAn0jACP2QSPEmuoQEIa57bEKEcZsBR8SDY6ZdTd2HLRIApcCOSF\nMRM8CKLeF658I0XgF8D5EsYoKPsA+74Z+jDH\n-----END CERTIFICATE-----\n",
-        "-----BEGIN CERTIFICATE-----\nMIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\nADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6\nb24gUm9vdCBDQSAxMB4XDTE1MDUyNjAwMDAwMFoXDTM4MDExNzAwMDAwMFowOTEL\nMAkGA1UEBhMCVVMxDzANBgNVBAoTBkFtYXpvbjEZMBcGA1UEAxMQQW1hem9uIFJv\nb3QgQ0EgMTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALJ4gHHKeNXj\nca9HgFB0fW7Y14h29Jlo91ghYPl0hAEvrAIthtOgQ3pOsqTQNroBvo3bSMgHFzZM\n9O6II8c+6zf1tRn4SWiw3te5djgdYZ6k/oI2peVKVuRF4fn9tBb6dNqcmzU5L/qw\nIFAGbHrQgLKm+a/sRxmPUDgH3KKHOVj4utWp+UhnMJbulHheb4mjUcAwhmahRWa6\nVOujw5H5SNz/0egwLX0tdHA114gk957EWW67c4cX8jJGKLhD+rcdqsq08p8kDi1L\n93FcXmn/6pUCyziKrlA4b9v7LWIbxcceVOF34GfID5yHI9Y/QCB/IIDEgEw+OyQm\njgSubJrIqg0CAwEAAaNCMEAwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMC\nAYYwHQYDVR0OBBYEFIQYzIU07LwMlJQuCFmcx7IQTgoIMA0GCSqGSIb3DQEBCwUA\nA4IBAQCY8jdaQZChGsV2USggNiMOruYou6r4lK5IpDB/G/wkjUu0yKGX9rbxenDI\nU5PMCCjjmCXPI6T53iHTfIUJrU6adTrCC2qJeHZERxhlbI1Bjjt/msv0tadQ1wUs\nN+gDS63pYaACbvXy8MWy7Vu33PqUXHeeE6V/Uq2V8viTO96LXFvKWlJbYK8U90vv\no/ufQJVtMVT8QtPHRh8jrdkPSHCa2XV4cdFyQzR1bldZwgJcJmApzyMZFo6IQ6XU\n5MsI+yMRQ+hDKXJioaldXgjUkK642M4UwtBV8ob2xJNDd2ZhwLnoQdeXeGADbkpy\nrqXRfboQnoZsG4q5WTP468SQvvG5\n-----END CERTIFICATE-----\n"
+        "-----BEGIN CERTIFICATE-----\nMIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\nADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6\nb24gUm9vdCBDQSAxMB4XDTE1MDUyNjAwMDAwMFoXDTM4MDExNzAwMDAwMFowOTEL\nMAkGA1UEBhMCVVMxDzANBgNVBAoTBkFtYXpvbjEZMBcGA1UEAxMQQW1hem9uIFJv\nb3QgQ0EgMTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALJ4gHHKeNXj\nca9HgFB0fW7Y14h29Jlo91ghYPl0hAEvrAIthtOgQ3pOsqTQNroBvo3bSMgHFzZM\n9O6II8c+6zf1tRn4SWiw3te5djgdYZ6k/oI2peVKVuRF4fn9tBb6dNqcmzU5L/qw\nIFAGbHrQgLKm+a/sRxmPUDgH3KKHOVj4utWp+UhnMJbulHheb4mjUcAwhmahRWa6\nVOujw5H5SNz/0egwLX0tdHA114gk957EWW67c4cX8jJGKLhD+rcdqsq08p8kDi1L\n93FcXmn/6pUCyziKrlA4b9v7LWIbxcceVOF34GfID5yHI9Y/QCB/IIDEgEw+OyQm\njgSubJrIqg0CAwEAAaNCMEAwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMC\nAYYwHQYDVR0OBBYEFIQYzIU07LwMlJQuCFmcx7IQTgoIMA0GCSqGSIb3DQEBCwUA\nA4IBAQCY8jdaQZChGsV2USggNiMOruYou6r4lK5IpDB/G/wkjUu0yKGX9rbxenDI\nU5PMCCjjmCXPI6T53iHTfIUJrU6adTrCC2qJeHZERxhlbI1Bjjt/msv0tadQ1wUs\nN+gDS63pYaACbvXy8MWy7Vu33PqUXHeeE6V/Uq2V8viTO96LXFvKWlJbYK8U90vv\no/ufQJVtMVT8QtPHRh8jrdkPSHCa2XV4cdFyQzR1bldZwgJcJmApzyMZFo6IQ6XU\n5MsI+yMRQ+hDKXJioaldXgjUkK642M4UwtBV8ob2xJNDd2ZhwLnoQdeXeGADbkpy\nrqXRfboQnoZsG4q5WTP468SQvvG5\n-----END CERTIFICATE-----\n",
+        "-----BEGIN CERTIFICATE-----\nMIIEDDCCAvSgAwIBAgIJAMy5uCBvP5roMA0GCSqGSIb3DQEBCwUAMIGSMQswCQYD\nVQQGEwJVUzEQMA4GA1UEBwwHU2VhdHRsZTETMBEGA1UECAwKV2FzaGluZ3RvbjEi\nMCAGA1UECgwZQW1hem9uIFdlYiBTZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1h\nem9uIFJEUzEjMCEGA1UEAwwaQW1hem9uIFJEUyBDTiBSb290IDIwMTkgQ0EwHhcN\nMTkwOTA5MTY1NzIyWhcNMjQwOTA5MTY1NzIyWjCBkjELMAkGA1UEBhMCVVMxEDAO\nBgNVBAcMB1NlYXR0bGUxEzARBgNVBAgMCldhc2hpbmd0b24xIjAgBgNVBAoMGUFt\nYXpvbiBXZWIgU2VydmljZXMsIEluYy4xEzARBgNVBAsMCkFtYXpvbiBSRFMxIzAh\nBgNVBAMMGkFtYXpvbiBSRFMgQ04gUm9vdCAyMDE5IENBMIIBIjANBgkqhkiG9w0B\nAQEFAAOCAQ8AMIIBCgKCAQEAzxl9K4p06ZTZ9eZmEXyTHe9Ut8OIZR86t6A8b8g0\nnhqMe+y4ee+UfqxumVAVyXwNXOiGQVbuJhScLaJ39/Ol4YzIGjdoD8MUvsf4BuET\nudQh2sJL8OnlXuqSICKpecN5ud4UQvoMVZ9FGJ+e8TvXczW14rGO62sPfYM/WrMD\nR7P4fhQfmWFzkc24/hZGRL1nkvwMdtiwuI2TYobhlwZQOdsNcZ9Ek+PcSI4oqgXN\nSqpYy85JzrRZiR5iFGw1CnJtGlC0oatXFzw/B8XOd9wvLTlJhyLo7zw9j3zedKbv\n33fTdjfvpGvcfw9CYggwrbsVmUeUhVDfMntTc9z9MRccmwIDAQABo2MwYTAOBgNV\nHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQU/Z0g+hUMGQou\nhsbyFgSxc5jsbaowHwYDVR0jBBgwFoAU/Z0g+hUMGQouhsbyFgSxc5jsbaowDQYJ\nKoZIhvcNAQELBQADggEBAAlGPCq1D/PGkWoZZpAK3V94EOByklp2HkUPEZ0PPv3Z\n/euD2wUPkXnf27FC1XJE0pJX96B97ZXIEHl4S4obBRSlybzuvmfH4gyu+b+7Tebv\nVmfsAodyfYCm90heAYADWkc/XKDj+oe3NkbR+LokrM+5aOB71f5mMLnFgYHQW/dI\nIRDziUSpP0LMr+YNKvM7qytrobPS2TOWtweWpXesNBBeiLTHZpTEu8DYcE+4e2tj\nO0spF3HuoF0Oc7ioVy2exE+HV1oJOquHGSanZSdMHCAEDMfKUmlT7/zcwC877UT/\nsysqYU/fl6vX48QDfalZuBYj+d1dUxIb1sx6q4Iw4+s=\n-----END CERTIFICATE-----\n",
+        "-----BEGIN CERTIFICATE-----\nMIIEDDCCAvSgAwIBAgIDAIMzMA0GCSqGSIb3DQEBCwUAMIGSMQswCQYDVQQGEwJV\nUzEQMA4GA1UEBwwHU2VhdHRsZTETMBEGA1UECAwKV2FzaGluZ3RvbjEiMCAGA1UE\nCgwZQW1hem9uIFdlYiBTZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJE\nUzEjMCEGA1UEAwwaQW1hem9uIFJEUyBDTiBSb290IDIwMTkgQ0EwHhcNMTkwOTA5\nMjAzMjM3WhcNMjQwOTA5MTY1NzIyWjCBlTELMAkGA1UEBhMCVVMxEzARBgNVBAgM\nCldhc2hpbmd0b24xEDAOBgNVBAcMB1NlYXR0bGUxIjAgBgNVBAoMGUFtYXpvbiBX\nZWIgU2VydmljZXMsIEluYy4xEzARBgNVBAsMCkFtYXpvbiBSRFMxJjAkBgNVBAMM\nHUFtYXpvbiBSRFMgY24tbm9ydGgtMSAyMDE5IENBMIIBIjANBgkqhkiG9w0BAQEF\nAAOCAQ8AMIIBCgKCAQEA1QX8vbiba8pa4b2CLVBNhqFFYwsuekptFPv/RTixRZ6K\na1fZ/vp/d7xhfhwU9DKXyQ3ONhwOVKnFuvQuWXQiPc2cRkxM+TF7yF6hoPrIOOzr\ns6ANmR2k/n9X0aOO7sqx4q7A73ueIDJst3IjfaFgt1jaqfC7tcSSROB/+vZZTNGP\nKgFvd02ut2mCtLgohzavVDicUc0V8H1sV5Ah4n0VafW7Fqru9ehiPO79JXJKIS7W\ngcgOOiK6YDqxaQRN+LTNYdZ+DZ1+Gx8NBN80fVOO2hpRFpb662k/hQH8onYkvXaY\nkr9ouDTjfr5t8E8CEvkO/Y/B3/lt7mVjEGqImCwJawIDAQABo2YwZDAOBgNVHQ8B\nAf8EBAMCAQYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHQ4EFgQUXJaoUok7ROtv\n5/2xeuaRqelnejIwHwYDVR0jBBgwFoAU/Z0g+hUMGQouhsbyFgSxc5jsbaowDQYJ\nKoZIhvcNAQELBQADggEBAIiPRsCpaiMsWUq7liRV6NDgljzjVOMzUsDnfusGUQtO\nfa3tCI+sx5j92jFzlS0GwseB/3FjVQDRll/kFTqbVwpHw2kaLeAbVvquxZAoD/91\n6gBGSF3qmLestFpf02kNHlv9skqnMrBLYkQ4kckgt4Y8E8pNLSeNtJykbp7XCf7H\nA+izbITBxNHxLUqMStEtk8RhIWUmiAbp5ENHwYCL5h9g4VV7X4TsW/1Q4KgEstWa\n1t65VWr3p7NnKpMX5CL/v5FGCYq0TDdr3qmHKbXbofmUKltZ7VxSAh5LFrfLuGzt\nMtXQkd0NDvVqMNHAjEkj7/MtlYyridWrKsiUc3ALBR4=\n-----END CERTIFICATE-----\n",
+        "-----BEGIN CERTIFICATE-----\nMIIGADCCA+igAwIBAgIQfFbtOHNGJtTnXjvwddAHjTANBgkqhkiG9w0BAQwFADCB\nmDELMAkGA1UEBhMCVVMxIjAgBgNVBAoMGUFtYXpvbiBXZWIgU2VydmljZXMsIElu\nYy4xEzARBgNVBAsMCkFtYXpvbiBSRFMxCzAJBgNVBAgMAldBMTEwLwYDVQQDDChB\nbWF6b24gUkRTIGNuLW5vcnRoLTEgUm9vdCBDQSBSU0E0MDk2IEcxMRAwDgYDVQQH\nDAdTZWF0dGxlMCAXDTIxMDUyNTIzMTg1MloYDzIxMjEwNTI2MDAxODUyWjCBmDEL\nMAkGA1UEBhMCVVMxIjAgBgNVBAoMGUFtYXpvbiBXZWIgU2VydmljZXMsIEluYy4x\nEzARBgNVBAsMCkFtYXpvbiBSRFMxCzAJBgNVBAgMAldBMTEwLwYDVQQDDChBbWF6\nb24gUkRTIGNuLW5vcnRoLTEgUm9vdCBDQSBSU0E0MDk2IEcxMRAwDgYDVQQHDAdT\nZWF0dGxlMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA0OO5+lCMwInN\ntMJ19bv+uyEE74uE5vHQHtla5sI1Hp+A8DhTURgJvIHRxv3Tgtk6ja4v/VcbLcVr\nR4OkZBY9b5RKHMGDK1ljwo/MxMFuK/TGkHcrjhiZcgYyNm2oxK33/YafLqq18a8p\nHREEZwz7wSi6DY8Mf9heH8a2T3ZDlUovj5JUVIDu7kSGYHw16eUi9twX7MtO0b43\nociygADBSoZeyMKZHisYdyf4D/LLDYgh7ja+Ncu4k3ErMmxGN5cZN+USyquxmnr8\nuXkl2t9VH0BhB0kej/vO9DhLdpKJRVaML1A9Wg3pd0U37xOJhTU6wCm23zdga3kR\nbf9azdS68zDK9tYiDrGc7kRkj7SOUWLY7fagyKv3rESWXrGkV8lzsK7xseomAKvL\nfHEfL0QUD63kEk4W8VH8XY7NwXZD6Je5hiQtLu8/uxed96FWwZ1DJrzojW4mKFQF\neECHU5b5jza4gjZ/pOeeqRmx3iojjYf2ZVm0+0SRFd+BWWPpqyeVUvC9gVZ+VMPr\nSUqgIrHZ2GMNJXIHt9TR3oq4XnXVcvsPuKQCWg8HIgczfDc//zaYhLdcVQbsTVEo\nI8nLqs6FygTnhyPSbJG9n9fF+RpTowXVb1UNovCTR/UBvR9l8JobnaqKUFMI1W2d\nDy98l55+LFT1VYm+rbvxJlVJm9kw6usCAwEAAaNCMEAwDwYDVR0TAQH/BAUwAwEB\n/zAdBgNVHQ4EFgQUfVNPfvq3BkZRL2qrVKEvMbPBSHAwDgYDVR0PAQH/BAQDAgGG\nMA0GCSqGSIb3DQEBDAUAA4ICAQBZ9hDaGcZFSxEyV4Yk7ynJrpKznaLWaq8T72lb\nsXcgnGGnTYQtUhdR2atA6KVtc2D8UCxDiP4kE8xC+voGKgRRt3WvIX/KRiYH4Rr/\n8DS/wux6MYYEaXjoCil1xNTOyhMCmtEPIFo8LDStbaur/PmE5VGVr45XcqNdNt5A\nS8esMGK5aI7D2zQEfGN940+U2sUCVYnvuaR1nbcMkgMzzdL2yCCZ1mlyk2KvSsF7\nb0P772MnZ3x4mP3IcUh0/6XSSIxWMAB6r6s1nCZd2JGGIyVSc2YLsB2jib2gYyfT\nzq2SL040aatsOAecrfYDG6UbeL0OUXivhOzycvS92FhEDU0BNB44wEO0Qg/zAc2C\nJlkPCMKIZc9g70RhHQ9VV9kc/SCjVRu1PauryzTmXEfr+ItrbZVW33JQg7ZOmgfj\njgpKF9q7sG2VJBDCRdp2nfeA1Bblc36yC0LodZ7voSzcJI7nnv1aO3U1CvQl0Mha\nfMjZqd0kPIX6d0G4C5SImvMCF59annWwt4V1sbWrgEvqdICe0kVsofUtEW35kX3C\nW344OxVkmhhFuniTFWYCyuQNlhIIdA0I5trZPtRaWsV2cTkNIzfe2vHGXuMnwd6V\nCwxPaPdyvKB7n6x6tF5RUOXq0EZQf9XOmdOiCTua1WT+vobRX18RtJLaOa/n5AKo\nLlYzqw==\n-----END CERTIFICATE-----\n",
+        "-----BEGIN CERTIFICATE-----\nMIIEATCCAumgAwIBAgIRAN9d6r2p5Wg5Gwl1bK3+WfkwDQYJKoZIhvcNAQELBQAw\ngZgxCzAJBgNVBAYTAlVTMSIwIAYDVQQKDBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJ\nbmMuMRMwEQYDVQQLDApBbWF6b24gUkRTMQswCQYDVQQIDAJXQTExMC8GA1UEAwwo\nQW1hem9uIFJEUyBjbi1ub3J0aC0xIFJvb3QgQ0EgUlNBMjA0OCBHMTEQMA4GA1UE\nBwwHU2VhdHRsZTAgFw0yMTA1MjUyMzE1MDdaGA8yMDYxMDUyNjAwMTUwN1owgZgx\nCzAJBgNVBAYTAlVTMSIwIAYDVQQKDBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMu\nMRMwEQYDVQQLDApBbWF6b24gUkRTMQswCQYDVQQIDAJXQTExMC8GA1UEAwwoQW1h\nem9uIFJEUyBjbi1ub3J0aC0xIFJvb3QgQ0EgUlNBMjA0OCBHMTEQMA4GA1UEBwwH\nU2VhdHRsZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKvw4zHfM3cU\nyFI9KFITDF4feeon2P49qXx8YX8KUEYzNbkNQhPSt1J91kvy0ddHLrxxNd+LoQFi\nA5vu7a51VmX1MtKYs7SzEIUdrON3FKK/2cci2yCnwzoc3kam3jXvPUu56op+aH35\n0JHEco0i+NUjh7n5UV/yWc1+8kPLBQr+VMV3ndp85ik209esvCRWgQ+iWuADqHbf\nvjrFm/zjFIiwuX5qapkDtSRVwM6FwIfjSEF6udhZjsermfD2AoTesptZEiNIPRzV\net6s/U5gMjvAhc+MQgjjdCLBlhbXWR1CPtXOMp6o8Pjn2Et3eiM6G1T0jUO28BGP\n3/iq3JOXFj8CAwEAAaNCMEAwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUEoBo\nnXIxui+T8RXYqgzikVat82EwDgYDVR0PAQH/BAQDAgGGMA0GCSqGSIb3DQEBCwUA\nA4IBAQAk4XdDesWKYgE35KMqg2+tCY/gbBrKVMdvZzy2kAv9QH8bwCcojeMw4wGh\nu0mjfX0vawoot2bNY6Yu0+mVxBtkelhay7enN+mA5g5DfkyKkLb6Jg/9N7m95w4N\nICQwM3Yb9OsuquxBPPE7JkrZv10AzVz2Xqu/OHDyDpfnkcCfNusHyIAycjxq/ZEF\n7LOSBv3S20sJU72EKfrNGSfMDv9qvnusum/vTYKuSNCTR0vARxbB7LLVZZ/Pg2w8\n22RQK9zr+u5WkfTGMqF4NnbuJGphU21QHUIZYY8QAnte0hbK+AbTUyeKGHxqRDun\nBQn6/GvgP2tPDKj/Huauo/CVSd+M\n-----END CERTIFICATE-----\n",
+        "-----BEGIN CERTIFICATE-----\nMIICrzCCAjWgAwIBAgIQTEq2iHmd2QzeVBzmBUbAUTAKBggqhkjOPQQDAzCBlzEL\nMAkGA1UEBhMCVVMxIjAgBgNVBAoMGUFtYXpvbiBXZWIgU2VydmljZXMsIEluYy4x\nEzARBgNVBAsMCkFtYXpvbiBSRFMxCzAJBgNVBAgMAldBMTAwLgYDVQQDDCdBbWF6\nb24gUkRTIGNuLW5vcnRoLTEgUm9vdCBDQSBFQ0MzODQgRzExEDAOBgNVBAcMB1Nl\nYXR0bGUwIBcNMjEwNTI1MjMyMjQ4WhgPMjEyMTA1MjYwMDIyNDhaMIGXMQswCQYD\nVQQGEwJVUzEiMCAGA1UECgwZQW1hem9uIFdlYiBTZXJ2aWNlcywgSW5jLjETMBEG\nA1UECwwKQW1hem9uIFJEUzELMAkGA1UECAwCV0ExMDAuBgNVBAMMJ0FtYXpvbiBS\nRFMgY24tbm9ydGgtMSBSb290IENBIEVDQzM4NCBHMTEQMA4GA1UEBwwHU2VhdHRs\nZTB2MBAGByqGSM49AgEGBSuBBAAiA2IABBV1FSsxoXGFDBIMj6b+EfJvLINkTtVv\nUucbGUqZMidNfuHoUWTlhwZuX5kMv9hlbQbDxrnHCePo1heHkdqovIi2D77lhvhn\n7UgMupcFx9Tjki+5QhKLW3n7W8dmreJLw6NCMEAwDwYDVR0TAQH/BAUwAwEB/zAd\nBgNVHQ4EFgQUFwPUFTDrjPqdIMjuYGif1wkAtr8wDgYDVR0PAQH/BAQDAgGGMAoG\nCCqGSM49BAMDA2gAMGUCMQCrAtoyWILR++OEhFmuJhSR8cgEW/rGyf+lMDwq9dcA\neJPK7l9S8iT30JOo++hWwYcCMFl9MWvoQU3iUDH+j33I26+whkvZ6LLw2dajww1X\n0MPXbT3P9P0Jk/Vv+gand92fAw==\n-----END CERTIFICATE-----\n",
+        "-----BEGIN CERTIFICATE-----\nMIIEDDCCAvSgAwIBAgIJAMy5uCBvP5roMA0GCSqGSIb3DQEBCwUAMIGSMQswCQYD\nVQQGEwJVUzEQMA4GA1UEBwwHU2VhdHRsZTETMBEGA1UECAwKV2FzaGluZ3RvbjEi\nMCAGA1UECgwZQW1hem9uIFdlYiBTZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1h\nem9uIFJEUzEjMCEGA1UEAwwaQW1hem9uIFJEUyBDTiBSb290IDIwMTkgQ0EwHhcN\nMTkwOTA5MTY1NzIyWhcNMjQwOTA5MTY1NzIyWjCBkjELMAkGA1UEBhMCVVMxEDAO\nBgNVBAcMB1NlYXR0bGUxEzARBgNVBAgMCldhc2hpbmd0b24xIjAgBgNVBAoMGUFt\nYXpvbiBXZWIgU2VydmljZXMsIEluYy4xEzARBgNVBAsMCkFtYXpvbiBSRFMxIzAh\nBgNVBAMMGkFtYXpvbiBSRFMgQ04gUm9vdCAyMDE5IENBMIIBIjANBgkqhkiG9w0B\nAQEFAAOCAQ8AMIIBCgKCAQEAzxl9K4p06ZTZ9eZmEXyTHe9Ut8OIZR86t6A8b8g0\nnhqMe+y4ee+UfqxumVAVyXwNXOiGQVbuJhScLaJ39/Ol4YzIGjdoD8MUvsf4BuET\nudQh2sJL8OnlXuqSICKpecN5ud4UQvoMVZ9FGJ+e8TvXczW14rGO62sPfYM/WrMD\nR7P4fhQfmWFzkc24/hZGRL1nkvwMdtiwuI2TYobhlwZQOdsNcZ9Ek+PcSI4oqgXN\nSqpYy85JzrRZiR5iFGw1CnJtGlC0oatXFzw/B8XOd9wvLTlJhyLo7zw9j3zedKbv\n33fTdjfvpGvcfw9CYggwrbsVmUeUhVDfMntTc9z9MRccmwIDAQABo2MwYTAOBgNV\nHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQU/Z0g+hUMGQou\nhsbyFgSxc5jsbaowHwYDVR0jBBgwFoAU/Z0g+hUMGQouhsbyFgSxc5jsbaowDQYJ\nKoZIhvcNAQELBQADggEBAAlGPCq1D/PGkWoZZpAK3V94EOByklp2HkUPEZ0PPv3Z\n/euD2wUPkXnf27FC1XJE0pJX96B97ZXIEHl4S4obBRSlybzuvmfH4gyu+b+7Tebv\nVmfsAodyfYCm90heAYADWkc/XKDj+oe3NkbR+LokrM+5aOB71f5mMLnFgYHQW/dI\nIRDziUSpP0LMr+YNKvM7qytrobPS2TOWtweWpXesNBBeiLTHZpTEu8DYcE+4e2tj\nO0spF3HuoF0Oc7ioVy2exE+HV1oJOquHGSanZSdMHCAEDMfKUmlT7/zcwC877UT/\nsysqYU/fl6vX48QDfalZuBYj+d1dUxIb1sx6q4Iw4+s=\n-----END CERTIFICATE-----\n",
+        "-----BEGIN CERTIFICATE-----\nMIIEEDCCAvigAwIBAgIDAJJhMA0GCSqGSIb3DQEBCwUAMIGSMQswCQYDVQQGEwJV\nUzEQMA4GA1UEBwwHU2VhdHRsZTETMBEGA1UECAwKV2FzaGluZ3RvbjEiMCAGA1UE\nCgwZQW1hem9uIFdlYiBTZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJE\nUzEjMCEGA1UEAwwaQW1hem9uIFJEUyBDTiBSb290IDIwMTkgQ0EwHhcNMTkwOTE3\nMTY0OTE3WhcNMjQwOTA5MTY1NzIyWjCBmTELMAkGA1UEBhMCVVMxEzARBgNVBAgM\nCldhc2hpbmd0b24xEDAOBgNVBAcMB1NlYXR0bGUxIjAgBgNVBAoMGUFtYXpvbiBX\nZWIgU2VydmljZXMsIEluYy4xEzARBgNVBAsMCkFtYXpvbiBSRFMxKjAoBgNVBAMM\nIUFtYXpvbiBSRFMgY24tbm9ydGh3ZXN0LTEgMjAxOSBDQTCCASIwDQYJKoZIhvcN\nAQEBBQADggEPADCCAQoCggEBAMr4bvXQVykL0RHtBALyP7FycubzLJM178wMw5vK\nQS/1IVlQlbdZ8bNYmSMqa2IlGoWdjvLonES0jD0T8LCOYJy0uPN0DfiH6I9v9th8\nTvG/hAD9pe01xLOUAOTzuikbzcxEf9XX6mG/xAh5rREHsLbQE9R7D4RkqdeJbQBc\nKVcWWrejW9XaleCr+iEuwSqzXYDXNyfJoYic8aNYA8bADG5YPWTPblxA8MCik+zD\nq9r5wMNafUKmdOAFP6qeYo0zA5o9ESM2xJdYqa2gF7lAYsMagtWZWfEW27ZUrYmf\ntlMXu5xF2zZ1z2n7GKBXa8kA+e/dzalUA5ONHZUDIpU51k8CAwEAAaNmMGQwDgYD\nVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFCV3kNIC\n8e01zUu6tXl0/ig8Va5OMB8GA1UdIwQYMBaAFP2dIPoVDBkKLobG8hYEsXOY7G2q\nMA0GCSqGSIb3DQEBCwUAA4IBAQDHKrXWXsv6KKb06XhuC6RrMsLW+fmQXbrU9x4V\nb46VEaHN8lvKx6QWmRKSdnCa7nYZkPUbGdcQtgThfEjkc+UEfJxx/Q2Hb1OslPcj\nEgx5M7NFCGoBbaSKOGnVexEKRfxA2zkPCMi7bDe2m8cgThyBHfsTJSVGJkXsf6VJ\nJKWJULYiHMjF31Npg++eB4iN42bqhPfP5nKloGjOs/TNYdT2rAcI8xZRsd+G+0Aw\nqlQ0VdPmxIK7M0Sv2StGD0244OXbq6A3Ojx4t7/Kl41+FuyaGlnALDvdiYF96Zu1\nVpA/pPn4AC3+/wrXOefZDFJ3dC1uKlIoh63Vv378oI2VQvw3\n-----END CERTIFICATE-----\n",
+        "-----BEGIN CERTIFICATE-----\nMIIECTCCAvGgAwIBAgIRAOf+QbXXDGRJ7MW8j6FZ5ncwDQYJKoZIhvcNAQELBQAw\ngZwxCzAJBgNVBAYTAlVTMSIwIAYDVQQKDBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJ\nbmMuMRMwEQYDVQQLDApBbWF6b24gUkRTMQswCQYDVQQIDAJXQTE1MDMGA1UEAwws\nQW1hem9uIFJEUyBjbi1ub3J0aHdlc3QtMSBSb290IENBIFJTQTIwNDggRzExEDAO\nBgNVBAcMB1NlYXR0bGUwIBcNMjEwNTI1MjI1NjEyWhgPMjA2MTA1MjUyMzU2MTJa\nMIGcMQswCQYDVQQGEwJVUzEiMCAGA1UECgwZQW1hem9uIFdlYiBTZXJ2aWNlcywg\nSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzELMAkGA1UECAwCV0ExNTAzBgNVBAMM\nLEFtYXpvbiBSRFMgY24tbm9ydGh3ZXN0LTEgUm9vdCBDQSBSU0EyMDQ4IEcxMRAw\nDgYDVQQHDAdTZWF0dGxlMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA\n0XBh/AY4j5RP9XUbYGMaCaBuG4FAbHU/Qfz/hHBNfy/QMi2hF4LQECGqp+j/8fML\n45c6b0NyCLvZuIfB4F1s+dctJpqauDqzYacw3/fMmxNyzgkrYa8VhoRdPWH6ZX2e\n0VNfTOJo64ShJaePdizBAoBnfX+xvDyZ6BLGtdUsvsfdDSCTt2fgTAk8DBTmHode\nhCC3EfVcAjk99+Fe0RWPnDBXQkA8VrbgSxXPN8Gfag1wIzS44BcxhxHDiwQoL4Ao\nFfOwvgRJANeUGcqnL5IpF8xxU3lk7nMcXuQu17597+UGwTiFLAT0bnVK/TgakefX\nM3ZH9gUi0Di3dJNIKtq/3wIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MB0GA1Ud\nDgQWBBTX4eJfUNknv33QnNNfkDsrYrO1uzAOBgNVHQ8BAf8EBAMCAYYwDQYJKoZI\nhvcNAQELBQADggEBAKIlgCuSJYIgvHK2zoT9PugiyBE5vvo5HyrTOJIhPknB2aY7\nx2Gwbv7YlXzncpQM+aPA88PlIvwPmGj0Nb8ph6vZ55DOxWrBE8LuXMR/+71vMYaF\nM9iTud2OyRLa2EIpS7nq3jWKjiDFkfrkUg8JmLCWHv0qEANX8XJ5NVhrRSAJzvDA\nMArXq2k5oJZoRJxyGlz6dSoU/rxsQF/oTihpcH/cEbL6ZD8sZ5xLJpCHTJcnBAEZ\nL18sYc8F/91akqXn1re/7/K3NwT9usyh89e5pegx/U2ySI3KJuc464HmCV7YZ0iJ\nEQYsQRGFZr/Miu5V4hrpuggsrnmi/RagWYJGPfQ=\n-----END CERTIFICATE-----\n",
+        "-----BEGIN CERTIFICATE-----\nMIIGCTCCA/GgAwIBAgIRAJ3YjujPNbJWN/domX9EvW8wDQYJKoZIhvcNAQEMBQAw\ngZwxCzAJBgNVBAYTAlVTMSIwIAYDVQQKDBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJ\nbmMuMRMwEQYDVQQLDApBbWF6b24gUkRTMQswCQYDVQQIDAJXQTE1MDMGA1UEAwws\nQW1hem9uIFJEUyBjbi1ub3J0aHdlc3QtMSBSb290IENBIFJTQTQwOTYgRzExEDAO\nBgNVBAcMB1NlYXR0bGUwIBcNMjEwNTI1MjMwMDE1WhgPMjEyMTA1MjYwMDAwMTVa\nMIGcMQswCQYDVQQGEwJVUzEiMCAGA1UECgwZQW1hem9uIFdlYiBTZXJ2aWNlcywg\nSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzELMAkGA1UECAwCV0ExNTAzBgNVBAMM\nLEFtYXpvbiBSRFMgY24tbm9ydGh3ZXN0LTEgUm9vdCBDQSBSU0E0MDk2IEcxMRAw\nDgYDVQQHDAdTZWF0dGxlMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA\ny8Wy3CndOV9n8V3yZ3aOTm6sKlxmtS7GYlAiguNjyqS2ERP6x3l6JlkuKyAtYut/\nUOJL6TBWQNLUsNpFJnLkomaqWRYNjSSogSLt2F6BIr/fM8pOmXvBHg9OB/I24DUE\n6bKuVbe+qrGN6ypTAsrfZJ94ED0wmMb8RMOlXOBgB3GxbuQjUFN0XLXurJygj9k7\nSM3RQggoaO94T1qoi4LD/NS/4/Z3eUksLZgkC19fSSVnuUfu845x+MXlVhLeHcLo\n9IIONonUJvkKPS90TQtB2spSqFd+MkiX3izPDii1kHfFHsl2CzwcdbxvcAZ742np\nMjDFpE4Zl6Nf28jGm6ODg6F/yZIiqWpvDemfnHfgkv1SFJnMpIAnLEIRnD5iZPRY\nvP9tJVxGo/kB7ogYLKboOtQyzQC5G6KIbkblJ+MjVcf5iQIUn5Ir7s91/7s6uVRT\nOY76S3SppFQltNwh1yW5s7Ppc9XR5cp0F37NfEm90g+r2JMH6da+Zd0zd+oG4JUJ\nGQWAIhvoOo2jjfX33GqxJI5QrhyVFQpIGs6WU3Z7uZou6/orDaEzAkedMC4w53aZ\nKmJevk2btsWRcGTYyJxf5GZ9HnUcDApcZ9QZ/9f7iIrGPTO4W6BJ9wzzc5PoenlD\noubhx9fofSIepk822gD/93fakRUJlYXKNvxJC8qXRn8CAwEAAaNCMEAwDwYDVR0T\nAQH/BAUwAwEB/zAdBgNVHQ4EFgQUbApE7vMSJDpJph7Lrq6rAMCwQF4wDgYDVR0P\nAQH/BAQDAgGGMA0GCSqGSIb3DQEBDAUAA4ICAQBSTbw8jIpZyAwQiJv5D6B9g4fX\n9PsTFTmb2eszZZZO/i0T8hbqAA3DmjjM5QqUdbjXiq4aLec04aH/ltc/12b6lypX\nsfhtUJd5rgVyEyi9VpZwL+3LrV8CC9rel1v1euOvQ+6ojsoU9PKVLSw5G1Owzy8x\npQwJU9ZTIMgz0TdlFUugaccLH54uy/c7FclO8HpOwHbwMtuMrsEt3p9vea7UoSn3\n54usb0p8ex2brMrOxKmLXXQOGoDFF8U5JCivdQaYuG7LO9NocaeyLNkc22MrxvhV\n1x3I1CE5Y1vMEqf0B8mMl2tAZ6l68r8qv1SoIrvm3ioZpdDBNkyyYVfRLpvmQBw4\nF0NQIW5wAumqbyHLRKMf/wmeuBwYjWrAeJdwDTsNVDPnhXpTOobKH432+i7v5U8n\n1dcrLdYwzRMXxY2+Wrmgte2JdsvfNkcDou9ZnjqTt8u5L7eFd5kWOLnZAWtsIef5\n2QzfKFjpbg9q/zt9RcNULAUaMB0twG1G6eO9stPElE2B0k3wM0FCTXfrh8v0FWEx\nZbnef3OwiiHHQ6EBHYvbZm0qwuYdBz8KtwurYwEUpgldls5hcj9eI3pDCjTzJncP\nGpVjJTtIE0CGOcAgIt5G6idQ1oQudW8DMb/M0QXibI5fjqEXYoYQEnjko9AqLdzI\npn++DGngGu3NLeSVfA==\n-----END CERTIFICATE-----\n",
+        "-----BEGIN CERTIFICATE-----\nMIICtjCCAj2gAwIBAgIQHBx4LmhvEVmG1P6tMGhI8DAKBggqhkjOPQQDAzCBmzEL\nMAkGA1UEBhMCVVMxIjAgBgNVBAoMGUFtYXpvbiBXZWIgU2VydmljZXMsIEluYy4x\nEzARBgNVBAsMCkFtYXpvbiBSRFMxCzAJBgNVBAgMAldBMTQwMgYDVQQDDCtBbWF6\nb24gUkRTIGNuLW5vcnRod2VzdC0xIFJvb3QgQ0EgRUNDMzg0IEcxMRAwDgYDVQQH\nDAdTZWF0dGxlMCAXDTIxMDUyNTIzMDM1NVoYDzIxMjEwNTI2MDAwMzU1WjCBmzEL\nMAkGA1UEBhMCVVMxIjAgBgNVBAoMGUFtYXpvbiBXZWIgU2VydmljZXMsIEluYy4x\nEzARBgNVBAsMCkFtYXpvbiBSRFMxCzAJBgNVBAgMAldBMTQwMgYDVQQDDCtBbWF6\nb24gUkRTIGNuLW5vcnRod2VzdC0xIFJvb3QgQ0EgRUNDMzg0IEcxMRAwDgYDVQQH\nDAdTZWF0dGxlMHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEJxUculiPchcuEWMgFK+T\njmYSVKrpF0NbDteKKJ45BbTzhwwCSKyEY3vVCqwMQ+wYiJZ87OyxLU1cqq/WCg3s\n7aD8Ro9DezvR+Fu+/AV61BLCgeSLr9S1ZCC6cpn5l0a4o0IwQDAPBgNVHRMBAf8E\nBTADAQH/MB0GA1UdDgQWBBSK4CT2IBuyX0nXmkC15OHfxtqh8zAOBgNVHQ8BAf8E\nBAMCAYYwCgYIKoZIzj0EAwMDZwAwZAIwQB38Wg42v48d5O1i53hg2qF/H0QW/8eO\n/xVtA8PK2ztDgQm+O0vKb34nj6X4Kcn8AjBSJmft8t7LMN/UwnhptyYINerpDMzZ\ng0OtBwn1QMWWlkFNf8ajLURXKGg9e2mfkpw=\n-----END CERTIFICATE-----\n",
+        "-----BEGIN CERTIFICATE-----\nMIIEIjCCAwqgAwIBAgIQI2AINKjtLFqXO+5mqmHJOzANBgkqhkiG9w0BAQsFADCB\nnDELMAkGA1UEBhMCVVMxIjAgBgNVBAoMGUFtYXpvbiBXZWIgU2VydmljZXMsIElu\nYy4xEzARBgNVBAsMCkFtYXpvbiBSRFMxCzAJBgNVBAgMAldBMTUwMwYDVQQDDCxB\nbWF6b24gUkRTIGNuLW5vcnRod2VzdC0xIFJvb3QgQ0EgUlNBMjA0OCBHMTEQMA4G\nA1UEBwwHU2VhdHRsZTAeFw0yMTEwMjAyMjE5NTBaFw0yNjEwMjAyMzE5NTBaMIGU\nMQswCQYDVQQGEwJVUzEQMA4GA1UEBwwHU2VhdHRsZTETMBEGA1UECAwKV2FzaGlu\nZ3RvbjEiMCAGA1UECgwZQW1hem9uIFdlYiBTZXJ2aWNlcywgSW5jLjETMBEGA1UE\nCwwKQW1hem9uIFJEUzElMCMGA1UEAwwcQW1hem9uIFJEUyBjbi1ub3J0aHdlc3Qt\nMSBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMk+1qHD+w3Wns8f\nWNs6ZKtd6r8eJSilT8SKdhuvZ77C2a5CRaWhihwTznGW1vCaR9+O4OIJZCJj3iV+\n75arKXK5XJTPNJo8aW5pW9ljh/KsudkT7gzURQ3n3xFiv9vQwPRSE9gPn20Cad8U\n64KPl20DvA1XD3CoaACafRz5BlZwGJAi6xI9DqdiQRGEcNlwBzMSv9E0MqkW9pDN\n+goGEkVyfLA83hUM58zXr7AwUEw7RH64rNZcoWYT89AVKvUQnyyEs6hZvIIVwTQm\nv/YpYEH3BsN/SshaQpmh1scN/aHurVfBn0ZaY2EaTBv/u1YsalhbnZglFX6581X7\n9UkEocECAwEAAaNmMGQwEgYDVR0TAQH/BAgwBgEB/wIBADAfBgNVHSMEGDAWgBTX\n4eJfUNknv33QnNNfkDsrYrO1uzAdBgNVHQ4EFgQUfGOsnDYUtkLIlP6gKPd/lkbh\nsn4wDgYDVR0PAQH/BAQDAgGGMA0GCSqGSIb3DQEBCwUAA4IBAQCxYKgzCB6gcrYi\n1op0n615lk/hLD5LEmpNYYgqtOOAPf7mGF1VLu+GtDmyAqRnQjr80hFO2Tvdv614\nu0D5joapjD+aAQIb+OeVVmXYPm3UfUotnUkHGalkofEWkS/7h/dUzKARBdpsKBP9\nezSf8GBVRd0EDP8PLK5iplX4B+aQxmIBgYNIXSlgjaNX8SfjzKsRiLPmumWrb7gi\nlbqkdRuafQ3hj6K+I2JbgEEz2ggNBgUiwJRr+2B511RWHu3wEW86aEbl0+f5crJA\nXNn0nVq3tl8XMkorbAD+/8dbxMxV5wtMHY7nWsG8TlJ+8Vb9FwC5vIWSYun8u3Rh\ntOoQ3GAy\n-----END CERTIFICATE-----\n"
       ]
     };
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/connection_config.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/connection_config.js
 var require_connection_config = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/connection_config.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/connection_config.js"(exports, module2) {
     "use strict";
     var { URL: URL2 } = require("url");
     var ClientConstants = require_client();
     var Charsets = require_charsets();
+    var { version } = require_package();
     var SSLProfiles = null;
     var validOptions = {
       authPlugins: 1,
@@ -12920,6 +13474,9 @@ var require_connection_config = __commonJS({
       namedPlaceholders: 1,
       nestTables: 1,
       password: 1,
+      password1: 1,
+      password2: 1,
+      password3: 1,
       passwordSha1: 1,
       pool: 1,
       port: 1,
@@ -12936,6 +13493,8 @@ var require_connection_config = __commonJS({
       uri: 1,
       user: 1,
       connectionLimit: 1,
+      maxIdle: 1,
+      idleTimeout: 1,
       Promise: 1,
       queueLimit: 1,
       waitForConnections: 1
@@ -12958,17 +13517,21 @@ var require_connection_config = __commonJS({
           if (!Object.prototype.hasOwnProperty.call(options, key))
             continue;
           if (validOptions[key] !== 1) {
-            console.error(`Ignoring invalid configuration option passed to Connection: ${key}. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection`);
+            console.error(
+              `Ignoring invalid configuration option passed to Connection: ${key}. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection`
+            );
           }
         }
         this.isServer = options.isServer;
         this.stream = options.stream;
         this.host = options.host || "localhost";
-        this.port = options.port || 3306;
+        this.port = (typeof options.port === "string" ? parseInt(options.port, 10) : options.port) || 3306;
         this.localAddress = options.localAddress;
         this.socketPath = options.socketPath;
         this.user = options.user || void 0;
-        this.password = options.password || void 0;
+        this.password = options.password || options.password1 || void 0;
+        this.password2 = options.password2 || void 0;
+        this.password3 = options.password3 || void 0;
         this.passwordSha1 = options.passwordSha1 || void 0;
         this.database = options.database;
         this.connectTimeout = isNaN(options.connectTimeout) ? 10 * 1e3 : options.connectTimeout;
@@ -12983,7 +13546,9 @@ var require_connection_config = __commonJS({
         this.enableKeepAlive = !!options.enableKeepAlive;
         this.keepAliveInitialDelay = options.keepAliveInitialDelay || 0;
         if (options.timezone && !/^(?:local|Z|[ +-]\d\d:\d\d)$/.test(options.timezone)) {
-          console.error(`Ignoring invalid timezone passed to Connection: ${options.timezone}. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection`);
+          console.error(
+            `Ignoring invalid timezone passed to Connection: ${options.timezone}. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection`
+          );
           this.timezone = "Z";
         } else {
           this.timezone = options.timezone || "local";
@@ -12997,11 +13562,13 @@ var require_connection_config = __commonJS({
         this.nestTables = options.nestTables === void 0 ? void 0 : options.nestTables;
         this.typeCast = options.typeCast === void 0 ? true : options.typeCast;
         if (this.timezone[0] === " ") {
-          this.timezone = `+${this.timezone.substr(1)}`;
+          this.timezone = `+${this.timezone.slice(1)}`;
         }
         if (this.ssl) {
           if (typeof this.ssl !== "object") {
-            throw new TypeError(`SSL profile must be an object, instead it's a ${typeof this.ssl}`);
+            throw new TypeError(
+              `SSL profile must be an object, instead it's a ${typeof this.ssl}`
+            );
           }
           this.ssl.rejectUnauthorized = this.ssl.rejectUnauthorized !== false;
         }
@@ -13010,8 +13577,15 @@ var require_connection_config = __commonJS({
         this.compress = options.compress || false;
         this.authPlugins = options.authPlugins;
         this.authSwitchHandler = options.authSwitchHandler;
-        this.clientFlags = ConnectionConfig.mergeFlags(ConnectionConfig.getDefaultFlags(options), options.flags || "");
-        this.connectAttributes = options.connectAttributes;
+        this.clientFlags = ConnectionConfig.mergeFlags(
+          ConnectionConfig.getDefaultFlags(options),
+          options.flags || ""
+        );
+        const defaultConnectAttributes = {
+          _client_name: "Node-MySQL-2",
+          _client_version: version
+        };
+        this.connectAttributes = { ...defaultConnectAttributes, ...options.connectAttributes || {} };
         this.maxPreparedStatements = options.maxPreparedStatements || 16e3;
       }
       static mergeFlags(default_flags, user_flags) {
@@ -13051,15 +13625,14 @@ var require_connection_config = __commonJS({
           "SECURE_CONNECTION",
           "MULTI_RESULTS",
           "TRANSACTIONS",
-          "SESSION_TRACK"
+          "SESSION_TRACK",
+          "CONNECT_ATTRS"
         ];
         if (options) {
           if (options.multipleStatements)
             defaultFlags.push("MULTI_STATEMENTS");
           if (options.database)
             defaultFlags.push("CONNECT_WITH_DB");
-          if (options.connectAttributes)
-            defaultFlags.push("CONNECT_ATTRS");
         }
         defaultFlags.push("PLUGIN_AUTH");
         defaultFlags.push("PLUGIN_AUTH_LENENC_CLIENT_DATA");
@@ -13086,8 +13659,8 @@ var require_connection_config = __commonJS({
         const parsedUrl = new URL2(url);
         const options = {
           host: parsedUrl.hostname,
-          port: parsedUrl.port,
-          database: parsedUrl.pathname.substr(1),
+          port: parseInt(parsedUrl.port, 10),
+          database: parsedUrl.pathname.slice(1),
           user: parsedUrl.username,
           password: parsedUrl.password
         };
@@ -13105,9 +13678,9 @@ var require_connection_config = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/promise.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/promise.js
 var require_promise = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/promise.js"(exports) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/promise.js"(exports) {
     "use strict";
     var core = require_mysql2();
     var EventEmitter = require("events").EventEmitter;
@@ -13130,11 +13703,14 @@ var require_promise = __commonJS({
       const listeners = {};
       target.on("newListener", (eventName) => {
         if (events.indexOf(eventName) >= 0 && !target.listenerCount(eventName)) {
-          source2.on(eventName, listeners[eventName] = function() {
-            const args = [].slice.call(arguments);
-            args.unshift(eventName);
-            target.emit.apply(target, args);
-          });
+          source2.on(
+            eventName,
+            listeners[eventName] = function() {
+              const args = [].slice.call(arguments);
+              args.unshift(eventName);
+              target.emit.apply(target, args);
+            }
+          );
         }
       }).on("removeListener", (eventName) => {
         if (events.indexOf(eventName) >= 0 && !target.listenerCount(eventName)) {
@@ -13187,7 +13763,9 @@ var require_promise = __commonJS({
         const c = this.connection;
         const localErr = new Error();
         if (typeof params === "function") {
-          throw new Error("Callback function is not available with promise clients.");
+          throw new Error(
+            "Callback function is not available with promise clients."
+          );
         }
         return new this.Promise((resolve, reject) => {
           const done = makeDoneCb(resolve, reject, localErr);
@@ -13202,7 +13780,9 @@ var require_promise = __commonJS({
         const c = this.connection;
         const localErr = new Error();
         if (typeof params === "function") {
-          throw new Error("Callback function is not available with promise clients.");
+          throw new Error(
+            "Callback function is not available with promise clients."
+          );
         }
         return new this.Promise((resolve, reject) => {
           const done = makeDoneCb(resolve, reject, localErr);
@@ -13246,8 +13826,18 @@ var require_promise = __commonJS({
         const c = this.connection;
         const localErr = new Error();
         return new this.Promise((resolve, reject) => {
-          const done = makeDoneCb(resolve, reject, localErr);
-          c.ping(done);
+          c.ping((err) => {
+            if (err) {
+              localErr.message = err.message;
+              localErr.code = err.code;
+              localErr.errno = err.errno;
+              localErr.sqlState = err.sqlState;
+              localErr.sqlMessage = err.sqlMessage;
+              reject(localErr);
+            } else {
+              resolve(true);
+            }
+          });
         });
       }
       connect() {
@@ -13282,7 +13872,10 @@ var require_promise = __commonJS({
               localErr.sqlMessage = err.sqlMessage;
               reject(localErr);
             } else {
-              const wrappedStatement = new PromisePreparedStatementInfo(statement, promiseImpl);
+              const wrappedStatement = new PromisePreparedStatementInfo(
+                statement,
+                promiseImpl
+              );
               resolve(wrappedStatement);
             }
           });
@@ -13318,7 +13911,9 @@ var require_promise = __commonJS({
       const createConnectionErr = new Error();
       const thePromise = opts.Promise || Promise;
       if (!thePromise) {
-        throw new Error("no Promise implementation available.Use promise-enabled node version or pass userland Promise implementation as parameter, for example: { Promise: require('bluebird') }");
+        throw new Error(
+          "no Promise implementation available.Use promise-enabled node version or pass userland Promise implementation as parameter, for example: { Promise: require('bluebird') }"
+        );
       }
       return new thePromise((resolve, reject) => {
         coreConnection.once("connect", () => {
@@ -13339,7 +13934,10 @@ var require_promise = __commonJS({
         if (typeof core.Connection.prototype[func] === "function" && PromiseConnection.prototype[func] === void 0) {
           PromiseConnection.prototype[func] = function factory(funcName) {
             return function() {
-              return core.Connection.prototype[funcName].apply(this.connection, arguments);
+              return core.Connection.prototype[funcName].apply(
+                this.connection,
+                arguments
+              );
             };
           }(func);
         }
@@ -13361,7 +13959,10 @@ var require_promise = __commonJS({
         super(connection, promiseImpl);
       }
       destroy() {
-        return core.PoolConnection.prototype.destroy.apply(this.connection, arguments);
+        return core.PoolConnection.prototype.destroy.apply(
+          this.connection,
+          arguments
+        );
       }
     };
     var PromisePool = class extends EventEmitter {
@@ -13387,7 +13988,9 @@ var require_promise = __commonJS({
         const corePool = this.pool;
         const localErr = new Error();
         if (typeof args === "function") {
-          throw new Error("Callback function is not available with promise clients.");
+          throw new Error(
+            "Callback function is not available with promise clients."
+          );
         }
         return new this.Promise((resolve, reject) => {
           const done = makeDoneCb(resolve, reject, localErr);
@@ -13402,7 +14005,9 @@ var require_promise = __commonJS({
         const corePool = this.pool;
         const localErr = new Error();
         if (typeof args === "function") {
-          throw new Error("Callback function is not available with promise clients.");
+          throw new Error(
+            "Callback function is not available with promise clients."
+          );
         }
         return new this.Promise((resolve, reject) => {
           const done = makeDoneCb(resolve, reject, localErr);
@@ -13436,7 +14041,9 @@ var require_promise = __commonJS({
       const corePool = core.createPool(opts);
       const thePromise = opts.Promise || Promise;
       if (!thePromise) {
-        throw new Error("no Promise implementation available.Use promise-enabled node version or pass userland Promise implementation as parameter, for example: { Promise: require('bluebird') }");
+        throw new Error(
+          "no Promise implementation available.Use promise-enabled node version or pass userland Promise implementation as parameter, for example: { Promise: require('bluebird') }"
+        );
       }
       return new PromisePool(corePool, thePromise);
     }
@@ -13479,7 +14086,9 @@ var require_promise = __commonJS({
         const corePoolCluster = this.poolCluster;
         const localErr = new Error();
         if (typeof args === "function") {
-          throw new Error("Callback function is not available with promise clients.");
+          throw new Error(
+            "Callback function is not available with promise clients."
+          );
         }
         return new this.Promise((resolve, reject) => {
           const done = makeDoneCb(resolve, reject, localErr);
@@ -13490,7 +14099,9 @@ var require_promise = __commonJS({
         const corePoolCluster = this.poolCluster;
         const localErr = new Error();
         if (typeof args === "function") {
-          throw new Error("Callback function is not available with promise clients.");
+          throw new Error(
+            "Callback function is not available with promise clients."
+          );
         }
         return new this.Promise((resolve, reject) => {
           const done = makeDoneCb(resolve, reject, localErr);
@@ -13498,7 +14109,10 @@ var require_promise = __commonJS({
         });
       }
       of(pattern, selector) {
-        return new PromisePoolCluster(this.poolCluster.of(pattern, selector), this.Promise);
+        return new PromisePoolCluster(
+          this.poolCluster.of(pattern, selector),
+          this.Promise
+        );
       }
       end() {
         const corePoolCluster = this.poolCluster;
@@ -13537,7 +14151,9 @@ var require_promise = __commonJS({
       const corePoolCluster = core.createPoolCluster(opts);
       const thePromise = opts && opts.Promise || Promise;
       if (!thePromise) {
-        throw new Error("no Promise implementation available.Use promise-enabled node version or pass userland Promise implementation as parameter, for example: { Promise: require('bluebird') }");
+        throw new Error(
+          "no Promise implementation available.Use promise-enabled node version or pass userland Promise implementation as parameter, for example: { Promise: require('bluebird') }"
+        );
       }
       return new PromisePoolCluster(corePoolCluster, thePromise);
     }
@@ -13554,9 +14170,9 @@ var require_promise = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/connection.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/connection.js
 var require_connection = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/connection.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/connection.js"(exports, module2) {
     "use strict";
     var Net = require("net");
     var Tls = require("tls");
@@ -13580,8 +14196,12 @@ var require_connection = __commonJS({
           if (opts.config.socketPath) {
             this.stream = Net.connect(opts.config.socketPath);
           } else {
-            this.stream = Net.connect(opts.config.port, opts.config.host);
+            this.stream = Net.connect(
+              opts.config.port,
+              opts.config.host
+            );
             this.stream.setKeepAlive(true, this.config.keepAliveInitialDelay);
+            this.stream.setNoDelay(true);
           }
         } else if (typeof opts.config.stream === "function") {
           this.stream = opts.config.stream(opts);
@@ -13595,7 +14215,7 @@ var require_connection = __commonJS({
         this._paused_packets = new Queue();
         this._statements = new LRU({
           max: this.config.maxPreparedStatements,
-          dispose: function(key, statement) {
+          dispose: function(statement) {
             statement.close();
           }
         });
@@ -13620,12 +14240,17 @@ var require_connection = __commonJS({
           }
           this.packetParser.execute(data);
         });
+        this.stream.on("end", () => {
+          this.emit("end");
+        });
         this.stream.on("close", () => {
           if (this._closing) {
             return;
           }
           if (!this._protocolError) {
-            this._protocolError = new Error("Connection lost: The server closed the connection.");
+            this._protocolError = new Error(
+              "Connection lost: The server closed the connection."
+            );
             this._protocolError.fatal = true;
             this._protocolError.code = "PROTOCOL_CONNECTION_LOST";
           }
@@ -13651,7 +14276,10 @@ var require_connection = __commonJS({
         this.serverEncoding = "utf8";
         if (this.config.connectTimeout) {
           const timeoutHandler = this._handleTimeoutError.bind(this);
-          this.connectTimeout = Timers.setTimeout(timeoutHandler, this.config.connectTimeout);
+          this.connectTimeout = Timers.setTimeout(
+            timeoutHandler,
+            this.config.connectTimeout
+          );
         }
       }
       promise(promiseImpl) {
@@ -13659,7 +14287,9 @@ var require_connection = __commonJS({
         return new PromiseConnection(this, promiseImpl);
       }
       _addCommandClosedState(cmd) {
-        const err = new Error("Can't add new command when connection is in closed state");
+        const err = new Error(
+          "Can't add new command when connection is in closed state"
+        );
         err.fatal = true;
         if (cmd.onResult) {
           cmd.onResult(err);
@@ -13682,7 +14312,7 @@ var require_connection = __commonJS({
           Timers.clearTimeout(this.connectTimeout);
           this.connectTimeout = null;
         }
-        if (err.errno === "ECONNRESET" && this._closing) {
+        if (err.code === "ECONNRESET" && this._closing) {
           return;
         }
         this._handleFatalError(err);
@@ -13758,15 +14388,23 @@ var require_connection = __commonJS({
         if (length < MAX_PACKET_LENGTH) {
           packet.writeHeader(this.sequenceId);
           if (this.config.debug) {
-            console.log(`${this._internalId} ${this.connectionId} <== ${this._command._commandName}#${this._command.stateName()}(${[this.sequenceId, packet._name, packet.length()].join(",")})`);
-            console.log(`${this._internalId} ${this.connectionId} <== ${packet.buffer.toString("hex")}`);
+            console.log(
+              `${this._internalId} ${this.connectionId} <== ${this._command._commandName}#${this._command.stateName()}(${[this.sequenceId, packet._name, packet.length()].join(",")})`
+            );
+            console.log(
+              `${this._internalId} ${this.connectionId} <== ${packet.buffer.toString("hex")}`
+            );
           }
           this._bumpSequenceId(1);
           this.write(packet.buffer);
         } else {
           if (this.config.debug) {
-            console.log(`${this._internalId} ${this.connectionId} <== Writing large packet, raw content not written:`);
-            console.log(`${this._internalId} ${this.connectionId} <== ${this._command._commandName}#${this._command.stateName()}(${[this.sequenceId, packet._name, packet.length()].join(",")})`);
+            console.log(
+              `${this._internalId} ${this.connectionId} <== Writing large packet, raw content not written:`
+            );
+            console.log(
+              `${this._internalId} ${this.connectionId} <== ${this._command._commandName}#${this._command.stateName()}(${[this.sequenceId, packet._name, packet.length()].join(",")})`
+            );
           }
           for (offset = 4; offset < 4 + length; offset += MAX_PACKET_LENGTH) {
             chunk = packet.buffer.slice(offset, offset + MAX_PACKET_LENGTH);
@@ -13796,9 +14434,12 @@ var require_connection = __commonJS({
           ciphers: this.config.ssl.ciphers,
           key: this.config.ssl.key,
           passphrase: this.config.ssl.passphrase,
-          minVersion: this.config.ssl.minVersion
+          minVersion: this.config.ssl.minVersion,
+          maxVersion: this.config.ssl.maxVersion
         });
         const rejectUnauthorized = this.config.ssl.rejectUnauthorized;
+        const verifyIdentity = this.config.ssl.verifyIdentity;
+        const host = this.config.host;
         let secureEstablished = false;
         const secureSocket = new Tls.TLSSocket(this.stream, {
           rejectUnauthorized,
@@ -13806,6 +14447,9 @@ var require_connection = __commonJS({
           secureContext,
           isServer: false
         });
+        if (typeof host === "string") {
+          secureSocket.setServername(host);
+        }
         secureSocket.on("_tlsError", (err) => {
           if (secureEstablished) {
             this._handleNetworkError(err);
@@ -13815,7 +14459,15 @@ var require_connection = __commonJS({
         });
         secureSocket.on("secure", () => {
           secureEstablished = true;
-          onSecure(rejectUnauthorized ? secureSocket.ssl.verifyError() : null);
+          let callbackValue = null;
+          if (rejectUnauthorized) {
+            callbackValue = secureSocket.ssl.verifyError();
+            if (!callbackValue && typeof host === "string" && verifyIdentity) {
+              const cert = secureSocket.ssl.getPeerCertificate(true);
+              callbackValue = Tls.checkServerIdentity(host, cert);
+            }
+          }
+          onSecure(callbackValue);
         });
         secureSocket.on("data", (data) => {
           this.packetParser.execute(data);
@@ -13832,7 +14484,11 @@ var require_connection = __commonJS({
           };
         } else {
           this.stream.on("data", (data) => {
-            this.packetParser.execute(data.parent, data.offset, data.offset + data.length);
+            this.packetParser.execute(
+              data.parent,
+              data.offset,
+              data.offset + data.length
+            );
           });
         }
       }
@@ -13845,28 +14501,25 @@ var require_connection = __commonJS({
         err.code = code || "PROTOCOL_ERROR";
         this.emit("error", err);
       }
+      get fatalError() {
+        return this._fatalError;
+      }
       handlePacket(packet) {
         if (this._paused) {
           this._paused_packets.push(packet);
           return;
         }
-        if (packet) {
-          if (this.sequenceId !== packet.sequenceId) {
-            const err = new Error(`Warning: got packets out of order. Expected ${this.sequenceId} but received ${packet.sequenceId}`);
-            err.expected = this.sequenceId;
-            err.received = packet.sequenceId;
-            this.emit("warn", err);
-            console.error(err.message);
-          }
-          this._bumpSequenceId(packet.numPackets);
-        }
         if (this.config.debug) {
           if (packet) {
-            console.log(` raw: ${packet.buffer.slice(packet.offset, packet.offset + packet.length()).toString("hex")}`);
+            console.log(
+              ` raw: ${packet.buffer.slice(packet.offset, packet.offset + packet.length()).toString("hex")}`
+            );
             console.trace();
             const commandName = this._command ? this._command._commandName : "(no command)";
             const stateName = this._command ? this._command.stateName() : "(no command)";
-            console.log(`${this._internalId} ${this.connectionId} ==> ${commandName}#${stateName}(${[packet.sequenceId, packet.type(), packet.length()].join(",")})`);
+            console.log(
+              `${this._internalId} ${this.connectionId} ==> ${commandName}#${stateName}(${[packet.sequenceId, packet.type(), packet.length()].join(",")})`
+            );
           }
         }
         if (!this._command) {
@@ -13875,10 +14528,25 @@ var require_connection = __commonJS({
             const error = Packets.Error.fromPacket(packet);
             this.protocolError(error.message, error.code);
           } else {
-            this.protocolError("Unexpected packet while no commands in the queue", "PROTOCOL_UNEXPECTED_PACKET");
+            this.protocolError(
+              "Unexpected packet while no commands in the queue",
+              "PROTOCOL_UNEXPECTED_PACKET"
+            );
           }
           this.close();
           return;
+        }
+        if (packet) {
+          if (this.sequenceId !== packet.sequenceId) {
+            const err = new Error(
+              `Warning: got packets out of order. Expected ${this.sequenceId} but received ${packet.sequenceId}`
+            );
+            err.expected = this.sequenceId;
+            err.received = packet.sequenceId;
+            this.emit("warn", err);
+            console.error(err.message);
+          }
+          this._bumpSequenceId(packet.numPackets);
         }
         const done = this._command.execute(packet, this);
         if (done) {
@@ -13906,13 +14574,23 @@ var require_connection = __commonJS({
       }
       format(sql, values) {
         if (typeof this.config.queryFormat === "function") {
-          return this.config.queryFormat.call(this, sql, values, this.config.timezone);
+          return this.config.queryFormat.call(
+            this,
+            sql,
+            values,
+            this.config.timezone
+          );
         }
         const opts = {
           sql,
           values
         };
-        return SqlString.format(opts.sql, opts.values, this.config.stringifyObjects, this.config.timezone);
+        return SqlString.format(
+          opts.sql,
+          opts.values,
+          this.config.stringifyObjects,
+          this.config.timezone
+        );
       }
       escape(value) {
         return SqlString.escape(value, false, this.config.timezone);
@@ -13965,7 +14643,7 @@ var require_connection = __commonJS({
         const key = Connection.statementKey(options);
         const stmt = this._statements.get(key);
         if (stmt) {
-          this._statements.del(key);
+          this._statements.delete(key);
           stmt.close();
         }
         return stmt;
@@ -13993,7 +14671,9 @@ var require_connection = __commonJS({
               val = null;
             }
             if (typeof val === "function") {
-              throw new TypeError("Bind parameters must not contain function(s). To pass the body of a function as a string call .toString() first");
+              throw new TypeError(
+                "Bind parameters must not contain function(s). To pass the body of a function as a string call .toString() first"
+              );
             }
           });
         }
@@ -14023,22 +14703,29 @@ var require_connection = __commonJS({
           options = {};
         }
         const charsetNumber = options.charset ? ConnectionConfig.getCharsetNumber(options.charset) : this.config.charsetNumber;
-        return this.addCommand(new Commands.ChangeUser({
-          user: options.user || this.config.user,
-          password: options.password || this.config.password,
-          passwordSha1: options.passwordSha1 || this.config.passwordSha1,
-          database: options.database || this.config.database,
-          timeout: options.timeout,
-          charsetNumber,
-          currentConfig: this.config
-        }, (err) => {
-          if (err) {
-            err.fatal = true;
-          }
-          if (callback) {
-            callback(err);
-          }
-        }));
+        return this.addCommand(
+          new Commands.ChangeUser(
+            {
+              user: options.user || this.config.user,
+              password: options.password || options.password1 || this.config.password || this.config.password1,
+              password2: options.password2 || this.config.password2,
+              password3: options.password3 || this.config.password3,
+              passwordSha1: options.passwordSha1 || this.config.passwordSha1,
+              database: options.database || this.config.database,
+              timeout: options.timeout,
+              charsetNumber,
+              currentConfig: this.config
+            },
+            (err) => {
+              if (err) {
+                err.fatal = true;
+              }
+              if (callback) {
+                callback(err);
+              }
+            }
+          )
+        );
       }
       beginTransaction(cb) {
         return this.query("START TRANSACTION", cb);
@@ -14121,21 +14808,33 @@ var require_connection = __commonJS({
       writeColumns(columns) {
         this.writePacket(Packets.ResultSetHeader.toPacket(columns.length));
         columns.forEach((column) => {
-          this.writePacket(Packets.ColumnDefinition.toPacket(column, this.serverConfig.encoding));
+          this.writePacket(
+            Packets.ColumnDefinition.toPacket(column, this.serverConfig.encoding)
+          );
         });
         this.writeEof();
       }
       writeTextRow(column) {
-        this.writePacket(Packets.TextRow.toPacket(column, this.serverConfig.encoding));
+        this.writePacket(
+          Packets.TextRow.toPacket(column, this.serverConfig.encoding)
+        );
       }
-      writeTextResult(rows, columns) {
+      writeBinaryRow(column) {
+        this.writePacket(
+          Packets.BinaryRow.toPacket(column, this.serverConfig.encoding)
+        );
+      }
+      writeTextResult(rows, columns, binary = false) {
         this.writeColumns(columns);
         rows.forEach((row) => {
           const arrayRow = new Array(columns.length);
           columns.forEach((column) => {
             arrayRow.push(row[column.name]);
           });
-          this.writeTextRow(arrayRow);
+          if (binary) {
+            this.writeBinaryRow(arrayRow);
+          } else
+            this.writeTextRow(arrayRow);
         });
         this.writeEof();
       }
@@ -14213,7 +14912,12 @@ var require_connection = __commonJS({
           ca: config.ssl.ca,
           ciphers: config.ssl.ciphers
         });
-        const securePair = Tls.createSecurePair(credentials, false, true, rejectUnauthorized);
+        const securePair = Tls.createSecurePair(
+          credentials,
+          false,
+          true,
+          rejectUnauthorized
+        );
         if (stream.ondata) {
           stream.ondata = null;
         }
@@ -14235,15 +14939,16 @@ var require_connection = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/pool_connection.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/pool_connection.js
 var require_pool_connection = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/pool_connection.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/pool_connection.js"(exports, module2) {
     "use strict";
     var Connection = require_mysql2().Connection;
     var PoolConnection = class extends Connection {
       constructor(pool2, options) {
         super(options);
         this._pool = pool2;
+        this.lastActiveTime = Date.now();
         this.once("end", () => {
           this._removeFromPool();
         });
@@ -14255,6 +14960,7 @@ var require_pool_connection = __commonJS({
         if (!this._pool || this._pool._closed) {
           return;
         }
+        this.lastActiveTime = Date.now();
         this._pool.releaseConnection(this);
       }
       promise(promiseImpl) {
@@ -14262,7 +14968,9 @@ var require_pool_connection = __commonJS({
         return new PromisePoolConnection(this, promiseImpl);
       }
       end() {
-        const err = new Error("Calling conn.end() to release a pooled connection is deprecated. In next version calling conn.end() will be restored to default conn.end() behavior. Use conn.release() instead.");
+        const err = new Error(
+          "Calling conn.end() to release a pooled connection is deprecated. In next version calling conn.end() will be restored to default conn.end() behavior. Use conn.release() instead."
+        );
         this.emit("warn", err);
         console.warn(err.message);
         this.release();
@@ -14286,9 +14994,9 @@ var require_pool_connection = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/pool.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/pool.js
 var require_pool = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/pool.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/pool.js"(exports, module2) {
     "use strict";
     var process2 = require("process");
     var mysql = require_mysql2();
@@ -14314,6 +15022,9 @@ var require_pool = __commonJS({
         this._freeConnections = new Queue();
         this._connectionQueue = new Queue();
         this._closed = false;
+        if (this.config.maxIdle < this.config.connectionLimit) {
+          this._removeIdleTimeoutConnections();
+        }
       }
       promise(promiseImpl) {
         const PromisePool = require_promise().PromisePool;
@@ -14325,7 +15036,7 @@ var require_pool = __commonJS({
         }
         let connection;
         if (this._freeConnections.length > 0) {
-          connection = this._freeConnections.shift();
+          connection = this._freeConnections.pop();
           this.emit("acquire", connection);
           return process2.nextTick(() => cb(null, connection));
         }
@@ -14402,7 +15113,12 @@ var require_pool = __commonJS({
         }
       }
       query(sql, values, cb) {
-        const cmdQuery = Connection.createQuery(sql, values, cb, this.config.connectionConfig);
+        const cmdQuery = Connection.createQuery(
+          sql,
+          values,
+          cb,
+          this.config.connectionConfig
+        );
         if (typeof cmdQuery.namedPlaceholders === "undefined") {
           cmdQuery.namedPlaceholders = this.config.connectionConfig.namedPlaceholders;
         }
@@ -14421,7 +15137,7 @@ var require_pool = __commonJS({
             });
           } catch (e2) {
             conn.release();
-            throw e2;
+            return cb(e2);
           }
         });
         return cmdQuery;
@@ -14441,7 +15157,7 @@ var require_pool = __commonJS({
             });
           } catch (e2) {
             conn.release();
-            throw e2;
+            return cb(e2);
           }
         });
       }
@@ -14450,11 +15166,34 @@ var require_pool = __commonJS({
         spliceConnection(this._freeConnections, connection);
         this.releaseConnection(connection);
       }
+      _removeIdleTimeoutConnections() {
+        if (this._removeIdleTimeoutConnectionsTimer) {
+          clearTimeout(this._removeIdleTimeoutConnectionsTimer);
+        }
+        this._removeIdleTimeoutConnectionsTimer = setTimeout(() => {
+          try {
+            while (this._freeConnections.length > this.config.maxIdle && Date.now() - this._freeConnections.get(0).lastActiveTime > this.config.idleTimeout) {
+              this._freeConnections.get(0).destroy();
+            }
+          } finally {
+            this._removeIdleTimeoutConnections();
+          }
+        }, 1e3);
+      }
       format(sql, values) {
-        return mysql.format(sql, values, this.config.connectionConfig.stringifyObjects, this.config.connectionConfig.timezone);
+        return mysql.format(
+          sql,
+          values,
+          this.config.connectionConfig.stringifyObjects,
+          this.config.connectionConfig.timezone
+        );
       }
       escape(value) {
-        return mysql.escape(value, this.config.connectionConfig.stringifyObjects, this.config.connectionConfig.timezone);
+        return mysql.escape(
+          value,
+          this.config.connectionConfig.stringifyObjects,
+          this.config.connectionConfig.timezone
+        );
       }
       escapeId(value) {
         return mysql.escapeId(value, false);
@@ -14464,9 +15203,9 @@ var require_pool = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/pool_config.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/pool_config.js
 var require_pool_config = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/pool_config.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/pool_config.js"(exports, module2) {
     "use strict";
     var ConnectionConfig = require_connection_config();
     var PoolConfig = class {
@@ -14477,6 +15216,8 @@ var require_pool_config = __commonJS({
         this.connectionConfig = new ConnectionConfig(options);
         this.waitForConnections = options.waitForConnections === void 0 ? true : Boolean(options.waitForConnections);
         this.connectionLimit = isNaN(options.connectionLimit) ? 10 : Number(options.connectionLimit);
+        this.maxIdle = isNaN(options.maxIdle) ? this.connectionLimit : Number(options.maxIdle);
+        this.idleTimeout = isNaN(options.idleTimeout) ? 6e4 : Number(options.idleTimeout);
         this.queueLimit = isNaN(options.queueLimit) ? 0 : Number(options.queueLimit);
       }
     };
@@ -14484,9 +15225,9 @@ var require_pool_config = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/pool_cluster.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/pool_cluster.js
 var require_pool_cluster = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/pool_cluster.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/pool_cluster.js"(exports, module2) {
     "use strict";
     var process2 = require("process");
     var Pool2 = require_pool();
@@ -14670,7 +15411,9 @@ var require_pool_cluster = __commonJS({
           foundNodeIds = [pattern];
         } else {
           const keyword = pattern.substring(pattern.length - 1, 0);
-          foundNodeIds = this._serviceableNodeIds.filter((id) => id.startsWith(keyword));
+          foundNodeIds = this._serviceableNodeIds.filter(
+            (id) => id.startsWith(keyword)
+          );
         }
         this._findCaches[pattern] = foundNodeIds;
         return foundNodeIds;
@@ -14719,9 +15462,9 @@ var require_pool_cluster = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/server.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/server.js
 var require_server = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/lib/server.js"(exports, module2) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/server.js"(exports, module2) {
     "use strict";
     var net = require("net");
     var EventEmitter = require("events").EventEmitter;
@@ -14754,9 +15497,22 @@ var require_server = __commonJS({
   }
 });
 
-// node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/index.js
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/auth_plugins/index.js
+var require_auth_plugins = __commonJS({
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/lib/auth_plugins/index.js"(exports, module2) {
+    "use strict";
+    module2.exports = {
+      caching_sha2_password: require_caching_sha2_password(),
+      mysql_clear_password: require_mysql_clear_password(),
+      mysql_native_password: require_mysql_native_password(),
+      sha256_password: require_sha256_password()
+    };
+  }
+});
+
+// node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/index.js
 var require_mysql2 = __commonJS({
-  "node_modules/.pnpm/mysql2@2.3.3/node_modules/mysql2/index.js"(exports) {
+  "node_modules/.pnpm/mysql2@3.2.0/node_modules/mysql2/index.js"(exports) {
     "use strict";
     var SqlString = require_sqlstring();
     var Connection = require_connection();
@@ -14767,6 +15523,7 @@ var require_mysql2 = __commonJS({
     };
     exports.connect = exports.createConnection;
     exports.Connection = Connection;
+    exports.ConnectionConfig = ConnectionConfig;
     var Pool2 = require_pool();
     var PoolCluster = require_pool_cluster();
     exports.createPool = function(config) {
@@ -14789,16 +15546,32 @@ var require_mysql2 = __commonJS({
       return s2;
     };
     exports.PoolConnection = require_pool_connection();
+    exports.authPlugins = require_auth_plugins();
     exports.escape = SqlString.escape;
     exports.escapeId = SqlString.escapeId;
     exports.format = SqlString.format;
     exports.raw = SqlString.raw;
-    exports.__defineGetter__("createConnectionPromise", () => require_promise().createConnection);
-    exports.__defineGetter__("createPoolPromise", () => require_promise().createPool);
-    exports.__defineGetter__("createPoolClusterPromise", () => require_promise().createPoolCluster);
+    exports.__defineGetter__(
+      "createConnectionPromise",
+      () => require_promise().createConnection
+    );
+    exports.__defineGetter__(
+      "createPoolPromise",
+      () => require_promise().createPool
+    );
+    exports.__defineGetter__(
+      "createPoolClusterPromise",
+      () => require_promise().createPoolCluster
+    );
     exports.__defineGetter__("Types", () => require_types());
-    exports.__defineGetter__("Charsets", () => require_charsets());
-    exports.__defineGetter__("CharsetToEncoding", () => require_charset_encodings());
+    exports.__defineGetter__(
+      "Charsets",
+      () => require_charsets()
+    );
+    exports.__defineGetter__(
+      "CharsetToEncoding",
+      () => require_charset_encodings()
+    );
     exports.setMaxParserCache = function(max) {
       parserCache.setMaxCache(max);
     };
@@ -14809,19 +15582,28 @@ var require_mysql2 = __commonJS({
 });
 
 // src/config/index.ts
-var resourceName, mysql_ui, mysql_slow_query_warning, mysql_connection_string, mysql_debug, mysql_transaction_isolation_level, parseUri, connectionOptions;
+function setDebug() {
+  try {
+    const debug = GetConvar("mysql_debug", "false");
+    mysql_debug = debug === "false" ? false : JSON.parse(debug);
+  } catch (e2) {
+    mysql_debug = true;
+  }
+}
+var resourceName, mysql_connection_string, mysql_ui, mysql_slow_query_warning, mysql_debug, mysql_transaction_isolation_level, parseUri, connectionOptions;
 var init_config = __esm({
   "src/config/index.ts"() {
+    "use strict";
     resourceName = GetCurrentResourceName();
+    mysql_connection_string = GetConvar("mysql_connection_string", "");
     mysql_ui = GetConvar("mysql_ui", "false") === "true";
     mysql_slow_query_warning = GetConvarInt("mysql_slow_query_warning", 200);
-    mysql_connection_string = GetConvar("mysql_connection_string", "");
-    try {
-      const debug = GetConvar("mysql_debug", "false");
-      mysql_debug = debug === "false" ? false : JSON.parse(debug);
-    } catch (e2) {
-      mysql_debug = true;
-    }
+    setDebug();
+    setInterval(() => {
+      setDebug();
+      mysql_ui = GetConvar("mysql_ui", "false") === "true";
+      mysql_slow_query_warning = GetConvarInt("mysql_slow_query_warning", 200);
+    }, 1e3);
     mysql_transaction_isolation_level = (() => {
       const query = "SET TRANSACTION ISOLATION LEVEL";
       switch (GetConvarInt("mysql_transaction_isolation_level", 2)) {
@@ -14838,7 +15620,11 @@ var init_config = __esm({
       }
     })();
     parseUri = (connectionString) => {
-      const splitMatchGroups = connectionString.match(new RegExp("^(?:([^:/?#.]+):)?(?://(?:([^/?#]*)@)?([\\w\\d\\-\\u0100-\\uffff.%]*)(?::([0-9]+))?)?([^?#]+)?(?:\\?([^#]*))?$"));
+      const splitMatchGroups = connectionString.match(
+        new RegExp(
+          "^(?:([^:/?#.]+):)?(?://(?:([^/?#]*)@)?([\\w\\d\\-\\u0100-\\uffff.%]*)(?::([0-9]+))?)?([^?#]+)?(?:\\?([^#]*))?$"
+        )
+      );
       if (!splitMatchGroups)
         throw new Error(`mysql_connection_string structure was invalid (${connectionString})`);
       const authTarget = splitMatchGroups[2] ? splitMatchGroups[2].split(":") : [];
@@ -14863,867 +15649,52 @@ var init_config = __esm({
         return connectionInfo;
       }, {});
       options.namedPlaceholders = options.namedPlaceholders === "false" ? false : true;
+      for (const key in ["dateStrings", "flags", "ssl"]) {
+        const value = options[key];
+        if (typeof value === "string") {
+          try {
+            options[key] = JSON.parse(value);
+          } catch {
+          }
+        }
+      }
       return options;
     })();
-    RegisterCommand("oxmysql_debug", (source2, args) => {
-      if (source2 !== 0)
-        return console.log("^3This command can only be run server side^0");
-      switch (args[0]) {
-        case "add":
-          if (!Array.isArray(mysql_debug))
-            mysql_debug = [];
-          mysql_debug.push(args[1]);
-          return console.log(`^3Added ${args[1]} to mysql_debug^0`);
-        case "remove":
-          if (Array.isArray(mysql_debug)) {
-            const index = mysql_debug.indexOf(args[1]);
-            if (index === -1)
-              return;
-            mysql_debug.splice(index, 1);
-            if (mysql_debug.length === 0)
-              mysql_debug = false;
-            return console.log(`^3Removed ${args[1]} from mysql_debug^0`);
-          }
-        default:
-          return console.log(`^3Usage: oxmysql add|remove <resource>^0`);
-      }
-    }, true);
+    RegisterCommand(
+      "oxmysql_debug",
+      (source2, args) => {
+        if (source2 !== 0)
+          return console.log("^3This command can only be run server side^0");
+        switch (args[0]) {
+          case "add":
+            if (!Array.isArray(mysql_debug))
+              mysql_debug = [];
+            mysql_debug.push(args[1]);
+            SetConvar("mysql_debug", JSON.stringify(mysql_debug));
+            return console.log(`^3Added ${args[1]} to mysql_debug^0`);
+          case "remove":
+            if (Array.isArray(mysql_debug)) {
+              const index = mysql_debug.indexOf(args[1]);
+              if (index === -1)
+                return;
+              mysql_debug.splice(index, 1);
+              if (mysql_debug.length === 0)
+                mysql_debug = false;
+              SetConvar("mysql_debug", JSON.stringify(mysql_debug) || "false");
+              return console.log(`^3Removed ${args[1]} from mysql_debug^0`);
+            }
+          default:
+            return console.log(`^3Usage: oxmysql add|remove <resource>^0`);
+        }
+      },
+      true
+    );
   }
 });
 
-// node_modules/.pnpm/pseudomap@1.0.2/node_modules/pseudomap/pseudomap.js
-var require_pseudomap = __commonJS({
-  "node_modules/.pnpm/pseudomap@1.0.2/node_modules/pseudomap/pseudomap.js"(exports, module2) {
-    var hasOwnProperty = Object.prototype.hasOwnProperty;
-    module2.exports = PseudoMap;
-    function PseudoMap(set2) {
-      if (!(this instanceof PseudoMap))
-        throw new TypeError("Constructor PseudoMap requires 'new'");
-      this.clear();
-      if (set2) {
-        if (set2 instanceof PseudoMap || typeof Map === "function" && set2 instanceof Map)
-          set2.forEach(function(value, key) {
-            this.set(key, value);
-          }, this);
-        else if (Array.isArray(set2))
-          set2.forEach(function(kv) {
-            this.set(kv[0], kv[1]);
-          }, this);
-        else
-          throw new TypeError("invalid argument");
-      }
-    }
-    PseudoMap.prototype.forEach = function(fn, thisp) {
-      thisp = thisp || this;
-      Object.keys(this._data).forEach(function(k) {
-        if (k !== "size")
-          fn.call(thisp, this._data[k].value, this._data[k].key);
-      }, this);
-    };
-    PseudoMap.prototype.has = function(k) {
-      return !!find(this._data, k);
-    };
-    PseudoMap.prototype.get = function(k) {
-      var res = find(this._data, k);
-      return res && res.value;
-    };
-    PseudoMap.prototype.set = function(k, v) {
-      set(this._data, k, v);
-    };
-    PseudoMap.prototype.delete = function(k) {
-      var res = find(this._data, k);
-      if (res) {
-        delete this._data[res._index];
-        this._data.size--;
-      }
-    };
-    PseudoMap.prototype.clear = function() {
-      var data = /* @__PURE__ */ Object.create(null);
-      data.size = 0;
-      Object.defineProperty(this, "_data", {
-        value: data,
-        enumerable: false,
-        configurable: true,
-        writable: false
-      });
-    };
-    Object.defineProperty(PseudoMap.prototype, "size", {
-      get: function() {
-        return this._data.size;
-      },
-      set: function(n) {
-      },
-      enumerable: true,
-      configurable: true
-    });
-    PseudoMap.prototype.values = PseudoMap.prototype.keys = PseudoMap.prototype.entries = function() {
-      throw new Error("iterators are not implemented in this version");
-    };
-    function same(a, b) {
-      return a === b || a !== a && b !== b;
-    }
-    function Entry(k, v, i2) {
-      this.key = k;
-      this.value = v;
-      this._index = i2;
-    }
-    function find(data, k) {
-      for (var i2 = 0, s2 = "_" + k, key = s2; hasOwnProperty.call(data, key); key = s2 + i2++) {
-        if (same(data[key].key, k))
-          return data[key];
-      }
-    }
-    function set(data, k, v) {
-      for (var i2 = 0, s2 = "_" + k, key = s2; hasOwnProperty.call(data, key); key = s2 + i2++) {
-        if (same(data[key].key, k)) {
-          data[key].value = v;
-          return;
-        }
-      }
-      data.size++;
-      data[key] = new Entry(k, v, key);
-    }
-  }
-});
-
-// node_modules/.pnpm/pseudomap@1.0.2/node_modules/pseudomap/map.js
-var require_map = __commonJS({
-  "node_modules/.pnpm/pseudomap@1.0.2/node_modules/pseudomap/map.js"(exports, module2) {
-    if (process.env.npm_package_name === "pseudomap" && process.env.npm_lifecycle_script === "test")
-      process.env.TEST_PSEUDOMAP = "true";
-    if (typeof Map === "function" && !process.env.TEST_PSEUDOMAP) {
-      module2.exports = Map;
-    } else {
-      module2.exports = require_pseudomap();
-    }
-  }
-});
-
-// node_modules/.pnpm/yallist@2.1.2/node_modules/yallist/yallist.js
-var require_yallist2 = __commonJS({
-  "node_modules/.pnpm/yallist@2.1.2/node_modules/yallist/yallist.js"(exports, module2) {
-    module2.exports = Yallist;
-    Yallist.Node = Node;
-    Yallist.create = Yallist;
-    function Yallist(list) {
-      var self2 = this;
-      if (!(self2 instanceof Yallist)) {
-        self2 = new Yallist();
-      }
-      self2.tail = null;
-      self2.head = null;
-      self2.length = 0;
-      if (list && typeof list.forEach === "function") {
-        list.forEach(function(item) {
-          self2.push(item);
-        });
-      } else if (arguments.length > 0) {
-        for (var i2 = 0, l = arguments.length; i2 < l; i2++) {
-          self2.push(arguments[i2]);
-        }
-      }
-      return self2;
-    }
-    Yallist.prototype.removeNode = function(node) {
-      if (node.list !== this) {
-        throw new Error("removing node which does not belong to this list");
-      }
-      var next = node.next;
-      var prev = node.prev;
-      if (next) {
-        next.prev = prev;
-      }
-      if (prev) {
-        prev.next = next;
-      }
-      if (node === this.head) {
-        this.head = next;
-      }
-      if (node === this.tail) {
-        this.tail = prev;
-      }
-      node.list.length--;
-      node.next = null;
-      node.prev = null;
-      node.list = null;
-    };
-    Yallist.prototype.unshiftNode = function(node) {
-      if (node === this.head) {
-        return;
-      }
-      if (node.list) {
-        node.list.removeNode(node);
-      }
-      var head = this.head;
-      node.list = this;
-      node.next = head;
-      if (head) {
-        head.prev = node;
-      }
-      this.head = node;
-      if (!this.tail) {
-        this.tail = node;
-      }
-      this.length++;
-    };
-    Yallist.prototype.pushNode = function(node) {
-      if (node === this.tail) {
-        return;
-      }
-      if (node.list) {
-        node.list.removeNode(node);
-      }
-      var tail = this.tail;
-      node.list = this;
-      node.prev = tail;
-      if (tail) {
-        tail.next = node;
-      }
-      this.tail = node;
-      if (!this.head) {
-        this.head = node;
-      }
-      this.length++;
-    };
-    Yallist.prototype.push = function() {
-      for (var i2 = 0, l = arguments.length; i2 < l; i2++) {
-        push(this, arguments[i2]);
-      }
-      return this.length;
-    };
-    Yallist.prototype.unshift = function() {
-      for (var i2 = 0, l = arguments.length; i2 < l; i2++) {
-        unshift(this, arguments[i2]);
-      }
-      return this.length;
-    };
-    Yallist.prototype.pop = function() {
-      if (!this.tail) {
-        return void 0;
-      }
-      var res = this.tail.value;
-      this.tail = this.tail.prev;
-      if (this.tail) {
-        this.tail.next = null;
-      } else {
-        this.head = null;
-      }
-      this.length--;
-      return res;
-    };
-    Yallist.prototype.shift = function() {
-      if (!this.head) {
-        return void 0;
-      }
-      var res = this.head.value;
-      this.head = this.head.next;
-      if (this.head) {
-        this.head.prev = null;
-      } else {
-        this.tail = null;
-      }
-      this.length--;
-      return res;
-    };
-    Yallist.prototype.forEach = function(fn, thisp) {
-      thisp = thisp || this;
-      for (var walker = this.head, i2 = 0; walker !== null; i2++) {
-        fn.call(thisp, walker.value, i2, this);
-        walker = walker.next;
-      }
-    };
-    Yallist.prototype.forEachReverse = function(fn, thisp) {
-      thisp = thisp || this;
-      for (var walker = this.tail, i2 = this.length - 1; walker !== null; i2--) {
-        fn.call(thisp, walker.value, i2, this);
-        walker = walker.prev;
-      }
-    };
-    Yallist.prototype.get = function(n) {
-      for (var i2 = 0, walker = this.head; walker !== null && i2 < n; i2++) {
-        walker = walker.next;
-      }
-      if (i2 === n && walker !== null) {
-        return walker.value;
-      }
-    };
-    Yallist.prototype.getReverse = function(n) {
-      for (var i2 = 0, walker = this.tail; walker !== null && i2 < n; i2++) {
-        walker = walker.prev;
-      }
-      if (i2 === n && walker !== null) {
-        return walker.value;
-      }
-    };
-    Yallist.prototype.map = function(fn, thisp) {
-      thisp = thisp || this;
-      var res = new Yallist();
-      for (var walker = this.head; walker !== null; ) {
-        res.push(fn.call(thisp, walker.value, this));
-        walker = walker.next;
-      }
-      return res;
-    };
-    Yallist.prototype.mapReverse = function(fn, thisp) {
-      thisp = thisp || this;
-      var res = new Yallist();
-      for (var walker = this.tail; walker !== null; ) {
-        res.push(fn.call(thisp, walker.value, this));
-        walker = walker.prev;
-      }
-      return res;
-    };
-    Yallist.prototype.reduce = function(fn, initial) {
-      var acc;
-      var walker = this.head;
-      if (arguments.length > 1) {
-        acc = initial;
-      } else if (this.head) {
-        walker = this.head.next;
-        acc = this.head.value;
-      } else {
-        throw new TypeError("Reduce of empty list with no initial value");
-      }
-      for (var i2 = 0; walker !== null; i2++) {
-        acc = fn(acc, walker.value, i2);
-        walker = walker.next;
-      }
-      return acc;
-    };
-    Yallist.prototype.reduceReverse = function(fn, initial) {
-      var acc;
-      var walker = this.tail;
-      if (arguments.length > 1) {
-        acc = initial;
-      } else if (this.tail) {
-        walker = this.tail.prev;
-        acc = this.tail.value;
-      } else {
-        throw new TypeError("Reduce of empty list with no initial value");
-      }
-      for (var i2 = this.length - 1; walker !== null; i2--) {
-        acc = fn(acc, walker.value, i2);
-        walker = walker.prev;
-      }
-      return acc;
-    };
-    Yallist.prototype.toArray = function() {
-      var arr = new Array(this.length);
-      for (var i2 = 0, walker = this.head; walker !== null; i2++) {
-        arr[i2] = walker.value;
-        walker = walker.next;
-      }
-      return arr;
-    };
-    Yallist.prototype.toArrayReverse = function() {
-      var arr = new Array(this.length);
-      for (var i2 = 0, walker = this.tail; walker !== null; i2++) {
-        arr[i2] = walker.value;
-        walker = walker.prev;
-      }
-      return arr;
-    };
-    Yallist.prototype.slice = function(from, to) {
-      to = to || this.length;
-      if (to < 0) {
-        to += this.length;
-      }
-      from = from || 0;
-      if (from < 0) {
-        from += this.length;
-      }
-      var ret = new Yallist();
-      if (to < from || to < 0) {
-        return ret;
-      }
-      if (from < 0) {
-        from = 0;
-      }
-      if (to > this.length) {
-        to = this.length;
-      }
-      for (var i2 = 0, walker = this.head; walker !== null && i2 < from; i2++) {
-        walker = walker.next;
-      }
-      for (; walker !== null && i2 < to; i2++, walker = walker.next) {
-        ret.push(walker.value);
-      }
-      return ret;
-    };
-    Yallist.prototype.sliceReverse = function(from, to) {
-      to = to || this.length;
-      if (to < 0) {
-        to += this.length;
-      }
-      from = from || 0;
-      if (from < 0) {
-        from += this.length;
-      }
-      var ret = new Yallist();
-      if (to < from || to < 0) {
-        return ret;
-      }
-      if (from < 0) {
-        from = 0;
-      }
-      if (to > this.length) {
-        to = this.length;
-      }
-      for (var i2 = this.length, walker = this.tail; walker !== null && i2 > to; i2--) {
-        walker = walker.prev;
-      }
-      for (; walker !== null && i2 > from; i2--, walker = walker.prev) {
-        ret.push(walker.value);
-      }
-      return ret;
-    };
-    Yallist.prototype.reverse = function() {
-      var head = this.head;
-      var tail = this.tail;
-      for (var walker = head; walker !== null; walker = walker.prev) {
-        var p = walker.prev;
-        walker.prev = walker.next;
-        walker.next = p;
-      }
-      this.head = tail;
-      this.tail = head;
-      return this;
-    };
-    function push(self2, item) {
-      self2.tail = new Node(item, self2.tail, null, self2);
-      if (!self2.head) {
-        self2.head = self2.tail;
-      }
-      self2.length++;
-    }
-    function unshift(self2, item) {
-      self2.head = new Node(item, null, self2.head, self2);
-      if (!self2.tail) {
-        self2.tail = self2.head;
-      }
-      self2.length++;
-    }
-    function Node(value, prev, next, list) {
-      if (!(this instanceof Node)) {
-        return new Node(value, prev, next, list);
-      }
-      this.list = list;
-      this.value = value;
-      if (prev) {
-        prev.next = this;
-        this.prev = prev;
-      } else {
-        this.prev = null;
-      }
-      if (next) {
-        next.prev = this;
-        this.next = next;
-      } else {
-        this.next = null;
-      }
-    }
-  }
-});
-
-// node_modules/.pnpm/lru-cache@4.1.5/node_modules/lru-cache/index.js
-var require_lru_cache2 = __commonJS({
-  "node_modules/.pnpm/lru-cache@4.1.5/node_modules/lru-cache/index.js"(exports, module2) {
-    "use strict";
-    module2.exports = LRUCache;
-    var Map2 = require_map();
-    var util = require("util");
-    var Yallist = require_yallist2();
-    var hasSymbol = typeof Symbol === "function" && process.env._nodeLRUCacheForceNoSymbol !== "1";
-    var makeSymbol;
-    if (hasSymbol) {
-      makeSymbol = function(key) {
-        return Symbol(key);
-      };
-    } else {
-      makeSymbol = function(key) {
-        return "_" + key;
-      };
-    }
-    var MAX = makeSymbol("max");
-    var LENGTH = makeSymbol("length");
-    var LENGTH_CALCULATOR = makeSymbol("lengthCalculator");
-    var ALLOW_STALE = makeSymbol("allowStale");
-    var MAX_AGE = makeSymbol("maxAge");
-    var DISPOSE = makeSymbol("dispose");
-    var NO_DISPOSE_ON_SET = makeSymbol("noDisposeOnSet");
-    var LRU_LIST = makeSymbol("lruList");
-    var CACHE = makeSymbol("cache");
-    function naiveLength() {
-      return 1;
-    }
-    function LRUCache(options) {
-      if (!(this instanceof LRUCache)) {
-        return new LRUCache(options);
-      }
-      if (typeof options === "number") {
-        options = { max: options };
-      }
-      if (!options) {
-        options = {};
-      }
-      var max = this[MAX] = options.max;
-      if (!max || !(typeof max === "number") || max <= 0) {
-        this[MAX] = Infinity;
-      }
-      var lc = options.length || naiveLength;
-      if (typeof lc !== "function") {
-        lc = naiveLength;
-      }
-      this[LENGTH_CALCULATOR] = lc;
-      this[ALLOW_STALE] = options.stale || false;
-      this[MAX_AGE] = options.maxAge || 0;
-      this[DISPOSE] = options.dispose;
-      this[NO_DISPOSE_ON_SET] = options.noDisposeOnSet || false;
-      this.reset();
-    }
-    Object.defineProperty(LRUCache.prototype, "max", {
-      set: function(mL) {
-        if (!mL || !(typeof mL === "number") || mL <= 0) {
-          mL = Infinity;
-        }
-        this[MAX] = mL;
-        trim(this);
-      },
-      get: function() {
-        return this[MAX];
-      },
-      enumerable: true
-    });
-    Object.defineProperty(LRUCache.prototype, "allowStale", {
-      set: function(allowStale) {
-        this[ALLOW_STALE] = !!allowStale;
-      },
-      get: function() {
-        return this[ALLOW_STALE];
-      },
-      enumerable: true
-    });
-    Object.defineProperty(LRUCache.prototype, "maxAge", {
-      set: function(mA) {
-        if (!mA || !(typeof mA === "number") || mA < 0) {
-          mA = 0;
-        }
-        this[MAX_AGE] = mA;
-        trim(this);
-      },
-      get: function() {
-        return this[MAX_AGE];
-      },
-      enumerable: true
-    });
-    Object.defineProperty(LRUCache.prototype, "lengthCalculator", {
-      set: function(lC) {
-        if (typeof lC !== "function") {
-          lC = naiveLength;
-        }
-        if (lC !== this[LENGTH_CALCULATOR]) {
-          this[LENGTH_CALCULATOR] = lC;
-          this[LENGTH] = 0;
-          this[LRU_LIST].forEach(function(hit) {
-            hit.length = this[LENGTH_CALCULATOR](hit.value, hit.key);
-            this[LENGTH] += hit.length;
-          }, this);
-        }
-        trim(this);
-      },
-      get: function() {
-        return this[LENGTH_CALCULATOR];
-      },
-      enumerable: true
-    });
-    Object.defineProperty(LRUCache.prototype, "length", {
-      get: function() {
-        return this[LENGTH];
-      },
-      enumerable: true
-    });
-    Object.defineProperty(LRUCache.prototype, "itemCount", {
-      get: function() {
-        return this[LRU_LIST].length;
-      },
-      enumerable: true
-    });
-    LRUCache.prototype.rforEach = function(fn, thisp) {
-      thisp = thisp || this;
-      for (var walker = this[LRU_LIST].tail; walker !== null; ) {
-        var prev = walker.prev;
-        forEachStep(this, fn, walker, thisp);
-        walker = prev;
-      }
-    };
-    function forEachStep(self2, fn, node, thisp) {
-      var hit = node.value;
-      if (isStale(self2, hit)) {
-        del(self2, node);
-        if (!self2[ALLOW_STALE]) {
-          hit = void 0;
-        }
-      }
-      if (hit) {
-        fn.call(thisp, hit.value, hit.key, self2);
-      }
-    }
-    LRUCache.prototype.forEach = function(fn, thisp) {
-      thisp = thisp || this;
-      for (var walker = this[LRU_LIST].head; walker !== null; ) {
-        var next = walker.next;
-        forEachStep(this, fn, walker, thisp);
-        walker = next;
-      }
-    };
-    LRUCache.prototype.keys = function() {
-      return this[LRU_LIST].toArray().map(function(k) {
-        return k.key;
-      }, this);
-    };
-    LRUCache.prototype.values = function() {
-      return this[LRU_LIST].toArray().map(function(k) {
-        return k.value;
-      }, this);
-    };
-    LRUCache.prototype.reset = function() {
-      if (this[DISPOSE] && this[LRU_LIST] && this[LRU_LIST].length) {
-        this[LRU_LIST].forEach(function(hit) {
-          this[DISPOSE](hit.key, hit.value);
-        }, this);
-      }
-      this[CACHE] = new Map2();
-      this[LRU_LIST] = new Yallist();
-      this[LENGTH] = 0;
-    };
-    LRUCache.prototype.dump = function() {
-      return this[LRU_LIST].map(function(hit) {
-        if (!isStale(this, hit)) {
-          return {
-            k: hit.key,
-            v: hit.value,
-            e: hit.now + (hit.maxAge || 0)
-          };
-        }
-      }, this).toArray().filter(function(h2) {
-        return h2;
-      });
-    };
-    LRUCache.prototype.dumpLru = function() {
-      return this[LRU_LIST];
-    };
-    LRUCache.prototype.inspect = function(n, opts) {
-      var str = "LRUCache {";
-      var extras = false;
-      var as = this[ALLOW_STALE];
-      if (as) {
-        str += "\n  allowStale: true";
-        extras = true;
-      }
-      var max = this[MAX];
-      if (max && max !== Infinity) {
-        if (extras) {
-          str += ",";
-        }
-        str += "\n  max: " + util.inspect(max, opts);
-        extras = true;
-      }
-      var maxAge = this[MAX_AGE];
-      if (maxAge) {
-        if (extras) {
-          str += ",";
-        }
-        str += "\n  maxAge: " + util.inspect(maxAge, opts);
-        extras = true;
-      }
-      var lc = this[LENGTH_CALCULATOR];
-      if (lc && lc !== naiveLength) {
-        if (extras) {
-          str += ",";
-        }
-        str += "\n  length: " + util.inspect(this[LENGTH], opts);
-        extras = true;
-      }
-      var didFirst = false;
-      this[LRU_LIST].forEach(function(item) {
-        if (didFirst) {
-          str += ",\n  ";
-        } else {
-          if (extras) {
-            str += ",\n";
-          }
-          didFirst = true;
-          str += "\n  ";
-        }
-        var key = util.inspect(item.key).split("\n").join("\n  ");
-        var val = { value: item.value };
-        if (item.maxAge !== maxAge) {
-          val.maxAge = item.maxAge;
-        }
-        if (lc !== naiveLength) {
-          val.length = item.length;
-        }
-        if (isStale(this, item)) {
-          val.stale = true;
-        }
-        val = util.inspect(val, opts).split("\n").join("\n  ");
-        str += key + " => " + val;
-      });
-      if (didFirst || extras) {
-        str += "\n";
-      }
-      str += "}";
-      return str;
-    };
-    LRUCache.prototype.set = function(key, value, maxAge) {
-      maxAge = maxAge || this[MAX_AGE];
-      var now = maxAge ? Date.now() : 0;
-      var len = this[LENGTH_CALCULATOR](value, key);
-      if (this[CACHE].has(key)) {
-        if (len > this[MAX]) {
-          del(this, this[CACHE].get(key));
-          return false;
-        }
-        var node = this[CACHE].get(key);
-        var item = node.value;
-        if (this[DISPOSE]) {
-          if (!this[NO_DISPOSE_ON_SET]) {
-            this[DISPOSE](key, item.value);
-          }
-        }
-        item.now = now;
-        item.maxAge = maxAge;
-        item.value = value;
-        this[LENGTH] += len - item.length;
-        item.length = len;
-        this.get(key);
-        trim(this);
-        return true;
-      }
-      var hit = new Entry(key, value, len, now, maxAge);
-      if (hit.length > this[MAX]) {
-        if (this[DISPOSE]) {
-          this[DISPOSE](key, value);
-        }
-        return false;
-      }
-      this[LENGTH] += hit.length;
-      this[LRU_LIST].unshift(hit);
-      this[CACHE].set(key, this[LRU_LIST].head);
-      trim(this);
-      return true;
-    };
-    LRUCache.prototype.has = function(key) {
-      if (!this[CACHE].has(key))
-        return false;
-      var hit = this[CACHE].get(key).value;
-      if (isStale(this, hit)) {
-        return false;
-      }
-      return true;
-    };
-    LRUCache.prototype.get = function(key) {
-      return get(this, key, true);
-    };
-    LRUCache.prototype.peek = function(key) {
-      return get(this, key, false);
-    };
-    LRUCache.prototype.pop = function() {
-      var node = this[LRU_LIST].tail;
-      if (!node)
-        return null;
-      del(this, node);
-      return node.value;
-    };
-    LRUCache.prototype.del = function(key) {
-      del(this, this[CACHE].get(key));
-    };
-    LRUCache.prototype.load = function(arr) {
-      this.reset();
-      var now = Date.now();
-      for (var l = arr.length - 1; l >= 0; l--) {
-        var hit = arr[l];
-        var expiresAt = hit.e || 0;
-        if (expiresAt === 0) {
-          this.set(hit.k, hit.v);
-        } else {
-          var maxAge = expiresAt - now;
-          if (maxAge > 0) {
-            this.set(hit.k, hit.v, maxAge);
-          }
-        }
-      }
-    };
-    LRUCache.prototype.prune = function() {
-      var self2 = this;
-      this[CACHE].forEach(function(value, key) {
-        get(self2, key, false);
-      });
-    };
-    function get(self2, key, doUse) {
-      var node = self2[CACHE].get(key);
-      if (node) {
-        var hit = node.value;
-        if (isStale(self2, hit)) {
-          del(self2, node);
-          if (!self2[ALLOW_STALE])
-            hit = void 0;
-        } else {
-          if (doUse) {
-            self2[LRU_LIST].unshiftNode(node);
-          }
-        }
-        if (hit)
-          hit = hit.value;
-      }
-      return hit;
-    }
-    function isStale(self2, hit) {
-      if (!hit || !hit.maxAge && !self2[MAX_AGE]) {
-        return false;
-      }
-      var stale = false;
-      var diff = Date.now() - hit.now;
-      if (hit.maxAge) {
-        stale = diff > hit.maxAge;
-      } else {
-        stale = self2[MAX_AGE] && diff > self2[MAX_AGE];
-      }
-      return stale;
-    }
-    function trim(self2) {
-      if (self2[LENGTH] > self2[MAX]) {
-        for (var walker = self2[LRU_LIST].tail; self2[LENGTH] > self2[MAX] && walker !== null; ) {
-          var prev = walker.prev;
-          del(self2, walker);
-          walker = prev;
-        }
-      }
-    }
-    function del(self2, node) {
-      if (node) {
-        var hit = node.value;
-        if (self2[DISPOSE]) {
-          self2[DISPOSE](hit.key, hit.value);
-        }
-        self2[LENGTH] -= hit.length;
-        self2[CACHE].delete(hit.key);
-        self2[LRU_LIST].removeNode(node);
-      }
-    }
-    function Entry(key, value, length, now, maxAge) {
-      this.key = key;
-      this.value = value;
-      this.length = length;
-      this.now = now;
-      this.maxAge = maxAge || 0;
-    }
-  }
-});
-
-// node_modules/.pnpm/named-placeholders@1.1.2/node_modules/named-placeholders/index.js
+// node_modules/.pnpm/named-placeholders@1.1.3/node_modules/named-placeholders/index.js
 var require_named_placeholders = __commonJS({
-  "node_modules/.pnpm/named-placeholders@1.1.2/node_modules/named-placeholders/index.js"(exports, module2) {
+  "node_modules/.pnpm/named-placeholders@1.1.3/node_modules/named-placeholders/index.js"(exports, module2) {
     "use strict";
     var RE_PARAM = /(?:\?)|(?:(?<!["'])[:@](\d+|(?:[a-zA-Z][a-zA-Z0-9_]*)))/g;
     var DQUOTE = 34;
@@ -15782,8 +15753,6 @@ var require_named_placeholders = __commonJS({
       }
       return [query];
     }
-    var EMPTY_LRU_FN = (key, value) => {
-    };
     function createCompiler(config) {
       if (!config)
         config = {};
@@ -15799,7 +15768,7 @@ var require_named_placeholders = __commonJS({
         cache = config.cache;
       }
       if (config.cache !== false && !cache) {
-        cache = require_lru_cache2()({ max: ncache, dispose: EMPTY_LRU_FN });
+        cache = new (require_lru_cache())({ max: ncache });
       }
       function toArrayParams(tree, params) {
         const arr = [];
@@ -15896,7 +15865,7 @@ var require_named_placeholders = __commonJS({
   }
 });
 
-// node_modules/.pnpm/data-uri-to-buffer@4.0.0/node_modules/data-uri-to-buffer/dist/index.js
+// node_modules/.pnpm/data-uri-to-buffer@4.0.1/node_modules/data-uri-to-buffer/dist/index.js
 function dataUriToBuffer(uri) {
   if (!/^data:/i.test(uri)) {
     throw new TypeError('`uri` does not appear to be a Data URI (must begin with "data:")');
@@ -15914,7 +15883,7 @@ function dataUriToBuffer(uri) {
   for (let i2 = 1; i2 < meta.length; i2++) {
     if (meta[i2] === "base64") {
       base64 = true;
-    } else {
+    } else if (meta[i2]) {
       typeFull += `;${meta[i2]}`;
       if (meta[i2].indexOf("charset=") === 0) {
         charset = meta[i2].substring(8);
@@ -15935,7 +15904,7 @@ function dataUriToBuffer(uri) {
 }
 var dist_default;
 var init_dist = __esm({
-  "node_modules/.pnpm/data-uri-to-buffer@4.0.0/node_modules/data-uri-to-buffer/dist/index.js"() {
+  "node_modules/.pnpm/data-uri-to-buffer@4.0.1/node_modules/data-uri-to-buffer/dist/index.js"() {
     dist_default = dataUriToBuffer;
   }
 });
@@ -19531,9 +19500,9 @@ var require_ponyfill_es2018 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fetch-blob@3.1.5/node_modules/fetch-blob/streams.cjs
+// node_modules/.pnpm/fetch-blob@3.2.0/node_modules/fetch-blob/streams.cjs
 var require_streams2 = __commonJS({
-  "node_modules/.pnpm/fetch-blob@3.1.5/node_modules/fetch-blob/streams.cjs"() {
+  "node_modules/.pnpm/fetch-blob@3.2.0/node_modules/fetch-blob/streams.cjs"() {
     var POOL_SIZE2 = 65536;
     if (!globalThis.ReadableStream) {
       try {
@@ -19577,7 +19546,7 @@ var require_streams2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fetch-blob@3.1.5/node_modules/fetch-blob/index.js
+// node_modules/.pnpm/fetch-blob@3.2.0/node_modules/fetch-blob/index.js
 async function* toIterator(parts, clone2 = true) {
   for (const part of parts) {
     if ("stream" in part) {
@@ -19608,7 +19577,7 @@ async function* toIterator(parts, clone2 = true) {
 }
 var import_streams, POOL_SIZE, _Blob, Blob2, fetch_blob_default;
 var init_fetch_blob = __esm({
-  "node_modules/.pnpm/fetch-blob@3.1.5/node_modules/fetch-blob/index.js"() {
+  "node_modules/.pnpm/fetch-blob@3.2.0/node_modules/fetch-blob/index.js"() {
     import_streams = __toESM(require_streams2(), 1);
     POOL_SIZE = 65536;
     _Blob = class Blob {
@@ -19640,11 +19609,8 @@ var init_fetch_blob = __esm({
           } else {
             part = encoder.encode(`${element}`);
           }
-          const size = ArrayBuffer.isView(part) ? part.byteLength : part.size;
-          if (size) {
-            this.#size += size;
-            this.#parts.push(part);
-          }
+          this.#size += ArrayBuffer.isView(part) ? part.byteLength : part.size;
+          this.#parts.push(part);
         }
         this.#endings = `${options.endings === void 0 ? "transparent" : options.endings}`;
         const type = options.type === void 0 ? "" : String(options.type);
@@ -19739,10 +19705,10 @@ var init_fetch_blob = __esm({
   }
 });
 
-// node_modules/.pnpm/fetch-blob@3.1.5/node_modules/fetch-blob/file.js
+// node_modules/.pnpm/fetch-blob@3.2.0/node_modules/fetch-blob/file.js
 var _File, File2, file_default;
 var init_file = __esm({
-  "node_modules/.pnpm/fetch-blob@3.1.5/node_modules/fetch-blob/file.js"() {
+  "node_modules/.pnpm/fetch-blob@3.2.0/node_modules/fetch-blob/file.js"() {
     init_fetch_blob();
     _File = class File extends fetch_blob_default {
       #lastModified = 0;
@@ -19881,10 +19847,10 @@ var init_esm_min = __esm({
   }
 });
 
-// node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/errors/base.js
+// node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/errors/base.js
 var FetchBaseError;
 var init_base = __esm({
-  "node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/errors/base.js"() {
+  "node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/errors/base.js"() {
     FetchBaseError = class extends Error {
       constructor(message, type) {
         super(message);
@@ -19901,10 +19867,10 @@ var init_base = __esm({
   }
 });
 
-// node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/errors/fetch-error.js
+// node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/errors/fetch-error.js
 var FetchError;
 var init_fetch_error = __esm({
-  "node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/errors/fetch-error.js"() {
+  "node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/errors/fetch-error.js"() {
     init_base();
     FetchError = class extends FetchBaseError {
       constructor(message, type, systemError) {
@@ -19918,10 +19884,10 @@ var init_fetch_error = __esm({
   }
 });
 
-// node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/utils/is.js
-var NAME, isURLSearchParameters, isBlob, isAbortSignal, isDomainOrSubdomain;
+// node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/utils/is.js
+var NAME, isURLSearchParameters, isBlob, isAbortSignal, isDomainOrSubdomain, isSameProtocol;
 var init_is = __esm({
-  "node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/utils/is.js"() {
+  "node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/utils/is.js"() {
     NAME = Symbol.toStringTag;
     isURLSearchParameters = (object) => {
       return typeof object === "object" && typeof object.append === "function" && typeof object.delete === "function" && typeof object.get === "function" && typeof object.getAll === "function" && typeof object.has === "function" && typeof object.set === "function" && typeof object.sort === "function" && object[NAME] === "URLSearchParams";
@@ -19936,6 +19902,11 @@ var init_is = __esm({
       const orig = new URL(original).hostname;
       const dest = new URL(destination).hostname;
       return orig === dest || orig.endsWith(`.${dest}`);
+    };
+    isSameProtocol = (destination, original) => {
+      const orig = new URL(original).protocol;
+      const dest = new URL(destination).protocol;
+      return orig === dest;
     };
   }
 });
@@ -19955,10 +19926,10 @@ var require_node_domexception = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fetch-blob@3.1.5/node_modules/fetch-blob/from.js
+// node_modules/.pnpm/fetch-blob@3.2.0/node_modules/fetch-blob/from.js
 var import_node_fs, import_node_domexception, stat, BlobDataItem;
 var init_from = __esm({
-  "node_modules/.pnpm/fetch-blob@3.1.5/node_modules/fetch-blob/from.js"() {
+  "node_modules/.pnpm/fetch-blob@3.2.0/node_modules/fetch-blob/from.js"() {
     import_node_fs = require("node:fs");
     import_node_domexception = __toESM(require_node_domexception(), 1);
     init_file();
@@ -19972,20 +19943,18 @@ var init_from = __esm({
         this.#start = options.start;
         this.size = options.size;
         this.lastModified = options.lastModified;
-        this.originalSize = options.originalSize === void 0 ? options.size : options.originalSize;
       }
       slice(start, end) {
         return new BlobDataItem({
           path: this.#path,
           lastModified: this.lastModified,
-          originalSize: this.originalSize,
           size: end - start,
           start: this.#start + start
         });
       }
       async *stream() {
-        const { mtimeMs, size } = await stat(this.#path);
-        if (mtimeMs > this.lastModified || this.originalSize !== size) {
+        const { mtimeMs } = await stat(this.#path);
+        if (mtimeMs > this.lastModified) {
           throw new import_node_domexception.default("The requested file could not be read, typically due to permission problems that have occurred after a reference to a file was acquired.", "NotReadableError");
         }
         yield* (0, import_node_fs.createReadStream)(this.#path, {
@@ -20000,7 +19969,7 @@ var init_from = __esm({
   }
 });
 
-// node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/utils/multipart-parser.js
+// node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/utils/multipart-parser.js
 var multipart_parser_exports = {};
 __export(multipart_parser_exports, {
   toFormData: () => toFormData
@@ -20094,7 +20063,7 @@ async function toFormData(Body2, ct) {
 }
 var s, S, f2, F, LF, CR, SPACE, HYPHEN, COLON, A, Z, lower, noop, MultipartParser;
 var init_multipart_parser = __esm({
-  "node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/utils/multipart-parser.js"() {
+  "node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/utils/multipart-parser.js"() {
     init_from();
     init_esm_min();
     s = 0;
@@ -20353,7 +20322,7 @@ var init_multipart_parser = __esm({
   }
 });
 
-// node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/body.js
+// node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/body.js
 async function consumeBody(data) {
   if (data[INTERNALS].disturbed) {
     throw new TypeError(`body used already for: ${data.url}`);
@@ -20400,7 +20369,7 @@ async function consumeBody(data) {
 }
 var import_node_stream, import_node_util, import_node_buffer, pipeline, INTERNALS, Body, clone, getNonSpecFormDataBoundary, extractContentType, getTotalBytes, writeToStream;
 var init_body = __esm({
-  "node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/body.js"() {
+  "node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/body.js"() {
     import_node_stream = __toESM(require("node:stream"), 1);
     import_node_util = require("node:util");
     import_node_buffer = require("node:buffer");
@@ -20504,8 +20473,12 @@ var init_body = __esm({
       blob: { enumerable: true },
       json: { enumerable: true },
       text: { enumerable: true },
-      data: { get: (0, import_node_util.deprecate)(() => {
-      }, "data doesn't exist, use json(), text(), arrayBuffer(), or body instead", "https://github.com/node-fetch/node-fetch/issues/1000 (response)") }
+      data: { get: (0, import_node_util.deprecate)(
+        () => {
+        },
+        "data doesn't exist, use json(), text(), arrayBuffer(), or body instead",
+        "https://github.com/node-fetch/node-fetch/issues/1000 (response)"
+      ) }
     });
     clone = (instance, highWaterMark) => {
       let p1;
@@ -20524,7 +20497,11 @@ var init_body = __esm({
       }
       return body;
     };
-    getNonSpecFormDataBoundary = (0, import_node_util.deprecate)((body) => body.getBoundary(), "form-data doesn't follow the spec and requires special treatment. Use alternative package", "https://github.com/node-fetch/node-fetch/issues/1167");
+    getNonSpecFormDataBoundary = (0, import_node_util.deprecate)(
+      (body) => body.getBoundary(),
+      "form-data doesn't follow the spec and requires special treatment. Use alternative package",
+      "https://github.com/node-fetch/node-fetch/issues/1167"
+    );
     extractContentType = (body, request) => {
       if (body === null) {
         return null;
@@ -20578,26 +20555,28 @@ var init_body = __esm({
   }
 });
 
-// node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/headers.js
+// node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/headers.js
 function fromRawHeaders(headers = []) {
-  return new Headers(headers.reduce((result, value, index, array) => {
-    if (index % 2 === 0) {
-      result.push(array.slice(index, index + 2));
-    }
-    return result;
-  }, []).filter(([name, value]) => {
-    try {
-      validateHeaderName(name);
-      validateHeaderValue(name, String(value));
-      return true;
-    } catch {
-      return false;
-    }
-  }));
+  return new Headers(
+    headers.reduce((result, value, index, array) => {
+      if (index % 2 === 0) {
+        result.push(array.slice(index, index + 2));
+      }
+      return result;
+    }, []).filter(([name, value]) => {
+      try {
+        validateHeaderName(name);
+        validateHeaderValue(name, String(value));
+        return true;
+      } catch {
+        return false;
+      }
+    })
+  );
 }
 var import_node_util2, import_node_http, validateHeaderName, validateHeaderValue, Headers;
 var init_headers = __esm({
-  "node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/headers.js"() {
+  "node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/headers.js"() {
     import_node_util2 = require("node:util");
     import_node_http = __toESM(require("node:http"), 1);
     validateHeaderName = typeof import_node_http.default.validateHeaderName === "function" ? import_node_http.default.validateHeaderName : (name) => {
@@ -20660,14 +20639,21 @@ var init_headers = __esm({
                 return (name, value) => {
                   validateHeaderName(name);
                   validateHeaderValue(name, String(value));
-                  return URLSearchParams.prototype[p].call(target, String(name).toLowerCase(), String(value));
+                  return URLSearchParams.prototype[p].call(
+                    target,
+                    String(name).toLowerCase(),
+                    String(value)
+                  );
                 };
               case "delete":
               case "has":
               case "getAll":
                 return (name) => {
                   validateHeaderName(name);
-                  return URLSearchParams.prototype[p].call(target, String(name).toLowerCase());
+                  return URLSearchParams.prototype[p].call(
+                    target,
+                    String(name).toLowerCase()
+                  );
                 };
               case "keys":
                 return () => {
@@ -20733,17 +20719,20 @@ var init_headers = __esm({
         }, {});
       }
     };
-    Object.defineProperties(Headers.prototype, ["get", "entries", "forEach", "values"].reduce((result, property) => {
-      result[property] = { enumerable: true };
-      return result;
-    }, {}));
+    Object.defineProperties(
+      Headers.prototype,
+      ["get", "entries", "forEach", "values"].reduce((result, property) => {
+        result[property] = { enumerable: true };
+        return result;
+      }, {})
+    );
   }
 });
 
-// node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/utils/is-redirect.js
+// node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/utils/is-redirect.js
 var redirectStatus, isRedirect;
 var init_is_redirect = __esm({
-  "node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/utils/is-redirect.js"() {
+  "node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/utils/is-redirect.js"() {
     redirectStatus = /* @__PURE__ */ new Set([301, 302, 303, 307, 308]);
     isRedirect = (code) => {
       return redirectStatus.has(code);
@@ -20751,10 +20740,10 @@ var init_is_redirect = __esm({
   }
 });
 
-// node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/response.js
+// node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/response.js
 var INTERNALS2, Response;
 var init_response = __esm({
-  "node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/response.js"() {
+  "node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/response.js"() {
     init_headers();
     init_body();
     init_is_redirect();
@@ -20833,6 +20822,20 @@ var init_response = __esm({
         response[INTERNALS2].type = "error";
         return response;
       }
+      static json(data = void 0, init = {}) {
+        const body = JSON.stringify(data);
+        if (body === void 0) {
+          throw new TypeError("data is not JSON serializable");
+        }
+        const headers = new Headers(init && init.headers);
+        if (!headers.has("content-type")) {
+          headers.set("content-type", "application/json");
+        }
+        return new Response(body, {
+          ...init,
+          headers
+        });
+      }
       get [Symbol.toStringTag]() {
         return "Response";
       }
@@ -20850,10 +20853,10 @@ var init_response = __esm({
   }
 });
 
-// node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/utils/get-search.js
+// node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/utils/get-search.js
 var getSearch;
 var init_get_search = __esm({
-  "node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/utils/get-search.js"() {
+  "node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/utils/get-search.js"() {
     getSearch = (parsedURL) => {
       if (parsedURL.search) {
         return parsedURL.search;
@@ -20865,7 +20868,7 @@ var init_get_search = __esm({
   }
 });
 
-// node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/utils/referrer.js
+// node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/utils/referrer.js
 function stripURLForUseAsAReferrer(url, originOnly = false) {
   if (url == null) {
     return "no-referrer";
@@ -20901,7 +20904,7 @@ function isOriginPotentiallyTrustworthy(url) {
   if (hostIPVersion === 6 && /^(((0+:){7})|(::(0+:){0,6}))0*1$/.test(hostIp)) {
     return true;
   }
-  if (/^(.+\.)*localhost$/.test(url.host)) {
+  if (url.host === "localhost" || url.host.endsWith(".localhost")) {
     return false;
   }
   if (url.protocol === "file:") {
@@ -20993,7 +20996,7 @@ function parseReferrerPolicyFromHeader(headers) {
 }
 var import_node_net, ReferrerPolicy, DEFAULT_REFERRER_POLICY;
 var init_referrer = __esm({
-  "node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/utils/referrer.js"() {
+  "node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/utils/referrer.js"() {
     import_node_net = require("node:net");
     ReferrerPolicy = /* @__PURE__ */ new Set([
       "",
@@ -21010,10 +21013,10 @@ var init_referrer = __esm({
   }
 });
 
-// node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/request.js
+// node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/request.js
 var import_node_url, import_node_util3, INTERNALS3, isRequest, doBadDataWarn, Request, getNodeRequestOptions;
 var init_request = __esm({
-  "node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/request.js"() {
+  "node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/request.js"() {
     import_node_url = require("node:url");
     import_node_util3 = require("node:util");
     init_headers();
@@ -21025,8 +21028,12 @@ var init_request = __esm({
     isRequest = (object) => {
       return typeof object === "object" && typeof object[INTERNALS3] === "object";
     };
-    doBadDataWarn = (0, import_node_util3.deprecate)(() => {
-    }, ".data is not a valid RequestInit property, use .body instead", "https://github.com/node-fetch/node-fetch/issues/1000 (request)");
+    doBadDataWarn = (0, import_node_util3.deprecate)(
+      () => {
+      },
+      ".data is not a valid RequestInit property, use .body instead",
+      "https://github.com/node-fetch/node-fetch/issues/1000 (request)"
+    );
     Request = class extends Body {
       constructor(input, init = {}) {
         let parsedURL;
@@ -21043,7 +21050,7 @@ var init_request = __esm({
         if (/^(delete|get|head|options|post|put)$/i.test(method)) {
           method = method.toUpperCase();
         }
-        if ("data" in init) {
+        if (!isRequest(init) && "data" in init) {
           doBadDataWarn();
         }
         if ((init.body != null || isRequest(input) && input.body !== null) && (method === "GET" || method === "HEAD")) {
@@ -21176,7 +21183,7 @@ var init_request = __esm({
         headers.set("User-Agent", "node-fetch");
       }
       if (request.compress && !headers.has("Accept-Encoding")) {
-        headers.set("Accept-Encoding", "gzip,deflate,br");
+        headers.set("Accept-Encoding", "gzip, deflate, br");
       }
       let { agent } = request;
       if (typeof agent === "function") {
@@ -21201,10 +21208,10 @@ var init_request = __esm({
   }
 });
 
-// node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/errors/abort-error.js
+// node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/errors/abort-error.js
 var AbortError;
 var init_abort_error = __esm({
-  "node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/errors/abort-error.js"() {
+  "node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/errors/abort-error.js"() {
     init_base();
     AbortError = class extends FetchBaseError {
       constructor(message, type = "aborted") {
@@ -21214,7 +21221,7 @@ var init_abort_error = __esm({
   }
 });
 
-// node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/index.js
+// node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/index.js
 async function fetch(url, options_) {
   return new Promise((resolve, reject) => {
     const request = new Request(url, options_);
@@ -21265,7 +21272,9 @@ async function fetch(url, options_) {
       finalize();
     });
     fixResponseChunkedTransferBadEnding(request_, (error) => {
-      response.body.destroy(error);
+      if (response && response.body) {
+        response.body.destroy(error);
+      }
     });
     if (process.version < "v14") {
       request_.on("socket", (s2) => {
@@ -21326,7 +21335,7 @@ async function fetch(url, options_) {
               referrer: request.referrer,
               referrerPolicy: request.referrerPolicy
             };
-            if (!isDomainOrSubdomain(request.url, locationURL)) {
+            if (!isDomainOrSubdomain(request.url, locationURL) || !isSameProtocol(request.url, locationURL)) {
               for (const name of ["authorization", "www-authenticate", "cookie", "cookie2"]) {
                 requestOptions.headers.delete(name);
               }
@@ -21459,22 +21468,24 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
         errorCallback(error);
       }
     };
-    socket.prependListener("close", onSocketClose);
-    request.on("abort", () => {
-      socket.removeListener("close", onSocketClose);
-    });
-    socket.on("data", (buf) => {
+    const onData = (buf) => {
       properLastChunkReceived = import_node_buffer2.Buffer.compare(buf.slice(-5), LAST_CHUNK) === 0;
       if (!properLastChunkReceived && previousChunk) {
         properLastChunkReceived = import_node_buffer2.Buffer.compare(previousChunk.slice(-3), LAST_CHUNK.slice(0, 3)) === 0 && import_node_buffer2.Buffer.compare(buf.slice(-2), LAST_CHUNK.slice(3)) === 0;
       }
       previousChunk = buf;
+    };
+    socket.prependListener("close", onSocketClose);
+    socket.on("data", onData);
+    request.on("close", () => {
+      socket.removeListener("close", onSocketClose);
+      socket.removeListener("data", onData);
     });
   });
 }
 var import_node_http2, import_node_https, import_node_zlib, import_node_stream2, import_node_buffer2, supportedSchemas;
 var init_src = __esm({
-  "node_modules/.pnpm/node-fetch@3.2.4/node_modules/node-fetch/src/index.js"() {
+  "node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/index.js"() {
     import_node_http2 = __toESM(require("node:http"), 1);
     import_node_https = __toESM(require("node:https"), 1);
     import_node_zlib = __toESM(require("node:zlib"), 1);
@@ -21500,6 +21511,7 @@ var init_src = __esm({
 var update_exports = {};
 var init_update = __esm({
   "src/update/index.ts"() {
+    "use strict";
     init_src();
     init_config();
     if (GetConvar("mysql_versioncheck", "true") === "true") {
@@ -21519,8 +21531,10 @@ var init_update = __esm({
             return;
           if (currentVersion[0] === latestVersion[0] || parseInt(currentVersion[1]) > parseInt(latestVersion[1]) || parseFloat(currentVersion[2]) > parseFloat(latestVersion[2]))
             return;
-          console.log(`^3An update is available for oxmysql (current version: ${currentVersion[0]})\r
-${release.html_url}^0`);
+          console.log(
+            `^3An update is available for oxmysql (current version: ${currentVersion[0]})\r
+${release.html_url}^0`
+          );
         } catch (e2) {
         }
       }, 1e3);
@@ -21567,6 +21581,18 @@ var typeCast = (field, next) => {
 // src/database/index.ts
 var pool;
 var serverReady = false;
+async function waitForConnection() {
+  if (!serverReady) {
+    await new Promise((resolve) => {
+      (function wait() {
+        if (serverReady) {
+          return resolve();
+        }
+        setTimeout(wait);
+      })();
+    });
+  }
+}
 setTimeout(() => {
   pool = (0, import_mysql2.createPool)({
     connectTimeout: 6e4,
@@ -21588,8 +21614,6 @@ setTimeout(() => {
 init_config();
 var convertNamedPlaceholders = connectionOptions.namedPlaceholders && require_named_placeholders()();
 var parseArguments = (invokingResource, query, parameters, cb) => {
-  if (typeof query !== "string")
-    throw new Error(`Query expected a string but received ${typeof query} instead`);
   if (convertNamedPlaceholders && parameters && typeof parameters === "object" && !Array.isArray(parameters)) {
     if (query.includes(":") || query.includes("@")) {
       const placeholders = convertNamedPlaceholders(query, parameters);
@@ -21621,9 +21645,11 @@ var parseArguments = (invokingResource, query, parameters, cb) => {
         for (let i2 = 0; i2 < diff; i2++)
           parameters[queryParams.length + i2] = null;
       } else if (diff < 0) {
-        throw new Error(`${invokingResource} was unable to execute a query!
-        Expected ${queryParams.length} parameters, but received ${parameters.length}.
-        ${`${query} ${JSON.stringify(parameters)}`}`);
+        throw new Error(
+          `${invokingResource} was unable to execute a query!
+Expected ${queryParams.length} parameters, but received ${parameters.length}.
+${`${query} ${JSON.stringify(parameters)}`}`
+        );
       }
     }
   }
@@ -21655,12 +21681,16 @@ var logStorage = {};
 var logQuery = (invokingResource, query, executionTime, parameters) => {
   if (mysql_debug && Array.isArray(mysql_debug)) {
     if (mysql_debug.includes(invokingResource)) {
-      console.log(`^3[DEBUG] ${invokingResource} took ${executionTime}ms to execute a query!
-      ${query} ${JSON.stringify(parameters)}^0`);
+      console.log(
+        `^3[DEBUG] ${invokingResource} took ${executionTime}ms to execute a query!
+      ${query} ${JSON.stringify(parameters)}^0`
+      );
     }
   } else if (mysql_debug || executionTime >= mysql_slow_query_warning)
-    console.log(`^3[${mysql_debug ? "DEBUG" : "WARNING"}] ${invokingResource} took ${executionTime}ms to execute a query!
-    ${query} ${JSON.stringify(parameters)}^0`);
+    console.log(
+      `^3[${mysql_debug ? "DEBUG" : "WARNING"}] ${invokingResource} took ${executionTime}ms to execute a query!
+    ${query} ${JSON.stringify(parameters)}^0`
+    );
   if (!mysql_ui)
     return;
   if (logStorage[invokingResource] === void 0)
@@ -21672,40 +21702,39 @@ var logQuery = (invokingResource, query, executionTime, parameters) => {
     slow: executionTime >= mysql_slow_query_warning ? true : void 0
   });
 };
-RegisterCommand("mysql", (source2) => {
-  if (!mysql_ui)
-    return;
-  if (source2 < 1) {
-    console.log("^3This command cannot run server side^0");
-    return;
-  }
-  let totalQueries = 0;
-  let totalTime = 0;
-  let slowQueries = 0;
-  let chartData = [
-    {
-      x: 0,
-      y: 0,
-      z: ""
+RegisterCommand(
+  "mysql",
+  (source2) => {
+    if (!mysql_ui)
+      return;
+    if (source2 < 1) {
+      console.log("^3This command cannot run server side^0");
+      return;
     }
-  ];
-  for (const resource in logStorage) {
-    const queries = logStorage[resource];
-    let totalResourceTime = 0;
-    totalQueries += queries.length;
-    totalTime += queries.reduce((totalTime2, query) => totalTime2 += query.executionTime, 0);
-    slowQueries += queries.reduce((slowQueries2, query) => slowQueries2 += query.slow ? 1 : 0, 0);
-    totalResourceTime += queries.reduce((totalResourceTime2, query) => totalResourceTime2 += query.executionTime, 0);
-    chartData.push({ x: queries.length, y: totalResourceTime, z: resource });
-  }
-  emitNet(`oxmysql:openUi`, source2, {
-    resources: Object.keys(logStorage),
-    totalQueries,
-    slowQueries,
-    totalTime,
-    chartData
-  });
-}, true);
+    let totalQueries = 0;
+    let totalTime = 0;
+    let slowQueries = 0;
+    let chartData = { labels: [], data: [] };
+    for (const resource in logStorage) {
+      const queries = logStorage[resource];
+      let totalResourceTime = 0;
+      totalQueries += queries.length;
+      totalTime += queries.reduce((totalTime2, query) => totalTime2 += query.executionTime, 0);
+      slowQueries += queries.reduce((slowQueries2, query) => slowQueries2 += query.slow ? 1 : 0, 0);
+      totalResourceTime += queries.reduce((totalResourceTime2, query) => totalResourceTime2 += query.executionTime, 0);
+      chartData.labels.push(resource);
+      chartData.data.push({ queries: queries.length, time: totalResourceTime });
+    }
+    emitNet(`oxmysql:openUi`, source2, {
+      resources: Object.keys(logStorage),
+      totalQueries,
+      slowQueries,
+      totalTime,
+      chartData
+    });
+  },
+  true
+);
 var sortQueries = (queries, sort) => {
   const sortedQueries = [...queries].sort((a, b) => {
     switch (sort.id) {
@@ -21719,40 +21748,56 @@ var sortQueries = (queries, sort) => {
   });
   return sort.desc ? sortedQueries.reverse() : sortedQueries;
 };
-onNet(`oxmysql:fetchResource`, (data) => {
-  if (typeof data.resource !== "string")
-    return;
-  const sort = data.sortBy ? data.sortBy[0] : false;
-  const startRow = data.pageIndex * 12;
-  const endRow = startRow + 12;
-  const queries = sort ? sortQueries(logStorage[data.resource], sort).slice(startRow, endRow) : logStorage[data.resource].slice(startRow, endRow);
-  const pageCount = Math.ceil(logStorage[data.resource].length / 12);
-  if (!queries)
-    return;
-  emitNet(`oxmysql:loadResource`, source, { queries, pageCount });
-});
+onNet(
+  `oxmysql:fetchResource`,
+  (data) => {
+    if (typeof data.resource !== "string")
+      return;
+    const resourceLog = logStorage[data.resource];
+    const sort = data.sortBy && data.sortBy.length > 0 ? data.sortBy[0] : false;
+    const startRow = data.pageIndex * 10;
+    const endRow = startRow + 10;
+    const queries = sort ? sortQueries(logStorage[data.resource], sort).slice(startRow, endRow) : logStorage[data.resource].slice(startRow, endRow);
+    const pageCount = Math.ceil(resourceLog.length / 10);
+    if (!queries)
+      return;
+    let resourceTime = 0;
+    let resourceSlowQueries = 0;
+    const resourceQueriesCount = resourceLog.length;
+    for (let i2 = 0; i2 < resourceQueriesCount; i2++) {
+      const query = resourceLog[i2];
+      resourceTime += query.executionTime;
+      if (query.slow)
+        resourceSlowQueries += 1;
+    }
+    emitNet(`oxmysql:loadResource`, source, {
+      queries,
+      pageCount,
+      resourceQueriesCount,
+      resourceSlowQueries,
+      resourceTime
+    });
+  }
+);
 
 // src/utils/scheduleTick.ts
 init_config();
-var scheduleTick = async () => {
-  if (!serverReady) {
-    await new Promise((resolve) => {
-      (function wait() {
-        if (serverReady) {
-          return resolve();
-        }
-        setTimeout(wait);
-      })();
-    });
-  }
+async function scheduleTick() {
   ScheduleResourceTick(resourceName);
-};
+}
 
 // src/database/rawQuery.ts
-var rawQuery = async (type, invokingResource, query, parameters, cb, throwError) => {
-  await scheduleTick();
+var rawQuery = (type, invokingResource, query, parameters, cb, throwError) => {
+  if (typeof query !== "string")
+    throw new Error(
+      `${invokingResource} was unable to execute a query!
+Expected query to be a string but received ${typeof query} instead.`
+    );
   [query, parameters, cb] = parseArguments(invokingResource, query, parameters, cb);
-  return await new Promise((resolve, reject) => {
+  scheduleTick();
+  return new Promise(async (resolve, reject) => {
+    if (!serverReady)
+      await waitForConnection();
     pool.query(query, parameters, (err, result, _, executionTime) => {
       if (err)
         return reject(err);
@@ -21773,7 +21818,9 @@ var rawQuery = async (type, invokingResource, query, parameters, cb, throwError)
   }).catch((err) => {
     const error = `${invokingResource} was unable to execute a query!
 ${err.message}
-${`${query} ${JSON.stringify(parameters)}`}`;
+${`${query} ${JSON.stringify(
+      parameters
+    )}`}`;
     TriggerEvent("oxmysql:error", {
       query,
       parameters,
@@ -21802,13 +21849,21 @@ var parseTransaction = (invokingResource, queries, parameters, cb) => {
     const transactions2 = queries.map((query) => {
       if (typeof query[1] !== "object")
         throw new Error(`Transaction parameters must be array or object, received '${typeof query[1]}'.`);
-      const [parsedQuery, parsedParameters] = parseArguments(invokingResource, query[0], query[1]);
+      const [parsedQuery, parsedParameters] = parseArguments(
+        invokingResource,
+        query[0],
+        query[1]
+      );
       return { query: parsedQuery, params: parsedParameters };
     });
     return { transactions: transactions2, cb };
   }
   const transactions = queries.map((query) => {
-    const [parsedQuery, parsedParameters] = parseArguments(invokingResource, isTransactionQuery(query) ? query.query : query, isTransactionQuery(query) ? query.parameters || query.values : parameters || []);
+    const [parsedQuery, parsedParameters] = parseArguments(
+      invokingResource,
+      isTransactionQuery(query) ? query.query : query,
+      isTransactionQuery(query) ? query.parameters || query.values : parameters || []
+    );
     return { query: parsedQuery, params: parsedParameters };
   });
   return { transactions, cb };
@@ -21816,9 +21871,13 @@ var parseTransaction = (invokingResource, queries, parameters, cb) => {
 
 // src/database/rawTransaction.ts
 var transactionError = (queries, parameters) => `${queries.map((query) => `${query.query} ${JSON.stringify(query.params || [])}`).join("\n")}
-${JSON.stringify(parameters)}`;
+${JSON.stringify(
+  parameters
+)}`;
 var rawTransaction = async (invokingResource, queries, parameters, callback) => {
-  await scheduleTick();
+  if (!serverReady)
+    await waitForConnection();
+  scheduleTick();
   const { transactions, cb } = parseTransaction(invokingResource, queries, parameters, callback);
   const connection = await pool.promise().getConnection();
   let response = false;
@@ -21833,9 +21892,11 @@ var rawTransaction = async (invokingResource, queries, parameters, callback) => 
   } catch (e2) {
     await connection.rollback();
     const transactionErrorMessage = e2.sql || transactionError(transactions, parameters);
-    console.error(`${invokingResource} was unable to execute a transaction!
+    console.error(
+      `${invokingResource} was unable to execute a transaction!
 ${e2.message}
-${transactionErrorMessage}^0`);
+${transactionErrorMessage}^0`
+    );
     TriggerEvent("oxmysql:transaction-error", {
       query: transactionErrorMessage,
       parameters,
@@ -21873,7 +21934,7 @@ var executeType = (query) => {
       throw new Error(`Prepared statements only accept SELECT, INSERT, UPDATE, and DELETE methods.`);
   }
 };
-var parseExecute = (parameters) => {
+var parseExecute = (placeholders, parameters) => {
   if (!Array.isArray(parameters)) {
     if (typeof parameters === "object") {
       const arr = [];
@@ -21882,42 +21943,56 @@ var parseExecute = (parameters) => {
     } else
       throw new Error(`Parameters expected an array but received ${typeof parameters} instead`);
   }
-  return parameters;
-};
-var parseValues = (placeholders, parameters) => {
-  if (!Array.isArray(parameters)) {
-    if (typeof parameters === "object") {
+  if (!parameters.every(Array.isArray)) {
+    if (parameters.every((item) => typeof item === "object")) {
       const arr = [];
-      Object.entries(parameters).forEach((entry) => arr[parseInt(entry[0]) - 1] = entry[1]);
+      parameters.forEach((value, index) => {
+        arr[index] = new Array(placeholders);
+        if (!Array.isArray(value)) {
+          Object.entries(value).forEach((entry) => {
+            arr[index][parseInt(entry[0]) - 1] = entry[1];
+          });
+        } else
+          arr[index] = parameters[index];
+        for (let i2 = 0; i2 < placeholders; i2++) {
+          if (!arr[index][i2])
+            arr[index][i2] = null;
+        }
+      });
       parameters = arr;
     } else
-      throw new Error(`Parameters expected an array but received ${typeof parameters} instead`);
-  } else if (placeholders > parameters.length) {
-    for (let i2 = parameters.length; i2 < placeholders; i2++) {
-      parameters[i2] = null;
-    }
+      parameters = [[...parameters]];
   }
   return parameters;
 };
 
 // src/database/rawExecute.ts
-var rawExecute = async (invokingResource, query, parameters, cb, throwError) => {
+var rawExecute = (invokingResource, query, parameters, cb, throwError) => {
+  if (typeof query !== "string")
+    throw new Error(
+      `${invokingResource} was unable to execute a query!
+Expected query to be a string but received ${typeof query} instead.`
+    );
   const type = executeType(query);
-  parameters = parseExecute(parameters);
+  const placeholders = query.split("?").length - 1;
+  parameters = parseExecute(placeholders, parameters);
+  if (parameters.length === 0)
+    throw new Error(`Query received no parameters.`);
   let response = [];
-  if (!parameters.every(Array.isArray))
-    parameters = [[...parameters]];
-  await scheduleTick();
-  return await new Promise((resolve, reject) => {
+  scheduleTick();
+  return new Promise(async (resolve, reject) => {
+    if (!serverReady)
+      await waitForConnection();
     pool.getConnection((err, connection) => {
       if (err)
         return reject(err.message);
-      if (parameters.length === 0)
-        return reject(`Query received no parameters.`);
-      const placeholders = query.split("?").length - 1;
       parameters.forEach((values, index) => {
         const executionTime = process.hrtime();
-        values = parseValues(placeholders, values);
+        if (placeholders > values.length) {
+          for (let i2 = values.length; i2 < placeholders; i2++) {
+            values[i2] = null;
+          }
+        }
         connection.execute(query, values, (err2, results) => {
           if (err2) {
             connection.release();
@@ -22010,20 +22085,30 @@ function provide(name, cb, sync) {
   on(`__cfx_export_ghmattimysql_${name}`, (setCb) => setCb(cb));
   on(`__cfx_export_ghmattimysql_${name}Sync`, (setCb) => setCb(sync));
 }
-provide("store", (query, cb) => {
-  cb(query);
-}, (query) => {
-  return query;
-});
+provide(
+  "store",
+  (query, cb) => {
+    cb(query);
+  },
+  (query) => {
+    return query;
+  }
+);
 for (const key in MySQL) {
   global.exports(key, MySQL[key]);
   const exp = (query, parameters, invokingResource = GetInvokingResource()) => {
     return new Promise((resolve, reject) => {
-      MySQL[key](query, parameters, (result, err) => {
-        if (err)
-          return reject(new Error(err));
-        resolve(result);
-      }, invokingResource, true);
+      MySQL[key](
+        query,
+        parameters,
+        (result, err) => {
+          if (err)
+            return reject(new Error(err));
+          resolve(result);
+        },
+        invokingResource,
+        true
+      );
     });
   };
   global.exports(`${key}_async`, exp);
@@ -22034,3 +22119,22 @@ for (const key in MySQL) {
 /*! fetch-blob. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> */
 /*! formdata-polyfill. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> */
 /*! node-domexception. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> */
+/**
+ * @license
+ * Copyright 2009 The Closure Library Authors
+ * Copyright 2020 Daniel Wirtz / The long.js Authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */

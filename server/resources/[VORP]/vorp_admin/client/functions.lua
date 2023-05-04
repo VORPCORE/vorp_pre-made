@@ -15,7 +15,6 @@ function GetPlayers()
     local playersData = {}
     RegisterNetEvent("vorp_admin:SendPlayers", function(result)
         playersData = result
-
     end)
     while next(playersData) == nil do
         Wait(10)
@@ -38,6 +37,24 @@ function GetPlayersClient(player)
     end
 end
 
+function Inputs(input, button, placeholder, header, type, errormsg, pattern)
+    local myInput = {
+        type = "enableinput", -- dont touch
+        inputType = input,
+        button = button, -- button name
+        placeholder = placeholder, --placeholdername
+        style = "block", --- dont touch
+        attributes = {
+            inputHeader = header, -- header
+            type = type, -- inputype text, number,date.etc if number comment out the pattern
+            pattern = pattern, -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
+            title = errormsg, -- if input doesnt match show this message
+            style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
+        }
+    }
+    return myInput
+end
+
 ---------------------------------------------------------------------------------------------------------------
 ----------------------------------- MAIN MENU -----------------------------------------------------------------
 function OpenMenu()
@@ -45,10 +62,10 @@ function OpenMenu()
 
     local elements = {
         { label = _U("Administration"), value = 'administration', desc = _U("administration_desc") },
-        { label = _U("Booster"), value = 'boost', desc = _U("booster_desc") },
-        { label = _U("Database"), value = 'database', desc = _U("database_desc") },
-        { label = _U("Teleport"), value = 'teleport', desc = _U("teleport_desc") },
-        { label = _U("devtools"), value = 'devtools', desc = _U("devtools_desc") },
+        { label = _U("Booster"),        value = 'boost',          desc = _U("booster_desc") },
+        { label = _U("Database"),       value = 'database',       desc = _U("database_desc") },
+        { label = _U("Teleport"),       value = 'teleport',       desc = _U("teleport_desc") },
+        { label = _U("devtools"),       value = 'devtools',       desc = _U("devtools_desc") },
     }
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
@@ -86,7 +103,6 @@ function OpenMenu()
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             elseif data.current.value == "teleport" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Teleports')
                 Wait(100)
@@ -156,7 +172,6 @@ function CopyToClipboard(dataType)
             string = h
         })
         TriggerEvent('vorp:TipRight', _U("copied"), 3000)
-
     end
 end
 

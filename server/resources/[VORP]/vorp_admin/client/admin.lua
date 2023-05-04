@@ -4,14 +4,14 @@
 local freeze = false
 local lastLocation = {}
 
-
-
 function Admin()
     MenuData.CloseAll()
     local elements = {
-        { label = _U("playerslist"), value = 'players', desc = _U("playerlist_desc") },
-        { label = _U("adminactions"), value = 'actions', desc = _U("adminactions_desc") },
+        { label = _U("playerslist"),    value = 'players', desc = _U("playerlist_desc") },
+        { label = _U("adminactions"),   value = 'actions', desc = _U("adminactions_desc") },
         { label = _U("offLineactions"), value = 'offline', desc = _U("offlineplayers_desc") },
+        { label = "viewreports",        value = 'view',    desc = "viewreports" },
+        { label = "search player",      value = 'search',  desc = "insert server id to find a player info " },
     }
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
@@ -24,14 +24,12 @@ function Admin()
         function(data)
             if data.current == "backup" then
                 _G[data.trigger]()
-
             end
             if data.current.value == "players" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.PlayersList')
                 Wait(100)
 
                 if AdminAllowed then
-
                     PlayerList()
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
@@ -39,7 +37,6 @@ function Admin()
             elseif data.current.value == "actions" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.AdminActions')
                 Wait(100)
-
                 if AdminAllowed then
                     Actions()
                 else
@@ -48,13 +45,78 @@ function Admin()
             elseif data.current.value == "offline" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.OfflineActions')
                 Wait(100)
-
                 if AdminAllowed then
                     OffLine()
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
+            elseif data.current.value == "view" then
+                TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.ViewReports')
+                Wait(100)
+                if AdminAllowed then
+                    TriggerEvent("vorp_admin:viewreports")
+                else
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
+                end
+            elseif data.current.value == "search" then
+                local myInput = Inputs("input", _U("confirm"), "server id", "SEARCH PLAYER", "number",
+                    " min 10 max 100 chars dont use dot or commas", "[0-9]{10,100}")
+                TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
+                    local id = tonumber(result)
+                    if id and id > 0 then
+                        VORP.RpcCall("vorp_admin:Callback:FetchPlayer", function(cb)
+                            if cb then
+                                OpenOnePlayerMenu(cb)
+                            else
+                                TriggerEvent("vorp:TipRight", "user dont exist ", 4000)
+                            end
+                        end, id)
+                    end
+                end)
+            end
+        end,
+        function(menu)
+            menu.close()
+        end)
+end
 
+function OpenOnePlayerMenu(table)
+    MenuData.CloseAll()
+    local elements = {}
+    for k, playersInfo in pairs(table) do
+        elements[#elements + 1] = {
+            label = playersInfo.PlayerName .. "<br> Server id: " .. playersInfo.serverId,
+            value = "players" .. k,
+            desc = _U("SteamName") .. "<span style=color:MediumSeaGreen;> "
+            .. playersInfo.name .. "</span><br>" .. _U("ServerID") .. "<span style=color:MediumSeaGreen;>"
+            .. playersInfo.serverId .. "</span><br>" .. _U("PlayerGroup") .. "<span style=color:MediumSeaGreen;>"
+            .. playersInfo.Group .. "</span><br>" .. _U("PlayerJob") .. "<span style=color:MediumSeaGreen;>"
+            .. playersInfo.Job .. "</span>" .. _U("Grade") .. "<span style=color:MediumSeaGreen;>"
+            .. playersInfo.Grade .. "</span><br>" .. _U("Identifier") .. "<span style=color:MediumSeaGreen;>"
+            .. playersInfo.SteamId .. "</span><br>" .. _U("PlayerMoney") .. "<span style=color:MediumSeaGreen;>"
+            .. playersInfo.Money .. "</span><br>" .. _U("PlayerGold") .. "<span style=color:Gold;>"
+            .. playersInfo.Gold .. "</span><br>" .. _U("PlayerStaticID") .. "<span style=color:Red;>"
+            .. playersInfo.staticID .. "</span><br>" .. _U("PlyaerWhitelist") .. "<span style=color:Gold;>"
+            .. playersInfo.WLstatus .. "</span><br>" .. _U("PlayerWarnings") .. "<span style=color:Gold;>"
+            .. playersInfo.warns .. "</span>",
+            info = playersInfo
+        }
+    end
+    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+        {
+            title      = _U("MenuTitle"),
+            subtext    = _U("MenuSubtitle2"),
+            align      = 'top-left',
+            elements   = elements,
+            lastmenu   = 'Admin',
+            itemHeight = "4vh",
+        },
+        function(data)
+            if data.current == "backup" then
+                _G[data.trigger]()
+            end
+            if data.current.value then
+                OpenSubAdminMenu(data.current.info)
             end
         end,
         function(menu)
@@ -68,34 +130,38 @@ function PlayerList()
     local elements = {}
     local players = GetPlayers()
 
-    for k, playersInfo in pairs(players) do
+    table.sort(players, function(a, b)
+        return a.serverId < b.serverId
+    end)
 
+    for k, playersInfo in pairs(players) do
         elements[#elements + 1] = {
-            label = playersInfo.PlayerName,
+            label = playersInfo.PlayerName .. "<br> Server id: " .. playersInfo.serverId,
             value = "players" .. k,
             desc = _U("SteamName") .. "<span style=color:MediumSeaGreen;> "
-                .. playersInfo.name .. "</span><br>" .. _U("ServerID") .. "<span style=color:MediumSeaGreen;>"
-                .. playersInfo.serverId .. "</span><br>" .. _U("PlayerGroup") .. "<span style=color:MediumSeaGreen;>"
-                .. playersInfo.Group .. "</span><br>" .. _U("PlayerJob") .. "<span style=color:MediumSeaGreen;>"
-                .. playersInfo.Job .. "</span>" .. _U("Grade") .. "<span style=color:MediumSeaGreen;>"
-                .. playersInfo.Grade .. "</span><br>" .. _U("Identifier") .. "<span style=color:MediumSeaGreen;>"
-                .. playersInfo.SteamId .. "</span><br>" .. _U("PlayerMoney") .. "<span style=color:MediumSeaGreen;>"
-                .. playersInfo.Money .. "</span><br>" .. _U("PlayerGold") .. "<span style=color:Gold;>"
-                .. playersInfo.Gold .. "</span><br>" .. _U("PlayerStaticID") .. "<span style=color:Red;>"
-                .. playersInfo.staticID .. "</span><br>" .. _U("PlyaerWhitelist") .. "<span style=color:Gold;>"
-                .. playersInfo.WLstatus .. "</span><br>" .. _U("PlayerWarnings") .. "<span style=color:Gold;>"
-                .. playersInfo.warns .. "</span>", info = playersInfo
+            .. playersInfo.name .. "</span><br>" .. _U("ServerID") .. "<span style=color:MediumSeaGreen;>"
+            .. playersInfo.serverId .. "</span><br>" .. _U("PlayerGroup") .. "<span style=color:MediumSeaGreen;>"
+            .. playersInfo.Group .. "</span><br>" .. _U("PlayerJob") .. "<span style=color:MediumSeaGreen;>"
+            .. playersInfo.Job .. "</span>" .. _U("Grade") .. "<span style=color:MediumSeaGreen;>"
+            .. playersInfo.Grade .. "</span><br>" .. _U("Identifier") .. "<span style=color:MediumSeaGreen;>"
+            .. playersInfo.SteamId .. "</span><br>" .. _U("PlayerMoney") .. "<span style=color:MediumSeaGreen;>"
+            .. playersInfo.Money .. "</span><br>" .. _U("PlayerGold") .. "<span style=color:Gold;>"
+            .. playersInfo.Gold .. "</span><br>" .. _U("PlayerStaticID") .. "<span style=color:Red;>"
+            .. playersInfo.staticID .. "</span><br>" .. _U("PlyaerWhitelist") .. "<span style=color:Gold;>"
+            .. playersInfo.WLstatus .. "</span><br>" .. _U("PlayerWarnings") .. "<span style=color:Gold;>"
+            .. playersInfo.warns .. "</span>",
+            info = playersInfo
         }
-
     end
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
-            title    = _U("MenuTitle"),
-            subtext  = _U("MenuSubtitle2"),
-            align    = 'top-left',
-            elements = elements,
-            lastmenu = 'Admin',
+            title      = _U("MenuTitle"),
+            subtext    = _U("MenuSubtitle2"),
+            align      = 'top-left',
+            elements   = elements,
+            lastmenu   = 'Admin',
+            itemHeight = "4vh",
         },
         function(data)
             if data.current == "backup" then
@@ -110,20 +176,19 @@ function PlayerList()
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             end
         end,
         function(menu)
             menu.close()
         end)
-
 end
 
 function OpenSubAdminMenu(Player)
     MenuData.CloseAll()
     local elements = {
-        { label = _U("SimpleAction"), value = 'simpleaction', desc = _U("SimpleAction") },
+        { label = _U("SimpleAction"),   value = 'simpleaction',   desc = _U("SimpleAction") },
         { label = _U("AdvancedAction"), value = 'advancedaction', desc = _U("AdvancedAction") },
+        { label = _U("TrollActions"), value = 'trollactions', desc = _U('TrollActions') },
     }
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
@@ -153,16 +218,127 @@ function OpenSubAdminMenu(Player)
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
+            elseif data.current.value == 'trollactions' then
+                TriggerServerEvent('vorp_admin:opneStaffMenu', 'vorp.staff.OpenTrollActions')
+                Wait(100)
+                if AdminAllowed then
+                    OpenTrollActions(Player)
+                else
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
+                end
             end
         end,
         function(menu)
             menu.close()
         end)
+end
 
+function OpenTrollActions(PlayerInfo)
+    MenuData.CloseAll()
+    local elements = {
+        { label = _U('KillPlayer'), value = 'killplayer',
+            desc = _U('killplayer_desc') .. "<span style=color:MediumSeaGreen;>" .. PlayerInfo.PlayerName .. "</span>",
+            info = PlayerInfo.serverId },
+        { label = _U("InvisPlayer"), value = 'invisplayer',
+            desc = _U('InvisPlayer_desc') .. "<span style=color:MediumSeaGreen;>" .. PlayerInfo.PlayerName .. "</span>",
+            info = PlayerInfo.serverId },
+        { label = _U('LightningStrikePlayer'), value = 'lightningstrikeplayer',
+            desc = _U('LightningStrikePlayer_desc') .. "<span style=color:MediumSeaGreen;>" .. PlayerInfo.PlayerName .. "</span>",
+            info = PlayerInfo.serverId },
+        { label = _U('SetPlayerOnFire'), value = 'setplayeronfire',
+            desc = _U('SetPlayerOnFire_desc') .. "<span style=color:MediumSeaGreen;>" .. PlayerInfo.PlayerName .. "</span>",
+            info = PlayerInfo.serverId },
+        { label = _U('TPToHeaven'), value = 'tptoheaven',
+            desc = _U('TPToHeaven_desc') .. "<span style=color:MediumSeaGreen;>" .. PlayerInfo.PlayerName .. "</span>",
+            info = PlayerInfo.serverId },
+        { label = _U('RagdollPlayer'), value = 'ragdollplayer',
+            desc = _U('RagdollPlayer_desc') .. "<span style=color:MediumSeaGreen;>" .. PlayerInfo.PlayerName .. "</span>",
+            info = PlayerInfo.serverId },
+        { label = _U('DrainPlayerStam'), value = 'drainplayerstam',
+            desc = _U('DrainPlayerStam_desc') .. "<span style=color:MediumSeaGreen;>" .. PlayerInfo.PlayerName .. "</span>",
+            info = PlayerInfo.serverId },
+        { label = _U('CuffPlayer'), value = 'cuffplayer',
+            desc = _U('CuffPlayer_desc') .. "<span style=color:MediumSeaGreen;>" .. PlayerInfo.PlayerName .. "</span>",
+            info = PlayerInfo.serverId },
+        { label = _U('TempHighPlayer'), value = 'temphighplayer',
+            desc = _U('TempHighPlayer_desc') .. "<span style=color:MediumSeaGreen;>" .. PlayerInfo.PlayerName .. "</span>",
+            info = PlayerInfo.serverId },
+    }
+    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+        {
+            title    = _U("MenuTitle"),
+            subtext  = "SubMenu",
+            align    = 'top-left',
+            elements = elements,
+            lastmenu = 'PlayerList', --Go back
+        },
+        
+        function(data)
+            if data.current == "backup" then
+                _G[data.trigger]()
+            end
+            if data.current.value == 'killplayer' then
+                TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.KillPlayer')
+                Wait(100)
+                if AdminAllowed then
+                    TriggerServerEvent('vorp_admin:ServerTrollKillPlayerHandler', data.current.info)
+                end
+            elseif data.current.value == 'invisplayer' then
+                TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.InvisPlayer')
+                Wait(100)
+                if AdminAllowed then
+                    TriggerServerEvent('vorp_admin:ServerTrollInvisibleHandler', data.current.info)
+                end
+            elseif data.current.value == 'lightningstrikeplayer' then
+                TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.LightningStrikePlayer')
+                Wait(100)
+                if AdminAllowed then
+                    TriggerServerEvent('vorp_admin:ServerTrollLightningStrikePlayerHandler', data.current.info)
+                end
+            elseif data.current.value == 'setplayeronfire' then
+                TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.SetPlayerOnFire')
+                Wait(100)
+                if AdminAllowed then
+                    TriggerServerEvent('vorp_admin:ServerTrollSetPlayerOnFireHandler', data.current.info)
+                end
+            elseif data.current.value == 'tptoheaven' then
+                TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.TPToHeaven')
+                Wait(100)
+                if AdminAllowed then
+                    TriggerServerEvent('vorp_admin:ServerTrollTPToHeavenHandler', data.current.info)
+                end
+            elseif data.current.value == 'ragdollplayer' then
+                TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.RagdollPlayer')
+                Wait(100)
+                if AdminAllowed then
+                    TriggerServerEvent('vorp_admin:ServerTrollRagdollPlayerHandler', data.current.info)
+                end
+            elseif data.current.value == 'drainplayerstam' then
+                TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.DrainPlayerStam')
+                Wait(100)
+                if AdminAllowed then
+                    TriggerServerEvent('vorp_admin:ServerDrainPlayerStamHandler', data.current.info)
+                end
+            elseif data.current.value == 'cuffplayer' then
+                TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.CuffPlayer')
+                Wait(100)
+                if AdminAllowed then
+                    TriggerServerEvent('vorp_admin:ServerHandcuffPlayerHandler', data.current.info)
+                end
+            elseif data.current.value == 'temphighplayer' then
+                TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.PlayerTempHigh')
+                Wait(100)
+                if AdminAllowed then
+                    TriggerServerEvent('vorp_admin:ServerTempHighPlayerHandler', data.current.info)
+                end
+            end
+        end,
+        function(menu)
+            menu.close()
+        end)
 end
 
 function OpenSimpleActionMenu(PlayerInfo)
-
     MenuData.CloseAll()
     local elements = {
         { label = _U("spectate_p"), value = 'spectate',
@@ -209,7 +385,6 @@ function OpenSimpleActionMenu(PlayerInfo)
         function(data)
             if data.current == "backup" then
                 _G[data.trigger]()
-
             end
             if data.current.value == "freeze" then
                 local target = data.current.info
@@ -236,8 +411,6 @@ function OpenSimpleActionMenu(PlayerInfo)
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
-
             elseif data.current.value == "bring" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Bring')
                 Wait(100)
@@ -256,13 +429,11 @@ function OpenSimpleActionMenu(PlayerInfo)
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             elseif data.current.value == "sendback" then
                 local target = data.current.info
                 if lastLocation then
                     TriggerServerEvent("vorp_admin:TeleportPlayerBack", target)
                 end
-
             elseif data.current.value == "goto" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.GoTo')
                 Wait(100)
@@ -279,7 +450,6 @@ function OpenSimpleActionMenu(PlayerInfo)
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             elseif data.current.value == "goback" then
                 if lastLocation then
                     TriggerServerEvent("vorp_admin:sendAdminBack")
@@ -323,28 +493,14 @@ function OpenSimpleActionMenu(PlayerInfo)
                     local targetGroup = data.current.info2
                     local target = data.current.info3
                     local status = "warn"
-                    local myInput = {
-                        type = "enableinput", -- dont touch
-                        inputType = "textarea",
-                        button = _U("confirm"), -- button name
-                        placeholder = "Reason for warn", --placeholdername
-                        style = "block", --- dont touch
-                        attributes = {
-                            inputHeader = "WARN PLAYER", -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[A-Za-z0-9 ]{10,100}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = " min 10 max 100 chars dont use dot or commas", -- if input doesnt match show this message
-                            style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
-                        }
-                    }
-
+                    local myInput = Inputs("textarea", _U("confirm"), "Reason for Ban", "player was mean", "text",
+                        " min 10 max 100 chars dont use dot or commas", "[A-Za-z0-9 ]{10,100}")
                     TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
                         local reason = tostring(result)
                         if reason ~= "" then
                             if targetGroup ~= "user" then
                                 TriggerEvent("vorp:TipRight", _U("cantwarnstaff"), 4000)
                             else
-
                                 TriggerServerEvent("vorp_admin:warns", target, status, staticID, reason)
                                 if Config.AdminLogs.Warned then
                                     TriggerServerEvent("vorp_admin:logs",
@@ -352,7 +508,6 @@ function OpenSimpleActionMenu(PlayerInfo)
                                         , _U("titleadmin"), _U("warned") .. reason .. "\n > " .. PlayerInfo.PlayerName)
                                 end
                             end
-
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
                         end
@@ -360,7 +515,6 @@ function OpenSimpleActionMenu(PlayerInfo)
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             elseif data.current.value == "unwarn" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.UnWarn')
                 Wait(100)
@@ -393,14 +547,12 @@ function OpenSimpleActionMenu(PlayerInfo)
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             end
         end,
 
         function(menu)
             menu.close()
         end)
-
 end
 
 function OpenAdvancedActions(Player)
@@ -469,35 +621,21 @@ function OpenAdvancedActions(Player)
                 if AdminAllowed then
                     local targetGroup = data.current.info
                     local targetID = data.current.info2
-                    local myInput = {
-                        type = "enableinput", -- dont touch
-                        inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = "Reason for kick", --placeholdername
-                        style = "block", --- dont touch
-                        attributes = {
-                            inputHeader = "KICK PLAYER", -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[A-Za-z0-9 ]{10,100}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = " min 10 max 100 chars dont use dot or commas", -- if input doesnt match show this message
-                            style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
-                        }
-                    }
+                    local myInput = Inputs("input", _U("confirm"), "Reason for kick", "KICK PLAYER", "text",
+                        " min 10 max 100 chars dont use dot or commas", "[A-Za-z0-9 ]{10,100}")
                     TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
                         local reason = tostring(result)
                         if reason ~= "" then
                             if targetGroup ~= "user" then
                                 TriggerEvent("vorp:TipRight", _U("cantkickstaff"), 4000)
                             else
-
                                 TriggerServerEvent("vorp_admin:kick", targetID, reason)
                                 if Config.AdminLogs.Kick then
                                     TriggerServerEvent("vorp_admin:logs", Config.AdminLogs.Kick
                                         , _U("titleadmin"), _U("usedkick") .. "\n > " .. Player.PlayerName ..
-                                        "\n: " .. reason)
+                                    "\n: " .. reason)
                                 end
                             end
-
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
                         end
@@ -505,8 +643,6 @@ function OpenAdvancedActions(Player)
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
-
             elseif data.current.value == "ban" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Ban')
                 Wait(100)
@@ -515,26 +651,12 @@ function OpenAdvancedActions(Player)
                     local group = data.current.info2
                     local staticID = data.current.info
                     local target = data.current.info3
-
-                    local myInput = {
-                        type = "enableinput", -- dont touch
-                        inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = " example 1d is 1 day", --placeholdername
-                        style = "block", --- dont touch
-                        attributes = {
-                            inputHeader = "BAN PLAYER", -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[A-Za-z0-9 ]{2,2}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = " min 2 max 2 chars dont use dot or commas", -- if input doesnt match show this message
-                            style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
-                        }
-                    }
+                    local myInput = Inputs("input", _U("confirm"), " example 1d is 1 day", "BAN PLAYER", "text",
+                        " min 2 max 2 chars dont use dot or commas", "[A-Za-z0-9 ]{2,2}")
 
                     TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
                         local time = tostring(result)
                         if time ~= "" then
-
                             if group ~= "user" then
                                 TriggerEvent("vorp:TipRight", _U("cantbanstaff"), 4000)
                             else
@@ -542,10 +664,9 @@ function OpenAdvancedActions(Player)
                                 if Config.AdminLogs.Ban then
                                     TriggerServerEvent("vorp_admin:logs", Config.AdminLogs.Ban
                                         , _U("titleadmin"), _U("usedban") .. "\n > " .. Player.PlayerName ..
-                                        "\n: " .. time)
+                                    "\n: " .. time)
                                 end
                             end
-
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
                         end
@@ -553,7 +674,6 @@ function OpenAdvancedActions(Player)
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             elseif data.current.value == "unban" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Unban')
                 Wait(100)
@@ -564,7 +684,7 @@ function OpenAdvancedActions(Player)
                     if Config.AdminLogs.Unban then
                         TriggerServerEvent("vorp_admin:logs", Config.AdminLogs.Unban
                             , _U("titleadmin"), _U("usedunban") .. "\n > " .. Player.PlayerName ..
-                            "\n: " .. staticID)
+                        "\n: " .. staticID)
                     end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
@@ -586,7 +706,6 @@ function OpenAdvancedActions(Player)
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             elseif data.current.value == "unwhitelist" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Unwhitelist')
                 Wait(100)
@@ -600,7 +719,7 @@ function OpenAdvancedActions(Player)
                     if Config.AdminLogs.Unwhitelist then
                         TriggerServerEvent("vorp_admin:logs", Config.AdminLogs.Unwhitelist
                             , _U("titleadmin"), _U("usedunwhitelist") .. "\n > " .. Player.PlayerName ..
-                            "\n: " .. staticID)
+                        "\n: " .. staticID)
                     end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
@@ -611,20 +730,8 @@ function OpenAdvancedActions(Player)
 
                 if AdminAllowed then
                     local target = data.current.info
-                    local myInput = {
-                        type = "enableinput", -- dont touch
-                        inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = "NAME", --placeholdername
-                        style = "block", --- dont touch
-                        attributes = {
-                            inputHeader = "SET GROUP", -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[A-Za-z]{3,20}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = " min 3 max 20 only letters", -- if input doesnt match show this message
-                            style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
-                        }
-                    }
+                    local myInput = Inputs("input", _U("confirm"), "name", "Set Group", "text",
+                        " min 3 max 20 only letters", "[A-Za-z]{3,20}")
                     TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
                         local result = tostring(cb)
 
@@ -633,7 +740,7 @@ function OpenAdvancedActions(Player)
                             if Config.AdminLogs.Setgroup then
                                 TriggerServerEvent("vorp_admin:logs", Config.AdminLogs.Setgroup
                                     , _U("titleadmin"), _U("usedsetgroup") .. "\n > " .. Player.PlayerName ..
-                                    "\ngroup: " .. result)
+                                "\ngroup: " .. result)
                             end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
@@ -642,33 +749,19 @@ function OpenAdvancedActions(Player)
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             elseif data.current.value == "setjob" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Setjob')
                 Wait(100)
 
                 if AdminAllowed then
                     local target = data.current.info
-                    local myInput = {
-                        type = "enableinput", -- dont touch
-                        inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = "JOB  GRADE", --placeholdername
-                        style = "block", --- dont touch
-                        attributes = {
-                            inputHeader = "SET JOB", -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[A-Za-z0-9 ]{3,20}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = " min 3 max 20 no . no , no - no _", -- if input doesnt match show this message
-                            style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
-                        }
-                    }
+                    local myInput = Inputs("input", _U("confirm"), "jobname and grade", "Set Group", "text",
+                        " min 3 max 20 no . no , no - no _", "[A-Za-z0-9 ]{3,20}")
 
                     TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
                         local result = tostring(cb)
 
                         if result ~= "" then
-
                             local splitstring = {}
                             for i in string.gmatch(result, "%S+") do
                                 splitstring[#splitstring + 1] = i
@@ -679,7 +772,7 @@ function OpenAdvancedActions(Player)
                                 if Config.AdminLogs.Setjob then
                                     TriggerServerEvent("vorp_admin:logs", Config.AdminLogs.Setjob
                                         , _U("titleadmin"), _U("usedsetjob") .. "\n > " .. Player.PlayerName ..
-                                        "\njob:  " .. jobname .. " \ngrade: " .. jobgrade)
+                                    "\njob:  " .. jobname .. " \ngrade: " .. jobgrade)
                                 end
                             end
                         else
@@ -689,14 +782,12 @@ function OpenAdvancedActions(Player)
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             end
         end,
 
         function(menu)
             menu.close()
         end)
-
 end
 
 -------------------------------------------------------------------------------------------------------------
@@ -707,11 +798,11 @@ function Actions()
     MenuData.CloseAll()
     local player = PlayerPedId()
     local elements = {
-        { label = _U("deletehorse"), value = 'delhorse', desc = _U("deletehorse_desc") },
-        { label = _U("deletewagon"), value = 'delwagon', desc = _U("deletewagon_desc") },
+        { label = _U("deletehorse"),       value = 'delhorse',       desc = _U("deletehorse_desc") },
+        { label = _U("deletewagon"),       value = 'delwagon',       desc = _U("deletewagon_desc") },
         { label = _U("deletewagonradius"), value = 'delwagonradius', desc = _U("deletewagonradius_desc") },
-        { label = _U("getcoords"), value = 'getcoords', desc = _U("getcoords_desc") },
-        { label = _U("announce"), value = 'announce', desc = _U("announce_desc") },
+        { label = _U("getcoords"),         value = 'getcoords',      desc = _U("getcoords_desc") },
+        { label = _U("announce"),          value = 'announce',       desc = _U("announce_desc") },
 
     }
 
@@ -727,7 +818,6 @@ function Actions()
         function(data)
             if data.current == "backup" then
                 _G[data.trigger]()
-
             end
 
             if data.current.value == "delhorse" then
@@ -735,12 +825,10 @@ function Actions()
                 Wait(100)
 
                 if AdminAllowed then
-
                     TriggerEvent("vorp:delHorse")
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             elseif data.current.value == "delwagon" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.DeleteWagon')
                 Wait(100)
@@ -750,28 +838,13 @@ function Actions()
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             elseif data.current.value == "delwagonradius" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.DeleteWagonsRadius')
                 Wait(100)
 
                 if AdminAllowed then
-
-                    local myInput = {
-                        type = "enableinput", -- dont touch
-                        inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = _U("insertnumber"), --placeholdername
-                        style = "block", --- dont touch
-                        attributes = {
-                            inputHeader = _U("radius"), -- header
-                            type = "number", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[0-9]{1,2}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = "numbers only max allowed is 2", -- if input doesnt match show this message
-                            style = "border-radius: 10px; backgRound-color: ; border:none;", -- style  the inptup
-                        }
-                    }
-
+                    local myInput = Inputs("input", _U("confirm"), _U("insertnumber"), _U("radius"), "number",
+                        "numbers only max allowed is 2", "[0-9]{1,2}")
                     TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
                         local radius = result
 
@@ -794,26 +867,12 @@ function Actions()
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "announce" then
-
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Announce')
                 Wait(100)
 
                 if AdminAllowed then
-
-                    local myInput = {
-                        type = "enableinput", -- dont touch
-                        inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = _U("announce"), --placeholdername
-                        style = "block", --- dont touch
-                        attributes = {
-                            inputHeader = _U("announce"), -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[A-Za-z0-9 ]{5,100}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = _U("lettersandnumbers"), -- if input doesnt match show this message
-                            style = "border-radius: 10px; backgRound-color: ; border:none;", -- style  the input
-                        }
-                    }
+                    local myInput = Inputs("input", _U("confirm"), _U("announce"), _U("announce"), "text",
+                        _U("lettersandnumbers"), "[A-Za-z0-9 ]{5,100}")
 
                     TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
                         local announce = result
@@ -831,23 +890,20 @@ function Actions()
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             end
-
         end,
 
         function(menu)
             menu.close()
         end)
-
 end
 
 function OpenCoordsMenu()
     MenuData.CloseAll()
     local elements = {
-        { label = _U("XYZ"), value = 'v2', desc = _U("copyclipboardcoords_desc") },
-        { label = _U("vector3"), value = 'v3', desc = _U("copyclipboardvector3_desc") },
-        { label = _U("vector4"), value = 'v4', desc = _U("copyclipboardvector4_desc") },
+        { label = _U("XYZ"),     value = 'v2',      desc = _U("copyclipboardcoords_desc") },
+        { label = _U("vector3"), value = 'v3',      desc = _U("copyclipboardvector3_desc") },
+        { label = _U("vector4"), value = 'v4',      desc = _U("copyclipboardvector4_desc") },
         { label = _U("heading"), value = 'heading', desc = _U("copyclipboardheading_desc") },
 
 
@@ -865,19 +921,16 @@ function OpenCoordsMenu()
         function(data)
             if data.current == "backup" then
                 _G[data.trigger]()
-
             end
             if data.current.value then
                 local DataCoords = data.current.value
                 CopyToClipboard(DataCoords)
             end
-
         end,
 
         function(menu)
             menu.close()
         end)
-
 end
 
 --to test
@@ -907,26 +960,11 @@ function OffLine()
             end
 
             if data.current.value == "bans" then
-
-                local myInput = {
-                    type = "enableinput", -- dont touch
-                    inputType = "input",
-                    button = _U("confirm"), -- button name
-                    placeholder = _U("typestaticidtime"), --placeholdername
-                    style = "block", --- dont touch
-                    attributes = {
-                        inputHeader = _U("banunban"), -- header
-                        type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                        pattern = "[A-Za-z0-9 ]{1,10}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                        title = " min 1 max 20 no . no , no - no _", -- if input doesnt match show this message
-                        style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
-                    }
-                }
-
+                local myInput = Inputs("input", _U("confirm"), _U("typestaticidtime"), _U("banunban"), "text",
+                    " min 1 max 20 no . no , no - no _", "[A-Za-z0-9 ]{5,100}")
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
                     local result = cb
                     if result ~= "" then
-
                         local splitstring = {}
                         for i in string.gmatch(result, "%S+") do
                             splitstring[#splitstring + 1] = i
@@ -943,27 +981,13 @@ function OffLine()
                         else
                             TriggerEvent("vorp:TipRight", _U("incorrecttype"), 4000)
                         end
-
                     else
                         TriggerEvent("vorp:TipRight", _U("empty"), 4000)
                     end
                 end)
-
             elseif data.current.value == "whites" then
-                local myInput = {
-                    type = "enableinput", -- dont touch
-                    inputType = "input",
-                    button = _U("confirm"), -- button name
-                    placeholder = _U("typestaticid"), --placeholdername
-                    style = "block", --- dont touch
-                    attributes = {
-                        inputHeader = _U("whiteunwhite"), -- header
-                        type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                        pattern = "[A-Za-z0-9 ]{1,20}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                        title = " min 1 max 20 no . no , no - no _", -- if input doesnt match show this message
-                        style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
-                    }
-                }
+                local myInput = Inputs("input", _U("confirm"), _U("typestaticid"), _U("whiteunwhite"), "text",
+                    " min 1 max 20 no . no , no - no _", "[A-Za-z0-9 ]{5,100}")
 
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
                     local result = cb
@@ -974,7 +998,7 @@ function OffLine()
                         end
                         local type, StaticID = tostring(splitstring[1]), tonumber(splitstring[2])
                         if type and StaticID then -- if empty dont run
-                             if type == "whitelist" then
+                            if type == "whitelist" then
                                 TriggerServerEvent("vorp_admin:Whitelistoffline", StaticID, type)
                             elseif type == "unwhitelist" then
                                 TriggerServerEvent("vorp_admin:Whitelistoffline", StaticID, type)
@@ -987,25 +1011,12 @@ function OffLine()
                     end
                 end)
             elseif data.current.value == "warn" then
-                local myInput = {
-                    type = "enableinput", -- dont touch
-                    inputType = "textarea",
-                    button = _U("confirm"), -- button name
-                    placeholder = _U("typestaticid"), --placeholdername
-                    style = "block", --- dont touch
-                    attributes = {
-                        inputHeader = _U("warnunwarn"), -- header
-                        type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                        pattern = "[A-Za-z0-9 ]{10,100}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                        title = " min 10 max 100 chars dont use dot or commas", -- if input doesnt match show this message
-                        style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
-                    }
-                }
+                local myInput = Inputs("input", _U("confirm"), "WARN PLAYER", _U("warnunwarn"), "text",
+                    " min 1 max 20 no . no , no - no _", "[A-Za-z0-9 ]{5,100}")
 
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(cb)
                     local result = tostring(cb)
                     if result ~= "" then
-
                         local splitstring = {}
                         for i in string.gmatch(result, "%S+") do
                             splitstring[#splitstring + 1] = i
@@ -1013,7 +1024,6 @@ function OffLine()
                         local type, StaticID = tostring(splitstring[1]), tonumber(splitstring[2])
 
                         if type and StaticID then
-
                             if type == "warn" then
                                 TriggerEvent("vorp:warn", StaticID)
                             elseif type == "unwarn" then
@@ -1024,18 +1034,14 @@ function OffLine()
                         else
                             TriggerEvent("vorp:TipRight", _U("missing"), 4000)
                         end
-
                     else
                         TriggerEvent("vorp:TipRight", _U("empty"), 4000)
                     end
                 end)
-
             end
-
         end,
 
         function(menu)
             menu.close()
         end)
-
 end

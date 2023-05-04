@@ -23,9 +23,10 @@ AddEventHandler("vorpinventory:check_slots", function()
     local part2 = Config.MaxItemsInInventory.Items
     local User = Core.getUser(_source).getUsedCharacter
     local identifier = User.identifier
+    local charid = User.charIdentifier
     local money = User.money
     local gold = User.gold
-    local stufftosend = InventoryAPI.getUserTotalCount(identifier)
+    local stufftosend = InventoryAPI.getUserTotalCount(identifier, charid)
 
     TriggerClientEvent("syn:getnuistuff", _source, stufftosend, part2, money, gold)
 end)

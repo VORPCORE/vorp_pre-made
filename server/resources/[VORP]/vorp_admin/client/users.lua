@@ -1,20 +1,24 @@
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------ USERS MENU ------------------------------------------------
-local VORP = {}
+
 local hideUI = false
-TriggerEvent("getCore", function(core)
-    VORP = core
-end)
 
 function OpenUsersMenu()
     MenuData.CloseAll()
+
+
     local elements = {
-        { label = _U("Scoreboard"), value = 'scoreboard', desc = _U("scoreboard_desc") },
-        { label = _U("Report"), value = 'report', desc = _U("reportoptions_desc") },
+
+        { label = _U("Report"),       value = 'report',       desc = _U("reportoptions_desc") },
         { label = _U("requeststaff"), value = 'requeststaff', desc = _U("Requeststaff_desc") },
-        { label = _U("showMyInfo"), value = 'showinfo', desc = _U("showmyinfo_desc") },
-        { label = _U("commands"), value = 'commands', desc = _U("usercommands") },
+        { label = _U("showMyInfo"),   value = 'showinfo',     desc = _U("showmyinfo_desc") },
+        { label = _U("commands"),     value = 'commands',     desc = _U("usercommands") },
+        { label = "Walks/Clothes",    value = 'menu',         desc = "walk styles and clothing options" },
     }
+
+    if Config.EnablePlayerlist then
+        elements[#elements + 1] = { label = _U("Scoreboard"), value = 'scoreboard', desc = _U("scoreboard_desc") }
+    end
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
@@ -31,18 +35,24 @@ function OpenUsersMenu()
             if data.current.value == "scoreboard" then
                 ScoreBoard()
             elseif data.current.value == "report" then
-                Report()
+                if not Config.useQWreports then
+                    Report()
+                else
+                    TriggerEvent("vorp_admin:CreateReport")
+                end
             elseif data.current.value == "requeststaff" then
                 RequestStaff()
             elseif data.current.value == "showinfo" then
                 VORP.NotifyRightTip(_U("notyetavailable"), 4000)
             elseif data.current.value == "commands" then
                 OpenCommands()
+            elseif data.current.value == "menu" then
+                TriggerEvent("vorp_walkanim:OpenMenu")
+                menu.close()
             end
         end,
         function(data, menu)
             menu.close()
-
         end)
 end
 
@@ -52,7 +62,6 @@ function ScoreBoard()
 
     local players = GetPlayers()
     for key, playersInfo in pairs(players) do
-
         if Config.showUsersInfo == "showAll" then
             ShowInfo = "</span><br>Server ID:  <span style=color:MediumSeaGreen;>" ..
                 playersInfo.serverId ..
@@ -89,12 +98,10 @@ function ScoreBoard()
             if data.current == "backup" then
                 _G[data.trigger]()
             end
-
         end,
 
         function(data, menu)
             menu.close()
-
         end)
 end
 
@@ -118,12 +125,10 @@ function ShowMyInfo()
             if data.current == "backup" then
                 _G[data.trigger]()
             end
-
         end,
 
         function(data, menu)
             menu.close()
-
         end)
 end
 
@@ -145,12 +150,9 @@ function Report()
         }
     }
 
-
-
     TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
         local report = tostring(result)
         if report and report ~= "" then
-
             if Config.ReportLogs then -- if nil dont send
                 TriggerServerEvent("vorp_admin:logs", Config.ReportLogs.Reports, _U("report"),
                     _U("playerreported") .. report)
@@ -159,7 +161,6 @@ function Report()
             end
         end
     end)
-
 end
 
 ------ REQUEST STAFF ---------------------------------
@@ -170,9 +171,9 @@ local timer = Config.AlertCooldown
 function RequestStaff()
     MenuData.CloseAll()
     local elements = {
-        { label = _U("needhelp"), value = "new", desc = _U("needhelp_desc") },
-        { label = _U("foundbug"), value = "bug", desc = _U("foundbug_desc") },
-        { label = _U("rulesbroken"), value = "rules", desc = _U("rulesbroken_desc") },
+        { label = _U("needhelp"),        value = "new",      desc = _U("needhelp_desc") },
+        { label = _U("foundbug"),        value = "bug",      desc = _U("foundbug_desc") },
+        { label = _U("rulesbroken"),     value = "rules",    desc = _U("rulesbroken_desc") },
         { label = _U("someonecheating"), value = "cheating", desc = _U("someonecheating_desc") },
 
     }
@@ -191,53 +192,52 @@ function RequestStaff()
                 _G[data.trigger]()
             end
             if data.current.value == "new" and not cooldown then
-                TriggerServerEvent("vorp_admin:requeststaff", player,"new")
+                TriggerServerEvent("vorp_admin:requeststaff", player, "new")
                 VORP.NotifyRightTip(_U("requestsent"), 4000)
                 TriggerServerEvent("vorp_admin:logs", Config.ReportLogs.RequestStaff, _U("report"),
                     _U("requeststaff_disc"))
-                    cooldown = true
+                cooldown = true
             elseif data.current.value == "bug" and not cooldown then
-                TriggerServerEvent("vorp_admin:requeststaff",player, "bug")
+                TriggerServerEvent("vorp_admin:requeststaff", player, "bug")
                 VORP.NotifyRightTip(_U("requestsent"), 4000)
                 TriggerServerEvent("vorp_admin:logs", Config.ReportLogs.BugReport, _U("report"),
                     _U("requeststaff_bug"))
-                    cooldown = true
+                cooldown = true
             elseif data.current.value == "rules" and not cooldown then
-                TriggerServerEvent("vorp_admin:requeststaff", player,"rules")
+                TriggerServerEvent("vorp_admin:requeststaff", player, "rules")
                 VORP.NotifyRightTip(_U("requestsent"), 4000)
                 TriggerServerEvent("vorp_admin:logs", Config.ReportLogs.RulesBroken, _U("report"),
                     _U("requeststaff_rulesbroke"))
-                    cooldown = true
+                cooldown = true
             elseif data.current.value == "cheating" and not cooldown then
-                TriggerServerEvent("vorp_admin:requeststaff",player, "cheating")
+                TriggerServerEvent("vorp_admin:requeststaff", player, "cheating")
                 VORP.NotifyRightTip(_U("requestsent"), 4000)
                 TriggerServerEvent("vorp_admin:logs", Config.ReportLogs.Cheating, _U("report"),
                     _U("requeststaff_cheating"))
-                    cooldown = true
+                cooldown = true
             elseif cooldown then
-                VORP.NotifyRightTip("Wait "..timer.." seconds to report again", 5000)
+                VORP.NotifyRightTip("Wait " .. timer .. " seconds to report again", 5000)
             end
         end,
 
         function(data, menu)
             menu.close()
-
         end)
 end
 
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(10)
-	    if timer >= 0 and cooldown then
-	    	Citizen.Wait(1000)
-	    	if timer > 0 then
-	    		timer = timer - 1
-	    	end
-            if 0 >= timer and cooldown then 
-                cooldown = false 
+        if timer >= 0 and cooldown then
+            Citizen.Wait(1000)
+            if timer > 0 then
+                timer = timer - 1
+            end
+            if 0 >= timer and cooldown then
+                cooldown = false
                 timer = Config.AlertCooldown
             end
-	    end
+        end
     end
 end)
 
@@ -246,9 +246,9 @@ end)
 function OpenCommands()
     MenuData.CloseAll()
     local elements = {
-        { label = _U("delhorse"), value = 'delhorse', desc = _U("usercommands") },
-        { label = _U("delwagon"), value = 'delwagon', desc = _U("usercommands") },
-        { label = _U("hideui"), value = 'hideui', desc = _U("usercommands") },
+        { label = _U("delhorse"),        value = 'delhorse',   desc = _U("usercommands") },
+        { label = _U("delwagon"),        value = 'delwagon',   desc = _U("usercommands") },
+        { label = _U("hideui"),          value = 'hideui',     desc = _U("usercommands") },
         { label = _U("cancelanimation"), value = 'cancelanim', desc = _U("usercommands") },
     }
 
@@ -272,24 +272,20 @@ function OpenCommands()
             elseif data.current.value == "hideui" then
                 HideUI()
             elseif data.current.value == "cancelanim" then
-
                 local player = PlayerPedId()
                 ClearPedTasksImmediately(player)
             end
         end,
         function(data, menu)
             menu.close()
-
         end)
 end
 
 function DelHorse()
-
     local player = PlayerPedId()
     local mount  = GetMount(player)
     if IsPedOnMount(player) then
         DeleteEntity(mount)
-
     else
         TriggerEvent("vorp:TipRight", _U("youneedtobeseatead"), 3000)
     end
@@ -309,7 +305,6 @@ function Delwagon()
     else
         TriggerEvent('vorp:TipRight', _U("youneedtobeseatead"), 3000)
     end
-
 end
 
 function HideUI()

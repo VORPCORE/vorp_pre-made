@@ -1,10 +1,12 @@
 ------------------------------------------------------------------------------------------------------------
 ---------------------------------------- TELEPORTS ---------------------------------------------------------
 local lastLocation = {}
+local autotpm = false
 
 function Teleport()
     MenuData.CloseAll()
     local elements = {
+        { label = _U('autotpm'), value = 'autotpm', desc = _U('autotpm_desc') },
         { label = _U("tpm"), value = 'tpm', desc = _U("teleporttomarker_desc") },
         { label = _U("tptocoords"), value = 'tptocoords', desc = _U("teleporttocoords_desc") },
         { label = _U("tptoplayer"), value = 'tptoplayer', desc = _U("teleportplayer_desc") },
@@ -32,8 +34,25 @@ function Teleport()
                 if AdminAllowed then
                     TriggerEvent('vorp:teleportWayPoint')
                     if Config.TeleportLogs.Tpm then
-                        TriggerServerEvent("vorp_admin:logs", Config.TeleportLogs.Tpm
-                            , _U("titleteleport"), _U("usedtpm"))
+                        TriggerServerEvent("vorp_admin:logs", Config.TeleportLogs.Tpm, _U("titleteleport"), _U("usedtpm"))
+                    end
+                else
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
+                end
+            elseif data.current.value == 'autotpm' then
+                TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.AutoTpm")
+                Wait(100)
+                if AdminAllowed then
+                    if autotpm == false then
+                        autotpm = true
+                        TriggerEvent('vorp:TipRight', _U("switchedon"), 3000)
+                        while autotpm do
+                            Citizen.Wait(500)
+                            TriggerEvent('vorp:teleportWayPoint')
+                        end
+                    else
+                        TriggerEvent('vorp:TipRight', _U("switchedoff"), 3000)
+                        autotpm = false
                     end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)

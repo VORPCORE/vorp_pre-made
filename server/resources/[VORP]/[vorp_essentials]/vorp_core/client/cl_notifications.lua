@@ -22,7 +22,7 @@ AddEventHandler('vorp:NotifyLeft', function(firsttext, secondtext, dict, icon, d
     LoadTexture(_dict)
 
     exports.vorp_core:DisplayLeftNotification(tostring(firsttext), tostring(secondtext), tostring(_dict), tostring(_icon)
-        , tonumber(duration), tostring(_color))
+    , tonumber(duration), tostring(_color))
 end)
 
 AddEventHandler('vorp:Tip', function(text, duration)
@@ -53,7 +53,6 @@ end)
 ---@param duration number
 ---@param quality boolean
 AddEventHandler('vorp:ShowAdvancedRightNotification', function(text, dict, icon, text_color, duration, quality)
-
     exports.vorp_core:ShowAdvancedRightNotification(tostring(text), tostring(dict), tostring(icon),
         tostring(text_color), tonumber(duration), quality)
 end)
