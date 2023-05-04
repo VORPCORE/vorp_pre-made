@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS `items` (
   `label` varchar(50) NOT NULL,
   `limit` int(11) NOT NULL DEFAULT 1,
   `can_remove` tinyint(1) NOT NULL DEFAULT 1,
-  `type` varchar(50) DEFAULT NULL,
+  `type` VARCHAR(50) NULL DEFAULT 'item_standard' COLLATE 'utf8mb4_general_ci',
   `usable` tinyint(1) DEFAULT NULL,
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `metadata` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT '{}' CHECK (json_valid(`metadata`)),
