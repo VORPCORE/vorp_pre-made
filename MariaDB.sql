@@ -336,12 +336,6 @@ CREATE TABLE `whitelist` (
     ROW_FORMAT=DYNAMIC
 ;
 
-ALTER TABLE `loadout`
-ADD CONSTRAINT `FK_loadout_users` FOREIGN KEY (`identifier`)
-REFERENCES `users` (`identifier`)
-ON DELETE CASCADE
-ON UPDATE CASCADE;
-
 INSERT IGNORE INTO `banks` (`name`) VALUES
 	('Blackwater'),
 	('SaintDenis'),
