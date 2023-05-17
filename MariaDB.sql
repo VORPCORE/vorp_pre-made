@@ -328,12 +328,11 @@ CREATE TABLE `whitelist` (
     `status` TINYINT(1) NULL DEFAULT NULL,
     `firstconnection` TINYINT(1) NULL DEFAULT '1',
     PRIMARY KEY (`id`) USING BTREE,
-    UNIQUE INDEX `identifier` (`identifier`) USING BTREE,
-    CONSTRAINT `FK_characters_whitelist` FOREIGN KEY (`identifier`) REFERENCES `vorpv2`.`users` (`identifier`) ON UPDATE CASCADE ON DELETE CASCADE
-    )
-    COLLATE='utf8mb4_general_ci'
-    ENGINE=InnoDB
-    ROW_FORMAT=DYNAMIC
+    UNIQUE INDEX `identifier` (`identifier`) USING BTREE
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
 ;
 
 INSERT IGNORE INTO `banks` (`name`) VALUES
