@@ -344,7 +344,7 @@ INSERT IGNORE INTO `banks` (`name`) VALUES
 
 /*!40000 ALTER TABLE `items` DISABLE KEYS */;
 INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `id`, `metadata`, `desc`) VALUES
-	('acid', 'Acid', 10, 1, 'item_standard', 1, 1, '{}', 'A corrosive substance used for various purposes.'),
+('acid', 'Acid', 10, 1, 'item_standard', 1, 1, '{}', 'A corrosive substance used for various purposes.'),
 ('Agarita', 'Agarita', 10, 1, 'item_standard', 1, 2, '{}', 'A flowering plant found in the wild, known for its medicinal properties.'),
 ('Agarita_Seed', 'Agarita Seed', 10, 1, 'item_standard', 1, 3, '{}', 'A seed that can be planted to grow Agarita plants.'),
 ('Alaskan_Ginseng', 'Alaskan Ginseng', 10, 1, 'item_standard', 1, 4, '{}', 'A type of ginseng native to the Alaskan region, prized for its healing properties.'),
@@ -833,7 +833,7 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `
 ('nitrite', 'Nitrite', 20, 1, 'item_standard', 1, 219, '{}', 'A chemical compound used in various industrial processes'),
 ('nitroglyserolia', 'Nitroglycerol', 30, 1, 'item_standard', 1, 220, '{}', 'A highly explosive liquid compound used in explosives'),
 ('normaltable', 'Table', 20, 1, 'item_standard', 1, 750, '{}', 'A standard table for dining or work purposes'),
-('notebook', 'Notebook', 5, 1, 'item_standard', 1, 221, '{}', 'A small book with blank pages for writing or drawing');
+('notebook', 'Notebook', 5, 1, 'item_standard', 1, 221, '{}', 'A small book with blank pages for writing or drawing'),
 ('obed', 'Old bed', 20, 1, 'item_standard', 1, 664, '{}', 'An old bed that has seen better days.'),
 ('Oleander_Sage', 'Oleander Sage', 10, 1, 'item_standard', 1, 222, '{}', 'A herb known for its medicinal properties.'),
 ('Oleander_Sage_Seed', 'Oleander Sage Seed', 10, 1, 'item_standard', 1, 223, '{}', 'A seed that can be planted to grow Oleander Sage.'),
@@ -1074,7 +1074,6 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `
 ('wsnakeskin', 'Watersnake pelt', 20, 1, 'item_standard', 1, 485, '{}', 'The skin of a watersnake.'),
 ('Yarrow', 'Yarrow', 10, 1, 'item_standard', 1, 336, '{}', 'A flowering plant known as Yarrow.'),
 ('Yarrow_Seed', 'Yarrow Seed', 10, 1, 'item_standard', 1, 337, '{}', 'Seeds to grow Yarrow plants.');
-
 /*!40000 ALTER TABLE `items` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
