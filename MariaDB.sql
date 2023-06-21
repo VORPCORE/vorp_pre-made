@@ -868,7 +868,6 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `
 ('pigs', 'Pig pelt', 20, 1, 'item_standard', 1, 516, '{}', 'The skin and fur of a pig.'),
 ('pipe', 'Pipe', 5, 1, 'item_standard', 1, 231, '{}', 'A tubular device used for smoking tobacco or other substances.'),
 ('pipecopper', 'Copper Pipe', 5, 1, 'item_standard', 1, 835, '{}', 'A pipe made of copper.'),
-('planttrimmer', 'Plant Trimmer', 10, 1, 'item_standard', 1, 678, '{}', 'A tool used for trimming and pruning plants.'),
 ('pocket_watch', 'Pocket Watch', 5, 1, 'item_standard', 1, 232, '{}', 'A small timepiece designed to be carried in a pocket.'),
 ('pokerset', 'Poker Table Set', 20, 1, 'item_standard', 1, 579, '{}', 'A complete set for playing poker, including a table and cards.'),
 ('pork', 'Pork', 20, 1, 'item_standard', 1, 571, '{}', 'The meat from a pig, commonly used for cooking and eating.'),
