@@ -2,6 +2,7 @@ _usersLoading = {}
 _users = {}
 _healthData = {}
 
+local T = Translation[Lang].MessageOfSystem
 
 function LoadUser(source, setKickReason, deferrals, identifier, license)
     local resultList = MySQL.single.await('SELECT * FROM users WHERE identifier = ?', { identifier })
@@ -14,13 +15,12 @@ function LoadUser(source, setKickReason, deferrals, identifier, license)
             local currentTime = tonumber(os.time(os.date("!*t")))
 
             if bannedUntilTime == 0 then
-                deferrals.done("You are banned permanently!")
-                setKickReason("You are banned permanently!")
+                deferrals.done(T.permanentlyBan)
+                setKickReason(T.permanentlyBan)
             elseif bannedUntilTime > currentTime then
-                local bannedUntil = os.date(Config.Langs.DateTimeFormat,
-                    bannedUntilTime + Config.TimeZoneDifference * 3600)
-                deferrals.done(Config.Langs.BannedUser .. bannedUntil .. Config.Langs.TimeZone)
-                setKickReason(Config.Langs.BannedUser .. bannedUntil .. Config.Langs.TimeZone)
+                local bannedUntil = os.date(Config.DateTimeFormat, bannedUntilTime + Config.TimeZoneDifference * 3600)
+                deferrals.done(T.BannedUser .. bannedUntil .. Config.TimeZone)
+                setKickReason(T.BannedUser .. bannedUntil .. Config.TimeZone)
             else
                 local getuser = GetUserId(identifier)
                 TriggerEvent("vorpbans:addtodb", false, getuser, 0)
@@ -70,10 +70,8 @@ AddEventHandler('playerDropped', function()
         _users[identifier] = nil
     end
 
-    if Config.SaveSteamNameDB then
-        MySQL.update('UPDATE characters SET `steamname` = ? WHERE `identifier` = ? ',
-            { steamName, identifier })
-    end
+    MySQL.update('UPDATE characters SET `steamname` = ? WHERE `identifier` = ? ',
+        { steamName, identifier })
 end)
 
 
@@ -240,23 +238,23 @@ Citizen.CreateThread(function()
 end)
 
 
-AddEventHandler("vorpchar:addtodb", function(status, identifier)
+AddEventHandler("vorpchar:addtodb", function(status, identifier, source)
     local resultList = MySQL.prepare.await("SELECT * FROM users WHERE identifier = ?", { identifier })
     local char
     if resultList then
-        for _, player in ipairs(GetPlayers()) do
-            if identifier == GetPlayerIdentifiers(player)[1] then
-                if status == true then
-                    TriggerClientEvent("vorp:Tip", player, Config.Langs.AddChar, 10000)
-                    char = "true"
-                else
-                    TriggerClientEvent("vorp:Tip", player, Config.Langs.RemoveChar, 10000)
-                    char = "false"
-                end
-                break
-            end
+        --? this dont make any sense why iterating over players  when we have check if user exist in the databse? if it exists then  update theres, no need to notify them if this can be used with them offline
+        -- for _, player in ipairs(GetPlayers()) do
+        --  if identifier == GetPlayerIdentifiers(player)[1] then
+        if status == true then
+            TriggerClientEvent("vorp:Tip", source, T.AddChar, 10000)
+            char = "true"
+        else
+            TriggerClientEvent("vorp:Tip", source, T.RemoveChar, 10000)
+            char = "false"
         end
+        -- break
+        --  end
+        --  end
+        MySQL.update("UPDATE users SET `char` = ? WHERE `identifier` = ? ", { char, identifier })
     end
-
-    MySQL.update("UPDATE users SET `char` = ? WHERE `identifier` = ? ", { char, identifier })
 end)

@@ -100,7 +100,7 @@ end
 function Weapon:quitComponent(component)
 	local componentExists = FindIndexOf(self.components, component)
 	if componentExists then
-		table.remove(self.componentExists, componentExists)
+		table.remove(self.components, componentExists)
 		return true
 	end
 	return false
@@ -116,13 +116,13 @@ function Weapon:addAmmo(type, amount)
 	else
 		self.ammo[type] = tonumber(amount)
 	end
-	exports.oxmysql:execute('UPDATE loadout SET ammo = @ammo WHERE id=@id',
+	MySQL.update('UPDATE loadout SET ammo = @ammo WHERE id=@id',
 		{ ['ammo'] = json.encode(self:getAllAmmo()), ['id'] = self.id })
 end
 
 function Weapon:setAmmo(type, amount)
 	self.ammo[type] = tonumber(amount)
-	exports.oxmysql:execute('UPDATE loadout SET ammo = @ammo WHERE id=@id',
+	MySQL.update('UPDATE loadout SET ammo = @ammo WHERE id=@id',
 		{ ['ammo'] = json.encode(self:getAllAmmo()), ['id'] = self.id })
 end
 
@@ -133,7 +133,7 @@ function Weapon:subAmmo(type, amount)
 		if self.ammo[type] <= 0 then
 			self.ammo[type] = nil
 		end
-		exports.oxmysql:execute('UPDATE loadout SET ammo = @ammo WHERE id=@id',
+		MySQL.update('UPDATE loadout SET ammo = @ammo WHERE id=@id',
 			{ ['ammo'] = json.encode(self:getAllAmmo()), ['id'] = self.id })
 	end
 end

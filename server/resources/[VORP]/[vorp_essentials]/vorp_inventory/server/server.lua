@@ -1,7 +1,9 @@
+---@diagnostic disable: undefined-global
 local VorpInv = {}
 
 VorpInv = exports.vorp_inventory:vorp_inventoryApi()
 
+T = TranslationInv.Langs[Lang]
 
 function getIdentity(source)
     local identifiers = {}
@@ -32,7 +34,6 @@ AddEventHandler("vorpinventory:check_slots", function()
 end)
 
 
-
 RegisterServerEvent("vorpinventory:getLabelFromId")
 AddEventHandler("vorpinventory:getLabelFromId", function(id, item2, cb)
     local _source = id
@@ -53,8 +54,7 @@ RegisterServerEvent("vorpinventory:itemlog")
 AddEventHandler("vorpinventory:itemlog", function(_source, targetHandle, itemName, amount)
     local name = GetPlayerName(_source)
     local name2 = GetPlayerName(targetHandle)
-    local description = name .. Config.Language.gave .. amount .. " " .. itemName .. Config.Language.to .. name2
-    --  Discord(Config.Language.gaveitem, _source, description)
+    local description = name .. T.transfered .. amount .. " " .. itemName .. T.to .. name2
     Core.AddWebhook(_source, Config.webhook, description, color, Name, logo, footerlogo, avatar)
 end)
 
@@ -63,9 +63,8 @@ AddEventHandler("vorpinventory:weaponlog", function(targetHandle, data)
     local _source = source
     local name = GetPlayerName(_source)
     local name2 = GetPlayerName(targetHandle)
-    local description = name .. Config.Language.gave ..
-        data.item .. Config.Language.to .. name2 .. Config.Language.withid .. data.id
-    -- Discord(Config.Language.gaveitem, _source, description)
+    local description = name .. T.transfered ..
+        data.item .. T.to .. name2 .. T.withid .. data.id
     Core.AddWebhook(_source, Config.webhook, description, color, Name, logo, footerlogo, avatar) -- if undefined it will choose vorp default.
 end)
 
@@ -74,7 +73,7 @@ AddEventHandler("vorpinventory:moneylog", function(targetHandle, amount)
     local _source = source
     local name = GetPlayerName(_source)
     local name2 = GetPlayerName(targetHandle)
-    local description = name .. Config.Language.gave .. " $" .. amount .. " " .. Config.Language.to .. name2
+    local description = name .. T.transfered .. " $" .. amount .. " " .. T.to .. name2
     Core.AddWebhook(_source, Config.webhook, description, color, Name, logo, footerlogo, avatar)
 end)
 
@@ -101,7 +100,7 @@ if Config.DevMode then
             local characterId = Core.getUser(source).getUsedCharacter
 
             TriggerClientEvent("vorp:SelectedCharacter", source, characterId)
-
+            LoadDatabase(charid)
             -- If it's not a player, then it must be RCON, a resource, or the server console directly.
         else
             print("This command was executed by the server console, RCON client, or a resource.")
@@ -152,4 +151,86 @@ AddEventHandler('playerDropped', function()
 end)
 
 
---=============================================================================================--
+--=================================== CLEAR ITEMS WEAPONS AND MONEY=====================================--
+
+
+RegisterNetEvent("vorp:PlayerForceRespawn", function()
+    local _source = source
+    local User = Core.getUser(_source).getUsedCharacter
+    local _value = Config.OnPlayerRespawn
+    local job = User.job
+
+    if not User then
+        return
+    end
+
+    if not Config.UseClearAll then
+        return
+    end
+
+    --MONEY
+    if _value.Money.ClearMoney then
+        if not SharedUtils.IsValueInArray(job, _value.Money.JobLock) then
+            if not _value.Money.MoneyPercentage then
+                User.removeCurrency(0, User.money)
+            else
+                User.removeCurrency(0, User.money * _value.Money.MoneyPercentage)
+            end
+        end
+    end
+
+    -- GOLD
+    if _value.Gold.ClearGold then
+        if not SharedUtils.IsValueInArray(job, _value.Gold.JobLock) then
+            if not _value.Gold.GoldPercentage then
+                User.removeCurrency(1, User.gold)
+            else
+                User.removeCurrency(1, User.gold * _value.Gold.GoldPercentage)
+            end
+        end
+    end
+
+    -- ITEMS
+    CreateThread(function()
+        if _value.Items.AllItems then
+            if not SharedUtils.IsValueInArray(job, _value.Items.JobLock) then
+                local Userinventory = VorpInv.getUserInventory(_source)
+                for i, item in pairs(Userinventory) do
+                    for index, value in ipairs(_value.Items.itemWhiteList) do
+                        if item.name ~= value then
+                            InventoryAPI.subItem(_source, item.name, item.count, item.metadata, function()
+                            end)
+                        end
+                    end
+                end
+            end
+        end
+    end)
+
+    -- WEAPONS
+    CreateThread(function()
+        if _value.Weapons.AllWeapons then
+            if not SharedUtils.IsValueInArray(job, _value.Weapons.JobLock) then
+                local Userweapons = VorpInv.getUserWeapons(_source)
+
+                for i, weapon in pairs(Userweapons) do
+                    for index, value in ipairs(_value.Weapons.WeaponWhitelisted) do
+                        if value ~= weapon.name then
+                            InventoryAPI.subWeapon(_source, weapon.id)
+                            InventoryAPI.deletegun(_source, weapon.id, function()
+                            end)
+                        end
+                    end
+                end
+            end
+        end
+    end)
+
+    --AMMO
+    if _value.Ammo.AllAmmo then
+        if not SharedUtils.IsValueInArray(job, _value.Ammo.JobLock) then
+            TriggerClientEvent('syn_weapons:removeallammo', _source)  -- syn script
+            TriggerClientEvent('vorp_weapons:removeallammo', _source) -- vorp script
+        end
+    end
+end)

@@ -1,0 +1,32 @@
+<2.1>
+- added menu troll action with many options
+- new permissions
+- update all files including fx manifest
+<2.0>
+- no clip prompts added
+- search players by user id
+- playerlist now shows from lower to higher by server ids easy to scroll through it
+- new section for users menu set walk styles and remove add clothing  if you have vorp walk anim 
+- added permissions to be able to use from database now both character or user table  for each command 
+- function in config to use your own metabolism healing events 
+- Server rework for better optimisation dont use GetActivePlayers anymore and New API added, also error handling
+- client side  added config to have users menu toggle
+- update all files including fxmanifest
+- menu should now load properly
+<1.3>
+- fix god mode
+- fix golden cores
+- fix infiniteammo
+- added commands in users menu
+- del horse del wagon hideui clear animations
+- update all files including fx manifest
+<1.2>
+- added to users menu REPORTS to discord and in game will alert staff
+- added to users menu request staff, staff will get a message of the user requesting assistance
+- update all files
+<1.1>
+- webhooks for most and each action
+- choose what info should display on the scoreboard for users
+- send announcment messages
+- update all files
+<1.0>

@@ -187,5 +187,4 @@ end
 
 Citizen.CreateThread(function()
     getCore()
-
 end)

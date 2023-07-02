@@ -7,10 +7,9 @@ Config = {
     -- heal
     Heal                = {
         Players = function()
-            --TriggerServerEvent("outsider_needs:Heal") -- trigger to server and from there heal player
             TriggerEvent("vorpmetabolism:changeValue", "Thirst", 1000)
             TriggerEvent("vorpmetabolism:changeValue", "Hunger", 1000)
-            --TriggerEvent('fred_meta:consume', 100, 100, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0) -- fred metabolism
+           -- TriggerEvent('fred_meta:consume', 100, 100, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0) -- fred metabolism
         end
     },
     ---------------------- NO CLIP ----------------------
@@ -28,6 +27,7 @@ Config = {
         Cancel = 0x4AF4D473
 
     },
+
     Speeds              = {
         -- You can add or edit existing speeds with relative label
         { label = 'Very Slow', speed = 0 },
@@ -37,12 +37,15 @@ Config = {
         { label = 'Very Fast', speed = 15 },
         { label = 'Max',       speed = 29 },
     },
+
     Offsets             = {
         y = 0.2, -- Forward and backward movement speed multiplier
         z = 0.1, -- Upward and downward movement speed multiplier
         h = 1, -- Rotation movement speed multiplier
     },
+
     FrozenPosition      = true, -- frozen on open menu vorp.staff.OpenMenu
+    
     AllowedGroups       = {
         { group = { "admin" }, command = "vorp.staff.OpenMenu" },
         { group = { "admin" }, command = "vorp.staff.Admin" }, -- groups you want for these permissions

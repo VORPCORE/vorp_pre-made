@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 exports('vorp_inventoryApi', function()
     local self = {}
 
@@ -13,7 +14,7 @@ exports('vorp_inventoryApi', function()
             query_promise:resolve(result)
         end
 
-        exports.oxmysql:execute(query, params, on_result)
+        MySQL.query(query, params, on_result)
 
         return Citizen.Await(query_promise)
     end
@@ -51,7 +52,12 @@ exports('vorp_inventoryApi', function()
     end
 
     self.createWeapon = function(source, weaponName, ammoaux, compaux, comps)
-        TriggerEvent("vorpCore:registerWeapon", source, tostring(string.upper(weaponName)), ammoaux, compaux, comps)
+        local result_promise = promise.new()
+        TriggerEvent("vorpCore:registerWeapon", source, tostring(string.upper(weaponName)), ammoaux, compaux, comps,
+            function(res)
+                result_promise:resolve(res)
+            end)
+        return Citizen.Await(result_promise)
     end
 
     self.deletegun = function(source, id)
@@ -62,11 +68,10 @@ exports('vorp_inventoryApi', function()
         end)
 
         return Citizen.Await(result_promise)
-
     end
-
-    self.canCarryWeapons = function(source, amount, cb)
-        TriggerEvent("vorpCore:canCarryWeapons", source, amount, cb)
+    -- new param let it know if the weapon to be given is notin the list of weapons | weaponName
+    self.canCarryWeapons = function(source, amount, cb, weaponName)
+        TriggerEvent("vorpCore:canCarryWeapons", source, amount, cb, weaponName)
     end
 
     self.getcomps = function(source, weaponid)
@@ -182,10 +187,7 @@ exports('vorp_inventoryApi', function()
         return Citizen.Await(count_promise)
     end
 
-    ---@param source number
-    ---@param itemName string
-    ---@return table|nil
-    self.getDBItem = function(source, itemName)
+    self.getDBItem = function(target, itemName)
         local item
         local query = "SELECT * FROM items WHERE item=@id;"
         local params = { ['@id'] = itemName }
@@ -195,7 +197,7 @@ exports('vorp_inventoryApi', function()
         if result[1] then
             item = result[1]
         else
-            print('Item does not exist in Items table. Item: ' .. tostring(itemName))
+            print('Item does not exist in Items table. Item: ' .. itemName)
         end
 
         return item
@@ -261,7 +263,7 @@ exports('vorp_inventoryApi', function()
         local itemcount = self.getItemCount(source, item)
         local reqCount = itemcount + amount
 
-        if result and result[1] then
+        if result[1] then
             local limit = tonumber(result[1].limit)
             can = reqCount <= limit
         else

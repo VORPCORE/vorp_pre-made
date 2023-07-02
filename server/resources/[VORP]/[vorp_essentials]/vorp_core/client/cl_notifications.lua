@@ -45,13 +45,6 @@ AddEventHandler('vorp:ShowTopNotification', function(tittle, subtitle, duration)
     exports.vorp_core:ShowTopNotification(tostring(tittle), tostring(subtitle), tonumber(duration))
 end)
 
----comment
----@param text string
----@param dict string
----@param icon string
----@param text_color string
----@param duration number
----@param quality boolean
 AddEventHandler('vorp:ShowAdvancedRightNotification', function(text, dict, icon, text_color, duration, quality)
     exports.vorp_core:ShowAdvancedRightNotification(tostring(text), tostring(dict), tostring(icon),
         tostring(text_color), tonumber(duration), quality)

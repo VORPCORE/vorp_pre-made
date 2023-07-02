@@ -1,6 +1,6 @@
 SharedUtils = {}
 
-SharedUtils.Table_equals = function (o1, o2, ignore_mt)
+SharedUtils.Table_equals = function(o1, o2, ignore_mt)
     if o1 == o2 then return true end
     local o1Type = type(o1)
     local o2Type = type(o2)
@@ -25,7 +25,7 @@ SharedUtils.Table_equals = function (o1, o2, ignore_mt)
         end
         keySet[key1] = true
     end
-    
+
     for key2, _ in pairs(o2) do
         if not keySet[key2] then return false end
     end
@@ -33,7 +33,7 @@ SharedUtils.Table_equals = function (o1, o2, ignore_mt)
     return true
 end
 
-SharedUtils.Table_contains = function (o1, o2)
+SharedUtils.Table_contains = function(o1, o2)
     if o1 == o2 then return true end
     local o1Type = type(o1)
     local o2Type = type(o2)
@@ -47,7 +47,7 @@ SharedUtils.Table_contains = function (o1, o2)
 
     for key2, value2 in pairs(o2) do
         local value1 = o1[key2]
-        if value1 == nil or  not SharedUtils.Table_equals(value1, value2, true) then
+        if value1 == nil or not SharedUtils.Table_equals(value1, value2, true) then
             return false
         end
     end
@@ -55,7 +55,7 @@ SharedUtils.Table_contains = function (o1, o2)
     return true
 end
 
-SharedUtils.MergeTables = function (a, b)
+SharedUtils.MergeTables = function(a, b)
     a = type(a) == 'string' and json.decode(a) or a
     b = type(b) == 'string' and json.decode(b) or b
 
@@ -67,4 +67,13 @@ SharedUtils.MergeTables = function (a, b)
         newTable[key] = value
     end
     return newTable
+end
+
+SharedUtils.IsValueInArray = function(value, array)
+    for _, v in ipairs(array) do
+        if v == value then
+            return true
+        end
+    end
+    return false
 end

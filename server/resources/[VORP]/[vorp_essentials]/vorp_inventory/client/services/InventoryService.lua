@@ -7,12 +7,11 @@ UserInventory = {}
 bulletsHash = {}
 
 
-InventoryService.PullAllInventory = function ()
-    return UserInventory
+InventoryService.PullAllInventory = function()
+	return UserInventory
 end
 
-
-InventoryService.receiveItem = function (name, id, amount, metadata)
+InventoryService.receiveItem = function(name, id, amount, metadata)
 	if UserInventory[id] ~= nil then
 		UserInventory[id]:addCount(amount)
 	else
@@ -33,7 +32,7 @@ InventoryService.receiveItem = function (name, id, amount, metadata)
 	NUIService.LoadInv()
 end
 
-InventoryService.removeItem = function (name, id, count)
+InventoryService.removeItem = function(name, id, count)
 	if UserInventory[id] == nil then
 		return
 	end
@@ -52,7 +51,7 @@ InventoryService.removeItem = function (name, id, count)
 	end
 end
 
-InventoryService.receiveWeapon = function (id, propietary, name, ammos)
+InventoryService.receiveWeapon = function(id, propietary, name, ammos)
 	local weaponAmmo = {}
 
 	for type, amount in pairs(ammos) do
@@ -75,12 +74,11 @@ InventoryService.receiveWeapon = function (id, propietary, name, ammos)
 		UserWeapons[newWeapon:getId()] = newWeapon
 		NUIService.LoadInv()
 	end
-
 end
 
-InventoryService.onSelectedCharacter = function (charId)
+InventoryService.onSelectedCharacter = function(charId)
 	SetNuiFocus(false, false)
-	SendNUIMessage({action= "hide"})
+	SendNUIMessage({ action = "hide" })
 	print("Loading Inventory")
 	TriggerServerEvent("vorpinventory:getItemsTable")
 	Wait(300)
@@ -92,16 +90,15 @@ InventoryService.onSelectedCharacter = function (charId)
 	TriggerEvent("vorpinventory:loaded")
 end
 
-InventoryService.processItems = function (items)
+InventoryService.processItems = function(items)
 	svItems = {}
 	for _, item in pairs(items) do
 		svItems[item.item] = Item:New(item)
 	end
 end
 
-InventoryService.getLoadout = function (loadout)
+InventoryService.getLoadout = function(loadout)
 	for _, weapon in pairs(loadout) do
-
 		local weaponAmmo = weapon.ammo
 
 		for type, amount in pairs(weaponAmmo) do
@@ -128,9 +125,9 @@ InventoryService.getLoadout = function (loadout)
 				currInv = weapon.curr_inv,
 				dropped = 0,
 			})
-	
+
 			UserWeapons[newWeapon:getId()] = newWeapon
-	
+
 			if newWeapon:getUsed() then
 				Utils.useWeapon(newWeapon:getId())
 			end
@@ -138,7 +135,7 @@ InventoryService.getLoadout = function (loadout)
 	end
 end
 
-InventoryService.getInventory = function (inventory)
+InventoryService.getInventory = function(inventory)
 	if inventory ~= nil and inventory ~= '' then
 		UserInventory = {}
 		local inventoryItems = json.decode(inventory)

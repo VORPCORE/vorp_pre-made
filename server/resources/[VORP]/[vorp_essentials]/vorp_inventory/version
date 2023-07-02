@@ -1,3 +1,12 @@
+<2.6>
+- in this version we have removed exports and added mysql linting
+- removed unsecured events 
+- adding promisses to remove weapons to avoid internet disconnect duplications
+- error handling when using the API
+- code refactor reducing around 500 lines of repeated code on js files
+- switch to cerulean version , changed all http to https calls
+- new feature on player respawn remove items weapons money with whitelist jobs and whitelist weapons/item check config file
+- you must UPDATE ALL FILES including fx manifest 
 <2.5>
 - dupping fix when people use nui dev tools
 - dupping fix when people use amount 3422424242423423423 and would dupe, can only select 200 now

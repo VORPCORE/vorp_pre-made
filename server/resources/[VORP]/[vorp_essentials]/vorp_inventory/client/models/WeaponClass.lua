@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global, duplicate-set-field
 Weapon = {}
 
 Weapon.name = nil
@@ -11,8 +12,106 @@ Weapon.used2 = false
 Weapon.desc = nil
 Weapon.currInv = ''
 
+
+local equippedWeapons = {}
+
+local function getGuidFromItemId(inventoryId, itemData, category, slotId)
+	local outItem = DataView.ArrayBuffer(8 * 13)
+	local success = Citizen.InvokeNative(0x886DFD3E185C8A89, inventoryId, itemData and itemData or 0, category, slotId,
+		outItem:Buffer())
+	return success and outItem or nil
+end
+
+local function moveInventoryItem(inventoryId, old, new, slot)
+	local outGUID = DataView.ArrayBuffer(8 * 13)
+	if not slot then slot = 1 end
+	local sHash = "SLOTID_WEAPON_" .. tostring(slot)
+	local success = Citizen.InvokeNative(0xDCCAA7C3BFD88862, inventoryId, old, new, joaat(sHash), 1,
+		outGUID:Buffer())
+	return success and outGUID or nil
+end
+
+local function addWeapon(weapon, slot, id)
+	if slot == 0 and id then
+		if #equippedWeapons > 0 then
+			slot = 1
+		end
+	end
+	local weaponHash = joaat(weapon)
+	local sHash = "SLOTID_WEAPON_" .. tostring(slot)
+	local reason = joaat("ADD_REASON_DEFAULT")
+	local inventoryId = 1
+	local slotHash = joaat(sHash)
+	local move = false
+
+	--Now add it to the characters inventory
+	local isValid = Citizen.InvokeNative(0x6D5D51B188333FD1, weaponHash, 0) --ItemdatabaseIsKeyValid
+	if not isValid then
+		print("Non valid weapon")
+		return false
+	end
+
+	local characterItem = getGuidFromItemId(inventoryId, nil, joaat("CHARACTER"), 0xA1212100) --return func_1367(joaat("CHARACTER"), func_2485(), -1591664384, bParam0);
+	if not characterItem then
+		print("no characterItem")
+		return false
+	end
+
+	local weaponItem = getGuidFromItemId(inventoryId, characterItem:Buffer(), 923904168, -740156546) --return func_1367(923904168, func_1889(1), -740156546, 0);
+	if not weaponItem then
+		print("no weaponItem")
+		return false
+	end
+
+	if slot == 1 and id then
+		if #equippedWeapons > 0 then
+			local newItemData = DataView.ArrayBuffer(8 * 13)
+			local newGUID = moveInventoryItem(inventoryId, equippedWeapons[1].guid, weaponItem:Buffer())
+			if not newGUID then
+				print("can't move item")
+				return false
+			end
+			slotHash = joaat('SLOTID_WEAPON_0')
+			slot = 0
+			move = true
+		else
+			slotHash = joaat('SLOTID_WEAPON_0')
+			slot = 0
+		end
+	end
+
+	local itemData = DataView.ArrayBuffer(8 * 13)
+	local isAdded = Citizen.InvokeNative(0xCB5D11F9508A928D, inventoryId, itemData:Buffer(), weaponItem:Buffer(),
+		weaponHash, slotHash, 1, reason) --Actually add the item now
+	if not isAdded then
+		print("Not added")
+		return false
+	end
+
+	local equipped = Citizen.InvokeNative(0x734311E2852760D0, inventoryId, itemData:Buffer(), true)
+	if not equipped then
+		print("not able to equip")
+		return false
+	end
+
+	Citizen.InvokeNative(0x12FB95FE3D579238, PlayerPedId(), itemData:Buffer(), true, slot, false, false)
+	if move then
+		Citizen.InvokeNative(0x12FB95FE3D579238, PlayerPedId(), equippedWeapons[1].guid, true, 1, false, false)
+		TriggerServerEvent("syn_weapons:applyDupeTint", id, itemData:Buffer())
+	end
+	if id then
+		local nWeapon = {
+			id = id,
+			guid = itemData:Buffer(),
+		}
+		table.insert(equippedWeapons, nWeapon)
+	end
+
+	return true
+end
+
 function Weapon:UnequipWeapon()
-	local hash = GetHashKey(self.name)
+	--local hash = joaat(self.name)
 	self:setUsed(false)
 	self:setUsed2(false)
 
@@ -23,34 +122,71 @@ function Weapon:UnequipWeapon()
 end
 
 function Weapon:RemoveWeaponFromPed()
-	RemoveWeaponFromPed(PlayerPedId(), GetHashKey(self.name), true, 0)
+	local isWeaponAGun = Citizen.InvokeNative(0x705BE297EEBDB95D, joaat(self.name))
+	local isWeaponOneHanded = Citizen.InvokeNative(0xD955FEE4B87AFA07, joaat(self.name))
+	local move = false
+
+	if isWeaponAGun and isWeaponOneHanded then
+		for k, v in pairs(equippedWeapons) do
+			if v.id == self.id then
+				if #equippedWeapons > 1 then
+					Citizen.InvokeNative(0x3E4E811480B3AE79, 1, v.guid, 1, joaat("ADD_REASON_DEFAULT"))
+					move = true
+				end
+				table.remove(equippedWeapons, k)
+			end
+		end
+	end
+	if move then
+		local characterItem = getGuidFromItemId(1, nil, joaat("CHARACTER"), 0xA1212100)
+		if not characterItem then
+			return false
+		end
+
+		local weaponItem = getGuidFromItemId(1, characterItem:Buffer(), 923904168, -740156546)
+		if not weaponItem then
+			return false
+		end
+		moveInventoryItem(inventoryId, equippedWeapons[1].guid, weaponItem:Buffer(), 0)
+		Citizen.InvokeNative(0x12FB95FE3D579238, PlayerPedId(), equippedWeapons[1].guid, true, 0, false, false)
+	else
+		RemoveWeaponFromPed(PlayerPedId(), joaat(self.name), true, 0)
+	end
 end
 
-function Weapon:equipwep()
-	local pattern = 'WEAPON_MELEE'
-	if self.name:sub(1, #pattern) == pattern then
-		Citizen.InvokeNative(0xB282DC6EBD803C75, PlayerPedId(), GetHashKey(self.name), 500, true, 0)
+function Weapon:equipwep(issame)
+	local isWeaponMelee = Citizen.InvokeNative(0x959383DCD42040DA, joaat(self.name))
+	local isWeaponAGun = Citizen.InvokeNative(0x705BE297EEBDB95D, joaat(self.name))
+	local isWeaponOneHanded = Citizen.InvokeNative(0xD955FEE4B87AFA07, joaat(self.name))
+
+	if isWeaponMelee then
+		GiveDelayedWeaponToPed(PlayerPedId(), joaat(self.name), 0, true, 0)
 	else
 		if self.used2 then
-			-- GETTING THE EQUIPED WEAPON
-			local _, weaponHash = GetCurrentPedWeapon(PlayerPedId(), false, 0, false)
-			Citizen.InvokeNative(0x5E3BDDBCB83F3D84, PlayerPedId(), weaponHash, 1, 1, 1, 2, false, 0.5, 1.0, 752097756, 0, true, 0.0)
-			Citizen.InvokeNative(0x5E3BDDBCB83F3D84, PlayerPedId(), GetHashKey(self.name), 1, 1, 1, 3, false, 0.5, 1.0, 752097756, 0, true, 0.0)
-			Citizen.InvokeNative(0xADF692B254977C0C, PlayerPedId(), weaponHash, 0, 1, 0, 0)
-			Citizen.InvokeNative(0xADF692B254977C0C, PlayerPedId(), GetHashKey(self.name), 0, 0, 0, 0)
+			if isWeaponAGun and isWeaponOneHanded then
+				addWeapon(self.name, 1, self.id)
+			else
+				local _, weaponHash = GetCurrentPedWeapon(PlayerPedId(), false, 0, false)
+				Citizen.InvokeNative(0x5E3BDDBCB83F3D84, PlayerPedId(), weaponHash, 1, 1, 1, 2, false, 0.5, 1.0,
+					752097756, 0, true, 0.0)
+				Citizen.InvokeNative(0x5E3BDDBCB83F3D84, PlayerPedId(), joaat(self.name), 1, 1, 1, 3, false, 0.5,
+					1.0, 752097756, 0, true, 0.0)
+				Citizen.InvokeNative(0xADF692B254977C0C, PlayerPedId(), weaponHash, 0, 1, 0, 0)
+				Citizen.InvokeNative(0xADF692B254977C0C, PlayerPedId(), joaat(self.name), 0, 0, 0, 0)
+			end
 		else
-			GiveDelayedWeaponToPed(PlayerPedId(), GetHashKey(self.name), 0, true, 0)
+			if isWeaponAGun and isWeaponOneHanded then
+				addWeapon(self.name, 0, self.id)
+			else
+				GiveDelayedWeaponToPed(PlayerPedId(), joaat(self.name), 0, true, 0)
+			end
 		end
-		--[[ SetPedAmmo(PlayerPedId(), GetHashKey(self.name), 0)
-		for key, value in pairs(self.ammo) do
-			SetPedAmmoByType(PlayerPedId(), GetHashKey(key), value)
-		end ]]
 	end
 end
 
 function Weapon:loadComponents()
 	for _, value in pairs(self.components) do
-		Citizen.InvokeNative(0x74C9090FDD1BB48E, PlayerPedId(), GetHashKey(value), GetHashKey(self.name), true)
+		Citizen.InvokeNative(0x74C9090FDD1BB48E, PlayerPedId(), joaat(value), joaat(self.name), true)
 	end
 end
 
@@ -76,7 +212,7 @@ function Weapon:getUsed()
 end
 
 function Weapon:getUsed2()
-	return self.used2 
+	return self.used2
 end
 
 function Weapon:setUsed(used)
@@ -160,7 +296,7 @@ function Weapon:getLabel()
 	return self.label
 end
 
-function Weapon:New (t)
+function Weapon:New(t)
 	t = t or {}
 	setmetatable(t, self)
 	self.__index = self
@@ -168,7 +304,7 @@ function Weapon:New (t)
 end
 
 function FindIndexOf(table, value)
-	for k,v in pairs(table) do
+	for k, v in pairs(table) do
 		if v == value then
 			return k
 		end

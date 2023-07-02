@@ -1,51 +1,35 @@
+local T = Translation[Lang].MessageOfSystem
+
 --=================================== FUNCTIONS ======================================--
 
----comment
----@param hash string
----@return boolean
 LoadModel = function(hash)
     if IsModelValid(hash) then
         RequestModel(hash)
         while not HasModelLoaded(hash) do
-            Citizen.Wait(0)
+            Wait(100)
         end
         return true
     end
     return false
 end
 
----comment
----@param hash any
----@return boolean
+
 LoadTexture = function(hash)
     if not HasStreamedTextureDictLoaded(hash) then
         RequestStreamedTextureDict(hash, true)
         while not HasStreamedTextureDictLoaded(hash) do
-            Wait(1)
+            Wait(100)
         end
         return true
     end
     return false
 end
 
----comment
----@param text string
----@return unknown
 bigInt = function(text)
     local string1 = DataView.ArrayBuffer(16)
     string1:SetInt64(0, text)
     return string1:GetInt64(0)
 end
-
---[[DrawText = function(text, font, x, y, fontscale, fontsize, r, g, b, alpha, textcentred, shadow)
-    local str = CreateVarString(10, "LITERAL_STRING", text)
-    SetTextScale(fontscale, fontsize)
-    SetTextColor(r, g, b, alpha)
-    SetTextCentre(textcentred)
-    if shadow then SetTextDropshadow(1, 0, 0, 0, 255) end
-    SetTextFontForCurrentCommand(font)
-    DisplayText(str, x, y)
-end]]
 
 --========================================== THREADS =========================================--
 
@@ -62,8 +46,8 @@ RegisterCommand("reload", function()
     if IsEntityDead(PlayerPedId()) then
         ExecuteCommand("rc")
     end
-
 end)
+
 CreateThread(function()
     while true do
         Wait(0)
@@ -91,7 +75,7 @@ CreateThread(function()
         Wait(400)
         for _, playersid in ipairs(GetActivePlayers()) do
             local ped = GetPlayerPed(playersid)
-            SetPedPromptName(ped, Config.Langs.message4 .. tostring(GetPlayerServerId(playersid)))
+            SetPedPromptName(ped, T.message4 .. tostring(GetPlayerServerId(playersid)))
         end
     end
 end)
@@ -110,7 +94,6 @@ CreateThread(function()
         Citizen.InvokeNative(0xC116E6DF68DCE667, 3, 2)
         Citizen.InvokeNative(0xC116E6DF68DCE667, 4, 2)
         Citizen.InvokeNative(0xC116E6DF68DCE667, 5, 2)
-
     end
     if Config.HideHorseCores then
         Citizen.InvokeNative(0xC116E6DF68DCE667, 6, 2)

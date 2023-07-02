@@ -2,7 +2,7 @@ SvUtils = {}
 local processingUser = {}
 
 SvUtils.FindAllWeaponsByName = function(invId, name)
-    local userWeapons = UsersWeapons[invId]
+    local userWeapons = UserWeaponsCacheService:getInv(invId)
     local weapons = {}
 
     if userWeapons == nil then
@@ -118,7 +118,6 @@ end
 SvUtils.ProcessUser = function(id)
     TriggerClientEvent("vorp_inventory:transactionStarted", id)
     table.insert(processingUser, id)
-    Log.print("Start Processing user " .. id)
 end
 
 SvUtils.InProcessing = function(id)
@@ -137,7 +136,6 @@ SvUtils.Trem = function(id, keepInventoryOpen)
         if v == id then
             TriggerClientEvent("vorp_inventory:transactionCompleted", id, keepInventoryOpen)
             table.remove(processingUser, k)
-            Log.print("Stop Processing user " .. id)
         end
     end
 end

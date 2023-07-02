@@ -8,19 +8,20 @@ PickupsService.CreateObject = function(model, position)
 	local objectHash = GetHashKey(model)
 
 	if not Citizen.InvokeNative(0x1283B8B89DD5D1B6, objectHash) then -- HasModelLoaded
-		Citizen.InvokeNative(0xFA28FE3A6246FC30, objectHash) -- RequestModel
+		Citizen.InvokeNative(0xFA28FE3A6246FC30, objectHash)      -- RequestModel
 	end
 
 	while not Citizen.InvokeNative(0x1283B8B89DD5D1B6, objectHash) do -- HasModelLoaded
 		Wait(1)
 	end
 
-	local entityHandle = Citizen.InvokeNative(0x509D5878EB39E842, objectHash, position.x, position.y, position.z, true, true, true) -- CreateObject
+	local entityHandle = Citizen.InvokeNative(0x509D5878EB39E842, objectHash, position.x, position.y, position.z, true,
+		true, true)                                                  -- CreateObject
 
-	Citizen.InvokeNative(0x58A850EAEE20FAA3, entityHandle) -- PlaceObjectOnGroundProperly
+	Citizen.InvokeNative(0x58A850EAEE20FAA3, entityHandle)           -- PlaceObjectOnGroundProperly
 	Citizen.InvokeNative(0xDC19C288082E586E, entityHandle, true, false) -- SetEntityAsMissionEntity
-	Citizen.InvokeNative(0x7D9EFB7AD6B19754, entityHandle, true) -- FreezeEntityPosition
-	Citizen.InvokeNative(0x7DFB49BCDB73089A, entityHandle, true) -- SetPickupLight
+	Citizen.InvokeNative(0x7D9EFB7AD6B19754, entityHandle, true)     -- FreezeEntityPosition
+	Citizen.InvokeNative(0x7DFB49BCDB73089A, entityHandle, true)     -- SetPickupLight
 	Citizen.InvokeNative(0xF66F820909453B8C, entityHandle, false, true) -- SetEntityCollision
 
 	SetModelAsNoLongerNeeded(objectHash)
@@ -104,7 +105,7 @@ PickupsService.sharePickupClient = function(name, entityHandle, amount, metadata
 				metadata = metadata,
 				weaponId = weaponId,
 				coords = position,
-				prompt = Prompt:New(0xF84FA74F, _U("TakeFromFloor"), PromptType.StandardHold, promptGroup)
+				prompt = Prompt:New(0xF84FA74F, T.TakeFromFloor, PromptType.StandardHold, promptGroup)
 			})
 
 
@@ -132,7 +133,7 @@ PickupsService.shareMoneyPickupClient = function(entityHandle, amount, position,
 				isMoney = true,
 				isGold = false,
 				coords = position,
-				prompt = Prompt:New(0xF84FA74F, _U("TakeFromFloor"), PromptType.StandardHold, promptGroup)
+				prompt = Prompt:New(0xF84FA74F, T.TakeFromFloor, PromptType.StandardHold, promptGroup)
 			})
 
 
@@ -160,7 +161,7 @@ PickupsService.shareGoldPickupClient = function(entityHandle, amount, position, 
 				isMoney = false,
 				isGold = true,
 				coords = position,
-				prompt = Prompt:New(0xF84FA74F, _U("TakeFromFloor"), PromptType.StandardHold, promptGroup)
+				prompt = Prompt:New(0xF84FA74F, T.TakeFromFloor, PromptType.StandardHold, promptGroup)
 			})
 
 
@@ -206,7 +207,8 @@ PickupsService.playerAnim = function(obj)
 		Wait(10)
 	end
 
-	Citizen.InvokeNative(0xEA47FE3719165B94, PlayerPedId(), animDict, "exit_front", 1.0, 8.0, -1, 1, 0, false, false, false)
+	Citizen.InvokeNative(0xEA47FE3719165B94, PlayerPedId(), animDict, "exit_front", 1.0, 8.0, -1, 1, 0, false, false,
+		false)
 	Wait(1200)
 	PlaySoundFrontend("CHECKPOINT_PERFECT", "HUD_MINI_GAME_SOUNDSET", true, 1)
 	Wait(1000)
@@ -223,6 +225,10 @@ end
 
 PickupsService.dropAllPlease = function()
 	Wait(200)
+
+	if Config.UseClearAll then
+		return
+	end
 
 	if Config.DropOnRespawn.AllMoney then
 		TriggerServerEvent("vorpinventory:serverDropAllMoney")
@@ -278,10 +284,6 @@ PickupsService.dropAllPlease = function()
 		end
 	end
 
-
-
-
-
 	Wait(200)
 	dropAll = false
 end
@@ -320,8 +322,8 @@ PickupsService.OnWorldPickup = function()
 			if pickup.prompt:HasHoldModeCompleted() then
 				if pickup.isMoney then
 					TriggerServerEvent("vorpinventory:onPickupMoney", pickup.entityId)
-				elseif Config.UseGoldItem and pickup.isGold then 
-					TriggerServerEvent("vorpinventory:onPickupGold", pickup.entityId )
+				elseif Config.UseGoldItem and pickup.isGold then
+					TriggerServerEvent("vorpinventory:onPickupGold", pickup.entityId)
 				else
 					TriggerServerEvent("vorpinventory:onPickup", pickup.entityId)
 				end
