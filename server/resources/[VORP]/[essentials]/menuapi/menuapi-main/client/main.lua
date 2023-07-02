@@ -9,8 +9,9 @@ MenuData.RegisteredTypes['default'] = {
             ak_menubase_namespace = namespace,
             ak_menubase_name = name,
             ak_menubase_data = data
-        })end,
-    close  = function(namespace, name)
+        })
+    end,
+    close = function(namespace, name)
         SendNUIMessage({
             ak_menubase_action = 'closeMenu',
             ak_menubase_namespace = namespace,
@@ -21,23 +22,21 @@ MenuData.RegisteredTypes['default'] = {
 }
 
 
-
-
 function MenuData.Open(type, namespace, name, data, submit, cancel, change, close)
-    local menu = {}
+    local menu                            = {}
 
-    menu.type      = type
-    menu.namespace = namespace
-    menu.name      = name
-    menu.data      = data
-    menu.submit    = submit
-    menu.cancel    = cancel
-    menu.change    = change
+    menu.type                             = type
+    menu.namespace                        = namespace
+    menu.name                             = name
+    menu.data                             = data
+    menu.submit                           = submit
+    menu.cancel                           = cancel
+    menu.change                           = change
 
-    menu.close = function()
+    menu.close                            = function()
         MenuData.RegisteredTypes[type].close(namespace, name)
 
-        for i=1, #MenuData.Opened, 1 do
+        for i = 1, #MenuData.Opened, 1 do
             if MenuData.Opened[i] then
                 if MenuData.Opened[i].type == type and MenuData.Opened[i].namespace == namespace and MenuData.Opened[i].name == name then
                     MenuData.Opened[i] = nil
@@ -50,63 +49,60 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
         end
     end
 
-    menu.update = function(query, newData)
-
-        for i=1, #menu.data.elements, 1 do
+    menu.update                           = function(query, newData)
+        for i = 1, #menu.data.elements, 1 do
             local match = true
 
-            for k,v in pairs(query) do
+            for k, v in pairs(query) do
                 if menu.data.elements[i][k] ~= v then
                     match = false
                 end
             end
 
             if match then
-                for k,v in pairs(newData) do
+                for k, v in pairs(newData) do
                     menu.data.elements[i][k] = v
                 end
             end
         end
-
     end
 
-    menu.refresh = function()
+    menu.refresh                          = function()
         MenuData.RegisteredTypes[type].open(namespace, name, menu.data)
     end
 
-    menu.setElement = function(i, key, val)
+    menu.setElement                       = function(i, key, val)
         menu.data.elements[i][key] = val
     end
 
-    menu.setElements = function(newElements)
+    menu.setElements                      = function(newElements)
         menu.data.elements = newElements
     end
 
-    menu.setTitle = function(val)
+    menu.setTitle                         = function(val)
         menu.data.title = val
     end
 
-    menu.removeElement = function(query)
-        for i=1, #menu.data.elements, 1 do
-            for k,v in pairs(query) do
+    menu.removeElement                    = function(query)
+        for i = 1, #menu.data.elements, 1 do
+            for k, v in pairs(query) do
                 if menu.data.elements[i] then
                     if menu.data.elements[i][k] == v then
-						menu.data.elements[i] = nil
+                        menu.data.elements[i] = nil
                         break
                     end
                 end
-
             end
         end
     end
-	MenuData.Opened[#MenuData.Opened+1]= menu
+    MenuData.Opened[#MenuData.Opened + 1] = menu
     MenuData.RegisteredTypes[type].open(namespace, name, data)
     PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
     return menu
 end
 
 function MenuData.Close(type, namespace, name)
-    for i=1, #MenuData.Opened, 1 do
+    for i = 1, #MenuData.Opened, 1 do
         if MenuData.Opened[i] then
             if MenuData.Opened[i].type == type and MenuData.Opened[i].namespace == namespace and MenuData.Opened[i].name == name then
                 MenuData.Opened[i].close()
@@ -117,7 +113,7 @@ function MenuData.Close(type, namespace, name)
 end
 
 function MenuData.CloseAll()
-    for i=1, #MenuData.Opened, 1 do
+    for i = 1, #MenuData.Opened, 1 do
         if MenuData.Opened[i] then
             MenuData.Opened[i].close()
             MenuData.Opened[i] = nil
@@ -125,8 +121,8 @@ function MenuData.CloseAll()
     end
 end
 
-function MenuData.GetOpened (type, namespace, name)
-    for i=1, #MenuData.Opened, 1 do
+function MenuData.GetOpened(type, namespace, name)
+    for i = 1, #MenuData.Opened, 1 do
         if MenuData.Opened[i] then
             if MenuData.Opened[i].type == type and MenuData.Opened[i].namespace == namespace and MenuData.Opened[i].name == name then
                 return MenuData.Opened[i]
@@ -139,13 +135,15 @@ function MenuData.GetOpenedMenus()
     return MenuData.Opened
 end
 
-function MenuData.IsOpen (type, namespace, name)
+function MenuData.IsOpen(type, namespace, name)
     return MenuData.GetOpened(type, namespace, name) ~= nil
 end
 
 function MenuData.ReOpen(oldMenu)
-    MenuData.Open(oldMenu.type, oldMenu.namespace, oldMenu.name, oldMenu.data, oldMenu.submit, oldMenu.cancel, oldMenu.change, oldMenu.close)
+    MenuData.Open(oldMenu.type, oldMenu.namespace, oldMenu.name, oldMenu.data, oldMenu.submit, oldMenu.cancel,
+        oldMenu.change, oldMenu.close)
 end
+
 local Timer, MenuType = 0, 'default'
 
 
@@ -173,7 +171,7 @@ end)
 RegisterNUICallback('menu_change', function(data)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
 
-    for i=1, #data.elements, 1 do
+    for i = 1, #data.elements, 1 do
         menu.setElement(i, 'value', data.elements[i].value)
 
         if data.elements[i].selected then
@@ -188,37 +186,38 @@ RegisterNUICallback('menu_change', function(data)
     end
 end)
 
+
 Citizen.CreateThread(function()
-    local PauseMenuState    = false
-    local MenusToReOpen     = {}
+    local PauseMenuState = false
+    local MenusToReOpen  = {}
     while true do
         Citizen.Wait(0)
         if #MenuData.Opened > 0 then
+            -- this can be used to use prompts insead of controls
 
-            if ( IsControlJustReleased(0, 0x43DBF61F)  or  IsDisabledControlJustReleased(0, 0x43DBF61F)) then
-                SendNUIMessage({ak_menubase_action = 'controlPressed', ak_menubase_control = 'ENTER'})
+            if (IsControlJustReleased(0, 0x43DBF61F) or IsDisabledControlJustReleased(0, 0x43DBF61F)) then
+                SendNUIMessage({ ak_menubase_action = 'controlPressed', ak_menubase_control = 'ENTER' })
             end
 
-            if (IsControlJustReleased(0, 0x308588E6)  or  IsDisabledControlJustReleased(0, 0x308588E6)) then
-                SendNUIMessage({ak_menubase_action  = 'controlPressed', ak_menubase_control = 'BACKSPACE'})
+            if (IsControlJustReleased(0, 0x308588E6) or IsDisabledControlJustReleased(0, 0x308588E6)) then
+                SendNUIMessage({ ak_menubase_action = 'controlPressed', ak_menubase_control = 'BACKSPACE' })
             end
 
-            if (IsControlJustReleased(0, 0x911CB09E)  or  IsDisabledControlJustReleased(0, 0x911CB09E)) then
-                SendNUIMessage({ak_menubase_action  = 'controlPressed', ak_menubase_control = 'TOP'})
+            if (IsControlJustReleased(0, 0x911CB09E) or IsDisabledControlJustReleased(0, 0x911CB09E)) then
+                SendNUIMessage({ ak_menubase_action = 'controlPressed', ak_menubase_control = 'TOP' })
             end
 
-            if (IsControlJustReleased(0, 0x4403F97F)  or  IsDisabledControlJustReleased(0, 0x4403F97F)) then
-                SendNUIMessage({ak_menubase_action  = 'controlPressed', ak_menubase_control = 'DOWN'})
+            if (IsControlJustReleased(0, 0x4403F97F) or IsDisabledControlJustReleased(0, 0x4403F97F)) then
+                SendNUIMessage({ ak_menubase_action = 'controlPressed', ak_menubase_control = 'DOWN' })
             end
 
-            if (IsControlJustReleased(0, 0xAD7FCC5B)  or  IsDisabledControlJustReleased(0, 0xAD7FCC5B)) then
-                SendNUIMessage({ak_menubase_action  = 'controlPressed', ak_menubase_control = 'LEFT'})
+            if (IsControlJustReleased(0, 0xAD7FCC5B) or IsDisabledControlJustReleased(0, 0xAD7FCC5B)) then
+                SendNUIMessage({ ak_menubase_action = 'controlPressed', ak_menubase_control = 'LEFT' })
             end
 
-            if (IsControlJustReleased(0, 0x65F9EC5B)  or  IsDisabledControlJustReleased(0, 0x65F9EC5B)) then
-                SendNUIMessage({ak_menubase_action  = 'controlPressed', ak_menubase_control = 'RIGHT'})
+            if (IsControlJustReleased(0, 0x65F9EC5B) or IsDisabledControlJustReleased(0, 0x65F9EC5B)) then
+                SendNUIMessage({ ak_menubase_action = 'controlPressed', ak_menubase_control = 'RIGHT' })
             end
-
             if IsPauseMenuActive() then
                 if not PauseMenuState then
                     PauseMenuState = true
@@ -226,7 +225,7 @@ Citizen.CreateThread(function()
                         table.insert(MenusToReOpen, v)
                     end
                     MenuData.CloseAll()
-                end               
+                end
             end
         else
             if PauseMenuState and not IsPauseMenuActive() then
@@ -235,7 +234,7 @@ Citizen.CreateThread(function()
                 for k, v in pairs(MenusToReOpen) do
                     MenuData.ReOpen(v)
                 end
-                MenusToReOpen = { }
+                MenusToReOpen = {}
             end
         end
     end
