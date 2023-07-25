@@ -1,5 +1,6 @@
 game 'rdr3'
 fx_version 'cerulean'
+
 author 'VORP Core'
 description 'VORP Inventory'
 rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
@@ -37,7 +38,7 @@ files { 'html/**/*' }
 server_exports { 'vorp_inventoryApi' }
 
 
-version '2.6'
+version '2.7'
 vorp_checker 'yes'
 vorp_name '^4Resource version Check^3'
 vorp_github 'https://github.com/VORPCORE/vorp_inventory-lua'

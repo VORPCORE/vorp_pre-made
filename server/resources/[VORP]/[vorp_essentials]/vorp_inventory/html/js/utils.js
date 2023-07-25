@@ -50,7 +50,7 @@ function hideSecondaryCapacity() {
 
 function initiateSecondaryInventory(id, title, capacity) {
   $("#secondInventoryHud").append(
-    `<div class='controls'><div class='controls-center'><input type='text' id='secondarysearch' placeholder='Search'/></div></div>`
+    `<div class='controls'><div class='controls-center'><input type='text' id='secondarysearch' placeholder='${LANGUAGE.inventorysearch}'/></div></div>`
   );
 
   $("#secondarysearch").bind("input", function () {

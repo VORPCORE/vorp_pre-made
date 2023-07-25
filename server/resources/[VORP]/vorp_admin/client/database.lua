@@ -3,57 +3,63 @@
 function DataBase()
     MenuData.CloseAll()
     local elements = {}
-    local players = GetPlayers()
+    VORP.RpcCall("vorp_admin:Callback:getplayersinfo", function(result)
+        if not result then
+            return
+        end
+        local players = result
 
-    for _, PlayersData in pairs(players) do
-        elements[#elements + 1] = {
+        for _, PlayersData in pairs(players) do
+            elements[#elements + 1] = {
 
-            label = PlayersData.PlayerName, value = "players",
-            desc = _U("SteamName") .. "<span style=color:MediumSeaGreen;> "
-                .. PlayersData.name .. "</span><br>" .. _U("ServerID") .. "<span style=color:MediumSeaGreen;>"
-                .. PlayersData.serverId .. "</span><br>" .. _U("PlayerGroup") .. "<span style=color:MediumSeaGreen;>"
-                .. PlayersData.Group .. "</span><br>" .. _U("PlayerJob") .. "<span style=color:MediumSeaGreen;>"
-                .. PlayersData.Job .. "</span>" .. _U("Grade") .. "<span style=color:MediumSeaGreen;>"
-                .. PlayersData.Grade .. "</span><br>" .. _U("Identifier") .. "<span style=color:MediumSeaGreen;>"
-                .. PlayersData.SteamId .. "</span><br>" .. _U("PlayerMoney") .. "<span style=color:MediumSeaGreen;>"
-                .. PlayersData.Money .. "</span><br>" .. _U("PlayerGold") .. "<span style=color:Gold;>"
-                .. PlayersData.Gold .. "</span><br>" .. _U("PlayerStaticID") .. "<span style=color:Red;>"
-                .. PlayersData.Gold .. "</span>", PlayerData = PlayersData
-        }
+                label = PlayersData.PlayerName,
+                value = "players",
+                desc = _U("SteamName") .. "<span style=color:MediumSeaGreen;> "
+                    .. PlayersData.name .. "</span><br>" .. _U("ServerID") .. "<span style=color:MediumSeaGreen;>"
+                    .. PlayersData.serverId .. "</span><br>" .. _U("PlayerGroup") .. "<span style=color:MediumSeaGreen;>"
+                    .. PlayersData.Group .. "</span><br>" .. _U("PlayerJob") .. "<span style=color:MediumSeaGreen;>"
+                    .. PlayersData.Job .. "</span>" .. _U("Grade") .. "<span style=color:MediumSeaGreen;>"
+                    .. PlayersData.Grade .. "</span><br>" .. _U("Identifier") .. "<span style=color:MediumSeaGreen;>"
+                    .. PlayersData.SteamId .. "</span><br>" .. _U("PlayerMoney") .. "<span style=color:MediumSeaGreen;>"
+                    .. PlayersData.Money .. "</span><br>" .. _U("PlayerGold") .. "<span style=color:Gold;>"
+                    .. PlayersData.Gold .. "</span><br>" .. _U("PlayerStaticID") .. "<span style=color:Red;>"
+                    .. PlayersData.Gold .. "</span>",
+                PlayerData = PlayersData
+            }
+        end
 
-    end
-
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
-        {
-            title    = _U("MenuTitle"),
-            subtext  = _U("MenuSubtitle2"),
-            align    = 'top-left',
-            elements = elements,
-            lastmenu = 'OpenMenu',
-        },
-        function(data)
-            if data.current == "backup" then
-                _G[data.trigger]()
-            end
-            if data.current.value == "players" then
-                TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.OpenDatabase")
-                Wait(100)
-                if AdminAllowed then
-                    DatabasePlayers(data.current.PlayerData)
-                else
-                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
+        MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+            {
+                title    = _U("MenuTitle"),
+                subtext  = _U("MenuSubtitle2"),
+                align    = 'top-left',
+                elements = elements,
+                lastmenu = 'OpenMenu',
+            },
+            function(data)
+                if data.current == "backup" then
+                    _G[data.trigger]()
                 end
-            end
-        end,
-        function(menu)
-            menu.close()
-        end)
+                if data.current.value == "players" then
+                    TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.OpenDatabase")
+                    Wait(100)
+                    if AdminAllowed then
+                        DatabasePlayers(data.current.PlayerData)
+                    else
+                        TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
+                    end
+                end
+            end,
+            function(menu)
+                menu.close()
+            end)
+    end, { search = "all" })
 end
 
 function DatabasePlayers(PlayerData)
     MenuData.CloseAll()
     local elements = {
-        { label = _U("give"), value = 'give', desc = _U("Give_desc") },
+        { label = _U("give"),   value = 'give',   desc = _U("Give_desc") },
         { label = _U("remove"), value = 'remove', desc = _U("Remove_desc") },
     }
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
@@ -96,27 +102,45 @@ end
 function GivePlayers(PlayerData)
     MenuData.CloseAll()
     local elements = {
-        { label = _U("showInventory"), value = 'inventory',
+        {
+            label = _U("showInventory"),
+            value = 'inventory',
             desc = _U("showinventory_desc") ..
                 "<span style=color:MediumSeaGreen;>" .. PlayerData.PlayerName .. "</span>",
-            info = PlayerData.serverId },
-        { label = _U("GiveItems"), value = 'addItem',
+            info = PlayerData.serverId
+        },
+        {
+            label = _U("GiveItems"),
+            value = 'addItem',
             desc = _U("giveitem_desc") .. "<span style=color:MediumSeaGreen;>" .. PlayerData.PlayerName .. "</span>",
-            info = PlayerData.serverId },
-        { label = _U("GiveWeapons"), value = 'addWeapon',
+            info = PlayerData.serverId
+        },
+        {
+            label = _U("GiveWeapons"),
+            value = 'addWeapon',
             desc = _U("giveweapon_desc") .. "<span style=color:MediumSeaGreen;>" .. PlayerData.PlayerName,
-            info = PlayerData.serverId },
-        { label = _U("GiveMoneyGold"), value = 'addMoneygold',
+            info = PlayerData.serverId
+        },
+        {
+            label = _U("GiveMoneyGold"),
+            value = 'addMoneygold',
             desc = _U("givemoney_desc") ..
                 "<span style=color:MediumSeaGreen;>" ..
                 PlayerData.PlayerName .. "</span><br><span> 0 FOR CASH 1 FOR GOLD THEN QUANTITY</span>",
-            info = PlayerData.serverId },
-        { label = _U("GiveHorse"), value = 'addHorse',
+            info = PlayerData.serverId
+        },
+        {
+            label = _U("GiveHorse"),
+            value = 'addHorse',
             desc = _U("givehorse_desc") .. "<span style=color:MediumSeaGreen;>" .. PlayerData.PlayerName .. "</span>",
-            info = PlayerData.serverId },
-        { label = _U("GiveWagon"), value = 'addWagon',
+            info = PlayerData.serverId
+        },
+        {
+            label = _U("GiveWagon"),
+            value = 'addWagon',
             desc = _U("givewagon_desc") .. "<span style=color:MediumSeaGreen;>" .. PlayerData.PlayerName .. "</span>",
-            info = PlayerData.serverId },
+            info = PlayerData.serverId
+        },
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
@@ -138,16 +162,16 @@ function GivePlayers(PlayerData)
                     local targetID = data.current.info
                     local type = "item"
                     local myInput = {
-                        type = "enableinput", -- dont touch
+                        type = "enableinput",                                                -- dont touch
                         inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = "NAME  QUANTITY", --placeholdername
-                        style = "block", --- dont touch
+                        button = _U("confirm"),                                              -- button name
+                        placeholder = "NAME  QUANTITY",                                      --placeholdername
+                        style = "block",                                                     --- dont touch
                         attributes = {
-                            inputHeader = "GIVE ITEM", -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[A-Za-z0-9_ ]{3,60}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = "DONT USE - and . or , comas", -- if input doesnt match show this message
+                            inputHeader = "GIVE ITEM",                                       -- header
+                            type = "text",                                                   -- inputype text, number,date.etc if number comment out the pattern
+                            pattern = "[A-Za-z0-9_ ]{3,60}",                                 -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
+                            title = "DONT USE - and . or , comas",                           -- if input doesnt match show this message
                             style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
                         }
                     }
@@ -179,16 +203,16 @@ function GivePlayers(PlayerData)
                 if AdminAllowed then
                     local targetID = data.current.info
                     local myInput = {
-                        type = "enableinput", -- dont touch
+                        type = "enableinput",                                                -- dont touch
                         inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = "WEAPON_MELEE_KNIFE", --placeholdername
-                        style = "block", --- dont touch
+                        button = _U("confirm"),                                              -- button name
+                        placeholder = "WEAPON_MELEE_KNIFE",                                  --placeholdername
+                        style = "block",                                                     --- dont touch
                         attributes = {
-                            inputHeader = "GIVE WEAPON", -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[A-Za-z_ ]{5,60}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = "DONT USE - and . or , comas", -- if input doesnt match show this message
+                            inputHeader = "GIVE WEAPON",                                     -- header
+                            type = "text",                                                   -- inputype text, number,date.etc if number comment out the pattern
+                            pattern = "[A-Za-z_ ]{5,60}",                                    -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
+                            title = "DONT USE - and . or , comas",                           -- if input doesnt match show this message
                             style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
                         }
                     }
@@ -217,16 +241,16 @@ function GivePlayers(PlayerData)
                     local targetID = data.current.info
                     local type = "moneygold"
                     local myInput = {
-                        type = "enableinput", -- dont touch
+                        type = "enableinput",                                                -- dont touch
                         inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = "CURRENCY QUANTITY", --placeholdername
-                        style = "block", --- dont touch
+                        button = _U("confirm"),                                              -- button name
+                        placeholder = "CURRENCY QUANTITY",                                   --placeholdername
+                        style = "block",                                                     --- dont touch
                         attributes = {
-                            inputHeader = "GIVE CURRENCY", -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[0-9 ]{1,20}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = "DONT USE - and . or , comas", -- if input doesnt match show this message
+                            inputHeader = "GIVE CURRENCY",                                   -- header
+                            type = "text",                                                   -- inputype text, number,date.etc if number comment out the pattern
+                            pattern = "[0-9 ]{1,20}",                                        -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
+                            title = "DONT USE - and . or , comas",                           -- if input doesnt match show this message
                             style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
                         }
                     }
@@ -261,16 +285,16 @@ function GivePlayers(PlayerData)
                     local targetID = data.current.info
                     local type = "horse"
                     local myInput = {
-                        type = "enableinput", -- dont touch
+                        type = "enableinput",                                                -- dont touch
                         inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = "HASH NAME SEX", --placeholdername
-                        style = "block", --- dont touch
+                        button = _U("confirm"),                                              -- button name
+                        placeholder = "HASH NAME SEX",                                       --placeholdername
+                        style = "block",                                                     --- dont touch
                         attributes = {
-                            inputHeader = "GIVE HORSE", -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[A-Za-z0-9_ ]{9,30}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = "DONT USE - and . or , comas", -- if input doesnt match show this message
+                            inputHeader = "GIVE HORSE",                                      -- header
+                            type = "text",                                                   -- inputype text, number,date.etc if number comment out the pattern
+                            pattern = "[A-Za-z0-9_ ]{9,30}",                                 -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
+                            title = "DONT USE - and . or , comas",                           -- if input doesnt match show this message
                             style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
                         }
                     }
@@ -303,16 +327,16 @@ function GivePlayers(PlayerData)
                     local targetID = data.current.info
                     local type = "wagon"
                     local myInput = {
-                        type = "enableinput", -- dont touch
+                        type = "enableinput",                                                -- dont touch
                         inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = "MODEL NAME ", --placeholdername
-                        style = "block", --- dont touch
+                        button = _U("confirm"),                                              -- button name
+                        placeholder = "MODEL NAME ",                                         --placeholdername
+                        style = "block",                                                     --- dont touch
                         attributes = {
-                            inputHeader = "GIVE WAGON", -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[A-Za-z0-9_ ]{9,30}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = "DONT USE - and . or , comas", -- if input doesnt match show this message
+                            inputHeader = "GIVE WAGON",                                      -- header
+                            type = "text",                                                   -- inputype text, number,date.etc if number comment out the pattern
+                            pattern = "[A-Za-z0-9_ ]{9,30}",                                 -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
+                            title = "DONT USE - and . or , comas",                           -- if input doesnt match show this message
                             style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
                         }
                     }
@@ -353,33 +377,47 @@ function GivePlayers(PlayerData)
         function(menu)
             menu.close()
         end)
-
 end
 
 function RemovePlayers(PlayerData)
     MenuData.CloseAll()
 
     local elements = {
-        { label = _U("showInventory"), value = 'showinventory',
+        {
+            label = _U("showInventory"),
+            value = 'showinventory',
             desc = _U("showinventory_desc") ..
                 "<span style=color:MediumSeaGreen;>" .. PlayerData.PlayerName .. "</span>",
-            info = PlayerData.serverId },
-        { label = _U("Removemoney"), value = "clearmoney",
+            info = PlayerData.serverId
+        },
+        {
+            label = _U("Removemoney"),
+            value = "clearmoney",
             desc = _U("removemoney_desc") ..
                 "<span style=color:MediumSeaGreen;>" .. PlayerData.PlayerName .. "</span>",
-            info = PlayerData.serverId },
-        { label = _U("RemoveGold"), value = "cleargold",
+            info = PlayerData.serverId
+        },
+        {
+            label = _U("RemoveGold"),
+            value = "cleargold",
             desc = _U("removegold_desc") ..
                 "<span style=color:MediumSeaGreen;>" .. PlayerData.PlayerName .. "</span>",
-            info = PlayerData.serverId },
-        { label = _U("Clearallitems"), value = 'clearitems',
+            info = PlayerData.serverId
+        },
+        {
+            label = _U("Clearallitems"),
+            value = 'clearitems',
             desc = _U("clearallitems_desc") ..
                 "<span style=color:MediumSeaGreen;>" .. PlayerData.PlayerName .. "</span> Inventory",
-            info = PlayerData.serverId },
-        { label = _U("Clearallweapons"), value = 'clearweapons',
+            info = PlayerData.serverId
+        },
+        {
+            label = _U("Clearallweapons"),
+            value = 'clearweapons',
             desc = _U("clearallweapons_desc") ..
                 "<span style=color:MediumSeaGreen;>" .. PlayerData.PlayerName .. "</span> Inventory",
-            info = PlayerData.serverId },
+            info = PlayerData.serverId
+        },
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
@@ -431,16 +469,16 @@ function RemovePlayers(PlayerData)
                     local targetID = data.current.info
                     local type = "items"
                     local myInput = {
-                        type = "enableinput", -- dont touch
+                        type = "enableinput",                                                -- dont touch
                         inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = " yes or no ", --placeholdername
-                        style = "block", --- dont touch
+                        button = _U("confirm"),                                              -- button name
+                        placeholder = " yes or no ",                                         --placeholdername
+                        style = "block",                                                     --- dont touch
                         attributes = {
-                            inputHeader = "ARE YOU SURE?", -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[A-Za-z]+", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = "DONT USE - and . or , comas", -- if input doesnt match show this message
+                            inputHeader = "ARE YOU SURE?",                                   -- header
+                            type = "text",                                                   -- inputype text, number,date.etc if number comment out the pattern
+                            pattern = "[A-Za-z]+",                                           -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
+                            title = "DONT USE - and . or , comas",                           -- if input doesnt match show this message
                             style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
                         }
                     }
@@ -463,7 +501,6 @@ function RemovePlayers(PlayerData)
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
-
             elseif data.current.value == "clearweapons" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.RemoveAllWeapons")
                 Wait(100)
@@ -472,16 +509,16 @@ function RemovePlayers(PlayerData)
                     local type = "weapons"
 
                     local myInput = {
-                        type = "enableinput", -- dont touch
+                        type = "enableinput",                                                -- dont touch
                         inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = " yes or no ", --placeholdername
-                        style = "block", --- dont touch
+                        button = _U("confirm"),                                              -- button name
+                        placeholder = " yes or no ",                                         --placeholdername
+                        style = "block",                                                     --- dont touch
                         attributes = {
-                            inputHeader = "ARE YOU SURE?", -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[A-Za-z]+", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = "DONT USE - and . or , comas", -- if input doesnt match show this message
+                            inputHeader = "ARE YOU SURE?",                                   -- header
+                            type = "text",                                                   -- inputype text, number,date.etc if number comment out the pattern
+                            pattern = "[A-Za-z]+",                                           -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
+                            title = "DONT USE - and . or , comas",                           -- if input doesnt match show this message
                             style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
                         }
                     }
@@ -514,7 +551,6 @@ function RemovePlayers(PlayerData)
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             end
-
         end,
         function(menu)
             menu.close()
@@ -526,10 +562,12 @@ function OpenInvnetory(inventorydata)
     local elements = {}
 
     for _, dataItems in pairs(inventorydata) do -- to prevent menu from opening empty and give errors
-
-        elements[#elements + 1] = { label = dataItems.label ..
-            " <span style='margin-left:10px; color: Yellow;'>" .. dataItems.count .. '</span>', value = "",
-            desc = dataItems.label }
+        elements[#elements + 1] = {
+            label = dataItems.label ..
+                " <span style='margin-left:10px; color: Yellow;'>" .. dataItems.count .. '</span>',
+            value = "",
+            desc = dataItems.label
+        }
     end
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
@@ -547,5 +585,4 @@ function OpenInvnetory(inventorydata)
         function(menu)
             menu.close()
         end)
-
 end

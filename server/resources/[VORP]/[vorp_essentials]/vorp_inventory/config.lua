@@ -30,6 +30,7 @@ Config = {
 	webhookavatar            = "",
 	webhook                  = "",
 	discordid                = true, -- turn to true if ur using discord whitelist
+	DeleteOnlyDontDrop       = false, -- if true then dropping items only deletes from inventory and box on the floor is not created
 	-- =================== CUSTOM INVENTORY LOGS =====================--
 	WebHook                  = {
 		color = nil,
@@ -91,25 +92,26 @@ Config = {
 		Items          = false
 	},
 
+
 	-- HOW MANY WEAPONS AND ITEMS ALLOWED PER PLAYER
-	MaxItemsInInventory      = {
+	MaxItemsInInventory = {
 		Weapons = 6,
 		Items = 200,
 	},
 	-- HERE YOU CAN SET THE MAX AMOUNT OF WEAPONS PER JOB (IF YOU WANT)
-	JobsAllowed              = {
+	JobsAllowed         = {
 		police = 10 -- job name and max weapons allowed dont allow less than the above
 	},
 	-- FIRST JOIN
-	startItems               = {
+	startItems          = {
 		consumable_raspberrywater = 2, --ITEMS SAME NAME AS IN DATABASE
 		ammorevolvernormal = 1   --AMMO SAME NAME AS I NTHE DATABASE
 	},
-	startWeapons             = {
+	startWeapons        = {
 		WEAPON_MELEE_KNIFE = {} --WEAPON HASH NAME
 	},
 	-- items that dont get added up torwards your max weapon count
-	notweapons               = {
+	notweapons          = {
 		"WEAPON_KIT_BINOCULARS_IMPROVED",
 		"WEAPON_KIT_BINOCULARS",
 		"WEAPON_FISHINGROD",
@@ -122,7 +124,12 @@ Config = {
 		"WEAPON_MELEE_HAMMER",
 		"WEAPON_MELEE_KNIFE",
 	},
-	Ammotypes                = {
+	nonAmmoThrowables   = {
+		"WEAPON_MELEE_CLEAVER",
+		"WEAPON_MELEE_HATCHET",
+		"WEAPON_MELEE_HATCHET_HUNTER"
+	},
+	Ammotypes           = {
 		["416676503"] = {
 			"AMMO_PISTOL",
 			"AMMO_PISTOL_EXPRESS",
@@ -172,9 +179,9 @@ Config = {
 			"AMMO_ARROW_SMALL_GAME",
 			"AMMO_ARROW_POISON"
 		},
-		["1548507267"] = { 
+		["1548507267"] = {
 			"AMMO_THROWING_KNIVES",
-			"AMMO_TOMAHAWK", 
+			"AMMO_TOMAHAWK",
 			"AMMO_POISONBOTTLE",
 			"AMMO_BOLAS",
 			"AMMO_BOLAS_HAWKMOTH",
@@ -187,17 +194,17 @@ Config = {
 		},
 		["-1188697038"] = {
 			"AMMO_HATCHET_CLEAVER",
-		
+
 		},
 		["446901936"] = {
-			"AMMO_HATCHET_HUNTER", 
+			"AMMO_HATCHET_HUNTER",
 			"AMMO_HATCHET_DOUBLE_BIT",
 			"AMMO_HATCHET_HEWING",
 			"AMMO_HATCHET_VIKING",
 			"AMMO_HATCHET",
 		}
 	},
-	maxammo                  = {
+	maxammo             = {
 		-- max ammo allowed to transfer between players
 		AMMO_PISTOL = 100,
 		AMMO_PISTOL_EXPRESS = 100,
@@ -250,7 +257,7 @@ Config = {
 		AMMO_HATCHET_VIKING = 10,
 		AMMO_HATCHET = 10,
 	},
-	Ammolabels               = {
+	Ammolabels          = {
 		-- you can change this to your language
 		AMMO_PISTOL = "Normal Pistol",
 		AMMO_PISTOL_EXPRESS = "Express Pistol",
@@ -304,7 +311,7 @@ Config = {
 		AMMO_HATCHET = "Hatchet ammo",
 	},
 	--DON'T TOUCH BESIDES NAME OF WEAPON
-	Weapons                  = {
+	Weapons             = {
 		{
 			Name     = "Lasso",                                                                 -- TRANSLATE NAME ONLY
 			Desc     = "Used Up When You Hogtie Someone, The Reinforced one has unlimited hogtie usage", -- CHANGE DESCRIPTION ONLY

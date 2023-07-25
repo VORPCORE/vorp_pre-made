@@ -289,7 +289,7 @@ function StartPrompts()
 	while IsInCharCreation do
 		Wait(0)
 
-		local label = CreateVarString(10, "LITERAL_STRING", "Camera adjustments")
+		local label = CreateVarString(10, "LITERAL_STRING", T.PromptLabels.CamAdjustments)
 		PromptSetActiveGroupThisFrame(PromptGroup2, label)
 
 		if IsControlPressed(2, 0x7065027D) then --right

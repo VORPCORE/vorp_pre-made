@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 ------------------------------------------------------------------------------------
 ------------------------------- CLIENT ---------------------------------------------
 local Key = Config.Key
@@ -23,7 +24,7 @@ AddEventHandler("onResourceStop", function(resourceName)
     end
     local player = PlayerPedId()
     ClearPedTasksImmediately(player, true, true) -- clear tasks
-    Closem() --close menu
+    Closem()                                     --close menu
     AdminAllowed = false
 end)
 
@@ -32,11 +33,11 @@ AddEventHandler("onClientResourceStart", function(resourceName)
         return
     end
     --FOR TESTS ENABLED THIS
-    -- AdminAllowed = false
-    -- local player = GetPlayerServerId(tonumber(PlayerId()))
-    -- Wait(100)
-    -- TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.OpenMenu")
-    -- TriggerServerEvent("vorp_admin:getStaffInfo", player)
+    --[[  AdminAllowed = false
+    local player = GetPlayerServerId(tonumber(PlayerId()))
+    Wait(100)
+    TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.OpenMenu")
+    TriggerServerEvent("vorp_admin:getStaffInfo", player) ]]
 end)
 
 RegisterNetEvent('vorp:SelectedCharacter', function()
@@ -196,7 +197,8 @@ RegisterNetEvent('vorp_admin:ClientTrollSetPlayerOnFireHandler', function()
     local model = 'p_campfire02xb'
     RequestModel(model)
     local object = CreateObject(model, 0, 0, 0, false, false, false)
-    AttachEntityToEntity(object, PlayerPedId(), 41, 1000, 1000, 10000, 0, 0, 0, false, false, true, false, 1000, false, false, false)
+    AttachEntityToEntity(object, PlayerPedId(), 41, 1000, 1000, 10000, 0, 0, 0, false, false, true, false, 1000, false,
+        false, false)
     Citizen.Wait(5000)
     DeleteObject(object)
 end)

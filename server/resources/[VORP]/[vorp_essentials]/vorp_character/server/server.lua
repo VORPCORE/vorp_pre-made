@@ -2,10 +2,12 @@
 local VorpCore
 local MaxCharacters
 local VORPInv = exports.vorp_inventory:vorp_inventoryApi()
+local random
 
 TriggerEvent("getCore", function(core)
 	VorpCore = core
 	MaxCharacters = VorpCore.maxCharacters
+	random = math.random(1, #Config.SpawnPosition)
 	VorpCore.addRpcCallback("vorp_characters:getMaxCharacters", function(source, cb, args)
 		cb(#MaxCharacters)
 	end)
@@ -21,10 +23,13 @@ AddEventHandler("vorpcharacter:saveCharacter", function(skin, clothes, firstname
 	local _source = source
 	local playerCoords = Config.SpawnCoords.position
 	local playerHeading = Config.SpawnCoords.heading
-	TriggerEvent("vorp_NewCharacter", _source)
 	VorpCore.getUser(_source).addCharacter(firstname, lastname, json.encode(skin), json.encode(clothes))
 	Wait(600)
 	TriggerClientEvent("vorp:initCharacter", _source, playerCoords, playerHeading, false)
+	-- wait for char to be made
+	SetTimeout(3000, function()
+		TriggerEvent("vorp_NewCharacter", _source)
+	end)
 end)
 
 RegisterServerEvent("vorpcharacter:deleteCharacter")
@@ -179,7 +184,8 @@ AddEventHandler("vorp_GoToSelectionMenu", function(source)
 	if not UserCharacters then
 		return
 	end
-	TriggerClientEvent("vorpcharacter:selectCharacter", _source, UserCharacters, MaxCharacters)
+
+	TriggerClientEvent("vorpcharacter:selectCharacter", _source, UserCharacters, MaxCharacters, random)
 end)
 
 CreateThread(function()

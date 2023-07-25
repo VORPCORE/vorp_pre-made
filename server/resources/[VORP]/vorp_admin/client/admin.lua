@@ -7,18 +7,13 @@ local lastLocation = {}
 
 function Admin()
     MenuData.CloseAll()
-
     local elements = {
         { label = _U("playerslist"),    value = 'players', desc = _U("playerlist_desc") },
         { label = _U("adminactions"),   value = 'actions', desc = _U("adminactions_desc") },
         { label = _U("offLineactions"), value = 'offline', desc = _U("offlineplayers_desc") },
-        { label = _U("searchplayer"),   value = 'search',  desc = _U("searchplayer_desc ") },
+        { label = "viewreports",        value = 'view',    desc = "viewreports" },
+        { label = "search player",      value = 'search',  desc = "insert server id to find a player info " },
     }
-
-    if Config.useQWreports then
-        elements[#elements + 1] = { label = _U("viewreports"), value = 'view', desc = _U("viewreports_desc") }
-    end
-
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
             title    = _U("MenuTitle"),
@@ -38,7 +33,7 @@ function Admin()
                 if AdminAllowed then
                     PlayerList()
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "actions" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.AdminActions')
@@ -46,7 +41,7 @@ function Admin()
                 if AdminAllowed then
                     Actions()
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "offline" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.OfflineActions')
@@ -54,7 +49,7 @@ function Admin()
                 if AdminAllowed then
                     OffLine()
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "view" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.ViewReports')
@@ -62,7 +57,7 @@ function Admin()
                 if AdminAllowed then
                     TriggerEvent("vorp_admin:viewreports")
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "search" then
                 local myInput = Inputs("input", _U("confirm"), "server id", "SEARCH PLAYER", "number",
@@ -70,13 +65,13 @@ function Admin()
                 TriggerEvent("vorpinputs:advancedInput", json.encode(myInput), function(result)
                     local id = tonumber(result)
                     if id and id > 0 then
-                        VORP.RpcCall("vorp_admin:Callback:FetchPlayer", function(cb)
+                        VORP.RpcCall("vorp_admin:Callback:getplayersinfo", function(cb)
                             if cb then
                                 OpenOnePlayerMenu(cb)
                             else
-                                VORP.NotifyRightTip("user dont exist ", 4000)
+                                TriggerEvent("vorp:TipRight", "user dont exist ", 4000)
                             end
-                        end, id)
+                        end, { search = "search", id = id })
                     end
                 end)
             end
@@ -86,13 +81,12 @@ function Admin()
         end)
 end
 
-function OpenOnePlayerMenu(table)
+function OpenOnePlayerMenu(playersInfo)
     MenuData.CloseAll()
-    local elements = {}
-    for k, playersInfo in pairs(table) do
-        elements[#elements + 1] = {
+    local elements = {
+        {
             label = playersInfo.PlayerName .. "<br> Server id: " .. playersInfo.serverId,
-            value = "players" .. k,
+            value = "players" .. playersInfo.serverId,
             desc = _U("SteamName") .. "<span style=color:MediumSeaGreen;> "
                 .. playersInfo.name .. "</span><br>" .. _U("ServerID") .. "<span style=color:MediumSeaGreen;>"
                 .. playersInfo.serverId .. "</span><br>" .. _U("PlayerGroup") .. "<span style=color:MediumSeaGreen;>"
@@ -107,7 +101,7 @@ function OpenOnePlayerMenu(table)
                 .. playersInfo.warns .. "</span>",
             info = playersInfo
         }
-    end
+    }
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
             title      = _U("MenuTitle"),
@@ -130,63 +124,73 @@ function OpenOnePlayerMenu(table)
         end)
 end
 
---TODO added to langs
 function PlayerList()
     MenuData.CloseAll()
     local elements = {}
-    local players = GetPlayers()
+    VORP.RpcCall("vorp_admin:Callback:getplayersinfo", function(result)
+        if not result then
+            return
+        end
+        local players = result
+        local sortedPlayers = {} -- Create a new table to store the sorted player list
 
-    table.sort(players, function(a, b)
-        return a.serverId < b.serverId
-    end)
+        for playerid, playersInfo in pairs(players) do
+            sortedPlayers[#sortedPlayers + 1] = playersInfo
+        end
 
-    for k, playersInfo in pairs(players) do
-        elements[#elements + 1] = {
-            label = playersInfo.PlayerName .. "<br> Server id: " .. playersInfo.serverId,
-            value = "players" .. k,
-            desc = _U("SteamName") .. "<span style=color:MediumSeaGreen;> "
-                .. playersInfo.name .. "</span><br>" .. _U("ServerID") .. "<span style=color:MediumSeaGreen;>"
-                .. playersInfo.serverId .. "</span><br>" .. _U("PlayerGroup") .. "<span style=color:MediumSeaGreen;>"
-                .. playersInfo.Group .. "</span><br>" .. _U("PlayerJob") .. "<span style=color:MediumSeaGreen;>"
-                .. playersInfo.Job .. "</span>" .. _U("Grade") .. "<span style=color:MediumSeaGreen;>"
-                .. playersInfo.Grade .. "</span><br>" .. _U("Identifier") .. "<span style=color:MediumSeaGreen;>"
-                .. playersInfo.SteamId .. "</span><br>" .. _U("PlayerMoney") .. "<span style=color:MediumSeaGreen;>"
-                .. playersInfo.Money .. "</span><br>" .. _U("PlayerGold") .. "<span style=color:Gold;>"
-                .. playersInfo.Gold .. "</span><br>" .. _U("PlayerStaticID") .. "<span style=color:Red;>"
-                .. playersInfo.staticID .. "</span><br>" .. _U("PlyaerWhitelist") .. "<span style=color:Gold;>"
-                .. playersInfo.WLstatus .. "</span><br>" .. _U("PlayerWarnings") .. "<span style=color:Gold;>"
-                .. playersInfo.warns .. "</span>",
-            info = playersInfo
-        }
-    end
-
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
-        {
-            title      = _U("MenuTitle"),
-            subtext    = _U("MenuSubtitle2"),
-            align      = 'top-left',
-            elements   = elements,
-            lastmenu   = 'Admin',
-            itemHeight = "4vh",
-        },
-        function(data)
-            if data.current == "backup" then
-                _G[data.trigger]()
-            end
-            if data.current.value then
-                TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.PlayersListSubmenu')
-                Wait(100)
-                if AdminAllowed then
-                    local player = data.current.info
-                    OpenSubAdminMenu(player)
-                else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
-                end
-            end
-        end,
-        function(menu)
-            menu.close()
+        -- Sort players by serverId in ascending order
+        table.sort(sortedPlayers, function(a, b)
+            return a.serverId < b.serverId
         end)
+
+        for _, playersInfo in ipairs(sortedPlayers) do
+            elements[#elements + 1] = {
+                label = playersInfo.PlayerName .. "<br> Server id: " .. playersInfo.serverId,
+                value = "players" .. playersInfo.serverId,
+                desc = _U("SteamName") .. "<span style=color:MediumSeaGreen;> "
+                    .. playersInfo.name .. "</span><br>" .. _U("ServerID") .. "<span style=color:MediumSeaGreen;>"
+                    .. playersInfo.serverId .. "</span><br>" .. _U("PlayerGroup") .. "<span style=color:MediumSeaGreen;>"
+                    .. playersInfo.Group .. "</span><br>" .. _U("PlayerJob") .. "<span style=color:MediumSeaGreen;>"
+                    .. playersInfo.Job .. "</span>" .. _U("Grade") .. "<span style=color:MediumSeaGreen;>"
+                    .. playersInfo.Grade .. "</span><br>" .. _U("Identifier") .. "<span style=color:MediumSeaGreen;>"
+                    .. playersInfo.SteamId .. "</span><br>" .. _U("PlayerMoney") .. "<span style=color:MediumSeaGreen;>"
+                    .. playersInfo.Money .. "</span><br>" .. _U("PlayerGold") .. "<span style=color:Gold;>"
+                    .. playersInfo.Gold .. "</span><br>" .. _U("PlayerStaticID") .. "<span style=color:Red;>"
+                    .. playersInfo.staticID .. "</span><br>" .. _U("PlyaerWhitelist") .. "<span style=color:Gold;>"
+                    .. playersInfo.WLstatus .. "</span><br>" .. _U("PlayerWarnings") .. "<span style=color:Gold;>"
+                    .. playersInfo.warns .. "</span>",
+                info = playersInfo
+            }
+        end
+
+        MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+            {
+                title      = _U("MenuTitle"),
+                subtext    = _U("MenuSubtitle2"),
+                align      = 'top-left',
+                elements   = elements,
+                lastmenu   = 'Admin',
+                itemHeight = "4vh",
+            },
+            function(data)
+                if data.current == "backup" then
+                    _G[data.trigger]()
+                end
+                if data.current.value then
+                    TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.PlayersListSubmenu')
+                    Wait(100)
+                    if AdminAllowed then
+                        local player = data.current.info
+                        OpenSubAdminMenu(player)
+                    else
+                        TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
+                    end
+                end
+            end,
+            function(menu)
+                menu.close()
+            end)
+    end, { search = "all" })
 end
 
 function OpenSubAdminMenu(Player)
@@ -214,7 +218,7 @@ function OpenSubAdminMenu(Player)
                 if AdminAllowed then
                     OpenSimpleActionMenu(Player)
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "advancedaction" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.OpenAdvancedActions')
@@ -222,7 +226,7 @@ function OpenSubAdminMenu(Player)
                 if AdminAllowed then
                     OpenAdvancedActions(Player)
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == 'trollactions' then
                 TriggerServerEvent('vorp_admin:opneStaffMenu', 'vorp.staff.OpenTrollActions')
@@ -230,7 +234,7 @@ function OpenSubAdminMenu(Player)
                 if AdminAllowed then
                     OpenTrollActions(Player)
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             end
         end,
@@ -460,6 +464,7 @@ function OpenSimpleActionMenu(PlayerInfo)
                 local target = data.current.info
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Frezee')
                 Wait(100)
+
                 if AdminAllowed then
                     if target then
                         if not freeze then
@@ -478,7 +483,7 @@ function OpenSimpleActionMenu(PlayerInfo)
                         end
                     end
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "bring" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Bring')
@@ -486,6 +491,8 @@ function OpenSimpleActionMenu(PlayerInfo)
 
                 if AdminAllowed then
                     local target = data.current.info
+
+
                     local adminCoords = GetEntityCoords(PlayerPedId())
                     TriggerServerEvent("vorp_admin:Bring", target, adminCoords)
                     if Config.AdminLogs.Bring then
@@ -494,7 +501,7 @@ function OpenSimpleActionMenu(PlayerInfo)
                             , _U("titleadmin"), _U("usedbring") .. "\n> " .. PlayerInfo.PlayerName)
                     end
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "sendback" then
                 local target = data.current.info
@@ -515,7 +522,7 @@ function OpenSimpleActionMenu(PlayerInfo)
                             , _U("titleadmin"), _U("usedgoto") .. "\n> " .. PlayerInfo.PlayerName)
                     end
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "goback" then
                 if lastLocation then
@@ -534,7 +541,7 @@ function OpenSimpleActionMenu(PlayerInfo)
                             , _U("titleadmin"), _U("usedreviveplayer") .. "\n> " .. PlayerInfo.PlayerName)
                     end
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "heal" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Heal')
@@ -549,7 +556,7 @@ function OpenSimpleActionMenu(PlayerInfo)
                             , _U("titleadmin"), _U("usedhealplayer") .. "\n> " .. PlayerInfo.PlayerName)
                     end
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "warn" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Warn')
@@ -580,7 +587,7 @@ function OpenSimpleActionMenu(PlayerInfo)
                         end
                     end)
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "unwarn" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.UnWarn')
@@ -597,7 +604,7 @@ function OpenSimpleActionMenu(PlayerInfo)
                             , _U("titleadmin"), _U("unwarned") .. "\n > " .. staticID)
                     end
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "spectate" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Spectate')
@@ -612,7 +619,7 @@ function OpenSimpleActionMenu(PlayerInfo)
                             , _U("titleadmin"), _U("usedspectate") .. "\n > " .. PlayerInfo.PlayerName)
                     end
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             end
         end,
@@ -708,7 +715,7 @@ function OpenAdvancedActions(Player)
                             , _U("titleadmin"), _U("usedrespawn") .. "\n > " .. Player.PlayerName)
                     end
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "kick" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Kick')
@@ -737,7 +744,7 @@ function OpenAdvancedActions(Player)
                         end
                     end)
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "ban" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Ban')
@@ -768,7 +775,7 @@ function OpenAdvancedActions(Player)
                         end
                     end)
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "unban" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Unban')
@@ -783,7 +790,7 @@ function OpenAdvancedActions(Player)
                             "\n: " .. staticID)
                     end
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "whitelist" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Whitelist')
@@ -800,7 +807,7 @@ function OpenAdvancedActions(Player)
                             _U("usedwhitelist") .. "\n > " .. Player.PlayerName .. "\n: " .. staticID)
                     end
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "unwhitelist" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Unwhitelist')
@@ -818,7 +825,7 @@ function OpenAdvancedActions(Player)
                             "\n: " .. staticID)
                     end
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "setgroup" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Setgroup')
@@ -843,7 +850,7 @@ function OpenAdvancedActions(Player)
                         end
                     end)
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "setjob" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Setjob')
@@ -876,7 +883,7 @@ function OpenAdvancedActions(Player)
                         end
                     end)
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             end
         end,
@@ -923,7 +930,7 @@ function Actions()
                 if AdminAllowed then
                     TriggerEvent("vorp:delHorse")
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "delwagon" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.DeleteWagon')
@@ -932,7 +939,7 @@ function Actions()
                 if AdminAllowed then
                     Delwagon()
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "delwagonradius" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.DeleteWagonsRadius')
@@ -951,7 +958,7 @@ function Actions()
                         end
                     end)
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "getcoords" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.GetCoords')
@@ -960,7 +967,7 @@ function Actions()
                 if AdminAllowed then
                     OpenCoordsMenu()
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             elseif data.current.value == "announce" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Announce')
@@ -984,7 +991,7 @@ function Actions()
                         end
                     end)
                 else
-                    VORP.NotifyRightTip(_U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
             end
         end,
@@ -1001,6 +1008,8 @@ function OpenCoordsMenu()
         { label = _U("vector3"), value = 'v3',      desc = _U("copyclipboardvector3_desc") },
         { label = _U("vector4"), value = 'v4',      desc = _U("copyclipboardvector4_desc") },
         { label = _U("heading"), value = 'heading', desc = _U("copyclipboardheading_desc") },
+
+
 
     }
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',

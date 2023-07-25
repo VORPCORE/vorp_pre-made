@@ -65,7 +65,7 @@ local function addWeapon(weapon, slot, id)
 
 	if slot == 1 and id then
 		if #equippedWeapons > 0 then
-			local newItemData = DataView.ArrayBuffer(8 * 13)
+			--local newItemData = DataView.ArrayBuffer(8 * 13)
 			local newGUID = moveInventoryItem(inventoryId, equippedWeapons[1].guid, weaponItem:Buffer())
 			if not newGUID then
 				print("can't move item")
@@ -97,7 +97,7 @@ local function addWeapon(weapon, slot, id)
 	Citizen.InvokeNative(0x12FB95FE3D579238, PlayerPedId(), itemData:Buffer(), true, slot, false, false)
 	if move then
 		Citizen.InvokeNative(0x12FB95FE3D579238, PlayerPedId(), equippedWeapons[1].guid, true, 1, false, false)
-		TriggerServerEvent("syn_weapons:applyDupeTint", id, itemData:Buffer())
+		TriggerServerEvent("syn_weapons:applyDupeTint", id, itemData:Buffer(), weaponHash)
 	end
 	if id then
 		local nWeapon = {
@@ -111,13 +111,10 @@ local function addWeapon(weapon, slot, id)
 end
 
 function Weapon:UnequipWeapon()
-	--local hash = joaat(self.name)
 	self:setUsed(false)
 	self:setUsed2(false)
-
 	TriggerServerEvent("vorpinventory:setUsedWeapon", self.id, self:getUsed(), self:getUsed2())
 	self:RemoveWeaponFromPed()
-
 	Utils.cleanAmmo(self.id)
 end
 
@@ -154,12 +151,13 @@ function Weapon:RemoveWeaponFromPed()
 	end
 end
 
-function Weapon:equipwep(issame)
+function Weapon:equipwep()
 	local isWeaponMelee = Citizen.InvokeNative(0x959383DCD42040DA, joaat(self.name))
+	local isWeaponThrowable = Citizen.InvokeNative(0x30E7C16B12DA8211, joaat(self.name))
 	local isWeaponAGun = Citizen.InvokeNative(0x705BE297EEBDB95D, joaat(self.name))
 	local isWeaponOneHanded = Citizen.InvokeNative(0xD955FEE4B87AFA07, joaat(self.name))
 
-	if isWeaponMelee then
+	if isWeaponMelee or isWeaponThrowable then
 		GiveDelayedWeaponToPed(PlayerPedId(), joaat(self.name), 0, true, 0)
 	else
 		if self.used2 then
@@ -178,7 +176,13 @@ function Weapon:equipwep(issame)
 			if isWeaponAGun and isWeaponOneHanded then
 				addWeapon(self.name, 0, self.id)
 			else
-				GiveDelayedWeaponToPed(PlayerPedId(), joaat(self.name), 0, true, 0)
+				local ammoCount = 0
+				for k, v in pairs(Config.nonAmmoThrowables) do
+					if tostring(v) == self.name then
+						ammoCount = 1
+					end
+				end
+				GiveDelayedWeaponToPed(PlayerPedId(), joaat(self.name), ammoCount, true, 0)
 			end
 		end
 	end

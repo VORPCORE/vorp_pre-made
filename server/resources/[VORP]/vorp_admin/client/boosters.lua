@@ -20,7 +20,7 @@ function GODmode()
         SetPlayerInvincible(player, true)
         Citizen.InvokeNative(0xFD6943B6DF77E449, player, false) -- set ped can be lassoed
 
-        if Config.BoosterLogs.GodMode then -- if nil dont send
+        if Config.BoosterLogs.GodMode then                      -- if nil dont send
             TriggerServerEvent("vorp_admin:logs", Config.BoosterLogs.GodMode, _U("titlebooster"),
                 _U("usedgod"))
         end
@@ -93,7 +93,7 @@ function InfiAmmo()
             SetPedInfiniteAmmo(player, true, weaponHash)
             if Config.BoosterLogs.InfiniteAmmo then
                 TriggerServerEvent("vorp_admin:logs", Config.BoosterLogs.InfiniteAmmo, _U("titlebooster")
-                    , _U("usedinfinitammo"))
+                , _U("usedinfinitammo"))
             end
         end
     else
@@ -108,16 +108,19 @@ function Boost()
 
     local elements = {
         { label = _U("godMode"),      value = 'god',          desc = _U("godMode_desc") },
-        { label = _U("noclipMode"), value = 'noclip',
+        {
+            label = _U("noclipMode"),
+            value = 'noclip',
             desc = "<span>" ..
-            _U("move") .. "</span><br><span>" .. _U("speedMode") .. "</span><br>" .. _U("Cammode") .. "" },
+                _U("move") .. "</span><br><span>" .. _U("speedMode") .. "</span><br>" .. _U("Cammode") .. ""
+        },
         { label = _U("goldenCores"),  value = 'goldcores',    desc = _U("goldCores_desc") },
         { label = _U("infiniteammo"), value = 'infiniteammo', desc = _U("infammo_desc") },
         { label = _U("spawnwagon"),   value = 'spawnwagon',   desc = _U("spawnwagon_desc") },
         { label = _U("spawnhorse"),   value = 'spawnhorse',   desc = _U("spawnhorse_desc") },
         { label = _U("selfheal"),     value = 'selfheal',     desc = _U("selfheal_desc") },
         { label = _U("selfrevive"),   value = 'selfrevive',   desc = _U("selfrevive_desc") },
-        { label = _U("invis"), value = 'invisibility', desc = _U('invisnotif') },
+        { label = _U("invis"),        value = 'invisibility', desc = _U('invisnotif') },
         --{ label = "players blip map", value = 'playerblip', desc = "show players blip on the map" }, todo
         --{ label = "players id", value = 'showid', desc = "show players id over head", }, todo
     }
@@ -147,12 +150,12 @@ function Boost()
                 TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.Invisibility")
                 Wait(100)
                 if AdminAllowed then
-                    if invis == false then --if invis is false then
+                    if invis == false then                     --if invis is false then
                         SetEntityVisible(PlayerPedId(), false) --sets you invisible
-                        invis = true --changes the variable to true so if you hit the button again it runs the elseif statment below
-                    elseif invis == true then --if invis variable is true then
-                        SetEntityVisible(PlayerPedId(), true) --sets you too visible
-                        invis = false --changes variable back to false so the next time this is ran it sets you back invisible
+                        invis = true                           --changes the variable to true so if you hit the button again it runs the elseif statment below
+                    elseif invis == true then                  --if invis variable is true then
+                        SetEntityVisible(PlayerPedId(), true)  --sets you too visible
+                        invis = false                          --changes variable back to false so the next time this is ran it sets you back invisible
                     end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
@@ -220,6 +223,11 @@ function Boost()
                     end
                     TriggerEvent('vorp:heal')
                     Config.Heal.Players()
+                    local horse = GetMount(PlayerPedId())
+                    if horse ~= 0 then
+                        Citizen.InvokeNative(0xC6258F41D86676E0, horse, 0, 600) -- Health
+                        Citizen.InvokeNative(0xC6258F41D86676E0, horse, 1, 600) -- Stamina
+                    end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -229,16 +237,16 @@ function Boost()
                 Wait(100)
                 if AdminAllowed then
                     local myInput = {
-                        type = "enableinput", -- dont touch
+                        type = "enableinput",                                                -- dont touch
                         inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = _U("inserthashmodel"), --placeholdername
-                        style = "block", --- dont touch
+                        button = _U("confirm"),                                              -- button name
+                        placeholder = _U("inserthashmodel"),                                 --placeholdername
+                        style = "block",                                                     --- dont touch
                         attributes = {
-                            inputHeader = _U("spawnhorse"), -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[A-Za-z0-9_ \\-]{5,60}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = "wrong syntax", -- if input doesnt match show this message
+                            inputHeader = _U("spawnhorse"),                                  -- header
+                            type = "text",                                                   -- inputype text, number,date.etc if number comment out the pattern
+                            pattern = "[A-Za-z0-9_ \\-]{5,60}",                              -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
+                            title = "wrong syntax",                                          -- if input doesnt match show this message
                             style = "border-radius: 10px; backgRound-color: ; border:none;", -- style  the inptup
                         }
                     }
@@ -272,16 +280,16 @@ function Boost()
                 Wait(100)
                 if AdminAllowed then
                     local myInput = {
-                        type = "enableinput", -- dont touch
+                        type = "enableinput",                                                -- dont touch
                         inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = _U("insertmodel"), --placeholdername
-                        style = "block", --- dont touch
+                        button = _U("confirm"),                                              -- button name
+                        placeholder = _U("insertmodel"),                                     --placeholdername
+                        style = "block",                                                     --- dont touch
                         attributes = {
-                            inputHeader = _U("SpawnWagon"), -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[A-Za-z0-9_ \\-]{5,60}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = "wrong syntax", -- if input doesnt match show this message
+                            inputHeader = _U("SpawnWagon"),                                  -- header
+                            type = "text",                                                   -- inputype text, number,date.etc if number comment out the pattern
+                            pattern = "[A-Za-z0-9_ \\-]{5,60}",                              -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
+                            title = "wrong syntax",                                          -- if input doesnt match show this message
                             style = "border-radius: 10px; backgRound-color: ; border:none;", -- style  the inptup
                         }
                     }
@@ -302,7 +310,7 @@ function Boost()
                             SetPedIntoVehicle(player, wagon, -1)
                             if Config.BoosterLogs.SelfSpawnWagon then
                                 TriggerServerEvent("vorp_admin:logs", Config.BoosterLogs.SelfSpawnWagon
-                                    , _U("titlebooster"), _U("spawned") .. wagon)
+                                , _U("titlebooster"), _U("spawned") .. wagon)
                             end
                         else
                             TriggerEvent('vorp:TipRight', _U("advalue"), 3000)
@@ -480,7 +488,7 @@ Citizen.CreateThread(function()
             if IsDisabledControlPressed(0, Config.Controls.goDown) then
                 zoff = -Config.Offsets.z
             end
-            
+
             if IsDisabledControlPressed(0, Config.Controls.Cancel) then
                 NoClipActive = false
                 break

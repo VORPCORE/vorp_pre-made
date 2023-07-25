@@ -7,14 +7,6 @@ function PromptsAPI:SetupPromptGroup()
 
     ----------------- PromptGroup Specific APIs below -----------------
     function GroupsClass:ShowGroup(text)
-        local playerPed = PlayerPedId()
-        local isDead = IsEntityDead(playerPed)
-
-
-        if isDead then
-            return
-        end
-
         PromptSetActiveGroupThisFrame(self.PromptGroup, CreateVarString(10, 'LITERAL_STRING', CheckVar(text, 'Prompt Info')))
     end
 
@@ -59,8 +51,12 @@ function PromptsAPI:SetupPromptGroup()
         PromptRegisterEnd(PromptClass.Prompt)
     
         ----------------- Prompt Specific APIs below -----------------
-        function PromptClass:TogglePrompt(toggle)
-            Citizen.InvokeNative(0x71215ACCFDE075EE, self.Prompt, toggle)
+         function PromptClass:TogglePrompt(toggle)
+            UiPromptSetVisible(self.Prompt, toggle)
+        end
+
+        function PromptClass:EnabledPrompt(toggle)
+            PromptSetEnabled(self.Prompt, toggle)
         end
 
         function PromptClass:DeletePrompt()

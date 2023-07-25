@@ -16,6 +16,7 @@
 ## :receipt: requirement
 
 * [menuapi](https://github.com/outsider31000/menuapi)
+* [oxmysql](https://github.com/overextended/oxmysql)
 
 # license
 

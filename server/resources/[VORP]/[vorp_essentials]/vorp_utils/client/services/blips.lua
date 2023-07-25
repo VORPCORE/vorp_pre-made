@@ -8,8 +8,11 @@ function BlipAPI:SetBlip(name, sprite, scale, x, y, z)
     BlipClass.y = y
     BlipClass.z = z
     BlipClass.RadiusBlip = nil
-
-    SetBlipSprite(BlipClass.rawblip, GetHashKey(sprite), true)
+    
+    if type(sprite) == "string" then
+        sprite = joaat(sprite)
+    end
+    SetBlipSprite(BlipClass.rawblip, sprite, true)
     SetBlipScale(BlipClass.rawblip, scale)
     Citizen.InvokeNative(0x9CB1A1623062F402, BlipClass.rawblip, name)
 

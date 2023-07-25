@@ -15,9 +15,7 @@ InventoryApiService.addItem = function(itemData)
     NUIService.LoadInv()
 end
 
----@param id number
----@param qty number
----@param metadata table
+
 InventoryApiService.subItem = function(id, qty, metadata)
     if UserInventory[id] == nil then
         return
@@ -39,46 +37,36 @@ InventoryApiService.SetItemMetadata = function(id, metadata)
     NUIService.LoadInv()
 end
 
----@param weaponId number
+
 InventoryApiService.subWeapon = function(weaponId)
     if UserWeapons[weaponId] ~= nil then
         if UserWeapons[weaponId]:getUsed() then
-            RemoveWeaponFromPed(PlayerPedId(), GetHashKey(UserWeapons[weaponId]:getName()), true, 0)
+            UserWeapons[weaponId]:setUsed(false)
+            UserWeapons[weaponId]:UnequipWeapon()
         end
         Utils.TableRemoveByKey(UserWeapons, weaponId)
     end
     NUIService.LoadInv()
 end
 
----@param weaponId number
----@param bulletType string
----@param qty number
+
 InventoryApiService.addWeaponBullets = function(bulletType, qty)
-    SetPedAmmoByType(PlayerPedId(), GetHashKey(bulletType), qty)
-    --[[ if UserWeapons[weaponId] ~= nil then
-        UserWeapons[weaponId]:addAmmo(bulletType, qty)
-        if UserWeapons[weaponId]:getUsed() then
-            SetPedAmmoByType(PlayerPedId(), GetHashKey(bulletType), UserWeapons[weaponId]:getAmmo(bulletType))
-        end
-    end ]]
+    SetPedAmmoByType(PlayerPedId(), joaat(bulletType), qty)
     NUIService.LoadInv()
 end
 
----@param weaponId number
----@param bulletType string
----@param qty number
+
 InventoryApiService.subWeaponBullets = function(weaponId, bulletType, qty)
     if UserWeapons[weaponId] ~= nil then
         UserWeapons[weaponId]:subAmmo(bulletType, qty)
         if UserWeapons[weaponId]:getUsed() then
-            SetPedAmmoByType(PlayerPedId(), GetHashKey(bulletType), UserWeapons[weaponId]:getAmmo(bulletType))
+            SetPedAmmoByType(PlayerPedId(), joaat(bulletType), UserWeapons[weaponId]:getAmmo(bulletType))
         end
     end
     NUIService.LoadInv()
 end
 
----@param weaponId number
----@param component string
+
 InventoryApiService.addComponent = function(weaponId, component)
     if UserWeapons[weaponId] ~= nil then
         for _, v in pairs(UserWeapons[weaponId]:getAllComponents()) do
@@ -89,15 +77,14 @@ InventoryApiService.addComponent = function(weaponId, component)
 
         UserWeapons[weaponId]:setComponent(component)
         if UserWeapons[weaponId]:getUsed() then
-            Citizen.InvokeNative(0x4899CB088EDF59B8, PlayerPedId(), GetHashKey(UserWeapons[weaponId]:getName()), true, 0)
+            Citizen.InvokeNative(0x4899CB088EDF59B8, PlayerPedId(), joaat(UserWeapons[weaponId]:getName()), true, 0)
             UserWeapons[weaponId]:equipwep()
             UserWeapons[weaponId]:loadComponents()
         end
     end
 end
 
----@param weaponId number
----@param component string
+
 InventoryApiService.subComponent = function(weaponId, component)
     if UserWeapons[weaponId] ~= nil then
         for _, v in pairs(UserWeapons[weaponId]:getAllComponents()) do
@@ -108,7 +95,7 @@ InventoryApiService.subComponent = function(weaponId, component)
 
         UserWeapons[weaponId]:quitComponent(component)
         if UserWeapons[weaponId]:getUsed() then
-            Citizen.InvokeNative(0x4899CB088EDF59B8, PlayerPedId(), GetHashKey(UserWeapons[weaponId]:getName()), true, 0)
+            Citizen.InvokeNative(0x4899CB088EDF59B8, PlayerPedId(), joaat(UserWeapons[weaponId]:getName()), true, 0)
             UserWeapons[weaponId]:equipwep()
             UserWeapons[weaponId]:loadComponents()
         end

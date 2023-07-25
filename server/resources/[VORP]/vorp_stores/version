@@ -1,3 +1,10 @@
+<2.1>
+- movable stores for example black markets so they are not always at the same place will randomly pick a location every restart
+- you dont need to set a location to both sell and buy configs , you can just set one or the other or both
+- update all files including fxmanifest
+<2.0>
+- total rewrite of the script now offering weapons to be sold and more
+- you will have to config the script to make new changes
 <1.6>
 - fix for npcs not spawning when  StoreHoursAllowed is set to false
 - update client.lua

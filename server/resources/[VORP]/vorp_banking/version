@@ -1,5 +1,12 @@
+<1.5>
+- Improving translation.
+- changed exports.oxmysql:execute to MySQL.
+- fix(client) close menu after deposit or withdraw, fix dump money after player disconnect ethernet.
+- Add dependency oxmysql in fxmanifest.
+
 <1.4>
 - bank now has support for metadata update all files including fxmanifest
+
 <1.3>
 - added set gold for each bank
 - added set items for each bank

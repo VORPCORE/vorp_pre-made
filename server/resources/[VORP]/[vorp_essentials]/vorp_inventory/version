@@ -1,3 +1,9 @@
+<2.7>
+- small fixes on weapon use
+- fix for when transfering weapons that are set as equiped  would not let use other weapons
+- fix when using dual weapon and player uses a 2 handed weapon whould not remove one of the dual weapons.
+- udapte fxmanifest as always
+- added option to config to delete items instead only and not dropping boxes
 <2.6>
 - in this version we have removed exports and added mysql linting
 - removed unsecured events 

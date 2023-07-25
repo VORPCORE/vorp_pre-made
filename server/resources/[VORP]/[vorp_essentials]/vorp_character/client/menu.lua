@@ -1465,14 +1465,14 @@ function OpenLifeStyleMenu(table)
             --* Texture
             if data.current.tag == "texture" then
                 if data.current.value > 0 then
-                    PlayerSkin[data.current.visibility] = 1
+                    --PlayerSkin[data.current.visibility] = 1
                     PlayerSkin[data.current.txt_id] = data.current.value
                     toggleOverlayChange(data.current.name, PlayerSkin[data.current.visibility],
                         PlayerSkin[data.current.txt_id], 0, 0, 1,
                         1.0, 0, 0, 0, 0, 0,
                         1, PlayerSkin[data.current.opac], PlayerSkin.albedo)
                 else
-                    PlayerSkin[data.current.visibility] = 1
+                    -- PlayerSkin[data.current.visibility] = 0
                     PlayerSkin[data.current.txt_id] = 0
                     toggleOverlayChange(data.current.name, PlayerSkin[data.current.visibility],
                         PlayerSkin[data.current.txt_id], 0, 0, 1,
@@ -1566,9 +1566,16 @@ function OpenMakeupMenu(table)
                 tag = "texture"
             }
             --*Color
+            local ColorValue = 0
+            for x, color in pairs(Config.color_palettes[key]) do
+                if joaat(color) == PlayerSkin[overlayLookup[key].color] then
+                    ColorValue = x
+                end
+            end
+
             elements[#elements + 1] = {
                 label = overlayLookup[key].label .. ' ' .. T.MenuMakeup.element6.label,
-                value = PlayerSkin[overlayLookup[key].opacity],
+                value = ColorValue,
                 min = 0,
                 max = 10,
                 comp = Config.color_palettes[key],
@@ -1585,10 +1592,17 @@ function OpenMakeupMenu(table)
 
             -- if key == "lipsticks" or key == "eyeliners" then
             if key == "lipsticks" then
+                local Color2Value = 0
+                for x, color in pairs(Config.color_palettes[key]) do
+                    if joaat(color) == PlayerSkin[overlayLookup[key].color2] then
+                        Color2Value = x
+                    end
+                end
+
                 --*Color 2
                 elements[#elements + 1] = {
                     label = overlayLookup[key].label .. ' ' .. T.MenuMakeup.element7.label,
-                    value = PlayerSkin[overlayLookup[key].opacity],
+                    value = Color2Value,
                     min = 0,
                     max = 10,
                     type = "slider",
@@ -1610,7 +1624,7 @@ function OpenMakeupMenu(table)
                 --*Variant
                 elements[#elements + 1] = {
                     label = overlayLookup[key].label .. ' ' .. T.MenuMakeup.element8.label,
-                    value = 0,
+                    value = PlayerSkin[overlayLookup[key].variant] or 0,
                     min = 0,
                     max = overlayLookup[key].varvalue,
                     type = "slider",
@@ -1665,7 +1679,7 @@ function OpenMakeupMenu(table)
 
             if data.current.tag == "texture" then
                 --* texture id
-                if data.current.value < 0 then
+                if data.current.value <= 0 then
                     PlayerSkin[data.current.visibility] = 0
                 else
                     PlayerSkin[data.current.visibility] = 1
@@ -1710,7 +1724,7 @@ function OpenMakeupMenu(table)
 
             if data.current.tag == "opacity" then
                 --* opacity
-                if data.current.value < 0 then
+                if data.current.value <= 0 then
                     PlayerSkin[data.current.visibility] = 0
                 else
                     PlayerSkin[data.current.visibility] = 1

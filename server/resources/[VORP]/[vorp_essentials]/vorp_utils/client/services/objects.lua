@@ -13,7 +13,7 @@ function ObjectAPI:Create(modelhash, x, y, z, heading, networked, method)
     ObjClass.Obj = CreateObject(hash, x, y, z, CheckVar(networked, true))
     SetEntityHeading(ObjClass.Obj, heading)
 
-    if CheckVar(method, "standard") == standard then
+    if CheckVar(method, "standard") == "standard" then
         PlaceObjectOnGroundProperly(ObjClass.Obj, true)
         FreezeEntityPosition(ObjClass.Obj, true)
     end

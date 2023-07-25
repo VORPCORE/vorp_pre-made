@@ -1,391 +1,534 @@
 Config = {}
 
--- TODO
--- CAMERA FACE NPC
--- NPC ANIMATION
+Lang = "English"
 
---menu position
+-- menu position
 -- "center" / "top-left" / "top-right"
 Config.Align = "top-left"
+Config.DevMode = false -- if true you can use /reload to reload the script
 
-Config.defaultlang = "en_lang"
+-- Webhook Section, description is in translation
+Config.UseWebhook = false -- Use webhook
+Config.WebhookLanguage = {
+    WebhookUrl = "",
+    WebhookTitle = "",
+    WebhookColor = "",
+    WebhookName = "",
+    WebhookLogo = "",
+    WebhookLogo2 = "",
+    WebhookAvatar = ""
+}
+-- if you have UI you want to hid use it in this function
+-- remove what you dont use
+Config.UI = function(state)
+    if state then
+        --ExecuteCommand("hideneeds hidden")
+        ExecuteCommand("hideui")
+        TriggerEvent('vorpmetabolism:setHud', false)
+    else
+        -- ExecuteCommand("hideneeds visible")
+        ExecuteCommand("showui")
+        TriggerEvent('vorpmetabolism:setHud', true)
+    end
+end
+
 
 -- open stores
-Config.Key = 0x760A9C6F --[G]
+Config.Key = 0x760A9C6F --[G] open stores
 
---- STORES ---
 Config.Stores = {
+    -- any name you want sell items and buy items must have same name
     Valentine = {
-        blipAllowed = true,
-        BlipName = "valentine store",
-        storeName = "valentine",
-        PromptName = "general store",
-        sprite = 1475879922,
-        x = -324.628, y = 803.9818, z = 116.88, h = -81.17, --blip/ prompt and npc positions
-        distanceOpenStore = 3.0,
-        NpcAllowed = true,
-        NpcModel = "U_M_M_NbxGeneralStoreOwner_01",
-        AllowedJobs = {}, -- empty everyone can use
-        JobGrade = 0, -- rank allowed
-        category = { "food", "tools", "meds" }, -- you need to add the same words to the sellitems and buyitems category you can add new categories as long the items have the category names
-        storeType = { "sell", "buy" }, -- choose the storetype if you translate this you must do the same in the client.lua file
-        StoreHoursAllowed = true, -- if you want the stores to use opening and closed hours
-        RandomPrices = true,
-        StoreOpen = 7, -- am
-        StoreClose = 21, -- pm
-        DynamicStore = true, -- set to true if you want to increase buy limit again when someone has sold the same item to the store
-        LimitedItems = { --delete or leave empty if you don't want the store to to buy only a certain quantity of an item
-            {itemName="apple", amount=10, type="sell"},  --add as many items you want and set limit sell amount (obviously the item has to be in Config.SellItems)
-            {itemName="bandage", amount=10, type="buy"}  --add as many items you want and set limit buy amount (obviously the item has to be in Config.BuyItems)
-        }
+
+        useRandomLocation = false, -- if true it will pick a random location from the list bellow, good thing for a store that can move and not always in the same place and npc
+        possibleLocations = {
+            OpenMenu = {
+                -- vector3(-324.628, 803.9818, 116.88), -- valentine
+                -- add more it will pick a random location from the list
+            },
+            Npcs = {
+                -- vector4(-324.628, 803.9818, 116.88, -81.17), --valentine
+                -- add more it will pick a random location from the list
+            }
+
+        },
+
+        Blip = {
+            Allowed = true,                            -- allow blip to show on map?
+            Name = "valentine store",                  -- blip name
+            sprite = 1475879922,                       -- blip sprite
+            Pos = vector3(-324.628, 803.9818, 116.88), -- blip position and prompt press open position
+        },
+
+        Npc = {
+            Pos = vector4(-324.628, 803.9818, 116.88, -81.17), -- npc position
+            distanceRemoveNpc = 20.0,                          -- distance to remove npc
+            Allowed = true,                                    -- allow npc to spawn?
+            Model = "U_M_M_NbxGeneralStoreOwner_01",           -- npc model to spawn
+        },
+
+        -- * store categories allow which category to show in the store
+        category = {
+            { label = "food",    Type = "food",    desc = "delicious food", img = "consumable_bread_roll" },
+            { label = "tools",   Type = "tools",   desc = "useful tools",   img = "butcher_table_production" },
+            { label = "Weapons", Type = "weapons", desc = "buy weapons",    img = "butcher_table_production" },
+        },
+        -- * store type allow which type of store to show in the store
+        -- * buy and sell USE ENGLISH ONLY
+        storeType = {
+            { label = "Buy", Type = "buy", desc = "Buy from store", img = "consumable_bread_roll" },
+            --{ label = "Sell", Type = "sell", desc = "Sell to store",  img = "butcher_table_production" },
+        },
+
+        storeName = "valentine",      -- menu name
+        PromptName = "general store", -- prompt name
+        AllowedJobs = {},             -- if empty everyone can use or do {"police", "sheriff"}
+        JobGrade = 1,                 -- use ranks
+        StoreHoursAllowed = true,     -- if you want the stores to use opening and closed hours
+        RandomPrices = true,          -- prices of items will be random every restart if set to true based on the prices you added in the config items
+        distanceOpenStore = 3.0,      -- distance to open store
+        StoreOpen = 7,                -- am
+        StoreClose = 21,              -- pm
+        DynamicStore = true,          -- if true what you sell to the store will increase the stock of the store if in each item you add a value for stock
+
     },
 
     Rhodes = {
-        blipAllowed = true,
-        BlipName = "Rhodes Store",
+
+        useRandomLocation = false, -- if true it will pick a random location from the list bellow, good thing for a store that can move and not always in the same place and npc
+        possibleLocations = {
+            OpenMenu = {
+                -- vector3(-324.628, 803.9818, 116.88), -- valentine
+                -- add more it will pick a random location from the list
+            },
+            Npcs = {
+                -- vector4(-324.628, 803.9818, 116.88, -81.17), --valentine
+                -- add more it will pick a random location from the list
+            }
+
+        },
+        Blip = {
+            Allowed = true,
+            Name = "rhodes store",
+            sprite = 1475879922,
+            Pos = vector3(1330.227, -1293.41, 76.021),
+        },
+        Npc = {
+            Pos = vector4(1330.227, -1293.41, 76.021, 68.88),
+            distanceRemoveNpc = 20.0,
+            Allowed = true,
+            Model = "S_M_M_UNIBUTCHERS_01",
+        },
+
         storeName = "Rhodes",
         PromptName = " general store",
-        sprite = 1475879922,
-        x = 1330.227, y = -1293.41, z = 76.021, h = 68.88,
         distanceOpenStore = 5.0,
-        NpcAllowed = true,
-        NpcModel = "S_M_M_UNIBUTCHERS_01",
-        AllowedJobs = { "police", "sheriff" }, -- jobs allowed as many as you want
+        AllowedJobs = {},
         JobGrade = 0,
-        category = { "food", "tools", "meds" },
-        storeType = { "sell", "buy" },
+        -- * store categories allow which category to show in the store
+        category = {
+            { label = "food",  Type = "food",  desc = "delicious food", img = "consumable_bread_roll" },
+            { label = "tools", Type = "tools", desc = "useful tools",   img = "butcher_table_production" },
+        },
+        -- * store type allow which type of store to show in the store
+        storeType = {
+            { label = "Buy ",  Type = "buy",  desc = "Buy from store", img = "consumable_bread_roll" },
+            { label = "Sell ", Type = "sell", desc = "Sell to store",  img = "butcher_table_production" }
+
+        },
         StoreHoursAllowed = true,
         RandomPrices = true,
-        StoreOpen = 8, -- am
-        StoreClose = 20, -- pm
-        DynamicStore = true, -- set to true if you want to increase buy limit again when someone has sold the same item to the store
-        LimitedItems = { --delete or leave empty if you don't want the store to to buy only a certain quantity of an item
-            {itemName="apple", amount=10, type="sell"},  --add as many items you want and set limit sell amount (obviously the item has to be in Config.SellItems)
-            {itemName="bandage", amount=10, type="buy"}  --add as many items you want and set limit buy amount (obviously the item has to be in Config.BuyItems)
-        }
+        StoreOpen = 8,
+        StoreClose = 20,
+        DynamicStore = true,
+
     },
     Strawberry = {
-        blipAllowed = true,
-        BlipName = "Strawberry Store",
+        useRandomLocation = false, -- if true it will pick a random location from the list bellow, good thing for a store that can move and not always in the same place and npc
+        possibleLocations = {
+            OpenMenu = {
+                -- vector3(-324.628, 803.9818, 116.88), -- valentine
+                -- add more it will pick a random location from the list
+            },
+            Npcs = {
+                -- vector4(-324.628, 803.9818, 116.88, -81.17), --valentine
+                -- add more it will pick a random location from the list
+            }
+
+        },
+
+        Blip = {
+            Allowed = true,
+            Name = "strawberry store",
+            sprite = 1475879922,
+            Pos = vector3(-1789.66, -387.918, 159.32),
+
+        },
+
+        Npc = {
+            Pos = vector4(-1789.66, -387.918, 159.32, 56.96),
+            distanceRemoveNpc = 20.0,
+            Allowed = true,
+            Model = "S_M_M_UNIBUTCHERS_01",
+        },
         storeName = "Strawberry",
         PromptName = "general store",
-        sprite = 1475879922,
-        x = -1789.66, y = -387.918, z = 159.32, h = 56.96,
-        distanceOpenStore = 5.0,
-        NpcAllowed = true,
-        NpcModel = "S_M_M_UNIBUTCHERS_01",
-        AllowedJobs = {}, -- jobs allowed
+        distanceOpenStore = 3.0,
+        AllowedJobs = {},
         JobGrade = 0,
-        category = { "food", "tools", "meds" },
-        storeType = { "sell", "buy" },
+        -- * store categories allow which category to show in the store
+        category = {
+            { label = "food",  Type = "food",  desc = "delicious food", img = "consumable_bread_roll" },
+            { label = "tools", Type = "tools", desc = "useful tools",   img = "butcher_table_production" },
+        },
+        -- * store type allow which type of store to show in the store
+        storeType = {
+            { label = "Buy ",  Type = "buy",  desc = "Buy from store", img = "consumable_bread_roll" },
+            { label = "Sell ", Type = "sell", desc = "Sell to store",  img = "butcher_table_production" }
+
+        },
         StoreHoursAllowed = true,
         RandomPrices = true,
-        StoreOpen = 6, -- am
-        StoreClose = 23, -- pm
-        DynamicStore = true, -- set to true if you want to increase buy limit again when someone has sold the same item to the store
-        LimitedItems = { --delete or leave empty if you don't want the store to to buy only a certain quantity of an item
-            {itemName="apple", amount=10, type="sell"},  --add as many items you want and set limit sell amount (obviously the item has to be in Config.SellItems)
-            {itemName="bandage", amount=10, type="buy"}  --add as many items you want and set limit buy amount (obviously the item has to be in Config.BuyItems)
-        }
+        StoreOpen = 6,
+        StoreClose = 23,
+        DynamicStore = true,
+
     },
     Blackwater = {
-        blipAllowed = true,
-        BlipName = "Blackwater Store",
+        useRandomLocation = false, -- if true it will pick a random location from the list bellow, good thing for a store that can move and not always in the same place and npc
+        possibleLocations = {
+            OpenMenu = {
+                -- vector3(-324.628, 803.9818, 116.88), -- valentine
+                -- add more it will pick a random location from the list
+            },
+            Npcs = {
+                -- vector4(-324.628, 803.9818, 116.88, -81.17), --valentine
+                -- add more it will pick a random location from the list
+            }
+
+        },
+        Blip = {
+            Allowed = true,
+            Name = "Blackwater Store",
+            sprite = 1475879922,
+            Pos = vector3(-784.738, -1321.73, 42.884),
+        },
+        Npc = {
+            Pos = vector4(-784.738, -1321.73, 42.884, 179.63),
+            distanceRemoveNpc = 20.0,
+            Allowed = true,
+            Model = "S_M_M_UNIBUTCHERS_01",
+        },
         storeName = "Blackwater",
         PromptName = "general store",
-        sprite = 1475879922,
-        x = -784.738, y = -1321.73, z = 42.884, h = 179.63,
         distanceOpenStore = 5.0,
-        NpcAllowed = true,
-        NpcModel = "S_M_M_UNIBUTCHERS_01",
-        AllowedJobs = {}, -- jobs allowed
+        AllowedJobs = {},
         JobGrade = 0,
-        category = { "food", "tools", "meds" },
-        storeType = { "sell", "buy" }, -- only one type
+        -- * store categories allow which category to show in the store
+        category = {
+            { label = "food",  Type = "food",  desc = "delicious food", img = "consumable_bread_roll" },
+            { label = "tools", Type = "tools", desc = "useful tools",   img = "butcher_table_production" },
+        },
+        -- * store type allow which type of store to show in the store
+        storeType = {
+            { label = "Buy ",  Type = "buy",  desc = "Buy from store", img = "consumable_bread_roll" },
+            { label = "Sell ", Type = "sell", desc = "Sell to store",  img = "butcher_table_production" }
+
+        },
         StoreHoursAllowed = true,
         RandomPrices = true,
-        StoreOpen = 7, -- am
-        StoreClose = 21, -- pm
-        DynamicStore = true, -- set to true if you want to increase buy limit again when someone has sold the same item to the store
-        LimitedItems = { --delete or leave empty if you don't want the store to to buy only a certain quantity of an item
-            {itemName="apple", amount=10, type="sell"},  --add as many items you want and set limit sell amount (obviously the item has to be in Config.SellItems)
-            {itemName="bandage", amount=10, type="buy"}  --add as many items you want and set limit buy amount (obviously the item has to be in Config.BuyItems)
-        }
+        StoreOpen = 7,
+        StoreClose = 21,
+        DynamicStore = true,
+
     },
     Armadillo = {
-        blipAllowed = true,
-        BlipName = "Armadillo Store",
+        useRandomLocation = false, -- if true it will pick a random location from the list bellow, good thing for a store that can move and not always in the same place and npc
+        possibleLocations = {
+            OpenMenu = {
+                -- vector3(-324.628, 803.9818, 116.88), -- valentine
+                -- add more it will pick a random location from the list
+            },
+            Npcs = {
+                -- vector4(-324.628, 803.9818, 116.88, -81.17), --valentine
+                -- add more it will pick a random location from the list
+            }
+
+        },
+        Blip = {
+            Allowed = true,
+            Name = "Armadillo Store",
+            sprite = 1475879922,
+            Pos = vector3(-3687.34, -2623.53, -13.43),
+        },
+        Npc = {
+            Pos = vector4(-3687.34, -2623.53, -13.43, -85.32),
+            distanceRemoveNpc = 20.0,
+            Allowed = true,
+            Model = "S_M_M_UNIBUTCHERS_01",
+        },
+
         storeName = "Armadillo",
         PromptName = "general store",
-        sprite = 1475879922,
-        x = -3687.34, y = -2623.53, z = -13.43, h = -85.32,
         distanceOpenStore = 3.0,
-        NpcAllowed = true,
-        NpcModel = "U_M_M_NbxGeneralStoreOwner_01",
-        AllowedJobs = {}, -- jobs allowed
+        AllowedJobs = {},
         JobGrade = 0,
-        category = { "food", "tools", "meds" },
-        storeType = { "sell", "buy" },
+        -- * store categories allow which category to show in the store
+        category = {
+            { label = "food",  Type = "food",  desc = "delicious food", img = "consumable_bread_roll" },
+            { label = "tools", Type = "tools", desc = "useful tools",   img = "butcher_table_production" },
+        },
+        -- * store type allow which type of store to show in the store
+        storeType = {
+            { label = "Buy ",  Type = "buy",  desc = "Buy from store", img = "consumable_bread_roll" },
+            { label = "Sell ", Type = "sell", desc = "Sell to store",  img = "butcher_table_production" }
+
+        },
         StoreHoursAllowed = true,
         RandomPrices = true,
-        StoreOpen = 7, -- am
-        StoreClose = 21, -- pm
-        DynamicStore = true, -- set to true if you want to increase buy limit again when someone has sold the same item to the store
-        LimitedItems = { --delete or leave empty if you don't want the store to to buy only a certain quantity of an item
-            {itemName="apple", amount=10, type="sell"},  --add as many items you want and set limit sell amount (obviously the item has to be in Config.SellItems)
-            {itemName="bandage", amount=10, type="buy"}  --add as many items you want and set limit buy amount (obviously the item has to be in Config.BuyItems)
-        }
+        StoreOpen = 7,
+        StoreClose = 21,
+        DynamicStore = true,
+
     },
     Tumbleweed = {
-        blipAllowed = true,
-        BlipName = "Tumbleweed Store",
+        useRandomLocation = false, -- if true it will pick a random location from the list bellow, good thing for a store that can move and not always in the same place and npc
+        possibleLocations = {
+            OpenMenu = {
+                -- vector3(-324.628, 803.9818, 116.88), -- valentine
+                -- add more it will pick a random location from the list
+            },
+            Npcs = {
+                -- vector4(-324.628, 803.9818, 116.88, -81.17), --valentine
+                -- add more it will pick a random location from the list
+            }
+
+        },
+        Blip = {
+            Allowed = true,
+            Name = "Tumbleweed Store",
+            sprite = 1475879922,
+            Pos = vector3(-5485.70, -2938.08, -0.299),
+        },
+        Npc = {
+            Pos = vector4(-5485.70, -2938.08, -0.299, 127.72),
+            distanceRemoveNpc = 20.0,
+            Allowed = true,
+            Model = "S_M_M_UNIBUTCHERS_01",
+        },
         storeName = "Tumbleweed",
         PromptName = "general store",
-        sprite = 1475879922,
-        x = -5485.70, y = -2938.08, z = -0.299, h = 127.72,
         distanceOpenStore = 3.0,
-        NpcAllowed = true,
-        NpcModel = "U_M_M_NbxGeneralStoreOwner_01",
-        AllowedJobs = {}, -- jobs allowed
+        AllowedJobs = {},
         JobGrade = 0,
-        category = { "food", "tools", "meds" },
-        storeType = { "sell", "buy" }, -- only one type
+        -- * store categories allow which category to show in the store
+        category = {
+            { label = "food",  Type = "food",  desc = "delicious food", img = "consumable_bread_roll" },
+            { label = "tools", Type = "tools", desc = "useful tools",   img = "butcher_table_production" },
+        },
+        -- * store type allow which type of store to show in the store
+        storeType = {
+            { label = "Buy ",  Type = "buy",  desc = "Buy from store", img = "consumable_bread_roll" },
+            { label = "Sell ", Type = "sell", desc = "Sell to store",  img = "butcher_table_production" }
+
+        },
         StoreHoursAllowed = true,
         RandomPrices = true,
-        StoreOpen = 7, -- am
-        StoreClose = 21, -- pm
-        DynamicStore = true, -- set to true if you want to increase buy limit again when someone has sold the same item to the store
-        LimitedItems = { --delete or leave empty if you don't want the store to to buy only a certain quantity of an item
-            {itemName="apple", amount=10, type="sell"},  --add as many items you want and set limit sell amount (obviously the item has to be in Config.SellItems)
-            {itemName="bandage", amount=10, type="buy"}  --add as many items you want and set limit buy amount (obviously the item has to be in Config.BuyItems)
-        }
+        StoreOpen = 7,
+        StoreClose = 21,
+        DynamicStore = true,
     },
     StDenis = {
-        blipAllowed = true,
-        BlipName = "ST Denis Store",
+        useRandomLocation = false, -- if true it will pick a random location from the list bellow, good thing for a store that can move and not always in the same place and npc
+        possibleLocations = {
+            OpenMenu = {
+                -- vector3(-324.628, 803.9818, 116.88), -- valentine
+                -- add more it will pick a random location from the list
+            },
+            Npcs = {
+                -- vector4(-324.628, 803.9818, 116.88, -81.17), --valentine
+                -- add more it will pick a random location from the list
+            }
+
+        },
+        Blip = {
+            Allowed = true,
+            Name = "St Denis Store",
+            sprite = 1475879922,
+            Pos = vector3(2824.863, -1319.74, 45.755),
+        },
+        Npc = {
+            Pos = vector4(2824.863, -1319.74, 45.755, -39.61),
+            distanceRemoveNpc = 20.0,
+            Allowed = true,
+            Model = "U_M_M_NbxGeneralStoreOwner_01",
+        },
+
         storeName = "ST Denis",
         PromptName = "general store",
-        sprite = 1475879922,
-        x = 2824.863, y = -1319.74, z = 45.755, h = -39.61,
         distanceOpenStore = 2.0,
-        NpcAllowed = true,
-        NpcModel = "U_M_M_NbxGeneralStoreOwner_01",
-        AllowedJobs = {}, -- jobs allowed
+        AllowedJobs = {},
         JobGrade = 0,
-        category = { "food", "tools", "meds" },
-        storeType = { "sell", "buy" }, -- only one type
+        -- * store categories allow which category to show in the store
+        category = {
+            { label = "food",  Type = "food",  desc = "delicious food", img = "consumable_bread_roll" },
+            { label = "tools", Type = "tools", desc = "useful tools",   img = "butcher_table_production" },
+        },
+        -- * store type allow which type of store to show in the store
+        storeType = {
+            { label = "Buy ",  Type = "buy",  desc = "Buy from store", img = "consumable_bread_roll" },
+            { label = "Sell ", Type = "sell", desc = "Sell to store",  img = "butcher_table_production" }
+
+        },
         StoreHoursAllowed = true,
         RandomPrices = true,
-        StoreOpen = 7, -- am
-        StoreClose = 21, -- pm
-        DynamicStore = true, -- set to true if you want to increase buy limit again when someone has sold the same item to the store
-        LimitedItems = { --delete or leave empty if you don't want the store to to buy only a certain quantity of an item
-            {itemName="apple", amount=10, type="sell"},  --add as many items you want and set limit sell amount (obviously the item has to be in Config.SellItems)
-            {itemName="bandage", amount=10, type="buy"}  --add as many items you want and set limit buy amount (obviously the item has to be in Config.BuyItems)
-        }
+        StoreOpen = 7,
+        StoreClose = 21,
+        DynamicStore = true,
+
     },
     Vanhorn = {
-        blipAllowed = true,
-        BlipName = "Vanhorn Store",
+        useRandomLocation = false, -- if true it will pick a random location from the list bellow, good thing for a store that can move and not always in the same place and npc
+        possibleLocations = {
+            OpenMenu = {
+                -- vector3(-324.628, 803.9818, 116.88), -- valentine
+                -- add more it will pick a random location from the list
+            },
+            Npcs = {
+                -- vector4(-324.628, 803.9818, 116.88, -81.17), --valentine
+                -- add more it will pick a random location from the list
+            }
+
+        },
+        Blip = {
+            Allowed = true,
+            Name = "Vanhorn Store",
+            sprite = 1475879922,
+            Pos = vector3(3025.420, 561.7910, 43.722),
+        },
+        Npc = {
+            Pos = vector4(3025.420, 561.7910, 43.722, -99.20),
+            distanceRemoveNpc = 20.0,
+            Allowed = true,
+            Model = "U_M_M_NbxGeneralStoreOwner_01",
+        },
         storeName = "Vanhorn",
         PromptName = "general store",
-        sprite = 1475879922,
-        x = 3025.420, y = 561.7910, z = 43.722, h = -99.20,
         distanceOpenStore = 2.5,
-        NpcAllowed = true,
-        NpcModel = "U_M_M_NbxGeneralStoreOwner_01",
-        AllowedJobs = {}, -- jobs allowed
+        AllowedJobs = {},
         JobGrade = 0,
-        category = { "food", "tools", "meds" },
-        storeType = { "sell", "buy" }, -- only one type
+        -- * store categories allow which category to show in the store
+        category = {
+            { label = "food",  Type = "food",  desc = "delicious food", img = "consumable_bread_roll" },
+            { label = "tools", Type = "tools", desc = "useful tools",   img = "butcher_table_production" },
+        },
+        -- * store type allow which type of store to show in the store
+        storeType = {
+            { label = "Buy ",  Type = "buy",  desc = "Buy from store", img = "consumable_bread_roll" },
+            { label = "Sell ", Type = "sell", desc = "Sell to store",  img = "butcher_table_production" }
+
+        },
         StoreHoursAllowed = true,
         RandomPrices = true,
-        StoreOpen = 7, -- am
-        StoreClose = 21, -- pm
-        DynamicStore = true, -- set to true if you want to increase buy limit again when someone has sold the same item to the store
-        LimitedItems = { --delete or leave empty if you don't want the store to to buy only a certain quantity of an item
-            {itemName="apple", amount=10, type="sell"},  --add as many items you want and set limit sell amount (obviously the item has to be in Config.SellItems)
-            {itemName="bandage", amount=10, type="buy"}  --add as many items you want and set limit buy amount (obviously the item has to be in Config.BuyItems)
-        }
+        StoreOpen = 7,
+        StoreClose = 21,
+        DynamicStore = true,
+
     },
     BlackwaterFishing = {
+        useRandomLocation = false, -- if true it will pick a random location from the list bellow, good thing for a store that can move and not always in the same place and npc
+        possibleLocations = {
+            OpenMenu = {
+                -- vector3(-324.628, 803.9818, 116.88), -- valentine
+                -- add more it will pick a random location from the list
+            },
+            Npcs = {
+                -- vector4(-324.628, 803.9818, 116.88, -81.17), --valentine
+                -- add more it will pick a random location from the list
+            }
+
+        },
+        Blip = {
+            Allowed = true,
+            Name = "Blackwater Fishing Store",
+            sprite = 3442726182,
+            Pos = vector3(-756.069, -1360.76, 43.724),
+        },
+        Npc = {
+            Pos = vector4(-756.069, -1360.76, 43.724, -90.80),
+            distanceRemoveNpc = 20.0,
+            Allowed = true,
+            Model = "U_M_M_NbxGeneralStoreOwner_01",
+        },
+
         blipAllowed = true,
         BlipName = "Fishing store",
         storeName = "Bait Shop",
         PromptName = "fishing store",
-        sprite = 3442726182,
-        x = -757.069, y = -1360.76, z = 43.724, h = -90.80,
         distanceOpenStore = 2.5,
-        NpcAllowed = false,
-        NpcModel = "U_M_M_NbxGeneralStoreOwner_01",
         AllowedJobs = {}, -- jobs allowed
         JobGrade = 0,
-        category = { "bait", "tools", },
-        storeType = { "sell", "buy" }, -- only one type
+        -- * store categories allow which category to show in the store
+        category = {
+            { label = "food",  Type = "food",  desc = "delicious food", img = "consumable_bread_roll" },
+            { label = "tools", Type = "tools", desc = "useful tools",   img = "butcher_table_production" },
+        },
+        -- * store type allow which type of store to show in the store
+        storeType = {
+            { label = "Buy ",  Type = "buy",  desc = "Buy from store", img = "consumable_bread_roll" },
+            { label = "Sell ", Type = "sell", desc = "Sell to store",  img = "butcher_table_production" }
+
+        },
         StoreHoursAllowed = true,
         RandomPrices = true,
-        StoreOpen = 7, -- am
-        StoreClose = 21, -- pm
-        DynamicStore = true, -- set to true if you want to increase buy limit again when someone has sold the same item to the store
-        LimitedItems = { --delete or leave empty if you don't want the store to to buy only a certain quantity of an item
-            {itemName="bait", amount=10, type="sell"},  --add as many items you want and set limit sell amount (obviously the item has to be in Config.SellItems)
-            {itemName="bait", amount=10, type="buy"}  --add as many items you want and set limit buy amount (obviously the item has to be in Config.BuyItems)
-        }
+        StoreOpen = 7,
+        StoreClose = 21,
+        DynamicStore = true,
     },
     Wapiti = {
-        blipAllowed = true,
-        BlipName = "Wapiti store",
+        useRandomLocation = false, -- if true it will pick a random location from the list bellow, good thing for a store that can move and not always in the same place and npc
+        possibleLocations = {
+            OpenMenu = {
+                -- vector3(-324.628, 803.9818, 116.88), -- valentine
+                -- add more it will pick a random location from the list
+            },
+            Npcs = {
+                -- vector4(-324.628, 803.9818, 116.88, -81.17), --valentine
+                -- add more it will pick a random location from the list
+            }
+        },
+        Blip = {
+            Allowed = true,
+            Name = "Wapiti Store",
+            sprite = 3442726182,
+            Pos = vector3(449.7435, 2216.437, 245.30),
+        },
+        Npc = {
+            Pos = vector4(449.7435, 2216.437, 245.30, -73.78),
+            distanceRemoveNpc = 20.0,
+            Allowed = true,
+            Model = "U_M_M_NbxGeneralStoreOwner_01",
+        },
         storeName = "Wapiti Shop",
         PromptName = "Native store",
-        sprite = 1475879922,
-        x = 449.7435, y = 2216.437, z = 245.30, h = -73.78,
         distanceOpenStore = 2.5,
-        NpcAllowed = true,
-        NpcModel = "CS_EagleFlies",
         AllowedJobs = {}, -- jobs allowed
         JobGrade = 0,
-        category = { "food", "tools", },
-        storeType = { "sell", "buy" }, -- only one type
+        -- * store categories allow which category to show in the store
+        category = {
+            { label = "food",  Type = "food",  desc = "delicious food", img = "consumable_bread_roll" },
+            { label = "tools", Type = "tools", desc = "useful tools",   img = "butcher_table_production" },
+        },
+        -- * store type allow which type of store to show in the store
+        storeType = {
+            { label = "Buy ",  Type = "buy",  desc = "Buy from store", img = "consumable_bread_roll" },
+            { label = "Sell ", Type = "sell", desc = "Sell to store",  img = "butcher_table_production" }
+
+        },
         StoreHoursAllowed = true,
         RandomPrices = true,
-        StoreOpen = 7, -- am
-        StoreClose = 21, -- pm
-        DynamicStore = true, -- set to true if you want to increase buy limit again when someone has sold the same item to the store
-        LimitedItems = { --delete or leave empty if you don't want the store to to buy only a certain quantity of an item
-            {itemName="bait", amount=10, type="sell"},  --add as many items you want and set limit sell amount (obviously the item has to be in Config.SellItems)
-            {itemName="bait", amount=10, type="buy"}  --add as many items you want and set limit buy amount (obviously the item has to be in Config.BuyItems)
-        }
-    }
-}
-
-
------------------------------------------------ STORE ITEMS --------------------------------------------------------------
-
--- ItemLable = translate here
--- itemName = same as in your databse
--- curencytype = "cash" or "gold" only use one.
--- price = numbers only
--- desc = a description of the item
--- category = where the item will be displayed at
-
----------------------------------------------------- SELL ITEMS --------------------------------------------------------------
-Config.SellItems = {
-    Valentine = {
-        { itemLabel = "Pick Axe", itemName = "pickaxe", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 50), desc = "sell pick axe", category = "tools" },
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", sellprice = 10, randomprice = math.random(10), desc = "sell apples", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", sellprice = 40, randomprice = math.random(25, 42), desc = "sell bandage", category = "meds" },
-    },
-    Rhodes = {
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", sellprice = 50, randomprice = math.random(40, 55), desc = "sell", category = "food" },
-        { itemLabel = "Water", itemName = "water", currencyType = "cash", sellprice = 10, randomprice = math.random(15), desc = "sell", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 45), desc = "sell bandage", category = "meds" },
-        { itemLabel = "Pick Axe", itemName = "pickaxe", currencyType = "cash", sellprice = 40, randomprice = math.random(32, 52), desc = "sell pick axe", category = "tools" },
-    },
-    Strawberry = {
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", sellprice = 50, randomprice = math.random(40, 50), desc = "sell", category = "food" },
-        { itemLabel = "Water", itemName = "water", currencyType = "cash", sellprice = 10, randomprice = math.random(12), desc = "sell", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 45), desc = "sell bandage", category = "meds" },
-        { itemLabel = "Pick Axe", itemName = "pickaxe", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 50), desc = "sell pick axe", category = "tools" },
-    },
-    Blackwater = {
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", sellprice = 50, randomprice = math.random(40, 50), desc = "sell", category = "food" },
-        { itemLabel = "Water", itemName = "water", currencyType = "cash", sellprice = 10, randomprice = math.random(12), desc = "sell", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 45), desc = "sell bandage", category = "meds" },
-        { itemLabel = "Pick Axe", itemName = "pickaxe", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 50), desc = "sell pick axe", category = "tools" },
-    },
-    Armadillo = {
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", sellprice = 50, randomprice = math.random(40, 50), desc = "sell", category = "food" },
-        { itemLabel = "Water", itemName = "water", currencyType = "cash", sellprice = 10, randomprice = math.random(12), desc = "sell", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 45), desc = "sell bandage", category = "meds" },
-        { itemLabel = "Pick Axe", itemName = "pickaxe", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 50), desc = "sell pick axe", category = "tools" },
-    },
-    Tumbleweed = {
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", sellprice = 50, randomprice = math.random(40, 50), desc = "sell", category = "food" },
-        { itemLabel = "Water", itemName = "water", currencyType = "cash", sellprice = 10, randomprice = math.random(12), desc = "sell", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 45), desc = "sell bandage", category = "meds" },
-        { itemLabel = "Pick Axe", itemName = "pickaxe", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 50), desc = "sell pick axe", category = "tools" },
-    },
-    StDenis = {
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", sellprice = 50, randomprice = math.random(40, 50), desc = "sell", category = "food" },
-        { itemLabel = "Water", itemName = "water", currencyType = "cash", sellprice = 10, randomprice = math.random(12), desc = "sell", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 45), desc = "sell bandage", category = "meds" },
-        { itemLabel = "Pick Axe", itemName = "pickaxe", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 50), desc = "sell pick axe", category = "tools" },
-    },
-    Vanhorn = {
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", sellprice = 50, randomprice = math.random(40, 50), desc = "sell", category = "food" },
-        { itemLabel = "Water", itemName = "water", currencyType = "cash", sellprice = 10, randomprice = math.random(12), desc = "sell", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 45), desc = "sell bandage", category = "meds" },
-        { itemLabel = "Pick Axe", itemName = "pickaxe", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 50), desc = "sell pick axe", category = "tools" },
-    },
-    BlackwaterFishing = {
-        { itemLabel = "Bait", itemName = "Bait", currencyType = "cash", sellprice = 50, randomprice = math.random(40, 65), desc = "sell Bait", category = "bait" },
-        { itemLabel = "Fish Bait", itemName = "fishbait", currencyType = "cash", sellprice = 10, randomprice = math.random(15), desc = "sell", category = "bait" },
-        { itemLabel = "Bread Bait", itemName = "p_baitBread01x", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 50), desc = "sell", category = "bait" },
-        { itemLabel = "Pick Axe", itemName = "pickaxe", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 50), desc = "sell pick axe", category = "tools" },
-    },
-    Wapiti = {
-        { itemLabel = "Bait", itemName = "Bait", currencyType = "cash", sellprice = 50, randomprice = math.random(40, 65), desc = "sell Bait", category = "bait" },
-        { itemLabel = "Fish Bait", itemName = "fishbait", currencyType = "cash", sellprice = 10, randomprice = math.random(15), desc = "sell", category = "bait" },
-        { itemLabel = "Bread Bait", itemName = "p_baitBread01x", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 50), desc = "sell", category = "bait" },
-        { itemLabel = "Pick Axe", itemName = "pickaxe", currencyType = "cash", sellprice = 40, randomprice = math.random(30, 50), desc = "sell pick axe", category = "tools" },
-    },
-}
-
------------------------------------------------------- BUY ITEMS ---------------------------------------------------------
-Config.BuyItems = {
-    Valentine = {
-        { itemLabel = "Pick Axe", itemName = "pickaxe", currencyType = "cash", buyprice = 40, randomprice = math.random(30, 55), desc = "buy Pick Axe", category = "tools" },
-        { itemLabel = "Gold nugget", itemName = "golden_nugget", currencyType = "gold", buyprice = 10, randomprice = math.random(15), desc = "buy gold nuget", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", buyprice = 40, randomprice = math.random(30, 40), desc = "buy bandage", category = "meds" },
-    },
-
-    Rhodes = {
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", buyprice = 50, randomprice = math.random(30, 52), desc = "buy apple", category = "food" },
-        { itemLabel = "Water", itemName = "water", currencyType = "cash", buyprice = 10, randomprice = math.random(12), desc = "buy water", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", buyprice = 40, randomprice = math.random(30, 40), desc = "buy bandage", category = "meds" },
-        { itemLabel = "Gold nugget", itemName = "golden_nugget", currencyType = "gold", buyprice = 10, randomprice = math.random(15), desc = "buy gold nuget", category = "food" },
-    },
-
-    Strawberry = {
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", buyprice = 50, randomprice = math.random(30, 52), desc = "buy apple", category = "food" },
-        { itemLabel = "Water", itemName = "water", currencyType = "cash", buyprice = 10, randomprice = math.random(12), desc = "buy water", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", buyprice = 40, randomprice = math.random(30, 40), desc = "buy bandage", category = "meds" },
-    },
-
-    Blackwater = {
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", buyprice = 50, randomprice = math.random(30, 52), desc = "buy apple", category = "food" },
-        { itemLabel = "Water", itemName = "water", currencyType = "cash", buyprice = 10, randomprice = math.random(12), desc = "buy water", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", buyprice = 40, randomprice = math.random(30, 40), desc = "buy bandage", category = "meds" },
-    },
-    Armadillo = {
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", buyprice = 50, randomprice = math.random(30, 52), desc = "buy apple", category = "food" },
-        { itemLabel = "Water", itemName = "water", currencyType = "cash", buyprice = 10, randomprice = math.random(12), desc = "buy water", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", buyprice = 40, randomprice = math.random(30, 40), desc = "buy bandage", category = "meds" },
-    },
-    Tumbleweed = {
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", buyprice = 50, randomprice = math.random(30, 52), desc = "buy apple", category = "food" },
-        { itemLabel = "Water", itemName = "water", currencyType = "cash", buyprice = 10, randomprice = math.random(12), desc = "buy water", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", buyprice = 40, randomprice = math.random(30, 40), desc = "buy bandage", category = "meds" },
-    },
-    StDenis = {
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", buyprice = 50, randomprice = math.random(30, 52), desc = "buy apple", category = "food" },
-        { itemLabel = "Water", itemName = "water", currencyType = "cash", buyprice = 10, randomprice = math.random(12), desc = "buy water", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", buyprice = 40, randomprice = math.random(30, 40), desc = "buy bandage", category = "meds" },
-    },
-    Vanhorn = {
-        { itemLabel = "Apple", itemName = "apple", currencyType = "cash", buyprice = 50, randomprice = math.random(30, 52), desc = "buy apple", category = "food" },
-        { itemLabel = "Water", itemName = "water", currencyType = "cash", buyprice = 10, randomprice = math.random(12), desc = "buy water", category = "food" },
-        { itemLabel = "bandage", itemName = "bandage", currencyType = "cash", buyprice = 40, randomprice = math.random(30, 40), desc = "buy bandage", category = "meds" },
-    },
-    BlackwaterFishing = {
-        { itemLabel = "Bait", itemName = "bait", currencyType = "cash", buyprice = 50, randomprice = math.random(45, 55), desc = "buy Bait", category = "bait" },
-        { itemLabel = "Fish Bait", itemName = "fishbait", currencyType = "cash", buyprice = 10, randomprice = math.random(14), desc = "buy", category = "bait" },
-        { itemLabel = "Bread Bait", itemName = "p_baitBread01x", currencyType = "cash", buyprice = 40, randomprice = math.random(34, 49), desc = "buy", category = "bait" },
-
-    },
-    Wapiti = {
-        { itemLabel = "Bait", itemName = "bait", currencyType = "cash", buyprice = 50, randomprice = math.random(45, 55), desc = "buy Bait", category = "bait" },
-        { itemLabel = "Fish Bait", itemName = "fishbait", currencyType = "cash", buyprice = 10, randomprice = math.random(14), desc = "buy", category = "bait" },
-        { itemLabel = "Bread Bait", itemName = "p_baitBread01x", currencyType = "cash", buyprice = 40, randomprice = math.random(34, 49), desc = "buy", category = "bait" },
+        StoreOpen = 7,
+        StoreClose = 21,
+        DynamicStore = true,
     }
 }

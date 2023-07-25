@@ -1,7 +1,6 @@
 ---@diagnostic disable: undefined-global
-NUIService = {}
+
 local isProcessingPay = false
-InInventory = false
 local timerUse = 0
 local candrop = true
 local cangive = true
@@ -9,6 +8,9 @@ local storemenu = false
 local geninfo = {}
 local CanOpen = true
 
+-- * GLOBALS * --
+InInventory = false
+NUIService = {}
 
 --======================= EVENTS =======================--
 RegisterNetEvent('inv:dropstatus')
@@ -408,6 +410,7 @@ NUIService.NUIGiveItem = function(obj)
 						--local metadata = data2.metadata
 						local target = tonumber(data.player)
 
+
 						if data2.type == "item_money" then
 							if isProcessingPay then return end
 							isProcessingPay = true
@@ -497,6 +500,7 @@ NUIService.NUIDropItem = function(obj)
 						weapon:setUsed(false)
 						weapon:UnequipWeapon()
 					end
+
 					UserWeapons[aux.id] = nil
 				end
 			end
@@ -586,12 +590,10 @@ NUIService.NUIUseItem = function(data)
 			else
 				UserWeapons[weaponId]:equipwep()
 			end
-
 			UserWeapons[weaponId]:loadComponents()
 			UserWeapons[weaponId]:setUsed(true)
 			TriggerServerEvent("syn_weapons:weaponused", data)
-		elseif not UserWeapons[weaponId]:getUsed() and
-			not Citizen.InvokeNative(0x8DECB02F88F428BC, ped, weapName, 0, true) then
+		elseif not UserWeapons[weaponId]:getUsed() and not Citizen.InvokeNative(0x8DECB02F88F428BC, ped, weapName, 0, true) then
 			notdual = true
 		end
 

@@ -6,13 +6,13 @@ local autotpm = false
 function Teleport()
     MenuData.CloseAll()
     local elements = {
-        { label = _U('autotpm'), value = 'autotpm', desc = _U('autotpm_desc') },
-        { label = _U("tpm"), value = 'tpm', desc = _U("teleporttomarker_desc") },
-        { label = _U("tptocoords"), value = 'tptocoords', desc = _U("teleporttocoords_desc") },
-        { label = _U("tptoplayer"), value = 'tptoplayer', desc = _U("teleportplayer_desc") },
+        { label = _U('autotpm'),     value = 'autotpm',     desc = _U('autotpm_desc') },
+        { label = _U("tpm"),         value = 'tpm',         desc = _U("teleporttomarker_desc") },
+        { label = _U("tptocoords"),  value = 'tptocoords',  desc = _U("teleporttocoords_desc") },
+        { label = _U("tptoplayer"),  value = 'tptoplayer',  desc = _U("teleportplayer_desc") },
         { label = _U("tpbackadmin"), value = 'admingoback', desc = _U("sendback_desc") },
         { label = _U("bringplayer"), value = 'bringplayer', desc = _U("bringplayer_desc") },
-        { label = _U("sendback"), value = 'sendback', desc = _U("sendback_desc") },
+        { label = _U("sendback"),    value = 'sendback',    desc = _U("sendback_desc") },
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
@@ -62,17 +62,21 @@ function Teleport()
                 Wait(100)
                 if AdminAllowed then
                     local myInput = {
-                        type = "enableinput", -- dont touch
+                        type = "enableinput",                                                -- dont touch
                         inputType = "input",
-                        button = _U("confirm"), -- button name
-                        placeholder = "X Y Z", --placeholdername
-                        style = "block", --- dont touch
+                        button = _U("confirm"),                                              -- button name
+                        placeholder = "X Y Z",                                               --placeholdername
+                        style = "block",                                                     --- dont touch
                         attributes = {
-                            inputHeader = _U("insertcoords"), -- header
-                            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-                            pattern = "[0-9 \\-\\.]{5,60}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-                            title = "must use only numbers - and .", -- if input doesnt match show this message
+                            inputHeader = _U("insertcoords"),                                -- header
+                            type = "text",                                                   -- inputype text, number,date.etc if number comment out the pattern
+                            pattern = "[0-9 \\-\\.]{5,60}",                                  -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
+                            title = "must use only numbers - and .",                         -- if input doesnt match show this message
                             style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
+                            errors = {
+                                valueMissing = "Please enter a value",
+
+                            }
                         }
                     }
 
@@ -80,7 +84,6 @@ function Teleport()
                         local coords = result
                         local admin = PlayerPedId()
                         if coords ~= "" and coords then
-
                             local finalCoords = {}
                             for i in string.gmatch(coords, "%S+") do
                                 finalCoords[#finalCoords + 1] = i
@@ -92,7 +95,7 @@ function Teleport()
                             DoScreenFadeIn(3000)
                             if Config.TeleportLogs.Tptocoords then
                                 TriggerServerEvent("vorp_admin:logs", Config.TeleportLogs.Tptocoords
-                                    , _U("titleteleport"), _U("usedtptocoords"))
+                                , _U("titleteleport"), _U("usedtptocoords"))
                             end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 5000)
@@ -111,7 +114,7 @@ function Teleport()
                             TriggerServerEvent("vorp_admin:TpToPlayer", TargetID)
                             if Config.TeleportLogs.Tptoplayer then
                                 TriggerServerEvent("vorp_admin:logs", Config.TeleportLogs.Tptoplayer
-                                    , _U("titleteleport"), _U("usedtptoplayer") .. "\n playerID: " .. TargetID)
+                                , _U("titleteleport"), _U("usedtptoplayer") .. "\n playerID: " .. TargetID)
                             end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"), 4000)
@@ -135,7 +138,7 @@ function Teleport()
                             TriggerServerEvent("vorp_admin:Bring", TargetID, adminCoords)
                             if Config.TeleportLogs.Bringplayer then
                                 TriggerServerEvent("vorp_admin:logs", Config.TeleportLogs.Bringplayer
-                                    , _U("titleteleport"), _U("usedbringplayer") .. "\n playerID: " .. TargetID)
+                                , _U("titleteleport"), _U("usedbringplayer") .. "\n playerID: " .. TargetID)
                             end
                         else
                             TriggerEvent("vorp:TipRight", _U("empty"))
@@ -154,11 +157,9 @@ function Teleport()
                     end
                 end)
             end
-
         end,
 
         function(menu)
             menu.close()
         end)
-
 end

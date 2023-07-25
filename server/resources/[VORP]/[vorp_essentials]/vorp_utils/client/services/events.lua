@@ -1,40 +1,71 @@
 EventsAPI = {}
 EventListeners = {}
+EventListenerCount = 0
 EventsDevMode = {
 	false,
 	false
 }
 
+
+--? These functions are for DataView memory allocation
+local function pullData(event, eventDataStruct) -- Memory address pull
+    local datafields = {}
+
+    for p = 0, event.datasize - 1, 1 do
+        local current_data_element = event.dataelements[p]
+        if current_data_element.type == 'float' then
+            datafields[#datafields + 1] = eventDataStruct:GetFloat32(8 * p) 
+        else
+            --? Defaults to int
+            datafields[#datafields + 1] = eventDataStruct:GetInt32(8 * p) 
+        end
+    end
+
+    return datafields
+end
+
+local function allocateData(event, eventDataStruct) --memory pre-allocation
+    for p = 0, event.datasize - 1, 1 do
+        local current_data_element = event.dataelements[p]
+        if current_data_element.type == 'float' then
+            eventDataStruct:SetFloat32(8 * p, 0)
+        else
+            --? Defaults to int
+            eventDataStruct:SetInt32(8 * p, 0)
+        end
+    end
+end
+
+--? Global event listener
 local function startGlobalEventListeners(eventgroup)
 	-- Inspired by https://github.com/femga/rdr3_discoveries/tree/master/AI/EVENTS
 	Citizen.CreateThread(function()
 		while true do
 			Citizen.Wait(0)
-			if #EventListeners > 0 or EventsDevMode[eventgroup + 1] then
+            local eventmode = eventgroup + 1
+			if EventListenerCount > 0 or EventsDevMode[eventmode] == true then
 				local size = GetNumberOfEvents(eventgroup)
 				if size > 0 then
 					for i = 0, size - 1 do
 						local eventAtIndex = GetEventAtIndex(eventgroup, i)
 						if EVENTS[eventAtIndex] then
-							if EventsDevMode[eventgroup + 1] then
-								print("EVENT TRIGGERED:",EVENTS[eventAtIndex].name)
-							end
+							local eventDataStruct = DataView.ArrayBuffer(8*EVENTS[eventAtIndex].datasize) --memory heap reservation
 
-							local eventDataStruct = DataView.ArrayBuffer(8*EventsAPI.EVENTS[eventAtIndex].datasize) --memory allocation
 
-							for p = 0,EVENTS[eventAtIndex].datasize - 1, 1 do
-								eventDataStruct:SetInt32(8 * p, 0) --memory allocation
-							end
+							allocateData(EVENTS[eventAtIndex], eventDataStruct)
 
 							local is_data_exists = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(),
-								EventsAPI.EVENTS[eventAtIndex].datasize) -- GET_EVENT_DATA
+								EVENTS[eventAtIndex].datasize) -- GET_EVENT_DATA
 
 							local datafields = {}
 							if is_data_exists then
-								for t = 0,EVENTS[eventAtIndex].datasize - 1, 1 do
-									datafields[#datafields + 1] = eventDataStruct:GetInt32(8 * t)
-								end
+                                datafields = pullData(EVENTS[eventAtIndex], eventDataStruct)
 							end
+
+                            if EventsDevMode[eventmode] == true then
+								print("EVENT TRIGGERED:", EVENTS[eventAtIndex].name, DumpTable(datafields))
+							end
+          
 							if EventListeners[eventAtIndex] then
 								for index, event in ipairs(EventListeners[eventAtIndex]) do
 									event.trigger(datafields)
@@ -48,6 +79,7 @@ local function startGlobalEventListeners(eventgroup)
 	end)
 end
 
+--? Register events to be listened for
 function EventsAPI:RegisterEventListener(eventname, cb)
 	local key = GetHashKey(eventname)
 	local postition = 1
@@ -62,6 +94,7 @@ function EventsAPI:RegisterEventListener(eventname, cb)
 		eventname = eventname,
 		trigger = cb
 	}
+    EventListenerCount = EventListenerCount + 1
 
 	return { key, postition }
 end
@@ -70,12 +103,12 @@ end
 function EventsAPI:RenoveEventListener(listener)
 	if EventListeners[listener[1]] and EventListeners[listener[1]][listener[2]] then
 		EventListeners[listener[1]][listener[2]] = nil
+        EventListenerCount = EventListenerCount - 1
 	end
 
 	if #EventListeners[listener[1]] < 1 then --clear memory if there are not registered listeners for this event
 		EventListeners[listener[1]] = nil
 	end
-	
 end
 
 function EventsAPI:DevMode(state, type)
@@ -94,4 +127,3 @@ AddEventHandler("vorp:SelectedCharacter", function(charid)
 	startGlobalEventListeners(0) -- 0 = SCRIPT_EVENT_QUEUE_AI (CEventGroupScriptAI)
 	startGlobalEventListeners(1) -- 1 = SCRIPT_EVENT_QUEUE_NETWORK (CEventGroupScriptNetwork)
 end)
-

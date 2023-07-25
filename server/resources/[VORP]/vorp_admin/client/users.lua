@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------ USERS MENU ------------------------------------------------
 
@@ -60,92 +61,71 @@ function ScoreBoard()
     MenuData.CloseAll()
     local elements = {}
 
-    local players = GetPlayers()
-    for key, playersInfo in pairs(players) do
-        if Config.showUsersInfo == "showAll" then
-            ShowInfo = "</span><br>Server ID:  <span style=color:MediumSeaGreen;>" ..
-                playersInfo.serverId ..
-                "</span><br>Player Group:  <span style=color:MediumSeaGreen;>" ..
-                playersInfo.Group ..
-                "</span><br>Player Job: <span style=color:MediumSeaGreen;> " ..
-                playersInfo.Job
-        elseif Config.showUsersInfo == "showJob" then
-            ShowInfo = "</span><br>Player Job: <span style=color:MediumSeaGreen;> " ..
-                playersInfo.Job
-        elseif Config.showUsersInfo == "showGroup" then
-            ShowInfo = "</span><br>Player Group:  <span style=color:MediumSeaGreen;>" ..
-                playersInfo.Group
-        elseif Config.showUsersInfo == "showID" then
-            ShowInfo = "</span><br>Server ID:  <span style=color:MediumSeaGreen;>" ..
-                playersInfo.serverId
+    -- local players = GetPlayers()
+    VORP.RpcCall("vorp_admin:Callback:getplayersinfo", function(result)
+        if not result then
+            return
         end
-        elements[#elements + 1] = {
-            label = playersInfo.PlayerName,
-            value = "players",
-            desc = ShowInfo
-        }
-    end
-
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
-        {
-            title    = "SCOREBOARD",
-            subtext  = "Players online",
-            align    = 'top-left',
-            elements = elements,
-            lastmenu = 'OpenUsersMenu', --Go back
-        },
-        function(data, menu)
-            if data.current == "backup" then
-                _G[data.trigger]()
+        local players = result
+        for key, playersInfo in pairs(players) do
+            if Config.showUsersInfo == "showAll" then
+                ShowInfo = "</span><br>Server ID:  <span style=color:MediumSeaGreen;>" ..
+                    playersInfo.serverId ..
+                    "</span><br>Player Group:  <span style=color:MediumSeaGreen;>" ..
+                    playersInfo.Group ..
+                    "</span><br>Player Job: <span style=color:MediumSeaGreen;> " ..
+                    playersInfo.Job
+            elseif Config.showUsersInfo == "showJob" then
+                ShowInfo = "</span><br>Player Job: <span style=color:MediumSeaGreen;> " ..
+                    playersInfo.Job
+            elseif Config.showUsersInfo == "showGroup" then
+                ShowInfo = "</span><br>Player Group:  <span style=color:MediumSeaGreen;>" ..
+                    playersInfo.Group
+            elseif Config.showUsersInfo == "showID" then
+                ShowInfo = "</span><br>Server ID:  <span style=color:MediumSeaGreen;>" ..
+                    playersInfo.serverId
             end
-        end,
+            elements[#elements + 1] = {
+                label = playersInfo.PlayerName,
+                value = "players",
+                desc = ShowInfo
+            }
+        end
 
-        function(data, menu)
-            menu.close()
-        end)
-end
+        MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
+            {
+                title    = "SCOREBOARD",
+                subtext  = "Players online",
+                align    = 'top-left',
+                elements = elements,
+                lastmenu = 'OpenUsersMenu', --Go back
+            },
+            function(data, menu)
+                if data.current == "backup" then
+                    _G[data.trigger]()
+                end
+            end,
 
-function ShowMyInfo()
-    MenuData.CloseAll()
-    local elements = {
-        label = "",
-        value = "",
-        desc = ""
-    }
-
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
-        {
-            title    = "SCOREBOARD",
-            subtext  = "Players online",
-            align    = 'top-left',
-            elements = elements,
-            lastmenu = 'OpenUsersMenu', --Go back
-        },
-        function(data, menu)
-            if data.current == "backup" then
-                _G[data.trigger]()
-            end
-        end,
-
-        function(data, menu)
-            menu.close()
-        end)
+            function(data, menu)
+                menu.close()
+            end)
+    end)
 end
 
 function Report()
     local player = GetPlayerServerId(tonumber(PlayerId()))
 
     local myInput = {
-        type = "enableinput", -- dont touch
+        type = "enableinput",                                                -- dont touch
         inputType = "textarea",
-        button = _U("confirm"), -- button name
-        placeholder = _U("message"), --placeholdername
-        style = "block", --- dont touch
+        button = _U("confirm"),                                              -- button name
+        placeholder = _U("message"),                                         --placeholdername
+        style = "block",                                                     --- dont touch
         attributes = {
-            inputHeader = _U("reportheader"), -- header
-            type = "text", -- inputype text, number,date.etc if number comment out the pattern
-            pattern = "[A-Za-z0-9 ]{10,100}", -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
-            title = "Must only contain numbers and letters max 100 .", -- if input doesnt match show this message
+            inputHeader = _U("reportheader"),                                -- header
+            type = "text",                                                   -- inputype text, number,date.etc if number comment out the pattern
+            pattern = "[A-Za-z0-9 ]{10,100}",                                -- regular expression validated for only numbers "[0-9]", for letters only [A-Za-z]+   with charecter limit  [A-Za-z]{5,20}     with chareceter limit and numbers [A-Za-z0-9]{5,}
+            title = "Must only contain numbers and letters max 100 .",       -- if input doesnt match show this message
             style = "border-radius: 10px; background-color: ; border:none;", -- style  the inptup
         }
     }

@@ -1,9 +1,10 @@
+---@diagnostic disable: undefined-global
 ----------------------------------------------------------------------------------------------------
 ------------------------------------- SERVER EXPORTS ------------------------------------------------------
 local VorpCore = {}
 local VORPwl = {}
 local stafftable = {}
-
+local PlayersTable = {}
 TriggerEvent("getCore", function(core)
     VorpCore = core
 end)
@@ -12,114 +13,31 @@ TriggerEvent("getWhitelistTables", function(cb)
     VORPwl = cb
 end)
 
-
-VORPInv = exports.vorp_inventory:vorp_inventoryApi()
+local VORPInv = exports.vorp_inventory:vorp_inventoryApi()
 
 ----------------------------------------------------------------------------------------------------
 ------------------------------------- EVENTS -------------------------------------------------------
-PlayersTable = {}
-
-
---get players info list
-RegisterServerEvent('vorp_admin:GetPlayers')
-AddEventHandler('vorp_admin:GetPlayers', function()
-    local _source = source
-    local data = {}
-
-    for _, player in ipairs(PlayersTable) do
-        local playerPed = GetPlayerPed(player)
-        local coords = GetEntityCoords(playerPed)
-        local User = VorpCore.getUser(player)
-        if User then
-            local Character = User.getUsedCharacter --get player info
-            local group = Character.group
-
-            local playername = Character.firstname .. ' ' .. Character.lastname --player char name
-            local job = Character.job --player job
-            local identifier = Character.identifier --player steam
-            local PlayerMoney = Character.money --money
-            local PlayerGold = Character.gold --gold
-            local JobGrade = Character.jobGrade --jobgrade
-            local getid = VORPwl.getEntry(identifier).getId() -- userID this is a static ID used to whitelist or ban
-            local getstatus = VORPwl.getEntry(identifier).getStatus() -- whitelisted returns true or false
-            local warnstatus = User.getPlayerwarnings() --get players warnings
-
-            data[tostring(player)] = {
-                serverId = player,
-                x = coords.x,
-                y = coords.y,
-                z = coords.z,
-                name = GetPlayerName(player),
-                Group = group,
-                PlayerName = playername,
-                Job = job,
-                SteamId = identifier,
-                ped = playerPed,
-                Money = PlayerMoney,
-                Gold = PlayerGold,
-                Grade = JobGrade,
-                staticID = tonumber(getid),
-                WLstatus = tostring(getstatus),
-                warns = tonumber(warnstatus),
-            }
-        end
-    end
-    TriggerClientEvent("vorp_admin:SendPlayers", _source, data)
-end)
-
-VorpCore.addRpcCallback("vorp_admin:Callback:FetchPlayer", function(source, cb, args)
-    local data = {}
-
-    for _, player in pairs(PlayersTable) do
-        if player == args then
-            local playerPed = GetPlayerPed(player)
-            local coords = GetEntityCoords(playerPed)
-            local User = VorpCore.getUser(player)
-            if User then
-                local Character = User.getUsedCharacter --get player info
-                local group = Character.group
-
-                local playername = Character.firstname .. ' ' .. Character.lastname --player char name
-                local job = Character.job --player job
-                local identifier = Character.identifier --player steam
-                local PlayerMoney = Character.money --money
-                local PlayerGold = Character.gold --gold
-                local JobGrade = Character.jobGrade --jobgrade
-                local getid = VORPwl.getEntry(identifier).getId() -- userID this is a static ID used to whitelist or ban
-                local getstatus = VORPwl.getEntry(identifier).getStatus() -- whitelisted returns true or false
-                local warnstatus = User.getPlayerwarnings() --get players warnings
-
-                data[tostring(player)] = {
-                    serverId = player,
-                    x = coords.x,
-                    y = coords.y,
-                    z = coords.z,
-                    name = GetPlayerName(player),
-                    Group = group,
-                    PlayerName = playername,
-                    Job = job,
-                    SteamId = identifier,
-                    ped = playerPed,
-                    Money = PlayerMoney,
-                    Gold = PlayerGold,
-                    Grade = JobGrade,
-                    staticID = tonumber(getid),
-                    WLstatus = tostring(getstatus),
-                    warns = tonumber(warnstatus),
-                }
-                return cb(data)
+VorpCore.addRpcCallback("vorp_admin:Callback:getplayersinfo", function(source, cb, args)
+    if next(PlayersTable) then
+        if args.search == "search" then -- is for unique player
+            if PlayersTable[args.id] then
+                return cb(PlayersTable[args.id])
+            else
+                return cb(false)
             end
         end
+        return cb(PlayersTable)
     end
     return cb(false)
 end)
+
+
 
 -------------------------------------------------------------------------------
 --------------------------------- EVENTS TELEPORTS -----------------------------
 --TP TO
 RegisterServerEvent("vorp_admin:TpToPlayer", function(targetID)
     local _source = source
-
     if VorpCore.getUser(targetID) then
         local targetCoords = GetEntityCoords(GetPlayerPed(targetID))
         TriggerClientEvent('vorp_admin:gotoPlayer', _source, targetCoords)
@@ -127,6 +45,7 @@ RegisterServerEvent("vorp_admin:TpToPlayer", function(targetID)
         VorpCore.NotifyRightTip(_source, "user dont exist", 8000)
     end
 end)
+
 --SENDBACK
 RegisterServerEvent("vorp_admin:sendAdminBack", function()
     local _source = source
@@ -194,16 +113,16 @@ RegisterServerEvent("vorp_admin:BanPlayer", function(targetID, staticid, time)
     local datetime = os.time(os.date("!*t"))
     local banTime
     if VorpCore.getUser(targetID) then
-        if time:sub( -1) == 'd' then
+        if time:sub(-1) == 'd' then
             banTime = tonumber(time:sub(1, -2))
             banTime = banTime * 24
-        elseif time:sub( -1) == 'w' then
+        elseif time:sub(-1) == 'w' then
             banTime = tonumber(time:sub(1, -2))
             banTime = banTime * 168
-        elseif time:sub( -1) == 'm' then
+        elseif time:sub(-1) == 'm' then
             banTime = tonumber(time:sub(1, -2))
             banTime = banTime * 720
-        elseif time:sub( -1) == 'y' then
+        elseif time:sub(-1) == 'y' then
             banTime = tonumber(time:sub(1, -2))
             banTime = banTime * 8760
         else
@@ -232,7 +151,7 @@ RegisterServerEvent("vorp_admin:respawnPlayer", function(targetID)
             _U("lostall"), 8000)
         Wait(8000)
         TriggerClientEvent("vorp_core:respawnPlayer", targetID) --remove player
-        TriggerClientEvent("vorp_admin:respawn", targetID) --add effects
+        TriggerClientEvent("vorp_admin:respawn", targetID)      --add effects
     end
 end)
 
@@ -244,7 +163,9 @@ end)
 RegisterServerEvent("vorp_admin:givePlayer", function(targetID, type, data1, data2, data3)
     local _source = source
     local Character = VorpCore.getUser(targetID).getUsedCharacter
-
+    if not data2 then
+        return VorpCore.NotifyRightTip(_source, "item and AMOUNT", 5000)
+    end
     if not Character then
         return
     end
@@ -252,9 +173,9 @@ RegisterServerEvent("vorp_admin:givePlayer", function(targetID, type, data1, dat
     if type == "item" then
         local item = data1
         local qty = data2
-        local itemCheck = VORPInv.getDBItem(targetID, item) --check items exist in DB
+        local itemCheck = VORPInv.getDBItem(targetID, item)             --check items exist in DB
         if itemCheck then
-            local canCarry = VORPInv.canCarryItems(targetID, qty) --can carry inv space
+            local canCarry = VORPInv.canCarryItems(targetID, qty)       --can carry inv space
             local canCarry2 = VORPInv.canCarryItem(targetID, item, qty) --cancarry item limit
             local itemLabel = itemCheck.label
             if canCarry then
@@ -308,12 +229,12 @@ RegisterServerEvent("vorp_admin:givePlayer", function(targetID, type, data1, dat
         exports.oxmysql:execute(
             "INSERT INTO horses ( `identifier`, `charid`, `name`, `model`, `sex`) VALUES ( @identifier, @charid, @name, @model, @sex)"
             , {
-            ['identifier'] = identifier,
-            ['charid'] = charid,
-            ['name'] = tostring(name),
-            ['model'] = hash,
-            ['sex'] = sex
-        })
+                ['identifier'] = identifier,
+                ['charid'] = charid,
+                ['name'] = tostring(name),
+                ['model'] = hash,
+                ['sex'] = sex
+            })
 
         VorpCore.NotifyRightTip(targetID,
             _U("horsereceived"), 5000)
@@ -326,11 +247,11 @@ RegisterServerEvent("vorp_admin:givePlayer", function(targetID, type, data1, dat
         exports.oxmysql:execute(
             "INSERT INTO wagons ( `identifier`, `charid`, `name`, `model`) VALUES ( @identifier, @charid, @name, @model)"
             , {
-            ['identifier'] = identifier,
-            ['charid'] = charid,
-            ['name'] = tostring(name),
-            ['model'] = hash
-        })
+                ['identifier'] = identifier,
+                ['charid'] = charid,
+                ['name'] = tostring(name),
+                ['model'] = hash
+            })
         VorpCore.NotifyRightTip(targetID,
             _U("wagonreceived"), 5000)
         VorpCore.NotifyRightTip(_source, _U("givenwagon"), 4000)
@@ -361,7 +282,7 @@ RegisterServerEvent("vorp_admin:ClearAllItems", function(type, targetID)
             local id = value.id
             VORPInv.subWeapon(targetID, id)
             exports.oxmysql:execute("DELETE FROM loadout WHERE id=@id", { ['id'] = id })
-            TriggerClientEvent('syn_weapons:removeallammo', targetID) -- syn script
+            TriggerClientEvent('syn_weapons:removeallammo', targetID)  -- syn script
             TriggerClientEvent('vorp_weapons:removeallammo', targetID) -- vorp
         end
         VorpCore.NotifyRightTip(_source, _U("weaponswiped"), 4000)
@@ -469,7 +390,7 @@ end)
 
 
 RegisterServerEvent("vorp_admin:announce", function(announce)
-    VorpCore.NotifySimpleTop( -1, _U("announce"), announce, 10000)
+    VorpCore.NotifySimpleTop(-1, _U("announce"), announce, 10000)
 end)
 
 
@@ -477,8 +398,7 @@ end)
 local function CheckTable(group, group1, object)
     for key, value in ipairs(Config.AllowedGroups) do
         for k, v in ipairs(value.group) do
-            if v == group or v == group1 then -- group characters or users
-                print(value.command, object)
+            if v == group or v == group1 then   -- group characters or users
                 if value.command == object then -- if its right command
                     return true
                 end
@@ -617,14 +537,43 @@ end)
 RegisterServerEvent("vorp_admin:getStaffInfo", function(source)
     local _source = source
     local Staff = VorpCore.getUser(_source).getUsedCharacter
-    local Staff1 = VorpCore.getUser(_source)
-    local staffgroup1 = Staff1.group
+    local User = VorpCore.getUser(_source)
+    local staffgroup1 = User.group
     local staffgroup = Staff.group
 
     if staffgroup and staffgroup ~= "user" or staffgroup1 and staffgroup1 ~= "user" then
         stafftable[#stafftable + 1] = _source
     end
-    PlayersTable[#PlayersTable + 1] = _source -- add all players
+
+
+    local Character = User.getUsedCharacter --get player info
+    local group = Character.group
+
+    local playername = Character.firstname .. ' ' .. Character.lastname --player char name
+    local job = Character.job                                           --player job
+    local identifier = Character.identifier                             --player steam
+    local PlayerMoney = Character.money                                 --money
+    local PlayerGold = Character.gold                                   --gold
+    local JobGrade = Character.jobGrade                                 --jobgrade
+    local getid = VORPwl.getEntry(identifier).getId()                   -- userID this is a static ID used to whitelist or ban
+    local getstatus = VORPwl.getEntry(identifier).getStatus()           -- whitelisted returns true or false
+    local warnstatus = User.getPlayerwarnings()                         --get players warnings
+
+    local data = {
+        serverId = _source,
+        name = GetPlayerName(_source),
+        Group = group,
+        PlayerName = playername,
+        Job = job,
+        SteamId = identifier,
+        Money = PlayerMoney,
+        Gold = PlayerGold,
+        Grade = JobGrade,
+        staticID = tonumber(getid),
+        WLstatus = tostring(getstatus),
+        warns = tonumber(warnstatus),
+    }
+    PlayersTable[_source] = data
 end)
 
 RegisterNetEvent("vorp_admin:requeststaff", function(source, type)
@@ -658,8 +607,8 @@ AddEventHandler('playerDropped', function()
         end
     end
     for key, value in pairs(PlayersTable) do
-        if value == _source then
-            stafftable[key] = nil
+        if key == _source then
+            PlayersTable[key] = nil
         end
     end
 end)

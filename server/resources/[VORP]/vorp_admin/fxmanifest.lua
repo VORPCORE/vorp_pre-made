@@ -1,4 +1,4 @@
-fx_version 'adamant'
+fx_version 'cerulean'
 games { 'rdr3' }
 rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
 
@@ -16,6 +16,7 @@ shared_script {
     'config.lua',
     'locale.lua',
     'languages/*.lua',
+
 }
 
 server_scripts {
@@ -27,7 +28,7 @@ files { -- Credits to https://github.com/LVRP-BEN/bl_coords for clipboard copy m
     'html/index.js'
 }
 --version check dont touch
-version '2.1'
+version '2.2'
 vorp_checker 'yes'
 vorp_name '^4Resource version Check^3'
 vorp_github 'https://github.com/VORPCORE/vorp_admin'
