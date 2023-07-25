@@ -71,6 +71,10 @@
 
     "MaxWeightQuantity": "You have overpassed the maximum weight {0}/{1}",
 
+    "SubMenuConfirmBuy": "Confirm Purcharse",
+    "SubMenuDescription": "",
+    "HorseItemPrice": "Price: ${0}",
+
     //Horses
     "A_C_Horse_AmericanPaint_Greyovero": "Greyovero",
     "A_C_Horse_AmericanPaint_Overo": "Overo",

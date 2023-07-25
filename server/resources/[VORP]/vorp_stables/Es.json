@@ -73,6 +73,10 @@
 
     "MaxWeightQuantity": "Superas el peso maximo de la montura {0}/{1}",
 
+    "SubMenuConfirmBuy": "Confirmar la compra",
+    "SubMenuDescription": "",
+    "HorseItemPrice": "Precio: ${0}",
+
     //Horses
     "A_C_Horse_AmericanPaint_Greyovero": "Overo gris",
     "A_C_Horse_AmericanPaint_Overo": "Overo",
