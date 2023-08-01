@@ -27,11 +27,6 @@ files {
     'images/*'
 }
 
-dependencies {
-    'vorp_core',
-    'vorp_character',
-    'menuapi'
-}
 
 version '1.1'
 vorp_checker 'yes'
