@@ -1,6 +1,8 @@
 ---@diagnostic disable: undefined-global
 ----------------------------------------------------------------------------------------------------
 ------------------------------------- SERVER EXPORTS ------------------------------------------------------
+
+local VORPInv = exports.vorp_inventory:vorp_inventoryApi()
 local VorpCore = {}
 local VORPwl = {}
 local stafftable = {}
@@ -13,8 +15,8 @@ TriggerEvent("getWhitelistTables", function(cb)
     VORPwl = cb
 end)
 
-local VORPInv = exports.vorp_inventory:vorp_inventoryApi()
 
+VORPInv.addItem(targetID, item, qty)
 ----------------------------------------------------------------------------------------------------
 ------------------------------------- EVENTS -------------------------------------------------------
 VorpCore.addRpcCallback("vorp_admin:Callback:getplayersinfo", function(source, cb, args)
@@ -158,7 +160,6 @@ end)
 
 --------------------------------------------------------------------
 --------------------------------------------------------------------
--- DATABASE GIVE ITEM
 
 RegisterServerEvent("vorp_admin:givePlayer", function(targetID, type, data1, data2, data3)
     local _source = source
@@ -181,6 +182,7 @@ RegisterServerEvent("vorp_admin:givePlayer", function(targetID, type, data1, dat
             if canCarry then
                 if canCarry2 then
                     VORPInv.addItem(targetID, item, qty)
+
                     VorpCore.NotifyRightTip(targetID,
                         _U("received") .. qty .. _U("of") .. itemLabel .. "~q~"
                         , 5000)

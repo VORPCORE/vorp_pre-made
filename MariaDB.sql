@@ -8,10 +8,6 @@
 CREATE DATABASE IF NOT EXISTS `vorpv2` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 USE `vorpv2`;
 
-CREATE TABLE IF NOT EXISTS `banks` (
-  `name` varchar(50) NOT NULL,
-  PRIMARY KEY (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `users` (
   `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -35,7 +31,6 @@ CREATE TABLE `bank_users` (
   `invspace` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
-  CONSTRAINT `bank` FOREIGN KEY (`name`) REFERENCES `banks` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `bankusers` FOREIGN KEY (`identifier`) REFERENCES `users` (`identifier`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
@@ -336,14 +331,9 @@ CREATE TABLE `whitelist` (
     ROW_FORMAT=DYNAMIC
 ;
 
-INSERT IGNORE INTO `banks` (`name`) VALUES
-	('Blackwater'),
-	('SaintDenis'),
-	('Valentine');
-
 
 /*!40000 ALTER TABLE `items` DISABLE KEYS */;
-INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `id`, `metadata`, `desc`) VALUES
+INSERT IGNORE INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `id`, `metadata`, `desc`) VALUES
 ('acid', 'Acid', 10, 1, 'item_standard', 1, 1, '{}', 'A corrosive substance used for various purposes.'),
 ('Agarita', 'Agarita', 10, 1, 'item_standard', 1, 2, '{}', 'A flowering plant found in the wild, known for its medicinal properties.'),
 ('Agarita_Seed', 'Agarita Seed', 10, 1, 'item_standard', 1, 3, '{}', 'A seed that can be planted to grow Agarita plants.'),
@@ -1073,7 +1063,8 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `
 ('wsnakeskin', 'Watersnake pelt', 20, 1, 'item_standard', 1, 485, '{}', 'The skin of a watersnake.'),
 ('Yarrow', 'Yarrow', 10, 1, 'item_standard', 1, 336, '{}', 'A flowering plant known as Yarrow.'),
 ('Yarrow_Seed', 'Yarrow Seed', 10, 1, 'item_standard', 1, 337, '{}', 'Seeds to grow Yarrow plants.');
-INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `id`, `metadata`, `desc`) VALUES
+
+INSERT IGNORE INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `id`, `metadata`, `desc`) VALUES
 ('absinthe','Absinthe',10,1,'item_standard',1,1600,'{}','An anise-flavoured spirit derived from several plants, including the flowers and leaves of Artemisia absinthium'),
 ('bacon','Bacon',10,1,'item_standard',1,1601,'{}','Bacon what else do you need to know?'),
 ('beartrap','Beartrap',10,1,'item_standard',1,1602,'{}','A sturdy beartrap used for catching animals or stopping trespassers'),
@@ -1286,6 +1277,31 @@ INSERT INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `
 ('woodsaw','Woodsaw',10,1,'item_standard',1,1809,'{}','Used to cut wood.'),
 ('wood_plane','Wood Plane',10,1,'item_standard',1,1810,'{}','A wood plane used for shaping wood.'),
 ('wrench','Wrench',10,1,'item_standard',1,1811,'{}','A wrech used to tighten bolts and other things.');
+
+CREATE TABLE `item_group` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `description` VARCHAR(255) NOT NULL COMMENT 'Description of Item Group',
+    PRIMARY KEY (`id`)
+) AUTO_INCREMENT=1;
+
+INSERT INTO `item_group` (`id`, `description`) VALUES (1,"default");
+ 
+ALTER TABLE `items`
+    ADD COLUMN `groupId` INT UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Item Group ID for Filtering' AFTER `id`,
+    ADD CONSTRAINT `FK_items_item_group` FOREIGN KEY (`groupId`) REFERENCES `item_group` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+INSERT INTO `item_group` (`description`) VALUES
+    ('medical'),
+    ('foods'),
+    ('tools'),
+    ('weapons'),
+    ('ammo'),
+    ('documents'),
+    ('animals'),
+    ('valuables'),
+    ('horse'),
+    ('herbs');
+
 /*!40000 ALTER TABLE `items` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
