@@ -1,0 +1,92 @@
+<3.0>
+- small fixes were done and a critical issue with items make sure to update again
+<2.9>
+- refactor server side.
+- added new exports for each api function (is compatible with vorp core vsc extension).
+- refactor client side.
+- make a back up of your old inventory as always.
+- update fxmanifest as well as ALL OTHER FILES.
+<2.8>
+- items by type were added to the inventory main and secondary
+- sql fie will be needed look in vorp discord on how to update
+- theres 10 types of items now
+- added API to update custom inventories slots
+- loading weapons from secondary inventories is now separated from player weapons
+- make sure to update all files and fxmanifest to keep getting version check
+<2.7>
+- small fixes on weapon use
+- fix for when transfering weapons that are set as equiped  would not let use other weapons
+- fix when using dual weapon and player uses a 2 handed weapon whould not remove one of the dual weapons.
+- udapte fxmanifest as always
+- added option to config to delete items instead only and not dropping boxes
+<2.6>
+- in this version we have removed exports and added mysql linting
+- removed unsecured events 
+- adding promisses to remove weapons to avoid internet disconnect duplications
+- error handling when using the API
+- code refactor reducing around 500 lines of repeated code on js files
+- switch to cerulean version , changed all http to https calls
+- new feature on player respawn remove items weapons money with whitelist jobs and whitelist weapons/item check config file
+- you must UPDATE ALL FILES including fx manifest 
+<2.5>
+- dupping fix when people use nui dev tools
+- dupping fix when people use amount 3422424242423423423 and would dupe, can only select 200 now
+- duping fix when players give items and could also drop them
+- added NEW API for custom inventories and small fix for weapons.
+- update all files including fxmanifest and html folder
+<2.4>
+- fixing custom inventories using API
+- added new API to work with metdata
+- update all files including fxmanifest no need config or html 
+- make sure to update fxmanifest
+- fix the opening the same inventory on custom inventories. only one player can open at the time
+<2.3>
+- uses oxmysql from now on, please download it if you havvent yet.
+- code clean up
+- small fixes on metadata
+- small fixes on custom invs
+<2.2>
+- fix for duplication on custom inventories
+- fix for getting weapons
+- added options to remove autofocus search bar
+- added options to remove dollar ammo gold item from inside inventory
+- can be accessed from the money bellow gold or the top ico weapon wheel for ammo
+- update all files
+<2.1>
+- lots of fixes for metadata 
+- update all files 
+<1.1.0>
+- added  a different way to handle ammo
+- each ammo will use its ammo from the "belt"
+- fix infinite throwables ammo
+<1.0.9>
+- added bank compability
+<1.0.8>
+- added gold option to drop/give like money check config.
+- added items description check discord on how to add it to items database
+- added weapons description check config
+- fix giving invalid weapon names
+- fix for getsteamid
+- added loading timer when giving items to others to fix the spam give items.
+- update ALL FILES including fxmanifest to get versions checks
+<1.0.7>
+- Bugfix canCarryItem was erroring with invalid items.
+- Server API Feature getItem added!
+- Server API Feature getDBItem added!
+- Server API Enhancement canCarryWeapons added to API, was only available as serverEvent prior.
+<1.0.6>
+- Language updates and fixes
+- added option to display containers capacity
+<1.0.5>
+- Open Inventory from InventoryAPI Added
+- Show server ID when giving items/money/weapons
+- canCarryItem InventoryAPI Bugfix
+<1.0.4>
+- fix exploit for decimal values being and when moving giving droping items that would make items be unlimited and not even removable
+- update fxmanifest << yes update
+- updated ui.html file in the html folder
+<1.0.3>
+- fixed duplication items when spamclick users name when giving items
+- update server/services/ inventoryService.lua file 
+- update your fxmanifest version to 1.0.3 if you dont do this your version check will fail
+<1.0.2>

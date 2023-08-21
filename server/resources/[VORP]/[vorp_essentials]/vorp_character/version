@@ -1,0 +1,20 @@
+<1.4>
+- added new character selection 
+- make sure to update all files and read the config file 
+- update fxmanifest
+<1.3>
+- added colour hair options pink green etc
+- added second chance option as an item 
+- updated all files including fxmanifest
+<1.2>
+- refactor loading ped skin possibly now fixes eyebrows and other makeup issues
+- request collisions at coords before spawning peds
+- added default clothing for female peds so they dont show naked and bald
+- menu make up now has variations and make up style for eyeliners and lipsticks and eyeshadows
+- server side refactor
+- updated fxmanifest adn all other files
+- translation file neds to be updated for new entries on the character creation menu
+<1.1>
+- in this version we have added more fixes make sure you have the rest of the script updated like clothing stores and barber scripts
+- its still in beta testing, update fxmanifest too
+<1.0>
