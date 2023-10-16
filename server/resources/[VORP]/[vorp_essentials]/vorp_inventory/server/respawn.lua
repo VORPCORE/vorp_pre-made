@@ -43,11 +43,16 @@ RegisterNetEvent("vorp:PlayerForceRespawn", function()
             if not SharedUtils.IsValueInArray(job, _value.Items.JobLock) then
                 InventoryAPI.getInventory(_source, function(Userinventory)
                     for i, item in pairs(Userinventory) do
-                        for index, value in ipairs(_value.Items.itemWhiteList) do
-                            if item.name ~= value then
-                                InventoryAPI.subItem(_source, item.name, item.count, item.metadata, function()
-                                end)
+                        Wait(20)
+                        if next(_value.Items.itemWhiteList) then
+                            for index, value in ipairs(_value.Items.itemWhiteList) do
+                                if item.name ~= value then
+                                    InventoryAPI.subItem(_source, item.name, item.count, item.metadata, function()
+                                    end)
+                                end
                             end
+                        else
+                            InventoryAPI.subItem(_source, item.name, item.count, item.metadata)
                         end
                     end
                 end)
@@ -61,12 +66,16 @@ RegisterNetEvent("vorp:PlayerForceRespawn", function()
             if not SharedUtils.IsValueInArray(job, _value.Weapons.JobLock) then
                 InventoryAPI.getUserWeapons(_source, function(Userweapons)
                     for i, weapon in pairs(Userweapons) do
-                        for index, value in ipairs(_value.Weapons.WeaponWhitelisted) do
-                            if value ~= weapon.name then
-                                InventoryAPI.subWeapon(_source, weapon.id)
-                                InventoryAPI.deleteWeapon(_source, weapon.id, function()
-                                end)
+                        if next(_value.Weapons.WeaponWhitelisted) then
+                            for index, value in ipairs(_value.Weapons.WeaponWhitelisted) do
+                                if value ~= weapon.name then
+                                    InventoryAPI.subWeapon(_source, weapon.id)
+                                    InventoryAPI.deleteWeapon(_source, weapon.id)
+                                end
                             end
+                        else
+                            InventoryAPI.subWeapon(_source, weapon.id)
+                            InventoryAPI.deleteWeapon(_source, weapon.id)
                         end
                     end
                 end)

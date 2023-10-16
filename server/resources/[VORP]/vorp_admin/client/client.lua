@@ -1,6 +1,3 @@
----@diagnostic disable: undefined-global
-------------------------------------------------------------------------------------
-------------------------------- CLIENT ---------------------------------------------
 local Key = Config.Key
 local CanOpen = Config.CanOpenMenuWhenDead
 local Inmenu
@@ -18,6 +15,8 @@ TriggerEvent("menuapi:getData", function(call)
     MenuData = call
 end)
 
+ClientRPC = exports.vorp_core:ClientRpcCall() --[[@as ClientRPC]]
+
 AddEventHandler("onResourceStop", function(resourceName)
     if resourceName ~= GetCurrentResourceName() then
         return
@@ -33,11 +32,14 @@ AddEventHandler("onClientResourceStart", function(resourceName)
         return
     end
     --FOR TESTS ENABLED THIS
-    --[[  AdminAllowed = false
+    if not Config.DevMode then
+        return
+    end
+    AdminAllowed = false
     local player = GetPlayerServerId(tonumber(PlayerId()))
     Wait(100)
     TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.OpenMenu")
-    TriggerServerEvent("vorp_admin:getStaffInfo", player) ]]
+    TriggerServerEvent("vorp_admin:getStaffInfo", player)
 end)
 
 RegisterNetEvent('vorp:SelectedCharacter', function()
@@ -65,11 +67,27 @@ local function OpenAdminMenu()
     return false
 end
 
+
+if Config.useAdminCommand then
+    TriggerEvent('chat:addSuggestion', '/' .. Config.commandAdmin, 'Open admin menu or use pagedown', {
+        {}
+    })
+
+    RegisterCommand(Config.commandAdmin, function()
+        TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.OpenMenu")
+        Wait(100)
+        if AdminAllowed then
+            OpenMenu()
+            return true
+        end
+    end, false)
+end
+
 --OPEN MENU
 Citizen.CreateThread(function()
     while true do
         local player = PlayerPedId()
-        local isDead = IsPedDeadOrDying(player)
+        local isDead = IsPedDeadOrDying(player, false)
         if CanOpen then
             if IsControlJustPressed(0, Key) and not Inmenu then
                 if not OpenAdminMenu() then
@@ -121,22 +139,22 @@ AddEventHandler("vorp_sdmin:spectatePlayer", function(target, targetCoords)
         SetEntityVisible(admin, false)
         SetEntityCanBeDamaged(admin, false)
         SetEntityInvincible(admin, true)
-        SetEntityCoords(admin, targetCoords.x + 15, targetCoords.y + 15, targetCoords.z)
+        SetEntityCoords(admin, targetCoords.x + 15, targetCoords.y + 15, targetCoords.z, false, false, false, false)
         Wait(500)
         ped = GetPlayersClient(target)
         Wait(500)
         Camera = CreateCam("DEFAULT_SCRIPTED_CAMERA", true)
         AttachCamToEntity(Camera, ped, 0.0, -2.0, 1.0, false)
         SetCamActive(Camera, true)
-        RenderScriptCams(true, true, 1, true, true)
+        RenderScriptCams(true, true, 1, true, true, 0)
         DoScreenFadeIn(2000)
         spectating = true
     else
         DoScreenFadeOut(2000)
-        RenderScriptCams(true, false, 1, true, true)
+        RenderScriptCams(true, false, 1, true, true, 0)
         DestroyCam(Camera, true)
-        DestroyAllCams()
-        SetEntityCoords(admin, lastcoords.x, lastcoords.y, lastcoords.z - 1)
+        DestroyAllCams(true)
+        SetEntityCoords(admin, lastcoords.x, lastcoords.y, lastcoords.z - 1, false, false, false, false)
         SetEntityVisible(admin, true)
         SetEntityCanBeDamaged(admin, false)
         SetEntityInvincible(admin, true)
@@ -148,24 +166,24 @@ end)
 ------------------------- TELEPORT  EVENTS FROM SERVER  -------------------------------
 RegisterNetEvent("vorp_admin:gotoPlayer", function(targetCoords)
     lastLocation = GetEntityCoords(PlayerPedId())
-    SetEntityCoords(PlayerPedId(), targetCoords)
+    SetEntityCoords(PlayerPedId(), targetCoords.x, targetCoords.y, targetCoords.z, false, false, false, false)
 end)
 
 RegisterNetEvent("vorp_admin:sendAdminBack", function()
     if lastLocation then
-        SetEntityCoords(PlayerPedId(), lastLocation, 0, 0, 0, false)
+        SetEntityCoords(PlayerPedId(), lastLocation.x, lastLocation.y, lastLocation.z, false, false, false, false)
         lastLocation = nil
     end
 end)
 
 RegisterNetEvent("vorp_admin:Bring", function(adminCoords)
     lastLocation = GetEntityCoords(PlayerPedId())
-    SetEntityCoords(PlayerPedId(), adminCoords, false, false, false, false)
+    SetEntityCoords(PlayerPedId(), adminCoords.x, adminCoords.y, adminCoords.z, false, false, false, false)
 end)
 
 RegisterNetEvent("vorp_admin:TeleportPlayerBack", function()
     if lastLocation then
-        SetEntityCoords(PlayerPedId(), lastLocation, 0, 0, 0, false)
+        SetEntityCoords(PlayerPedId(), lastLocation.x, lastLocation.y, lastLocation.z, false, false, false, false)
         lastLocation = nil
     end
 end)
@@ -195,7 +213,7 @@ end)
 
 RegisterNetEvent('vorp_admin:ClientTrollSetPlayerOnFireHandler', function()
     local model = 'p_campfire02xb'
-    RequestModel(model)
+    RequestModel(model, false)
     local object = CreateObject(model, 0, 0, 0, false, false, false)
     AttachEntityToEntity(object, PlayerPedId(), 41, 1000, 1000, 10000, 0, 0, 0, false, false, true, false, 1000, false,
         false, false)
@@ -205,11 +223,11 @@ end)
 
 RegisterNetEvent('vorp_admin:ClientTrollTPToHeavenHandler', function()
     local pl = GetEntityCoords(PlayerPedId())
-    SetEntityCoords(PlayerPedId(), pl.x, pl.y, pl.z + 200)
+    SetEntityCoords(PlayerPedId(), pl.x, pl.y, pl.z + 200, false, false, false, false)
 end)
 
 RegisterNetEvent('vorp_admin:ClientTrollRagdollPlayerHandler', function()
-    SetPedToRagdoll(PlayerPedId(), 5000, 5000, 0, 0, 0, 0)
+    SetPedToRagdoll(PlayerPedId(), 5000, 5000, 0, false, false, false)
 end)
 
 RegisterNetEvent('vorp_admin:ClientDrainPlayerStamHandler', function()
@@ -218,9 +236,9 @@ end)
 
 RegisterNetEvent('vorp_admin:ClientHandcuffPlayerHandler', function()
     if not IsPedCuffed(PlayerPedId()) then
-        SetEnableHandcuffs(PlayerPedId(), true)
+        SetEnableHandcuffs(PlayerPedId(), true, false)
     else
-        SetEnableHandcuffs(PlayerPedId(), false)
+        SetEnableHandcuffs(PlayerPedId(), false, false)
     end
 end)
 

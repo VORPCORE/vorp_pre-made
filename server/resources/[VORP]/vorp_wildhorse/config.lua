@@ -5,10 +5,11 @@ Config.Language = {
     NotInTheTrainer = "I won't buy that animal",
     AnimalSold = "Thanks for the deal!",
     notatrainer = "You Dont Have The Right Job",
+    NotBroken = "Your horse is not broken",
 }
 
-Config.aiTrainerped = true -- spawn ai trainer ped set to false if you dont want an ai trainer ped to spawn
-Config.joblocked = false   -- lock the trainer so only people with the job can access. u can change access to each trainer by editing this  trainerjob= "trainer"
+Config.aiTrainerped = true  -- spawn ai trainer ped set to false if you dont want an ai trainer ped to spawn
+Config.joblocked = false    -- lock the trainer so only people with the job can access. u can change access to each trainer by editing this  trainerjob= "trainer"
 
 Config.WebhookCheatLog = "" -- webhook for cheater log
 Config.trainers = {

@@ -371,6 +371,14 @@ Locales["en_lang"] = {
     hideui                    = "Hide UI",
     cancelanimation           = "Cancel animation",
     commands                  = "Commands",
-    object_desc               = " object menu"
+    object_desc               = " object menu",
+    ---------------------------------------------------------------------------
+    -- Noclip Prompts
+    promptbackward            = "BACKWARD",
+    promptforward             = "FORWARD",
+    promptspeed               = "SPEED",
+    promptdown                = "DOWN",
+    promptup                  = "UP",
+    promptcancel              = "CANCEL",
 
 }

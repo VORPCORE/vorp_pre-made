@@ -11,21 +11,52 @@
 ---@field dropped number @Weapon dropped
 ---@field group number @Weapon group type
 ---@field source number @Weapon player source
-Weapon            = {}
-Weapon.name       = nil
-Weapon.id         = nil
-Weapon.propietary = nil
-Weapon.charId     = nil
-Weapon.used       = false
-Weapon.used2      = false
-Weapon.ammo       = {}
-Weapon.components = {}
-Weapon.desc       = nil
-Weapon.currInv    = ''
-Weapon.dropped    = 0
-Weapon.group      = 5
-Weapon.source     = nil
+Weapon               = {}
+Weapon.name          = nil
+Weapon.id            = nil
+Weapon.propietary    = nil
+Weapon.charId        = nil
+Weapon.used          = false
+Weapon.used2         = false
+Weapon.ammo          = {}
+Weapon.components    = {}
+Weapon.desc          = nil
+Weapon.currInv       = ''
+Weapon.dropped       = 0
+Weapon.group         = 5
+Weapon.source        = nil
+Weapon.label         = nil
+Weapon.serial_number = nil
+Weapon.custom_label  = nil
+Weapon.custom_desc   = nil
 
+function Weapon:getLabel()
+	return self.label
+end
+
+function Weapon:getSerialNumber()
+	return self.serial_number
+end
+
+function Weapon:getCustomLabel()
+	return self.custom_label
+end
+
+function Weapon:setCustomLabel(custom_label)
+	self.custom_label = custom_label
+end
+
+function Weapon:setSerialNumber(serial_number)
+	self.serial_number = serial_number
+end
+
+function Weapon:getCustomDesc()
+	return self.custom_desc
+end
+
+function Weapon:setCustomDesc(custom_desc)
+	self.custom_desc = custom_desc
+end
 
 function Weapon:setUsed(isUsed)
 	self.used = isUsed

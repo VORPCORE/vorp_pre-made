@@ -52,7 +52,6 @@ Config = {
 		}
 	},
 	-- =================== CLEAR ITEMS WEAPONS MONEY GOLD =====================--
-
 	UseClearAll              = false, -- if you want to use the clear item function if false will use DropOnDeath function
 	OnPlayerRespawn          = {
 		Money = {
@@ -126,11 +125,32 @@ Config = {
 		"WEAPON_MELEE_HAMMER",
 		"WEAPON_MELEE_KNIFE",
 	},
-
+	-- weapons that are considered non throwables
 	nonAmmoThrowables   = {
 		"WEAPON_MELEE_CLEAVER",
 		"WEAPON_MELEE_HATCHET",
 		"WEAPON_MELEE_HATCHET_HUNTER"
 	},
+	-- weapons that dont need serial numbers
+	noSerialNumber      = {
+		"WEAPON_MELEE_CLEAVER",
+		"WEAPON_MELEE_HATCHET",
+		"WEAPON_MELEE_HATCHET_HUNTER",
+		"WEAPON_MELEE_KNIFE",
+		"WEAPON_KIT_BINOCULARS_IMPROVED",
+		"WEAPON_KIT_BINOCULARS",
+		"WEAPON_FISHINGROD",
+		"WEAPON_KIT_CAMERA",
+		"WEAPON_kIT_CAMERA_ADVANCED",
+		"WEAPON_MELEE_LANTERN",
+		"WEAPON_MELEE_DAVY_LANTERN",
+		"WEAPON_MELEE_LANTERN_HALLOWEEN",
+		"WEAPON_KIT_METAL_DETECTOR",
+		"WEAPON_MELEE_HAMMER",
+		"WEAPON_BOW",
+		"WEAPON_BOW_IMPROVED",
+		"WEAPON_LASSO",
+		"WEAPON_LASSO_REINFORCED",
+	}
 
 }

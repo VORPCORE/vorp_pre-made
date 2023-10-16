@@ -14,6 +14,7 @@ SvUtils = {}
 
 --@Processing user when making inventory transactions
 local processingUser = {}
+math.randomseed(GetGameTimer())
 
 ---return a table will all weapons that match the name
 ---@param invId string
@@ -174,7 +175,7 @@ end
 
 --- Transaction Ended
 ---@param id number user id
----@param keepInventoryOpen boolean keep inventory open
+---@param keepInventoryOpen? boolean keep inventory open
 function SvUtils.Trem(id, keepInventoryOpen)
     keepInventoryOpen = keepInventoryOpen == nil and true or keepInventoryOpen
     for k, v in pairs(processingUser) do
@@ -196,4 +197,39 @@ function SvUtils.DoesItemExist(itemName, api)
         Log.error("[^2" .. api .. "7] Item [^3" .. tostring(itemName) .. "^7] does not exist in DB.")
         return false
     end
+end
+
+--- generate a weapon label
+---@param name string weapon name
+---@return string
+function SvUtils.GenerateWeaponLabel(name)
+    for key, value in ipairs(SharedData.Weapons) do
+        if value.HashName == name then
+            return value.Name
+        end
+    end
+    return ""
+end
+
+--- filter weapons that should not have a serial number
+---@param name string weapon name
+---@return boolean
+function SvUtils.filterWeaponsSerialNumber(name)
+    for _, weapon in pairs(Config.noSerialNumber) do
+        if weapon == name then
+            return false
+        end
+    end
+    return true
+end
+
+--- generate a unique serial number
+---@return string
+function SvUtils.GenerateSerialNumber(name)
+    if SvUtils.filterWeaponsSerialNumber(name) then
+        return ""
+    end
+    local timeStamp = os.time()
+    local randomNumber = math.random(1000, 9999)
+    return string.format("%s-%s", timeStamp, randomNumber)
 end

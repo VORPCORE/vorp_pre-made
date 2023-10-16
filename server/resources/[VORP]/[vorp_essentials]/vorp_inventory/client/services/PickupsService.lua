@@ -5,48 +5,59 @@ local dropAll = false
 local lastCoords = {}
 
 PickupsService.CreateObject = function(model, position)
-	local objectHash = GetHashKey(model)
+	local objectHash = joaat(model)
 
-	if not Citizen.InvokeNative(0x1283B8B89DD5D1B6, objectHash) then -- HasModelLoaded
-		Citizen.InvokeNative(0xFA28FE3A6246FC30, objectHash)      -- RequestModel
+	if not HasModelLoaded(objectHash) then
+		RequestModel(objectHash, false)
 	end
 
-	while not Citizen.InvokeNative(0x1283B8B89DD5D1B6, objectHash) do -- HasModelLoaded
+	while not HasModelLoaded(objectHash) do
 		Wait(1)
 	end
 
-	local entityHandle = Citizen.InvokeNative(0x509D5878EB39E842, objectHash, position.x, position.y, position.z, true,
-		true, true)                                                  -- CreateObject
-
+	local entityHandle = CreateObject(objectHash, position.x, position.y, position.z, true, true, true)
+	while not DoesEntityExist(entityHandle) do
+		Wait(20)
+	end
 	Citizen.InvokeNative(0x58A850EAEE20FAA3, entityHandle)           -- PlaceObjectOnGroundProperly
 	Citizen.InvokeNative(0xDC19C288082E586E, entityHandle, true, false) -- SetEntityAsMissionEntity
 	Citizen.InvokeNative(0x7D9EFB7AD6B19754, entityHandle, true)     -- FreezeEntityPosition
 	Citizen.InvokeNative(0x7DFB49BCDB73089A, entityHandle, true)     -- SetPickupLight
 	Citizen.InvokeNative(0xF66F820909453B8C, entityHandle, false, true) -- SetEntityCollision
-
 	SetModelAsNoLongerNeeded(objectHash)
 
 	return entityHandle
 end
 
-PickupsService.createPickup = function(name, amount, metadata, weaponId)
+PickupsService.createPickup = function(name, amount, metadata, weaponId, id)
 	local playerPed = PlayerPedId()
 	local coords = GetEntityCoords(playerPed, true, true)
 	local forward = GetEntityForwardVector(playerPed)
 	local position = vector3(coords.x + forward.x * 1.6, coords.y + forward.y * 1.6, coords.z + forward.z * 1.6)
 	local pickupModel = "P_COTTONBOX01X"
 
-
 	if dropAll then
 		local randomOffsetX = math.random(-35, 35)
 		local randomOffsetY = math.random(-35, 35)
-
 		position = vector3(lastCoords.x + (randomOffsetX / 10.0), lastCoords.y + (randomOffsetY / 10.0), lastCoords.z)
 	end
 
 	local entityHandle = PickupsService.CreateObject(pickupModel, position)
 
-	TriggerServerEvent("vorpinventory:sharePickupServer", name, entityHandle, amount, metadata, position, weaponId)
+	local data = {
+		name = name,
+		obj = entityHandle,
+		amount = amount,
+		metadata = metadata,
+		weaponId = weaponId,
+		position = position,
+		id = id,
+	}
+	if weaponId == 1 then
+		TriggerServerEvent("vorpinventory:sharePickupServerItem", data)
+	else
+		TriggerServerEvent("vorpinventory:sharePickupServerWeapon", data)
+	end
 	PlaySoundFrontend("show_info", "Study_Sounds", true, 0)
 end
 
@@ -74,6 +85,7 @@ PickupsService.createGoldPickup = function(amount)
 	if not Config.UseGoldItem then
 		return
 	end
+
 	local playerPed = PlayerPedId()
 	local coords = GetEntityCoords(playerPed, true, true)
 	local forward = GetEntityForwardVector(playerPed)
@@ -93,32 +105,32 @@ PickupsService.createGoldPickup = function(amount)
 	PlaySoundFrontend("show_info", "Study_Sounds", true, 0)
 end
 
-PickupsService.sharePickupClient = function(name, entityHandle, amount, metadata, position, value, weaponId)
+PickupsService.sharePickupClient = function(data, value)
 	if value == 1 then
-		if WorldPickups[entityHandle] == nil then
-			local label = Utils.GetHashreadableLabel(name, weaponId)
+		if WorldPickups[data.obj] == nil then
+			local label = Utils.GetHashreadableLabel(data.name, data.weaponId)
 
 			local pickup = Pickup:New({
-				name = (amount > 1) and label .. " x " .. tostring(amount) or label,
-				entityId = entityHandle,
-				amount = amount,
-				metadata = metadata,
-				weaponId = weaponId,
-				coords = position,
-				prompt = Prompt:New(0xF84FA74F, T.TakeFromFloor, PromptType.StandardHold, promptGroup)
+				name     = (data.amount > 1) and label .. " x " .. tostring(data.amount) or label,
+				entityId = data.obj,
+				amount   = data.amount,
+				metadata = data.metadata,
+				weaponId = data.weaponId,
+				coords   = data.position,
+				prompt   = Prompt:New(0xF84FA74F, T.TakeFromFloor, PromptType.StandardHold, promptGroup),
+				uid      = data.uid
+
 			})
-
-
 			pickup.prompt:SetVisible(false)
-			WorldPickups[entityHandle] = pickup
+			WorldPickups[data.obj] = pickup
 			if Config.Debug then
 				print('Item pickup added: ' .. tostring(pickup.name))
 			end
 		end
 	else
-		if WorldPickups[entityHandle] ~= nil then
-			WorldPickups[entityHandle].prompt:Delete()
-			Utils.TableRemoveByKey(WorldPickups, entityHandle)
+		if WorldPickups[data.obj] ~= nil then
+			WorldPickups[data.obj].prompt:Delete()
+			Utils.TableRemoveByKey(WorldPickups, data.obj)
 		end
 	end
 end
@@ -135,7 +147,6 @@ PickupsService.shareMoneyPickupClient = function(entityHandle, amount, position,
 				coords = position,
 				prompt = Prompt:New(0xF84FA74F, T.TakeFromFloor, PromptType.StandardHold, promptGroup)
 			})
-
 
 			pickup.prompt:SetVisible(false)
 			WorldPickups[entityHandle] = pickup
@@ -194,7 +205,7 @@ PickupsService.removePickupClient = function(entityHandle)
 		Wait(100)
 	end
 
-	Citizen.InvokeNative(0x7D9EFB7AD6B19754, entityHandle, false) -- FreezeEntityPosition
+	FreezeEntityPosition(entityHandle, false)                  -- FreezeEntityPosition
 	Citizen.InvokeNative(0x7DFB49BCDB73089A, entityHandle, false) -- SetPickupLight
 	DeleteObject(entityHandle)
 end
@@ -202,18 +213,17 @@ end
 PickupsService.playerAnim = function(obj)
 	local playerPed = PlayerPedId()
 	local animDict = "amb_work@world_human_box_pickup@1@male_a@stand_exit_withprop"
-	Citizen.InvokeNative(0xA862A2AD321F94B4, animDict)
+	RequestAnimDict(animDict)
 
-	while not Citizen.InvokeNative(0x27FF6FE8009B40CA, animDict) do
+	while not HasAnimDictLoaded(animDict) do
 		Wait(10)
 	end
 
-	Citizen.InvokeNative(0xEA47FE3719165B94, playerPed, animDict, "exit_front", 1.0, 8.0, -1, 1, 0, false, false,
-		false)
+	TaskPlayAnim(playerPed, animDict, "exit_front", 1.0, 8.0, -1, 1, 0, false, false, false)
 	Wait(1200)
 	PlaySoundFrontend("CHECKPOINT_PERFECT", "HUD_MINI_GAME_SOUNDSET", true, 1)
 	Wait(1000)
-	Citizen.InvokeNative(0xE1EF3C1216AFF2CD, playerPed)
+	ClearPedTasks(playerPed)
 end
 
 PickupsService.DeadActions = function()
@@ -247,28 +257,18 @@ PickupsService.dropAllPlease = function()
 	end
 
 	if Config.DropOnRespawn.Items then
-		local items = UserInventory
-
-		for _, item in pairs(items) do
+		for _, item in pairs(UserInventory) do
 			local itemName = item:getName()
 			local itemCount = item:getCount()
 			local itemMetadata = item:getMetadata()
 
 			TriggerServerEvent("vorpinventory:serverDropItem", itemName, item.id, itemCount, itemMetadata)
-			item:quitCount(itemCount)
-
-			if item:getCount() == 0 then
-				UserInventory[item.id] = nil
-			end
-
 			Wait(200)
 		end
 	end
 
 	if Config.DropOnRespawn.Weapons then
-		local weapons = UserWeapons
-
-		for index, weapon in pairs(weapons) do
+		for index, weapon in pairs(UserWeapons) do
 			TriggerServerEvent("vorpinventory:serverDropWeapon", index)
 
 			if next(UserWeapons[index]) ~= nil then
@@ -289,59 +289,59 @@ PickupsService.dropAllPlease = function()
 	dropAll = false
 end
 
-PickupsService.OnWorldPickup = function()
-	if next(WorldPickups) == nil then
-		Wait(1000)
-		return
-	end
 
-	local playerPed = PlayerPedId()
-	local pickupsInRange = {}
-
-	for key, value in pairs(WorldPickups) do
-		if value:IsInRange() then
-			table.insert(pickupsInRange, value)
-		end
-	end
-
-	table.sort(pickupsInRange, function(left, right)
-		return left:Distance() < right:Distance()
-	end)
-
-
-	for _, pickup in pairs(pickupsInRange) do
-		if pickup:Distance() <= 1.2 then
-			Citizen.InvokeNative(0x69F4BE8C8CC4796C, playerPed, pickup.entityId, 3000, 2048, 3) -- TaskLookAtEntity
-			local isDead = IsEntityDead(playerPed)
-
-
-			pickup.prompt:SetVisible(not isDead)
-
-			local promptSubLabel = CreateVarString(10, "LITERAL_STRING", pickup.name)
-			Citizen.InvokeNative(0xC65A45D4453C2627, promptGroup, promptSubLabel, 1) -- UiPromptSetActiveGroupThisFrame
-
-			if pickup.prompt:HasHoldModeCompleted() then
-				if pickup.isMoney then
-					TriggerServerEvent("vorpinventory:onPickupMoney", pickup.entityId)
-				elseif Config.UseGoldItem and pickup.isGold then
-					TriggerServerEvent("vorpinventory:onPickupGold", pickup.entityId)
-				else
-					TriggerServerEvent("vorpinventory:onPickup", pickup.entityId)
-				end
-
-				Wait(1000)
-			end
-		else
-			if pickup.prompt:GetEnabled() then
-				pickup.prompt:SetVisible(false)
-			end
-		end
-	end
-end
 
 Citizen.CreateThread(function()
 	while true do
-		Wait(0)
-		PickupsService.OnWorldPickup()
+		local sleep = 1000
+		if not InInventory then
+			if next(WorldPickups) then
+				local playerPed = PlayerPedId()
+				local pickupsInRange = {}
+
+				for key, value in pairs(WorldPickups) do
+					if value:IsInRange() then
+						table.insert(pickupsInRange, value)
+					end
+				end
+
+				table.sort(pickupsInRange, function(left, right)
+					return left:Distance() < right:Distance()
+				end)
+
+				for key, pickup in pairs(pickupsInRange) do
+					if pickup:Distance() <= 1.2 then
+						sleep = 0
+						Citizen.InvokeNative(0x69F4BE8C8CC4796C, playerPed, pickup.entityId, 3000, 2048, 3) -- TaskLookAtEntity
+						local isDead = IsEntityDead(playerPed)
+						pickup.prompt:SetVisible(not isDead)
+
+						local promptSubLabel = CreateVarString(10, "LITERAL_STRING", pickup.name)
+						PromptSetActiveGroupThisFrame(promptGroup, promptSubLabel, 1)
+
+						if pickup.prompt:HasHoldModeCompleted() then
+							if pickup.isMoney then
+								TriggerServerEvent("vorpinventory:onPickupMoney", pickup.entityId)
+							elseif Config.UseGoldItem and pickup.isGold then
+								TriggerServerEvent("vorpinventory:onPickupGold", pickup.entityId)
+							else
+								local data = {
+									data = pickupsInRange,
+									key = key
+								}
+								TriggerServerEvent("vorpinventory:onPickup", data)
+							end
+
+							Wait(1000)
+						end
+					else
+						if pickup.prompt:GetEnabled() then
+							pickup.prompt:SetVisible(false)
+						end
+					end
+				end
+			end
+		end
+		Wait(sleep)
 	end
 end)

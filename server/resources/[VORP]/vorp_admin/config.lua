@@ -1,30 +1,35 @@
 Config = {
     --add your language
+    DevMode             = false, -- leave false
+    useAdminCommand     = true,  -- can open menu with adim command below
+    commandAdmin        = "adminMenu",
     defaultlang         = "en_lang",
     Key                 = 0x3C3DD371, --PGDOWN open menu
-    CanOpenMenuWhenDead = true, -- if true any staff can open menu when dead, !WARNING! staff can abuse this to get revived
-    useQWreports        = true, -- disable this if you are not using qw reports
+    CanOpenMenuWhenDead = true,       -- if true any staff can open menu when dead, !WARNING! staff can abuse this to get revived
+    useQWreports        = true,       -- disable this if you are not using qw reports
+    VorpStable          = true,       -- if you are using vorp_stable then set to true if syn stable set false  when giving worses or wagons it will go directly to databse
+
     -- heal
     Heal                = {
         Players = function()
             --TriggerServerEvent("outsider_needs:Heal") -- trigger to server and from there heal player
             TriggerEvent("vorpmetabolism:changeValue", "Thirst", 1000)
             TriggerEvent("vorpmetabolism:changeValue", "Hunger", 1000)
-            --TriggerEvent('fred_meta:consume', 100, 100, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0) -- fred metabolism
+            TriggerEvent('fred_meta:consume', 100, 100, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0) -- fred metabolism
         end
     },
     ---------------------- NO CLIP ----------------------
 
     Controls            = {
 
-        goUp = 0xF84FA74F, -- Q
-        goDown = 0x07CE1E61, -- Z
-        turnLeft = 0x7065027D, -- A
-        turnRight = 0xB4E465B4, -- D
-        goForward = 0x8FD015D8, -- W
-        goBackward = 0x8CF90A9D, -- S I DONT FUCKING KNOW WHY S DONT WORK
+        goUp = 0xF84FA74F,        -- Q
+        goDown = 0x07CE1E61,      -- Z
+        turnLeft = 0x7065027D,    -- A
+        turnRight = 0xB4E465B4,   -- D
+        goForward = 0x8FD015D8,   -- W
+        goBackward = 0x8CF90A9D,  -- S I DONT FUCKING KNOW WHY S DONT WORK
         changeSpeed = 0x8FFC75D6, -- L-Shift
-        camMode = 0x24978A28, -- H
+        camMode = 0x24978A28,     -- H
         Cancel = 0x4AF4D473
 
     },
@@ -38,9 +43,9 @@ Config = {
         { label = 'Max',       speed = 29 },
     },
     Offsets             = {
-        y = 0.2, -- Forward and backward movement speed multiplier
-        z = 0.1, -- Upward and downward movement speed multiplier
-        h = 1, -- Rotation movement speed multiplier
+        y = 0.2,                -- Forward and backward movement speed multiplier
+        z = 0.1,                -- Upward and downward movement speed multiplier
+        h = 1,                  -- Rotation movement speed multiplier
     },
     FrozenPosition      = true, -- frozen on open menu vorp.staff.OpenMenu
     AllowedGroups       = {
@@ -78,6 +83,7 @@ Config = {
         { group = { "admin" }, command = "vorp.staff.GetCoords" },
         { group = { "admin" }, command = "vorp.staff.Announce" },
         { group = { "admin" }, command = "vorp.staff.Godmode" },
+        { group = { "admin" }, command = "vorp.staff.InfiniteAmmo" },
         { group = { "admin" }, command = "vorp.staff.Noclip" },
         { group = { "admin" }, command = "vorp.staff.Golden" },
         { group = { "admin" }, command = "vorp.staff.SpawnWagon" },
@@ -121,22 +127,22 @@ Config = {
     -- only one can be added
     -- choose what info should show to all users
     showUsersInfo       = "showAll", -- showAll --showJob --showGroup -- showID
-    UseUsersMenu        = true, --leave false if you dont need users menu
-    EnablePlayerlist    = true, -- enable scroeboard
+    UseUsersMenu        = true,      --leave false if you dont need users menu
+    EnablePlayerlist    = true,      -- enable scroeboard
     --------------------------------------------------------
     -- WEBHOOKS/LOGS
-    AlertCooldown       = 60, -- cooldown for request staff to request again (seconds)
-    webhookColor        = 16711680, --EMBED COLOR RED
-    name                = "VORP", --NAME OF EMBED
+    AlertCooldown       = 60,                                  -- cooldown for request staff to request again (seconds)
+    webhookColor        = 16711680,                            --EMBED COLOR RED
+    name                = "VORP",                              --NAME OF EMBED
     logo                = "https://via.placeholder.com/30x30", --HEAD LOGO
     footerLogo          = "https://via.placeholder.com/30x30", --FOOTER LOGO
     Avatar              = "https://via.placeholder.com/30x30", -- AVATAR LOGO
     ReportLogs          = {
-        Reports = "", -- for reports
-        RequestStaff = "", -- for request staff
-        BugReport = "", -- for bug report
-        RulesBroken = "", -- for rules broken report
-        Cheating = "" -- for cheating report
+        Reports = "",                                          -- for reports
+        RequestStaff = "",                                     -- for request staff
+        BugReport = "",                                        -- for bug report
+        RulesBroken = "",                                      -- for rules broken report
+        Cheating = ""                                          -- for cheating report
     },
     BoosterLogs         = {
         NoClip = "",
@@ -188,5 +194,3 @@ Config = {
         Clearweapons = "",
     }
 }
-
-

@@ -3,13 +3,15 @@ local selectedChar = 1
 local myChars      = {}
 local textureId    = -1
 local MaxCharacters
-local mainCam      = nil
-local LastCam      = nil
+local mainCam
+local LastCam
 local random
 local canContinue  = false
 local Custom       = nil
 local Peds         = {}
-
+local MalePed
+local FemalePed
+local stopLoop     = false
 -- GLOBALS
 CachedSkin         = {}
 CachedComponents   = {}
@@ -27,6 +29,7 @@ AddEventHandler('onClientResourceStart', function(resourceName)
 	end
 end)
 
+--clean up
 AddEventHandler('onResourceStop', function(resourceName)
 	if (GetCurrentResourceName() ~= resourceName) then
 		return
@@ -265,6 +268,7 @@ local function finish(boolean)
 	Citizen.InvokeNative(0x706D57B0F50DA710, "MC_MUSIC_STOP")
 	exports.weathersync:setSyncEnabled(true)
 end
+
 local imgPath = "<img style='max-height:532px;max-width:344px;float: center;'src='nui://vorp_character/images/%s.png'>"
 local function addNewelements(menu)
 	local available = MaxCharacters - #myChars
@@ -285,7 +289,7 @@ local function createMainCam()
 		data.mainCam.rotx, data.mainCam.roty,
 		data.mainCam.rotz, data.mainCam.fov, false, 2)
 	SetCamActive(mainCam, true)
-	RenderScriptCams(true, false, 0, true, true)
+	RenderScriptCams(true, false, 0, true, true, 0)
 end
 
 function OpenMenuSelect()
@@ -406,11 +410,11 @@ function OpenMenuSelect()
 
 			if Config.AllowPlayerDeleteCharacter then
 				if (data.current.value == "delete") and not pressed then
+					stopLoop = false
 					pressed = true
 					DisplayHud(true)
-					exports[GetCurrentResourceName()]:_UI_FEED_POST_OBJECTIVE(-1,
-						'Press Delete to erase this character , or  press backspace to cancel')
-					while true do
+					exports[GetCurrentResourceName()]:_UI_FEED_POST_OBJECTIVE(-1, Translation.Langs[Lang].Inputs.notify)
+					while not stopLoop do
 						Wait(0)
 
 						if IsControlJustPressed(0, joaat("INPUT_CREATOR_DELETE")) then
@@ -467,6 +471,7 @@ function OpenMenuSelect()
 				Citizen.InvokeNative(0x524B54361229154F, dataConfig.PedHandler, "", -1, false, "", -1.0, 0)
 				finish(true)
 				CharSelect()
+				stopLoop = true
 			end
 		end, function(menu, data)
 
@@ -481,7 +486,7 @@ function CharSelect()
 	CachedComponents = myChars[selectedChar].components
 	TriggerServerEvent("vorp_CharSelectedCharacter", charIdentifier)
 
-	RequestModel(nModel)
+	RequestModel(nModel, false)
 	while not HasModelLoaded(nModel) do
 		Wait(0)
 	end
@@ -515,7 +520,7 @@ AddEventHandler("vorpcharacter:reloadafterdeath", function()
 	LoadPlayer(joaat("CS_dutch"))
 	SetPlayerModel(PlayerId(), joaat("CS_dutch"), false)
 	IsPedReadyToRender()
-	LoadPlayerComponents(PlayerPedId(), myChars[selectedChar].skin, myChars[selectedChar].components)
+	LoadPlayerComponents(PlayerPedId(), CachedSkin, CachedComponents)
 	SetModelAsNoLongerNeeded(joaat("CS_dutch"))
 	--heal ped after death
 	local ped = PlayerPedId()
@@ -558,7 +563,8 @@ function LoadPlayerComponents(ped, skin, components)
 	-- Load our face textures
 	FaceOverlay("beardstabble", skin.beardstabble_visibility, 1, 1, 0, 0, 1.0, 0, 1, skin.beardstabble_color_primary, 0,
 		0, 1, skin.beardstabble_opacity)
-	FaceOverlay("hair", skin.hair_visibility, 1, 1, 0, 0, 1.0, 0, 1, skin.hair_color_primary, 0, 0, 1, skin.hair_opacity)
+	FaceOverlay("hair", skin.hair_visibility, skin.hair_tx_id, 1, 0, 0, 1.0, 0, 1, skin.hair_color_primary, 0, 0, 1,
+		skin.hair_opacity)
 	FaceOverlay("scars", skin.scars_visibility, skin.scars_tx_id, 0, 0, 1, 1.0, 0, 0, 0, 0, 0, 1, skin.scars_opacity)
 	FaceOverlay("spots", skin.spots_visibility, skin.spots_tx_id, 0, 0, 1, 1.0, 0, 0, 0, 0, 0, 1, skin.spots_opacity)
 	FaceOverlay("disc", skin.disc_visibility, skin.disc_tx_id, 0, 0, 1, 1.0, 0, 0, 0, 0, 0, 1, skin.disc_opacity)
@@ -690,15 +696,17 @@ RegisterCommand("rc", function(source, args, rawCommand)
 
 		LoadPlayerComponents(__player, CachedSkin, CachedComponents)
 	end
-end)
+end, false)
+
 
 -- work arround to fix scale issues
 CreateThread(function()
 	while true do
 		local dead = IsEntityDead(PlayerPedId())
-		if myChars[selectedChar] then
-			if myChars[selectedChar].skin and not dead then
-				SetPedScale(PlayerPedId(), myChars[selectedChar].skin.Scale)
+		if CachedSkin then
+			local PlayerHeight = CachedSkin.Scale
+			if PlayerHeight and not dead then
+				SetPedScale(PlayerPedId(), PlayerHeight)
 			end
 		end
 		Wait(1000)

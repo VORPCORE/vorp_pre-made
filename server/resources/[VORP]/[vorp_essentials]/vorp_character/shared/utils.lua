@@ -103,6 +103,7 @@ PlayerSkin = {
     eyeliner_visibility               = 0,
     eyeliner_color_primary            = 0,
     eyeliner_opacity                  = 0,
+    eyeliner_palette_id               = 0,
     blush_visibility                  = 0,
     blush_tx_id                       = 0,
     blush_palette_id                  = 0,

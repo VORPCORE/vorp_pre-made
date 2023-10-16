@@ -12,7 +12,7 @@ https://user-images.githubusercontent.com/87246847/176929940-9557248d-670d-4dca-
 
 
 ### FEATURES
-* ***Built in Ace permissions*** *does not use databse*
+* ***Built in Ace permissions*** *and databse*
 * ***owners have all perms by default***
 * ***permissions for all actions***
 * ***administration tools***
@@ -38,9 +38,7 @@ theres also  a menu for users
 ### DEPENDENCIES
 ##### you need all these updated to lattest verions or it wont work 
 * [vorp_inputs](https://github.com/VORPCORE/vorp_inputs-lua) ***Lua***
-* [vorp_inventory](https://github.com/VORPCORE/vorp_inventory-lua)  
-* [vorp_core](https://github.com/VORPCORE/vorp-core-lua)
-* [menuapi](https://github.com/outsider31000/menuapi)
+* [vorp_menu](https://github.com/VORPCORE/vorp_menu)
 
 #### LlICENSE
 * this resource its protected by its license

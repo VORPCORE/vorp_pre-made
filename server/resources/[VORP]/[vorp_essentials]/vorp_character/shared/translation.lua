@@ -33,7 +33,6 @@ Translation.Langs = {
             promptUpDownCam = "up/down",
             promptrotateCam = "rotate",
             promptzoomCam = "zoom",
-            CamAdjustments = "Impostazioni della fotocamera",
             CamAdjustments = "Camera adjustments",
         },
         Inputs = {
@@ -41,7 +40,8 @@ Translation.Langs = {
             placeholder = "firstname lastname",
             inputHeader = "CHOOSE CHARACTER NAME",
             title = "Letters only min 5 max 20",
-            banned = "you cant use those names as they are consider banned in this server"
+            banned = "you cant use those names as they are consider banned in this server",
+            notify = "Press Delete to erase this character , or  press backspace to cancel"
         },
         MenuCreation = {
             title = "Character Creation",
@@ -206,8 +206,8 @@ Translation.Langs = {
             element9 = { label = "Opacity", desc = "Choose makeup  of your character" },
         },
     },
-        Italian = {
-            MainMenu = {
+    Italian = {
+        MainMenu = {
             NewChar = "Crea un nuovo personaggio",
             NewCharDesc = "Cambia personaggio premendo Invio",
             Name = "Nome: ",
@@ -245,20 +245,21 @@ Translation.Langs = {
             placeholder = "Nome e Cognome",
             inputHeader = "Come si chiamerà il tuo personaggio?",
             title = "Solo lettere, minimo 5 massimo 20",
-            banned = "Non puoi utilizzare quei nomi, sono considerati vietati in questo server"
-    
+            banned = "Non puoi utilizzare quei nomi, sono considerati vietati in questo server",
+            notify = "Premi Canc per eliminare questo personaggio, o premi Backspace per annullare"
+
         },
         MenuCreation = {
             title = "Menu personaggio",
             subtitle = "Sotto-menu",
-            label = "Nome scelto",    
+            label = "Nome scelto",
             element = { label = "Aspetto", desc = "Scegli l'aspetto del tuo personaggio" },
-            element2 = { label = "Abbigliamento", desc = "Scegli l'abbigliamento del personaggio" },    
+            element2 = { label = "Abbigliamento", desc = "Scegli l'abbigliamento del personaggio" },
             element3 = {
                 label = "Scegli un Nome",
                 desc =
                 "Scegli un nome per il tuo personaggio assicurati di leggere le regole per la scelta del nome del personaggio,<br> se non segui le regole questo personaggio verrà eliminato senza preavviso"
-            },    
+            },
             element4 = { label = "Inizia l'Avventura", desc = "Inizia la tua avventura premendo Invio" },
         },
         MenuClothes = {
@@ -295,14 +296,14 @@ Translation.Langs = {
             Holster     = "Fondina Sinistra",
             Gunbelt     = "Fondine",
             RingRh      = "Anelli Destra",
-            RingLh      = "Anelli Sinistra",    
+            RingLh      = "Anelli Sinistra",
         },
         MenuComponents = {
             title = "Componenti",
             subtitle = "Sottomenu",
             element = { label = "Componente ", desc = "ce ne sono " },
             element2 = { label = " Colore  #", desc = "Scegli il colore del componente" },
-        },    
+        },
         MenuAppearance = {
             title = "Aspetto",
             subtitle = "Sottomenu",
@@ -310,7 +311,8 @@ Translation.Langs = {
             element2 = { label = "Eredità", desc = "Scegli l'eredità del tuo personaggio" },
             element3 = { label = "Capelli", desc = "Scegli il tipo di capelli del tuo personaggio" },
             element4 = { label = "Invecchiamento", desc = "Età del personaggio" },
-            element5 = { label = "Altezza", desc = "Scegli il tipo di corpo del tuo personaggio<br>Alto 3 Normale 2 Basso 1" },
+            element5 = { label = "Altezza",
+                desc = "Scegli il tipo di corpo del tuo personaggio<br>Alto 3 Normale 2 Basso 1" },
             element6 = { label = "Viso", desc = "Scegli le caratteristiche del viso" },
             element7 = { label = "Stile di vita", desc = "Scegli lo stile di vita del tuo personaggio" },
             element8 = { label = "Trucco", desc = "Scegli il trucco" },
@@ -451,7 +453,8 @@ Translation.Langs = {
             placeholder = "Primeiro e Último Nome",
             inputHeader = "Escolha o Nome do Personagem",
             title = "Apenas Letras min 5 max 20",
-            banned = "Não pode utilizar os nomes escolhidos uma vez que estão banidos deste servidor."
+            banned = "Não pode utilizar os nomes escolhidos uma vez que estão banidos deste servidor.",
+            notify = "Pressione Delete para apagar este personagem, ou pressione Backspace para cancelar"
         },
         MenuCreation = {
             title = "Criação do Personagem",
@@ -655,7 +658,8 @@ Translation.Langs = {
             placeholder = "nome sobrenome",
             inputHeader = "ESCOLHER NOME DO PERSONAGEM",
             title = "Somente letras, mínimo de 5 e máximo de 20 caracteres",
-            banned = "Você não pode usar esses nomes, pois eles são considerados proibidos neste servidor"
+            banned = "Você não pode usar esses nomes, pois eles são considerados proibidos neste servidor",
+            notify = "Pressione Delete para excluir este personagem ou pressione Backspace para cancelar"
         },
         MenuCreation = {
             title = "Criação de Personagem",
@@ -663,7 +667,9 @@ Translation.Langs = {
             label = "Nome escolhido",
             element = { label = "Aparência", desc = "Escolha a aparência do seu personagem" },
             element2 = { label = "Roupas", desc = "Escolha as roupas do seu personagem" },
-            element3 = { label = "Escolha um Nome", desc = "Escolha um nome para o seu personagem, certifique-se de ler as regras para nomeação de personagens.<br> Se você não seguir as regras, este personagem será excluído sem aviso prévio" },
+            element3 = { label = "Escolha um Nome",
+                desc =
+                "Escolha um nome para o seu personagem, certifique-se de ler as regras para nomeação de personagens.<br> Se você não seguir as regras, este personagem será excluído sem aviso prévio" },
             element4 = { label = "Iniciar Jornada", desc = "Inicie sua jornada pressionando enter" },
         },
         MenuClothes = {
@@ -715,7 +721,8 @@ Translation.Langs = {
             element2 = { label = "Herança", desc = "Escolha a herança do seu personagem" },
             element3 = { label = "Cabelo", desc = "Escolha o tipo de cabelo do seu personagem" },
             element4 = { label = "Envelhecimento", desc = "Idade do personagem" },
-            element5 = { label = "Altura", desc = "Escolha o tipo de corpo do seu personagem<br> Alto 3 Normal 2 Baixo 1 " },
+            element5 = { label = "Altura",
+                desc = "Escolha o tipo de corpo do seu personagem<br> Alto 3 Normal 2 Baixo 1 " },
             element6 = { label = "Rosto", desc = "Escolha características do rosto" },
             element7 = { label = "Estilo de vida", desc = "Escolha o estilo de vida do seu personagem" },
             element8 = { label = "Maquiagem", desc = "Escolha a maquiagem" },
@@ -797,7 +804,7 @@ Translation.Langs = {
             element2 = { label = "Manchas", desc = "Escolha a opacidade do estilo de vida do personagem" },
             element3 = { label = "Composição", desc = "Escolha a opacidade do estilo de vida do personagem" },
             element4 = { label = "Acne", desc = "Escolha a opacidade do estilo de vida do personagem" },
-            element5= { label = "Sardas", desc = "Escolha a opacidade do estilo de vida do personagem" },
+            element5 = { label = "Sardas", desc = "Escolha a opacidade do estilo de vida do personagem" },
             element6 = { label = "Descoloração", desc = "Escolha a opacidade do estilo de vida do personagem" },
             element7 = { label = "Cicatrizes", desc = "Escolha a opacidade do estilo de vida do personagem" },
             element8 = { label = "Sujeira", desc = "Escolha a opacidade do estilo de vida do personagem" },
@@ -855,7 +862,8 @@ Translation.Langs = {
             placeholder = "prénom nom",
             inputHeader = " CHOISIR LE NOM DU PERSONNAGE ",
             title = "Lettres seulement min 5 max 20",
-            banned = "vous ne pouvez pas utiliser ces noms car ils sont considérés comme interdits sur ce serveur"
+            banned = "vous ne pouvez pas utiliser ces noms car ils sont considérés comme interdits sur ce serveur",
+            notify = "Appuyez sur Supprimer pour supprimer ce personnage ou appuyez sur Retour arrière pour annuler"
         },
         MenuCreation = {
             title = "Création de personnage",
@@ -1072,7 +1080,8 @@ Translation.Langs = {
             placeholder = "Vorname Nachname",
             inputHeader = "CHARAKTERNAMEN WÄHLEN",
             title = "Nur Buchstaben min 5 max 20",
-            banned = "Diese Namen dürfen nicht verwendet werden, da sie auf diesem Server verboten sind"
+            banned = "Diese Namen dürfen nicht verwendet werden, da sie auf diesem Server verboten sind",
+            notify = "Drücke Entf, um diesen Charakter zu löschen oder drücke Rücktaste, um abzubrechen"
         },
         MenuCreation = {
             title = "Charaktererstellung",
@@ -1136,8 +1145,10 @@ Translation.Langs = {
             element2 = { label = "Abstammung", desc = "Wähle die Abstammung deines Charakters" },
             element3 = { label = "Haare", desc = "Wähle die Haarart deines Charakters" },
             element4 = { label = "Alterung", desc = "Charakteralter " },
-            element5 = { label = "Größe",
-                desc = "Wähle die Art des Körpers deines Charakters<br> Groß 3 normal 2 klein 1 " },
+            element5 = {
+                label = "Größe",
+                desc = "Wähle die Art des Körpers deines Charakters<br> Groß 3 normal 2 klein 1 "
+            },
             element6 = { label = "Gesicht", desc = "Wähle Gesichtsmerkmale" },
             element7 = { label = "Lebensstil", desc = "Wähle den Lebensstil deines Charakters" },
             element8 = { label = "Make-up", desc = "Wähle Make-up" },
@@ -1149,8 +1160,11 @@ Translation.Langs = {
             title = "Alter",
             subtitle = "Untermenü",
             element = { label = "Alter", desc = "Wähle das Alter deines Charakters" },
-            element2 = { label = "Deckkraft", desc = "es gibt ",
-                desc2 = ". Wähle die Deckkraft des Alters deines Charakters" },
+            element2 = {
+                label = "Deckkraft",
+                desc = "es gibt ",
+                desc2 = ". Wähle die Deckkraft des Alters deines Charakters"
+            },
             label3 = "Nicht sichtbar",
             label4 = "Sichtbar ",
         },
@@ -1278,7 +1292,8 @@ Translation.Langs = {
             placeholder = "nombre apellido",
             inputHeader = "Elige un nombre y apellido",
             title = "Solo letras min 5 max 20",
-            banned = "No puedes usar ese nombre, ya que está prohibido en este servidor"
+            banned = "No puedes usar ese nombre, ya que está prohibido en este servidor",
+            notify = "Presiona Supr para eliminar este personaje o presiona Retroceso para cancelar"
         },
         MenuCreation = {
             title = "Creación de personaje",
@@ -1342,8 +1357,10 @@ Translation.Langs = {
             element2 = { label = "Herencia", desc = "Elige la herencia de tu personaje" },
             element3 = { label = "Pelo", desc = "Elige el tipo de cabello de tu personaje" },
             element4 = { label = "Envejecimiento", desc = "Edad del personaje " },
-            element5 = { label = "Altura",
-                desc = "Elige el tipo de cuerpo de tu personaje<br>3 = Alto<br>2 = Normal<br>1 = Bajo" },
+            element5 = {
+                label = "Altura",
+                desc = "Elige el tipo de cuerpo de tu personaje<br>3 = Alto<br>2 = Normal<br>1 = Bajo"
+            },
             element6 = { label = "Rostro", desc = "Elige características del rostro" },
             element7 = { label = "Estilo de vida", desc = "Elige el estilo de vida de tu personaje" },
             element8 = { label = "Maquillaje", desc = "Elige el maquillaje" },
@@ -1380,8 +1397,10 @@ Translation.Langs = {
             element = { label = "Pelo", desc = "Elige el pelo de tu personaje" },
             element2 = { label = "Barba", desc = "Elige la barba de tu personaje" },
             element3 = { label = "Barba corta", desc = "Elige la barba corta de tu personaje" },
-            element4 = { label = "Accesorios para el cabello",
-                desc = "Elige los accesorios para el cabello de tu personaje" },
+            element4 = {
+                label = "Accesorios para el cabello",
+                desc = "Elige los accesorios para el cabello de tu personaje"
+            },
             element5 = { label = "Cejas", desc = "Elige las cejas de tu personaje" },
             element6 = { label = "Overlay", desc = "Choose characters hair overlay" },
         },

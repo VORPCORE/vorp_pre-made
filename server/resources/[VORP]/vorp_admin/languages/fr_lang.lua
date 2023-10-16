@@ -361,4 +361,19 @@ Locales["fr_lang"] = {
     Foundbug                  = " have found a bug",
     Someonebrokerules         = " somone is breaking the rules",
     Someonecheating           = " someone is cheating",
+    delhorse                  = "Del horse",
+    usercommands              = "user commands",
+    delwagon                  = "Del wagon",
+    hideui                    = "Hide UI",
+    cancelanimation           = "Cancel animation",
+    commands                  = "Commands",
+    object_desc               = " object menu",
+    ---------------------------------------------------------------------------
+    -- Noclip Prompts
+    promptbackward            = "BACKWARD",
+    promptforward             = "FORWARD",
+    promptspeed               = "SPEED",
+    promptdown                = "DOWN",
+    promptup                  = "UP",
+    promptcancel              = "CANCEL",
 }

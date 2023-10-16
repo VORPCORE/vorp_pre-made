@@ -3,6 +3,8 @@ InventoryService = {}
 ItemPickUps = {}
 MoneyPickUps = {}
 GoldPickUps = {}
+math.randomseed(GetGameTimer())
+ItemUids = {}
 local newchar = {} -- new
 local timer = 120  -- in minutes
 
@@ -70,9 +72,10 @@ function InventoryService.DropMoney(amount)
 		elseif userMoney < amount then
 			Core.NotifyRightTip(_source, T.NotEnoughMoney, 3000)
 		else
-			userCharacter.removeCurrency(0, amount)
 			if not Config.DeleteOnlyDontDrop then
 				TriggerClientEvent("vorpInventory:createMoneyPickup", _source, amount)
+			else
+				userCharacter.removeCurrency(0, amount)
 			end
 			local title = T.drop
 			local description = "**Money** `" .. amount .. "`" .. "\n **Playername** `" .. charname .. "`\n"
@@ -95,7 +98,6 @@ function InventoryService.DropAllMoney()
 		end
 
 		if userMoney > 0 then
-			userCharacter.removeCurrency(0, userMoney)
 			TriggerClientEvent("vorpInventory:createMoneyPickup", _source, userMoney)
 		end
 		SvUtils.Trem(_source)
@@ -115,8 +117,6 @@ function InventoryService.DropPartMoney()
 	end
 
 	if userMoney > 0 then
-		userCharacter.removeCurrency(0, userMoneyDef)
-
 		TriggerClientEvent("vorpInventory:createMoneyPickup", _source, userMoneyDef)
 	end
 end
@@ -180,9 +180,10 @@ function InventoryService.DropGold(amount)
 	elseif userGold < amount then
 		Core.NotifyRightTip(_source, T.NotEnoughGold, 3000)
 	else
-		userCharacter.removeCurrency(1, amount)
 		if not Config.DeleteOnlyDontDrop then
 			TriggerClientEvent("vorpInventory:createGoldPickup", _source, amount)
+		else
+			userCharacter.removeCurrency(1, amount)
 		end
 	end
 	SvUtils.Trem(_source)
@@ -199,8 +200,6 @@ function InventoryService.DropAllGold()
 	local userGold = userCharacter.gold
 
 	if userGold > 0 then
-		userCharacter.removeCurrency(1, userGold)
-
 		TriggerClientEvent("vorpInventory:createGoldPickup", _source, userGold)
 	end
 	SvUtils.Trem(_source, false)
@@ -291,9 +290,13 @@ function InventoryService.subItem(target, invId, itemId, amount)
 				else
 					DBService.SetItemAmount(item:getOwner(), itemId, item:getCount())
 				end
+
+				return true
 			end
 		end
 	end
+
+	return false
 end
 
 function InventoryService.addItem(target, invId, name, amount, metadata, cb)
@@ -354,11 +357,7 @@ function InventoryService.addWeapon(target, weaponId)
 	local userWeapons = UsersWeapons.default
 	local weaponcomps = {}
 	local query = 'SELECT comps FROM loadout WHERE id = @id'
-	local params = {
-		id = weaponId
-	}
-
-	local result = DBService.queryAwait(query, params)
+	local result = DBService.queryAwait(query, { id = weaponId })
 
 	if result[1] then
 		weaponcomps = json.decode(result[1].comps)
@@ -367,8 +366,10 @@ function InventoryService.addWeapon(target, weaponId)
 	local weaponname = userWeapons[weaponId]:getName()
 	local ammo = { ["nothing"] = 0 }
 	local components = { ["nothing"] = 0 }
-	InventoryAPI.registerWeapon(_source, weaponname, ammo, components, weaponcomps, function() end)
-	InventoryAPI.deleteWeapon(_source, weaponId, function() end)
+	InventoryAPI.registerWeapon(_source, weaponname, ammo, components, weaponcomps, function()
+	end, weaponId)
+	InventoryAPI.deleteWeapon(_source, weaponId, function()
+	end)
 end
 
 function InventoryService.subWeapon(target, weaponId)
@@ -391,11 +392,19 @@ function InventoryService.subWeapon(target, weaponId)
 			id = weaponId,
 		}
 		DBService.updateAsync(query, params, function(r) end)
+		return true
 	end
+	return false
 end
 
-function InventoryService.onPickup(obj)
+function InventoryService.onPickup(data)
 	local _source = source
+	local pickups = data.data[data.key]
+	local uid = pickups.uid
+
+	if not ItemUids[uid] then
+		return
+	end
 
 	if SvUtils.InProcessing(_source) then
 		return
@@ -410,7 +419,8 @@ function InventoryService.onPickup(obj)
 	local userInventory = UsersInventories.default[identifier]
 	local userWeapons = UsersWeapons.default
 
-	if ItemPickUps[obj] ~= nil then
+	if ItemPickUps[uid] ~= nil then
+		local obj = uid
 		local name = ItemPickUps[obj].name
 		local amount = ItemPickUps[obj].amount
 		local metadata = ItemPickUps[obj].metadata
@@ -426,14 +436,22 @@ function InventoryService.onPickup(obj)
 									"`\n **Item** `" .. name .. "`" .. "\n **Playername** `" .. charname .. "`\n"
 								Core.AddWebhook(title, Config.webhook, description, color, _source, logo, footerlogo,
 									avatar)
-								TriggerClientEvent("vorpInventory:sharePickupClient", -1, name, ItemPickUps[obj].obj,
-									amount, metadata,
-									ItemPickUps[obj].coords, 2)
+								local dataItem = {
+									name = name,
+									obj = ItemPickUps[obj].obj,
+									amount = amount,
+									metadata = metadata,
+									position = ItemPickUps[obj].coords,
+									id = ItemPickUps[obj].id
+								}
+
+								TriggerClientEvent("vorpInventory:sharePickupClient", -1, dataItem, 2)
 								TriggerClientEvent("vorpInventory:removePickupClient", -1, ItemPickUps[obj].obj)
 								TriggerClientEvent("vorpInventory:receiveItem", _source, name, item:getId(), amount,
 									metadata)
 								TriggerClientEvent("vorpInventory:playerAnim", _source, obj)
 								ItemPickUps[obj] = nil
+								ItemUids[uid] = nil
 							end
 						end)
 					else
@@ -450,6 +468,9 @@ function InventoryService.onPickup(obj)
 			local weaponId = ItemPickUps[obj].weaponid
 			local weapon = userWeapons[weaponId]
 			local wepname = weapon:getName()
+			local weaponCustomLabel = weapon:getCustomLabel()
+			local serialNumber = weapon:getSerialNumber()
+			local weaponCustomDesc = weapon:getCustomDesc()
 
 			if Config.JobsAllowed[job] then
 				DefaultAmount = Config.JobsAllowed[job]
@@ -471,9 +492,19 @@ function InventoryService.onPickup(obj)
 					local description = "**Weapon** `" ..
 						wepname .. "`" .. "\n **Playername** `" .. charname .. "`\n"
 					Core.AddWebhook(title, Config.webhook, description, color, _source, logo, footerlogo, avatar)
-					TriggerClientEvent("vorpInventory:sharePickupClient", -1, name, weaponObj, 1, metadata,
-						ItemPickUps[obj].coords, 2,
-						weaponId)
+					local data = {
+						name = wepname,
+						obj = weaponObj,
+						amount = amount,
+						metadata = metadata,
+						weaponId = weaponId,
+						position = ItemPickUps[obj].coords,
+						custom_label = weaponCustomLabel,
+						serial_number = serialNumber,
+						custom_desc = weaponCustomDesc,
+						id = nil
+					}
+					TriggerClientEvent("vorpInventory:sharePickupClient", -1, data, 2)
 					TriggerClientEvent("vorpInventory:removePickupClient", -1, weaponObj)
 					TriggerClientEvent("vorpInventory:playerAnim", _source, obj)
 					InventoryService.addWeapon(_source, weaponId)
@@ -518,7 +549,6 @@ function InventoryService.onPickupGold(obj)
 			local goldObj = GoldPickUps[obj].obj
 			local goldAmount = GoldPickUps[obj].amount
 			local goldCoords = GoldPickUps[obj].coords
-
 			TriggerClientEvent("vorpInventory:shareGoldPickupClient", -1, goldObj, goldAmount, goldCoords, 2)
 			TriggerClientEvent("vorpInventory:removePickupClient", -1, goldObj)
 			TriggerClientEvent("vorpInventory:playerAnim", _source, goldObj)
@@ -529,21 +559,73 @@ function InventoryService.onPickupGold(obj)
 	end
 end
 
-function InventoryService.sharePickupServer(name, obj, amount, metadata, position, weaponId)
-	TriggerClientEvent("vorpInventory:sharePickupClient", -1, name, obj, amount, metadata, position, 1, weaponId)
+local function generateUniqueID()
+	local time = os.time()
+	local randomNum = math.random(1000000, 9999999)
+	return tostring(time) .. tostring(randomNum)
+end
 
-	ItemPickUps[obj] = {
-		name = name,
-		obj = obj,
-		amount = amount,
-		metadata = metadata,
-		weaponid = weaponId,
+local function shareData(data)
+	local uid = generateUniqueID()
+	ItemUids[uid] = uid
+
+	ItemPickUps[uid] = {
+		name = data.name,
+		obj = data.obj,
+		amount = data.amount,
+		metadata = data.metadata,
+		weaponid = data.weaponId,
 		inRange = false,
-		coords = position
+		coords = data.position,
+		id = data.id,
 	}
+	data.uid = uid
+	TriggerClientEvent("vorpInventory:sharePickupClient", -1, data, 1)
+end
+
+function InventoryService.sharePickupServerWeapon(data)
+	local _source = source
+	local weapon = UsersWeapons.default[data.weaponId]
+
+	if not weapon and data.weaponId > 1 then
+		return
+	end
+
+	local result = InventoryService.subWeapon(_source, data.weaponId)
+	if not result then
+		return
+	end
+	UsersWeapons.default[data.weaponId]:setDropped(1)
+	shareData(data)
+end
+
+function InventoryService.sharePickupServerItem(data)
+	local _source = source
+	local Character = Core.getUser(_source).getUsedCharacter
+	local sourceInventory = UsersInventories.default[Character.identifier]
+	local item = sourceInventory[data.id]
+
+	if not item and data.weaponId == 1 then
+		return
+	end
+
+	local result = InventoryService.subItem(_source, "default", data.id, data.amount)
+
+	if not result then
+		return
+	end
+	shareData(data)
 end
 
 function InventoryService.shareMoneyPickupServer(obj, amount, position)
+	local _source = source
+	local Character = Core.getUser(_source).getUsedCharacter
+	local money = Character.money
+
+	if money < amount then
+		return
+	end
+	Character.removeCurrency(0, amount)
 	TriggerClientEvent("vorpInventory:shareMoneyPickupClient", -1, obj, amount, position, 1)
 
 	MoneyPickUps[obj] = {
@@ -556,6 +638,15 @@ function InventoryService.shareMoneyPickupServer(obj, amount, position)
 end
 
 function InventoryService.shareGoldPickupServer(obj, amount, position)
+	local _source = source
+	local Character = Core.getUser(_source).getUsedCharacter
+	local gold = Character.gold
+
+	if gold < amount then
+		return
+	end
+
+	Character.removeCurrency(1, amount)
 	TriggerClientEvent("vorpInventory:shareGoldPickupClient", -1, obj, amount, position, 1)
 
 	GoldPickUps[obj] = {
@@ -573,16 +664,14 @@ function InventoryService.DropWeapon(weaponId)
 	local charname = sourceCharacter.firstname .. ' ' .. sourceCharacter.lastname
 	if not SvUtils.InProcessing(_source) then
 		SvUtils.ProcessUser(_source)
-		InventoryService.subWeapon(_source, weaponId)
-		UsersWeapons.default[weaponId]:setDropped(1)
-
+		local wepName = UsersWeapons.default[weaponId]:getName()
 		local title = T.drop
-		local description = "**Weapon** `" ..
-			UsersWeapons.default[weaponId]:getName() .. "`" .. "\n **Playername** `" .. charname .. "`\n"
+		local description = "**Weapon** `" .. wepName .. "`" .. "\n **Playername** `" .. charname .. "`\n"
 		Core.AddWebhook(title, Config.webhook, description, color, _source, logo, footerlogo, avatar)
 		if not Config.DeleteOnlyDontDrop then
-			TriggerClientEvent("vorpInventory:createPickup", _source, UsersWeapons.default[weaponId]:getName(), 1, {},
-				weaponId)
+			TriggerClientEvent("vorpInventory:createPickup", _source, wepName, 1, {}, weaponId)
+		else
+			InventoryService.subWeapon(_source, weaponId)
 		end
 		SvUtils.Trem(_source)
 	end
@@ -594,14 +683,15 @@ function InventoryService.DropItem(itemName, itemId, amount, metadata)
 	local charname = sourceCharacter.firstname .. ' ' .. sourceCharacter.lastname
 	if not SvUtils.InProcessing(_source) then
 		SvUtils.ProcessUser(_source)
-		InventoryService.subItem(_source, "default", itemId, amount)
 		local title = T.drop
 		local description = "**Amount** `" ..
 			amount .. "`\n **Item** `" .. itemName .. "`" .. "\n **Playername** `" .. charname .. "`\n"
-
 		Core.AddWebhook(title, Config.webhook, description, color, _source, logo, footerlogo, avatar)
+
 		if not Config.DeleteOnlyDontDrop then
-			TriggerClientEvent("vorpInventory:createPickup", _source, itemName, amount, metadata, 1)
+			TriggerClientEvent("vorpInventory:createPickup", _source, itemName, amount, metadata, 1, itemId)
+		else
+			InventoryService.subItem(_source, "default", itemId, amount)
 		end
 		SvUtils.Trem(_source)
 	end
@@ -628,8 +718,8 @@ function InventoryService.GiveWeapon(weaponId, target)
 		local title = T.drop
 		local description = "**Amount** `" ..
 			1 .. "`\n **Weapon id** `" .. weaponId .. "`" .. "\n **Playername** `" .. charname .. "`\n"
-
 		Core.AddWebhook(title, Config.webhook, description, color, _source, logo, footerlogo, avatar)
+
 		TriggerClientEvent("vorp_inventory:transactionCompleted", _source)
 		SvUtils.Trem(_source)
 	end
@@ -645,6 +735,7 @@ function InventoryService.giveWeapon2(player, weaponId, target)
 	local userWeapons = UsersWeapons.default
 	local DefaultAmount = Config.MaxItemsInInventory.Weapons
 	local weaponName = userWeapons[weaponId]:getName()
+	local weaponCustomLabel = userWeapons[weaponId]:getCustomLabel()
 	local notListed = false
 
 	if Config.JobsAllowed[job] then
@@ -684,8 +775,10 @@ function InventoryService.giveWeapon2(player, weaponId, target)
 	userWeapons[weaponId]:setPropietary('')
 	local ammo = { ["nothing"] = 0 }
 	local components = { ["nothing"] = 0 }
-	InventoryAPI.registerWeapon(_source, weaponName, ammo, components, weaponcomps, function() end)
-	InventoryAPI.deleteWeapon(_source, weaponId, function() end)
+	InventoryAPI.registerWeapon(_source, weaponName, ammo, components, weaponcomps, function()
+	end, weaponId)
+	InventoryAPI.deleteWeapon(_source, weaponId, function()
+	end)
 	TriggerClientEvent("vorpinventory:updateinventorystuff", _target)
 	TriggerClientEvent("vorpinventory:updateinventorystuff", _source)
 	TriggerClientEvent("vorpCoreClient:subWeapon", _target, weaponId)
@@ -831,7 +924,6 @@ function InventoryService.getInventory()
 	if sourceCharacter == nil then
 		return
 	end
-
 	local sourceIdentifier = sourceCharacter.identifier
 	local sourceCharId = sourceCharacter.charIdentifier
 
@@ -929,17 +1021,23 @@ function InventoryService.serverGiveAmmo(ammotype, amount, target, maxcount)
 	TriggerClientEvent("vorpinventory:setammotoped", _source, allplayersammo[_source].ammo)
 	TriggerClientEvent("vorpinventory:setammotoped", target, allplayersammo[target].ammo)
 	-- notify
-	Core.NotifyRightTip(_source, T.transferedammo .. SharedData.Ammolabels[ammotype] .. " : " .. amount, 2000)
-	Core.NotifyRightTip(target, T.recammo .. SharedData.Ammolabels[ammotype] .. " : " .. amount, 2000)
+	Core.NotifyRightTip(_source, T.transferedammo .. SharedData.AmmoLabels[ammotype] .. " : " .. amount, 2000)
+	Core.NotifyRightTip(target, T.recammo .. SharedData.AmmoLabels[ammotype] .. " : " .. amount, 2000)
 	TriggerClientEvent("vorp_inventory:ProcessingReady", _source)
+	-- update players client side
+	TriggerClientEvent("vorpinventory:recammo", _source, allplayersammo[_source])
+	TriggerClientEvent("vorpinventory:recammo", target, allplayersammo[target])
 end
 
 function InventoryService.updateAmmo(ammoinfo)
 	local _source = source
-	allplayersammo[_source] = ammoinfo
 	local query = "UPDATE characters Set ammo=@ammo WHERE charidentifier=@charidentifier"
 	local params = { charidentifier = ammoinfo.charidentifier, ammo = json.encode(ammoinfo.ammo) }
-	DBService.updateAsync(query, params, function(r) end)
+	DBService.updateAsync(query, params, function(result)
+		if result then
+			allplayersammo[_source] = ammoinfo
+		end
+	end)
 end
 
 function InventoryService.LoadAllAmmo()
@@ -959,6 +1057,8 @@ function InventoryService.LoadAllAmmo()
 						TriggerClientEvent("vorpCoreClient:addBullets", _source, k, ammocount)
 					end
 				end
+				-- update players client side
+				TriggerClientEvent("vorpinventory:recammo", _source, allplayersammo[_source])
 			end
 		end
 	end)
@@ -1016,14 +1116,17 @@ function InventoryService.reloadInventory(player, id)
 	for weaponId, weapon in pairs(UsersWeapons[id]) do
 		if invData:isShared() or weapon.charId == sourceCharIdentifier then
 			itemList[#itemList + 1] = Item:New({
-				id    = weaponId,
-				count = 1,
-				name  = weapon.name,
-				label = weapon.name,
-				limit = 1,
-				type  = "item_weapon",
-				desc  = weapon.desc,
-				group = 5,
+				id            = weaponId,
+				count         = 1,
+				name          = weapon.name,
+				label         = weapon.custom_label or weapon.name,
+				limit         = 1,
+				type          = "item_weapon",
+				desc          = weapon.desc,
+				group         = 5,
+				serial_number = weapon.serial_number,
+				custom_label  = weapon.custom_label,
+				custom_desc   = weapon.custom_desc,
 			})
 		end
 	end
@@ -1086,9 +1189,11 @@ end
 function InventoryService.canStoreItem(identifier, charIdentifier, invId, name, amount)
 	local invData = CustomInventoryInfos[invId]
 
+
 	if invData:getLimit() > 0 then
 		local sourceInventoryItemCount = InventoryService.getInventoryTotalCount(identifier, charIdentifier, invId)
 		sourceInventoryItemCount = sourceInventoryItemCount + amount
+
 
 		if sourceInventoryItemCount > invData:getLimit() then
 			return false
@@ -1152,7 +1257,6 @@ function InventoryService.getNearbyCharacters(obj, sources)
 end
 
 --* CUSTOM INVENTORY *--
----comment
 ---@return boolean
 function InventoryService.DoesHavePermission(invId, job, grade, Table)
 	if not CustomInventoryInfos[invId]:isPermEnabled() then
@@ -1279,8 +1383,7 @@ function InventoryService.MoveToCustom(obj)
 			return
 		end
 
-		if item.count >= amount and
-			InventoryService.canStoreItem(sourceIdentifier, sourceCharIdentifier, invId, item.name, amount) then
+		if item.count >= amount and InventoryService.canStoreItem(sourceIdentifier, sourceCharIdentifier, invId, item.name, amount) then
 			InventoryService.subItem(_source, "default", item.id, amount)
 			TriggerClientEvent("vorpInventory:removeItem", _source, item.name, item.id, amount)
 
@@ -1335,8 +1438,13 @@ function InventoryService.TakeFromCustom(obj)
 				UsersWeapons.default[item.id].charId = sourceCharIdentifier
 				UsersWeapons[invId][item.id] = nil
 				local weapon = UsersWeapons.default[item.id]
-				TriggerClientEvent("vorpInventory:receiveWeapon", _source, item.id, sourceIdentifier, weapon:getName(),
-					weapon:getAllAmmo())
+				local name = weapon:getName()
+				local ammo = weapon:getAllAmmo()
+				local label = weapon:getLabel()
+				local serial = weapon:getSerialNumber()
+				local custom = weapon:getCustomLabel()
+				TriggerClientEvent("vorpInventory:receiveWeapon", _source, item.id, sourceIdentifier, name, ammo, label,
+					serial, custom, _source)
 				InventoryService.reloadInventory(_source, invId)
 				InventoryService.DiscordLogs(invId, item.name, amount, sourceName, "Take")
 				local text = " you have Taken From storage "
@@ -1365,8 +1473,7 @@ function InventoryService.TakeFromCustom(obj)
 						itemAdded:getMetadata())
 					InventoryService.reloadInventory(_source, invId)
 					InventoryService.DiscordLogs(invId, item.name, amount, sourceName, "Take")
-					Core.NotifyRightTip(_source,
-						"you have Taken " .. amount .. " " .. item.label .. " from storage ",
+					Core.NotifyRightTip(_source, "you have Taken " .. amount .. " " .. item.label .. " from storage ",
 						2000)
 				end)
 			else

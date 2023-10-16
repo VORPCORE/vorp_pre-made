@@ -88,7 +88,8 @@ CreateThread(function()
                 return print("you must be in game to use this command")
             end
 
-            local group = VorpCore.getUser(_source).getGroup                                                     -- User DB table group
+            local group = VorpCore.getUser(_source)
+                .getGroup                                                                                        -- User DB table group
 
             if not CheckAce(value.aceAllowed, _source) and not CheckGroupAllowed(value.groupAllowed, group) then -- check ace first then group
                 return VorpCore.NotifyObjective(_source, T.NoPermissions, 4000)
@@ -159,8 +160,7 @@ function AddJob(data)
     Character.setJobGrade(jobgrade)
     SendDiscordLogs(data.config.webhook, data, data.source, newjob, jobgrade)
 
-    VorpCore.NotifyRightTip(data.source, string.format(Translation[Lang].Notify.AddJob, newjob, target, jobgrade),
-        4000)
+    VorpCore.NotifyRightTip(data.source, string.format(Translation[Lang].Notify.AddJob, newjob, target, jobgrade), 4000)
     VorpCore.NotifyRightTip(target, string.format(Translation[Lang].Notify.AddJob1, newjob, jobgrade), 4000)
 end
 
@@ -188,10 +188,10 @@ function AddItems(data)
     local item = tostring(data.args[2])
     local count = tonumber(data.args[3])
 
-    local VORPInv = exports.vorp_inventory:vorp_inventoryApi()
-    local itemCheck = VORPInv.getDBItem(target, item)
-    local canCarry = VORPInv.canCarryItems(target, count)       --can carry inv space
-    local canCarry2 = VORPInv.canCarryItem(target, item, count) --cancarry item limit
+    local VORPInv = exports.vorp_inventory
+    local itemCheck = VORPInv:getItemDB(item)
+    local canCarry = VORPInv:canCarryItems(target, count)       --can carry inv space
+    local canCarry2 = VORPInv:canCarryItem(target, item, count) --cancarry item limit
 
     if not itemCheck then
         return print(item .. " < item dont exist in the database", 4000)
@@ -205,23 +205,28 @@ function AddItems(data)
         return VorpCore.NotifyObjective(data.source, Translation[Lang].Notify.cantcarry, 4000)
     end
 
-    VORPInv.addItem(target, item, count)
+    VORPInv:addItem(target, item, count)
     SendDiscordLogs(data.config.webhook, data, data.source, item, count)
+    VorpCore.NotifyRightTip(target, string.format(Translation[Lang].Notify.AddItems, item, count), 4000)
 end
 
 --ADDWEAPONS
 function AddWeapons(data)
     local target = tonumber(data.args[1])
     local weaponHash = tostring(data.args[2])
-    local VORPInv = exports.vorp_inventory:vorp_inventoryApi()
+    local serial = tostring(data.args[3]) or nil
+    local label = tostring(data.args[4]) or nil
+    local desc = tostring(data.args[5]) or nil
 
-    VORPInv.canCarryWeapons(target, 1, function(result) --can carry weapons
+    exports.vorp_inventory:canCarryWeapons(target, 1, function(result) --can carry weapons
         local canCarry = result
         if not canCarry then
             return VorpCore.NotifyObjective(data.source, T.cantCarry, 4000)
         end
-        VORPInv.createWeapon(target, weaponHash)
+
+        exports.vorp_inventory:createWeapon(target, weaponHash, nil, nil, nil, serial, label, desc)
         SendDiscordLogs(data.config.webhook, data, data.source, weaponHash, "")
+        VorpCore.NotifyRightTip(target, Translation[Lang].Notify.AddWeapons, 4000)
     end, weaponHash)
 end
 

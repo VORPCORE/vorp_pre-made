@@ -3,7 +3,7 @@
 function DataBase()
     MenuData.CloseAll()
     local elements = {}
-    VORP.RpcCall("vorp_admin:Callback:getplayersinfo", function(result)
+    ClientRPC.Callback.TriggerAsync("vorp_admin:Callback:getplayersinfo", function(result)
         if not result then
             return
         end
@@ -183,7 +183,11 @@ function GivePlayers(PlayerData)
                                 splitString[#splitString + 1] = i
                             end
                             local itemName, itemQuantity = tostring(splitString[1]), tonumber(splitString[2])
-                            TriggerServerEvent("vorp_admin:givePlayer", targetID, type, itemName, itemQuantity)
+                            if not itemQuantity then
+                                itemQuantity = 1
+                            end
+                            TriggerServerEvent("vorp_admin:givePlayer", targetID, type, itemName, itemQuantity, nil,
+                                "vorp.staff.Giveitems")
                             if Config.DatabaseLogs.Giveitem then
                                 TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Giveitem, _U("titledatabase"),
                                     _U("usedgiveitem") ..
@@ -221,7 +225,8 @@ function GivePlayers(PlayerData)
                         if result ~= "" then
                             local weaponName = result
                             local type = "weapon"
-                            TriggerServerEvent("vorp_admin:givePlayer", targetID, type, weaponName)
+                            TriggerServerEvent("vorp_admin:givePlayer", targetID, type, weaponName, nil, nil,
+                                "vorp.staff.GiveWeapons")
                             if Config.DatabaseLogs.Giveweapon then
                                 TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Giveweapon, _U("titledatabase")
                                     , _U("usedgiveweapon") ..
@@ -263,7 +268,8 @@ function GivePlayers(PlayerData)
                                 splitString[#splitString + 1] = i
                             end
                             local moneyType, Quantity = tonumber(splitString[1]), tonumber(splitString[2])
-                            TriggerServerEvent("vorp_admin:givePlayer", targetID, type, moneyType, Quantity)
+                            TriggerServerEvent("vorp_admin:givePlayer", targetID, type, moneyType, Quantity, nil,
+                                "vorp.staff.GiveCurrency")
                             if Config.DatabaseLogs.Givecurrency then
                                 TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Givecurrency,
                                     _U("titledatabase")
@@ -307,7 +313,8 @@ function GivePlayers(PlayerData)
                             end
                             local Hashname, Horsename, Horsesex = tostring(splitString[1]), tostring(splitString[2]),
                                 tonumber(splitString[3])
-                            TriggerServerEvent("vorp_admin:givePlayer", targetID, type, Hashname, Horsename, Horsesex)
+                            TriggerServerEvent("vorp_admin:givePlayer", targetID, type, Hashname, Horsename, Horsesex,
+                                "vorp.staff.GiveHorse")
                             if Config.DatabaseLogs.Givehorse then
                                 TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Givehorse, _U("titledatabase")
                                     , _U("usedgivehorse") ..
@@ -349,7 +356,8 @@ function GivePlayers(PlayerData)
                                 splitString[#splitString + 1] = i
                             end
                             local Modelname, Wagonname = tostring(splitString[1]), tostring(splitString[2])
-                            TriggerServerEvent("vorp_admin:givePlayer", targetID, type, Modelname, Wagonname)
+                            TriggerServerEvent("vorp_admin:givePlayer", targetID, type, Modelname, Wagonname, nil,
+                                "vorp.staff.GiveWagons")
                             if Config.DatabaseLogs.Givewagon then
                                 TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Givewagon, _U("titledatabase")
                                     , _U("usedgivewagon") ..
@@ -367,7 +375,7 @@ function GivePlayers(PlayerData)
                 Wait(100)
                 if AdminAllowed then
                     local TargetID = data.current.info
-                    TriggerServerEvent("vorp_admin:checkInventory", TargetID)
+                    TriggerServerEvent("vorp_admin:checkInventory", TargetID, "vorp.staff.ShowInvGive")
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end
@@ -438,7 +446,7 @@ function RemovePlayers(PlayerData)
                 if AdminAllowed then
                     local targetID = data.current.info
                     local type = "money"
-                    TriggerServerEvent("vorp_admin:ClearCurrency", targetID, type)
+                    TriggerServerEvent("vorp_admin:ClearCurrency", targetID, type, "vorp.staff.RemoveAllMoney")
                     if Config.DatabaseLogs.Clearmoney then
                         TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Clearmoney, _U("titledatabase")
                             , _U("usedclearmoney") ..
@@ -453,7 +461,7 @@ function RemovePlayers(PlayerData)
                 if AdminAllowed then
                     local targetID = data.current.info
                     local type = "gold"
-                    TriggerServerEvent("vorp_admin:ClearCurrency", targetID, type)
+                    TriggerServerEvent("vorp_admin:ClearCurrency", targetID, type, "vorp.staff.RemoveAllGold")
                     if Config.DatabaseLogs.Cleargold then
                         TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Cleargold, _U("titledatabase")
                             , _U("usedcleargold") ..
@@ -486,7 +494,8 @@ function RemovePlayers(PlayerData)
                         local result = tostring(cb)
                         if result ~= "" then
                             if result == "yes" then
-                                TriggerServerEvent("vorp_admin:ClearAllItems", type, targetID)
+                                TriggerServerEvent("vorp_admin:ClearAllItems", type, targetID,
+                                    "vorp.staff.RemoveAllItems")
                                 if Config.DatabaseLogs.Clearitems then
                                     TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Clearitems,
                                         _U("titledatabase")
@@ -526,7 +535,8 @@ function RemovePlayers(PlayerData)
                         local result = tostring(cb)
                         if result ~= "" then
                             if result == "yes" then
-                                TriggerServerEvent("vorp_admin:ClearAllItems", type, targetID)
+                                TriggerServerEvent("vorp_admin:ClearAllItems", type, targetID,
+                                    "vorp.staff.RemoveAllWeapons")
                                 if Config.DatabaseLogs.Clearweapons then
                                     TriggerServerEvent("vorp_admin:logs", Config.DatabaseLogs.Clearweapons,
                                         _U("titledatabase")
@@ -546,7 +556,7 @@ function RemovePlayers(PlayerData)
                 Wait(100)
                 if AdminAllowed then
                     local TargetID = data.current.info
-                    TriggerServerEvent("vorp_admin:checkInventory", TargetID)
+                    TriggerServerEvent("vorp_admin:checkInventory", TargetID, "vorp.staff.ShowInvRemove")
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
                 end

@@ -1,7 +1,19 @@
+<2.4>
+- NEW VERSION 2.4 security and fixes to events.
+- double check for permissions due to RedM cheat menus 
+- secured heal event 
+- secured revive event
+- fixed ban and unban events and secure them for offline actions
+<2.3>
+- NEW VERSION 2.3 Refactor server side 
+- refactor using new exports for new version inventory
+- vorp core new callbacks support
+- fix user table getGroup 
+- improved logic for removing staff from table of notify
+- update vorp core vorp inventory if you havent yet.
 <2.2>
 - server refactor
 - dev tools have now more options and vehicles/peds to spawn from a list
-
 <2.1>
 - added menu troll action with many options
 - new permissions

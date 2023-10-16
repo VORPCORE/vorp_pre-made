@@ -18,8 +18,7 @@ exports('vorp_inventoryApi', function()
     end
 
     -- * CUSTOM INVENTORY * --
-    INV.registerInventory = function(id, name, limit, acceptWeapons, shared, ignoreItemStackLimit, whitelistItems,
-                                     UsePermissions, UseBlackList, whitelistWeapons)
+    INV.registerInventory = function(id, name, limit, acceptWeapons, shared, ignoreItemStackLimit, whitelistItems, UsePermissions, UseBlackList, whitelistWeapons)
         local data = {
             id = id,
             name = name,
@@ -68,12 +67,11 @@ exports('vorp_inventoryApi', function()
         TriggerEvent("vorpCore:subWeapon", source, tonumber(weaponid))
     end
 
-    INV.createWeapon = function(source, weaponName, ammoaux, compaux, comps)
+    INV.createWeapon = function(source, weaponName, ammoaux, compaux, comps, custom_serial, custom_label, custom_desc)
         local result_promise = promise.new()
-        TriggerEvent("vorpCore:registerWeapon", source, tostring(string.upper(weaponName)), ammoaux, compaux, comps,
-            function(res)
-                result_promise:resolve(res)
-            end)
+        TriggerEvent("vorpCore:registerWeapon", source, tostring(string.upper(weaponName)), ammoaux, compaux, comps, function(res)
+            result_promise:resolve(res)
+        end, nil, custom_serial, custom_label, custom_desc)
         return Citizen.Await(result_promise)
     end
 
@@ -137,7 +135,7 @@ exports('vorp_inventoryApi', function()
         local weapon_promise = promise.new()
         TriggerEvent("vorpCore:getUserWeapon", source, function(weapon)
             weapon_promise:resolve(weapon)
-        end,weaponId)
+        end, weaponId)
         return Citizen.Await(weapon_promise)
     end
 
@@ -150,7 +148,7 @@ exports('vorp_inventoryApi', function()
         local item_promise = promise.new()
         TriggerEvent("vorpCore:getItem", source, itemName, function(responseItem)
             item_promise:resolve(responseItem)
-        end,metadata)
+        end, metadata)
         return Citizen.Await(item_promise)
     end
 

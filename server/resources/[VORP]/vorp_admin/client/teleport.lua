@@ -32,7 +32,7 @@ function Teleport()
                 TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.WayPoint")
                 Wait(100)
                 if AdminAllowed then
-                    TriggerEvent('vorp:teleportWayPoint')
+                    TriggerServerEvent('vorp:teleportWayPoint', "vorp.staff.WayPoint")
                     if Config.TeleportLogs.Tpm then
                         TriggerServerEvent("vorp_admin:logs", Config.TeleportLogs.Tpm, _U("titleteleport"), _U("usedtpm"))
                     end
@@ -47,8 +47,8 @@ function Teleport()
                         autotpm = true
                         TriggerEvent('vorp:TipRight', _U("switchedon"), 3000)
                         while autotpm do
-                            Citizen.Wait(500)
-                            TriggerEvent('vorp:teleportWayPoint')
+                            Citizen.Wait(1000)
+                            TriggerServerEvent('vorp:teleportWayPoint', "vorp.staff.AutoTpm")
                         end
                     else
                         TriggerEvent('vorp:TipRight', _U("switchedoff"), 3000)
@@ -91,7 +91,7 @@ function Teleport()
                             local x, y, z = tonumber(finalCoords[1]), tonumber(finalCoords[2]), tonumber(finalCoords[3])
                             DoScreenFadeOut(2000)
                             Wait(2000)
-                            SetEntityCoords(admin, x, y, z)
+                            SetEntityCoords(admin, x, y, z, false, false, false, false)
                             DoScreenFadeIn(3000)
                             if Config.TeleportLogs.Tptocoords then
                                 TriggerServerEvent("vorp_admin:logs", Config.TeleportLogs.Tptocoords
@@ -111,7 +111,7 @@ function Teleport()
                     TriggerEvent("vorpinputs:getInput", _U("confirm"), _U("insertid"), function(result)
                         local TargetID = result
                         if TargetID ~= "" then
-                            TriggerServerEvent("vorp_admin:TpToPlayer", TargetID)
+                            TriggerServerEvent("vorp_admin:TpToPlayer", TargetID, "vorp.staff.TpPlayer")
                             if Config.TeleportLogs.Tptoplayer then
                                 TriggerServerEvent("vorp_admin:logs", Config.TeleportLogs.Tptoplayer
                                 , _U("titleteleport"), _U("usedtptoplayer") .. "\n playerID: " .. TargetID)
@@ -125,7 +125,7 @@ function Teleport()
                 end
             elseif data.current.value == "admingoback" then
                 if lastLocation then
-                    TriggerServerEvent("vorp_admin:sendAdminBack")
+                    TriggerServerEvent("vorp_admin:sendAdminBack", "vorp.staff.TpPlayer")
                 end
             elseif data.current.value == "bringplayer" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.BringPlayer")
@@ -135,7 +135,7 @@ function Teleport()
                         local TargetID = result
                         if TargetID ~= "" and lastLocation then
                             local adminCoords = GetEntityCoords(PlayerPedId())
-                            TriggerServerEvent("vorp_admin:Bring", TargetID, adminCoords)
+                            TriggerServerEvent("vorp_admin:Bring", TargetID, adminCoords, "vorp.staff.BringPlayer")
                             if Config.TeleportLogs.Bringplayer then
                                 TriggerServerEvent("vorp_admin:logs", Config.TeleportLogs.Bringplayer
                                 , _U("titleteleport"), _U("usedbringplayer") .. "\n playerID: " .. TargetID)
@@ -151,7 +151,7 @@ function Teleport()
                 TriggerEvent("vorpinputs:getInput", _U("confirm"), _U("insertid"), function(result)
                     local TargetID = result
                     if TargetID ~= "" and lastLocation then
-                        TriggerServerEvent("vorp_admin:TeleportPlayerBack", TargetID)
+                        TriggerServerEvent("vorp_admin:TeleportPlayerBack", TargetID, "vorp.staff.SendBack")
                     else
                         TriggerEvent("vorp:TipRight", _U("gotoplayerfirst"), 4000)
                     end

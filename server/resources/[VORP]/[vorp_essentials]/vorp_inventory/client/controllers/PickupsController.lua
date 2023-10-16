@@ -3,7 +3,7 @@
 RegisterNetEvent("vorpInventory:createPickup", PickupsService.createPickup)
 RegisterNetEvent("vorpInventory:createMoneyPickup", PickupsService.createMoneyPickup)
 RegisterNetEvent("vorpInventory:createGoldPickup", PickupsService.createGoldPickup)
-RegisterNetEvent("vorpInventory:sharePickupClient", PickupsService.sharePickupClient)
+RegisterNetEvent("vorpInventory:sharePickupClient", PickupsService.sharePickupClient)  
 RegisterNetEvent("vorpInventory:shareMoneyPickupClient", PickupsService.shareMoneyPickupClient)
 RegisterNetEvent("vorpInventory:shareGoldPickupClient", PickupsService.shareGoldPickupClient)
 RegisterNetEvent("vorpInventory:removePickupClient", PickupsService.removePickupClient)

@@ -142,4 +142,3 @@ AddEventHandler('playerDropped', function()
         end
     end
 end)
-

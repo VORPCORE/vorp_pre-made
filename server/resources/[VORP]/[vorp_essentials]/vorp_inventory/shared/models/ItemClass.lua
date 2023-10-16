@@ -30,7 +30,6 @@ Item.limit = nil
 Item.weight = nil
 Item.canUse = false
 Item.canRemove = false
-Item.desc = nil
 Item.dropOnDeath = false
 Item.group = nil
 

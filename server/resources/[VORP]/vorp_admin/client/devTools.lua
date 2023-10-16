@@ -9,7 +9,7 @@ local function LoadModel(ped)
     end
     local count = 1000
     while not HasModelLoaded(ped) do
-        RequestModel(ped)
+        RequestModel(ped, false)
         if count <= 0 then
             break
         end

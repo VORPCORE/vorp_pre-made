@@ -1,7 +1,6 @@
 ---@diagnostic disable: undefined-global
 ---@meta
 
-
 --- checks item limit
 ---@param source number player id
 ---@param amount number amount of item
@@ -132,7 +131,7 @@ function exports.vorp_inventory:getItemByMainId(source, mainid, callback) end
 ---@param source number player id
 ---@param id number item id
 ---@param callback fun(boolean:boolean)? callback function async or sync leave nil
-function exports.vorp_inventory:subItemById(source, id, callback) end
+function exports.vorp_inventory:subItemID(source, id, callback) end
 
 --- sub item
 ---@param source number player id
@@ -177,8 +176,11 @@ function exports.vorp_inventory:deleteWeapon(source, weaponId, callback) end
 ---@param ammo string? amount of ammo
 ---@param components table? weapon components
 ---@param comps table? weapon components
+---@param custom_serial string? weapon serial number
+---@param custom_label string? weapon custom label
+---@param custom_desc? string? weapon custom description
 ---@param callback fun(boolean:boolean)? callback function async or sync leave nil
-function exports.vorp_inventory:createWeapon(source, weaponName, ammo, components, comps, callback) end
+function exports.vorp_inventory:createWeapon(source, weaponName, ammo, components, comps, callback, custom_serial,  custom_label, custom_desc) end
 
 --- give weapon
 ---@param source number player id
@@ -196,19 +198,8 @@ function exports.vorp_inventory:giveWeapon(source, weaponId, target, callback) e
 function exports.vorp_inventory:subWeapon(source, weaponId, callback) end
 
 --- register custom inventory
----@param invId string inventory id
----@param name string inventory name
----@param slots number inventory slots
----@param acceptWeapons boolean accept weapons
----@param shared boolean shared
----@param ignoreStack boolean ignore stack
----@param whitelistItems boolean whitelist items
----@param usePermisions boolean use permissions
----@param useBlacklist boolean use blacklist
----@param whitelistWeapons boolean whitelist weapons
-function exports.vorp_inventory:registerInventory(invId, name, slots, acceptWeapons, shared, ignoreStack, whitelistItems,
-                                                  usePermisions, useBlacklist, whitelistWeapons)
-end
+---@param data { id:string, name:string, limit:number, acceptWeapons:boolean, shared:boolean, ignoreItemStackLimit:boolean, whitelistItems:table, UsePermissions:boolean, UseBlackList:boolean, whitelistWeapons:table }
+function exports.vorp_inventory:registerInventory(data) end
 
 --- add permissions to move item to inventory
 ---@param invId string inventory id
@@ -257,3 +248,18 @@ function exports.vorp_inventory:openInventory(source, invId) end
 ---@param source number player id
 ---@param invId string? inventory id
 function exports.vorp_inventory:closeInventory(source, invId) end
+
+---check if inventory is registered
+---@param id string inventory id
+---@param callback fun()? callback function async or sync leave nil
+function exports.vorp_inventory:isCustomInventoryRegistered(id, callback) end
+
+--- get all custom inventory data
+---@param id string inventory id
+---@param callback fun(data:table)? callback function async or sync leave nil
+function exports.vorp_inventory:getCustomInventoryData(id, callback) end
+
+--- update custom inventory data
+---@param data table data to update
+---@param callback fun(success:boolean)? callback function async or sync leave nil
+function exports.vorp_inventory:updateCustomInvData(data, callback) end

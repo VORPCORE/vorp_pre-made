@@ -62,7 +62,7 @@ function ScoreBoard()
     local elements = {}
 
     -- local players = GetPlayers()
-    VORP.RpcCall("vorp_admin:Callback:getplayersinfo", function(result)
+    ClientRPC.Callback.TriggerAsync("vorp_admin:Callback:getplayersinfo", function(result)
         if not result then
             return
         end
@@ -109,7 +109,7 @@ function ScoreBoard()
             function(data, menu)
                 menu.close()
             end)
-    end)
+    end, { search = "all" })
 end
 
 function Report()

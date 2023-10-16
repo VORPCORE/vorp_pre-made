@@ -12,7 +12,10 @@ Weapon.used2 = false
 Weapon.desc = nil
 Weapon.currInv = ''
 Weapon.group = 5
-
+Weapon.custom_label = nil
+Weapon.serial_number = nil
+Weapon.source = nil
+Weapon.custom_desc = nil
 
 local equippedWeapons = {}
 
@@ -160,9 +163,16 @@ function Weapon:equipwep()
 	local isWeaponAGun = Citizen.InvokeNative(0x705BE297EEBDB95D, joaat(self.name))
 	local isWeaponOneHanded = Citizen.InvokeNative(0xD955FEE4B87AFA07, joaat(self.name))
 	local playerPedId = PlayerPedId()
+	local ammoCount = 0
+	-- is weapon assigned as no ammo needed then set to 1 so it can be used
+	for k, v in pairs(Config.nonAmmoThrowables) do
+		if tostring(v) == self.name then
+			ammoCount = 1
+		end
+	end
 
 	if isWeaponMelee or isWeaponThrowable then
-		GiveDelayedWeaponToPed(playerPedId, joaat(self.name), 0, true, 0)
+		GiveDelayedWeaponToPed(playerPedId, joaat(self.name), ammoCount, true, 0)
 	else
 		if self.used2 then
 			if isWeaponAGun and isWeaponOneHanded then
@@ -180,12 +190,6 @@ function Weapon:equipwep()
 			if isWeaponAGun and isWeaponOneHanded then
 				addWeapon(self.name, 0, self.id)
 			else
-				local ammoCount = 0
-				for k, v in pairs(Config.nonAmmoThrowables) do
-					if tostring(v) == self.name then
-						ammoCount = 1
-					end
-				end
 				GiveDelayedWeaponToPed(playerPedId, joaat(self.name), ammoCount, true, 0)
 			end
 		end
@@ -338,4 +342,28 @@ end
 
 function Weapon:getGroup()
 	self.group = self.group
+end
+
+function Weapon:getCustomLabel()
+	return self.custom_label
+end
+
+function Weapon:setCustomLabel(custom_label)
+	self.custom_label = custom_label
+end
+
+function Weapon:getSerialNumber()
+	return self.serial_number
+end
+
+function Weapon:setSerialNumber()
+	self.serial_number = serial_number
+end
+
+function Weapon:setCustomDesc(custom_desc)
+	self.custom_desc = custom_desc
+end
+
+function Weapon:getCustomDesc()
+	return self.custom_desc
 end

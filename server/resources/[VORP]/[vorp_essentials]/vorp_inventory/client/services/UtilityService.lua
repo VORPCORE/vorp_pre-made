@@ -29,7 +29,7 @@ function Utils.useWeapon(id)
 	if UserWeapons[id]:getUsed2() then
 		local weaponHash = joaat(UserWeapons[id]:getName())
 		GiveWeaponToPed_2(PlayerPedId, weaponHash, 0, true, true, 3, false, 0.5, 1.0, 752097756, false, 0, false)
-		SetCurrentPedWeapon(PlayerPedId, weaponHash, 0, 0, 0, 0)
+		SetCurrentPedWeapon(PlayerPedId, weaponHash, false, 0, false, false)
 		SetPedAmmo(PlayerPedId, weaponHash, 0)
 
 		for _, ammo in pairs(UserWeapons[id]:getAllAmmo()) do
@@ -48,7 +48,7 @@ function Utils.oldUseWeapon(id)
 	local weaponHash = joaat(UserWeapons[id]:getName())
 
 	GiveWeaponToPed_2(PlayerPedId, weaponHash, 0, true, true, 2, false, 0.5, 1.0, 752097756, false, 0, false)
-	SetCurrentPedWeapon(PlayerPedId, weaponHash, 0, 1, 0, 0)
+	SetCurrentPedWeapon(PlayerPedId, weaponHash, false, 1, false, false)
 	SetPedAmmo(PlayerPedId, weaponHash, 0)
 	for type, amount in pairs(UserWeapons[id]:getAllAmmo()) do
 		SetPedAmmoByType(PlayerPedId, joaat(type), amount)
@@ -75,6 +75,7 @@ function Utils.addItems(name, id, amount)
 			canUse = true,
 			canRemove = svItems[name].can_remove,
 			desc = svItems[name].desc,
+			group = svItems[name].group or 1,
 		})
 	end
 end
@@ -141,4 +142,13 @@ function Utils.GetHashreadableLabel(hash, weaponId)
 	else
 		return Utils.GetWeaponLabel(hash)
 	end
+end
+
+function Utils.filterWeaponsSerialNumber(name)
+	for _, weapon in pairs(Config.noSerialNumber) do
+		if weapon == name then
+			return false
+		end
+	end
+	return true
 end

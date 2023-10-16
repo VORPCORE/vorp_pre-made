@@ -107,7 +107,11 @@ function Boost()
     MenuData.CloseAll()
 
     local elements = {
-        { label = _U("godMode"),      value = 'god',          desc = _U("godMode_desc") },
+        {
+            label = _U("godMode"),
+            value = 'god',
+            desc = _U("godMode_desc")
+        },
         {
             label = _U("noclipMode"),
             value = 'noclip',
@@ -202,12 +206,11 @@ function Boost()
                 TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.SelfRevive")
                 Wait(100)
                 if AdminAllowed then
-                    TriggerEvent('vorp:resurrectPlayer')
+                    TriggerServerEvent('vorp_admin:ReviveSelf', "vorp.staff.SelfRevive")
 
                     if Config.BoosterLogs.SelfRevive then
-                        TriggerServerEvent("vorp_admin:logs",
-                            Config.BoosterLogs.SelfRevive
-                            , _U("titlebooster"), _U("usedrevive"))
+                        TriggerServerEvent("vorp_admin:logs", Config.BoosterLogs.SelfRevive, _U("titlebooster"),
+                            _U("usedrevive"))
                     end
                 else
                     TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
@@ -221,7 +224,7 @@ function Boost()
                             Config.BoosterLogs.SelfHeal
                             , _U("titlebooster"), _U("usedheal"))
                     end
-                    TriggerEvent('vorp:heal')
+                    TriggerServerEvent('vorp_admin:HealSelf', "vorp.staff.SelfHeal")
                     Config.Heal.Players()
                     local horse = GetMount(PlayerPedId())
                     if horse ~= 0 then
@@ -335,18 +338,17 @@ end
 
 local Prompt1
 local Prompt2
-local Prompt3
 local Prompt4
-local Prompt5
 local Prompt6
 local PromptGroup = GetRandomIntInRange(0, 0xffffff)
 
 
 --PROMPTS
 CreateThread(function()
-    local str = "DOWN"
+    local str = _U("promptdown") .. "/" .. _U("promptup")
     Prompt1 = PromptRegisterBegin()
     PromptSetControlAction(Prompt1, Config.Controls.goDown)
+    PromptSetControlAction(Prompt1, Config.Controls.goUp)
     str = CreateVarString(10, 'LITERAL_STRING', str)
     PromptSetText(Prompt1, str)
     PromptSetEnabled(Prompt1, 1)
@@ -356,7 +358,7 @@ CreateThread(function()
     Citizen.InvokeNative(0xC5F428EE08FA7F2C, Prompt1, true)
     PromptRegisterEnd(Prompt1)
 
-    local str = "SPEED"
+    local str = _U("promptspeed")
     Prompt2 = PromptRegisterBegin()
     PromptSetControlAction(Prompt2, Config.Controls.changeSpeed) -- shift
     str = CreateVarString(10, 'LITERAL_STRING', str)
@@ -368,21 +370,10 @@ CreateThread(function()
     Citizen.InvokeNative(0xC5F428EE08FA7F2C, Prompt2, true)
     PromptRegisterEnd(Prompt2)
 
-    local str = "FOWARD"
-    Prompt3 = PromptRegisterBegin()
-    PromptSetControlAction(Prompt3, Config.Controls.goForward)
-    str = CreateVarString(10, 'LITERAL_STRING', str)
-    PromptSetText(Prompt3, str)
-    PromptSetEnabled(Prompt3, 1)
-    PromptSetVisible(Prompt3, 1)
-    PromptSetStandardMode(Prompt3, 1)
-    PromptSetGroup(Prompt3, PromptGroup)
-    Citizen.InvokeNative(0xC5F428EE08FA7F2C, Prompt3, true)
-    PromptRegisterEnd(Prompt3)
-
-    local str = "BACKWARD"
+    local str = _U("promptbackward") .. "/" .. _U("promptforward")
     Prompt4 = PromptRegisterBegin()
     PromptSetControlAction(Prompt4, Config.Controls.goBackward)
+    PromptSetControlAction(Prompt4, Config.Controls.goForward)
     str = CreateVarString(10, 'LITERAL_STRING', str)
     PromptSetText(Prompt4, str)
     PromptSetEnabled(Prompt4, 1)
@@ -392,20 +383,7 @@ CreateThread(function()
     Citizen.InvokeNative(0xC5F428EE08FA7F2C, Prompt4, true)
     PromptRegisterEnd(Prompt4)
 
-    local str = "UP"
-    Prompt5 = PromptRegisterBegin()
-    PromptSetControlAction(Prompt5, Config.Controls.goUp)
-    str = CreateVarString(10, 'LITERAL_STRING', str)
-    PromptSetText(Prompt5, str)
-    PromptSetEnabled(Prompt5, 1)
-    PromptSetVisible(Prompt5, 1)
-    PromptSetStandardMode(Prompt5, 1)
-    PromptSetGroup(Prompt5, PromptGroup)
-    Citizen.InvokeNative(0xC5F428EE08FA7F2C, Prompt5, true)
-    PromptRegisterEnd(Prompt5)
-
-
-    local str = "Cancel"
+    local str = _U("promptcancel")
     Prompt6 = PromptRegisterBegin()
     PromptSetControlAction(Prompt6, Config.Controls.Cancel)
     str = CreateVarString(10, 'LITERAL_STRING', str)
@@ -417,6 +395,7 @@ CreateThread(function()
     Citizen.InvokeNative(0xC5F428EE08FA7F2C, Prompt6, true)
     PromptRegisterEnd(Prompt6)
 end)
+
 
 
 Citizen.CreateThread(function()

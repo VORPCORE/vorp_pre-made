@@ -1,3 +1,16 @@
+<3.2>
+- added serial numbers for weapons 
+- added custom weapon nick names 
+- fixed custom inventories items list(small mistake overlooked)
+- you must update all files including fxmanifest
+- sql tables are needed get it from vorp discord.
+<3.1>
+- small issues resolved with exports
+- small issues resolved with types
+- money and item drop checks were moved for better protection
+- organising better files withing the older
+- some minor optimisation
+- make sure to update fxmanifest to contniue getting version checks
 <3.0>
 - small fixes were done and a critical issue with items make sure to update again
 <2.9>
