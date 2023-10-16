@@ -840,6 +840,8 @@ function InventoryAPI.setWeaponCustomDesc(weaponId, desc, cb)
 	return respond(cb, false)
 end
 
+exports("setWeaponCustomDesc", InventoryAPI.setWeaponCustomDesc)
+
 --- get weapon components
 ---@param player number source
 ---@param weaponid number weapon id
@@ -887,7 +889,8 @@ exports("deleteWeapon", InventoryAPI.deleteWeapon)
 ---@param customSerial string | nil? custom serial number
 ---@param customLabel string | nil? custom label
 ---@return nil | boolean
-function InventoryAPI.registerWeapon(_target, wepname, ammos, components, comps, cb, wepId, customSerial, customLabel, customDesc)
+function InventoryAPI.registerWeapon(_target, wepname, ammos, components, comps, cb, wepId, customSerial, customLabel,
+									 customDesc)
 	local targetUser = Core.getUser(_target)
 	local targetCharacter = targetUser.getUsedCharacter
 	local targetIdentifier = targetCharacter.identifier
@@ -984,10 +987,14 @@ function InventoryAPI.registerWeapon(_target, wepname, ammos, components, comps,
 			return nil
 		end
 
-		local serialNumber = customSerial or hasSerialNumber() or SvUtils.GenerateSerialNumber(name) -- custom serial number or existent serial number or generate new one
-		local label = customLabel or hasCustomLabel() or SvUtils.GenerateWeaponLabel(name)     --custom label or existent label or generate new one
-		local desc = customDesc or hasCustomDesc()                                             -- custom desc or existent desc or nil
-		local query = 'INSERT INTO loadout (identifier, charidentifier, name, ammo,components,comps,label,serial_number,custom_label,custom_desc) VALUES (@identifier, @charid, @name, @ammo, @components,@comps,@label,@serial_number,@custom_label,@custom_desc)'
+		local serialNumber = customSerial or hasSerialNumber() or
+		SvUtils.GenerateSerialNumber(name)                                                     -- custom serial number or existent serial number or generate new one
+		local label = customLabel or hasCustomLabel() or
+		SvUtils.GenerateWeaponLabel(name)                                                      --custom label or existent label or generate new one
+		local desc = customDesc or
+		hasCustomDesc()                                                                        -- custom desc or existent desc or nil
+		local query =
+		'INSERT INTO loadout (identifier, charidentifier, name, ammo,components,comps,label,serial_number,custom_label,custom_desc) VALUES (@identifier, @charid, @name, @ammo, @components,@comps,@label,@serial_number,@custom_label,@custom_desc)'
 		local params = {
 			identifier = targetIdentifier,
 			charid = targetCharId,
@@ -1021,7 +1028,8 @@ function InventoryAPI.registerWeapon(_target, wepname, ammos, components, comps,
 			})
 			UsersWeapons.default[weaponId] = newWeapon
 			TriggerEvent("syn_weapons:registerWeapon", weaponId)
-			TriggerClientEvent("vorpInventory:receiveWeapon", _target, weaponId, targetIdentifier, name, ammo, label, serialNumber, label, _target, desc)
+			TriggerClientEvent("vorpInventory:receiveWeapon", _target, weaponId, targetIdentifier, name, ammo, label,
+				serialNumber, label, _target, desc)
 		end)
 		return respond(cb, true)
 	end
@@ -1103,12 +1111,15 @@ function InventoryAPI.giveWeapon(player, weaponId, target, cb)
 		DBService.updateAsync(query, params, function(r)
 			if not _target then
 				weapon:setSource(_target)
-				TriggerClientEvent('vorp:ShowAdvancedRightNotification', _target, T.youGaveWeapon, "inventory_items",weaponName, "COLOR_PURE_WHITE", 4000)
+				TriggerClientEvent('vorp:ShowAdvancedRightNotification', _target, T.youGaveWeapon, "inventory_items",
+					weaponName, "COLOR_PURE_WHITE", 4000)
 				TriggerClientEvent("vorpCoreClient:subWeapon", _target, weaponId)
 			end
-			TriggerClientEvent('vorp:ShowAdvancedRightNotification', _source, T.youReceivedWeapon, "inventory_items", weaponName, "COLOR_PURE_WHITE", 4000)
+			TriggerClientEvent('vorp:ShowAdvancedRightNotification', _source, T.youReceivedWeapon, "inventory_items",
+				weaponName, "COLOR_PURE_WHITE", 4000)
 
-			TriggerClientEvent("vorpInventory:receiveWeapon", _source, weaponId, weaponPropietary, weaponName, weaponAmmo,label, serialNumber, customLabel, _source,customDesc)
+			TriggerClientEvent("vorpInventory:receiveWeapon", _source, weaponId, weaponPropietary, weaponName, weaponAmmo,
+				label, serialNumber, customLabel, _source, customDesc)
 		end)
 	end
 	return respond(cb, true)
