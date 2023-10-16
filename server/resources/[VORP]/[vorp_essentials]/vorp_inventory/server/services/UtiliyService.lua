@@ -226,7 +226,7 @@ end
 --- generate a unique serial number
 ---@return string
 function SvUtils.GenerateSerialNumber(name)
-    if SvUtils.filterWeaponsSerialNumber(name) then
+    if not SvUtils.filterWeaponsSerialNumber(name) then
         return ""
     end
     local timeStamp = os.time()
