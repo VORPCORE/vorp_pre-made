@@ -232,8 +232,7 @@ CREATE TABLE IF NOT EXISTS `items_crafted` (
   KEY `crafted_item_idx` (`character_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4
 
-
-CREATE TABLE IF NOT EXISTS `loadout` (
+CREATE TABLE  `loadout` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `identifier` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_bin',
   `charidentifier` int(11) DEFAULT NULL,
@@ -256,7 +255,6 @@ CREATE TABLE IF NOT EXISTS `loadout` (
   PRIMARY KEY (`id`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4
-
 
 
 CREATE TABLE IF NOT EXISTS `mailbox_mails` (
