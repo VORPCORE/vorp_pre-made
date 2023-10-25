@@ -24,6 +24,7 @@ CREATE TABLE `bank_users` (
   `invspace` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
+  INDEX `bankusers` (`identifier`) USING BTREE,
   CONSTRAINT `bankusers` FOREIGN KEY (`identifier`) REFERENCES `users` (`identifier`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4
 
