@@ -1,6 +1,6 @@
+CREATE DATABASE `vorpv2`;
 
-CREATE DATABASE `vorpv2` 
-USE `vorpv2`
+USE `vorpv2`;
 
 CREATE TABLE IF NOT EXISTS `users` (
   `identifier` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
