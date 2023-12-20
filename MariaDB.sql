@@ -326,7 +326,7 @@ INSERT IGNORE INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usa
 ('aligatorto', 'Alligator Tooth', 20, 1, 'item_standard', 1,'{}', 'A tooth extracted from an alligator, sometimes used for decorative purposes.'),
 ('American_Ginseng', 'American Ginseng', 10, 1, 'item_standard', 1,'{}', 'A species of ginseng native to North America, valued for its medicinal properties.'),
 ('American_Ginseng_Seed', 'American Ginseng Seed', 10, 1, 'item_standard', 1,'{}', 'A seed that can be planted to grow American Ginseng.'),
-('ammoarrmownormal', 'Arrow Normal', 10, 1, 'item_standard', 1,'{}', 'A standard arrow used with bows for hunting and combat.'),
+('ammoarrownormal', 'Arrow Normal', 10, 1, 'item_standard', 1,'{}', 'A standard arrow used with bows for hunting and combat.'),
 ('ammoarrowdynamite', 'Arrow Dynamite', 10, 1, 'item_standard', 1,'{}', 'An explosive arrow designed to cause significant damage upon impact.'),
 ('ammoarrowfire', 'Arrow Fire', 10, 1, 'item_standard', 1,'{}', 'An arrow equipped with a flaming tip, capable of setting targets on fire.'),
 ('ammoarrowimproved', 'Arrow Improved', 10, 1, 'item_standard', 1,'{}', 'An upgraded arrow with improved accuracy and damage.'),
