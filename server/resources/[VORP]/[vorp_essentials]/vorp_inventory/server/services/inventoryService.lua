@@ -595,6 +595,7 @@ function InventoryService.sharePickupServerWeapon(data)
 	if not result then
 		return
 	end
+
 	UsersWeapons.default[data.weaponId]:setDropped(1)
 	shareData(data)
 end
@@ -735,7 +736,6 @@ function InventoryService.giveWeapon2(player, weaponId, target)
 	local userWeapons = UsersWeapons.default
 	local DefaultAmount = Config.MaxItemsInInventory.Weapons
 	local weaponName = userWeapons[weaponId]:getName()
-	local weaponCustomLabel = userWeapons[weaponId]:getCustomLabel()
 	local notListed = false
 
 	if Config.JobsAllowed[job] then
@@ -866,11 +866,9 @@ function InventoryService.GiveItem(itemId, amount, target)
 		--NOTIFY
 		Core.NotifyRightTip(_source, T.yougive .. amount .. T.of .. ItemsLabel .. "", 2000)
 		Core.NotifyRightTip(_target, T.youreceive .. amount .. T.of .. ItemsLabel .. "", 2000)
-		--TriggerEvent("vorpinventory:itemlog", _source, _target, itemName, amount)
+
 		local title = T.gaveMoney
-		local description = "**Amount** `" ..
-			amount .. "`\n **Item** `" .. itemName .. "`" .. "\n **Playername** `" .. charname .. "`\n **to** `" ..
-			charname1 .. "`"
+		local description = "**Amount** `" .. amount .."`\n **Item** `" .. itemName .. "`" .. "\n **Playername** `" .. charname .. "`\n **to** `" .. charname1 .. "`"
 		Core.AddWebhook(title, Config.webhook, description, color, _source, logo, footerlogo, avatar)
 	end
 	InventoryAPI.canCarryItem(_target, itemName, amount, function(canGive)
