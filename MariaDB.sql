@@ -302,10 +302,12 @@ CREATE TABLE IF NOT EXISTS `wagons` (
   KEY `model` (`model`)
 ) ENGINE = InnoDB DEFAULT CHARSET = UTF8MB4;
 
+
 CREATE TABLE `whitelist` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `identifier` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_bin',
   `status` TINYINT(1) NULL DEFAULT NULL,
+  `discordid` varchar(255) DEFAULT '0',
   `firstconnection` TINYINT(1) NULL DEFAULT '1',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `identifier` (`identifier`) USING BTREE,
