@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `warnings` int(11) DEFAULT 0,
   `banned` tinyint(1) DEFAULT NULL,
   `banneduntil` int(10) DEFAULT 0,
-  `char` INT DEFAULT 5; /*by default is 5 change this to the numbers of chaacters allowed*/
+  `char` INT DEFAULT 5, /*by default is 5 change this to the numbers of chaacters allowed*/
   PRIMARY KEY (`identifier`),
   UNIQUE KEY `identifier` (`identifier`)
 ) ENGINE = InnoDB DEFAULT CHARSET = UTF8MB4;
@@ -277,7 +277,7 @@ CREATE TABLE IF NOT EXISTS `outfits` (
   `charidentifier` int(11) DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL,
   `comps` longtext DEFAULT NULL,
-  `compTints` longtext DEFAULT NULL;
+  `compTints` longtext DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 ROW_FORMAT = DYNAMIC;
 
@@ -308,7 +308,6 @@ CREATE TABLE `whitelist` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `identifier` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_bin',
   `status` TINYINT(1) NULL DEFAULT NULL,
-  `discordid` varchar(255) DEFAULT '0',
   `firstconnection` TINYINT(1) NULL DEFAULT '1',
   `discordid` VARCHAR(50) NULL DEFAULT '0' COLLATE 'utf8mb4_general_ci',
   PRIMARY KEY (`id`) USING BTREE,
