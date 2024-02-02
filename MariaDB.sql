@@ -311,7 +311,7 @@ CREATE TABLE `whitelist` (
   `firstconnection` TINYINT(1) NULL DEFAULT '1',
   `discordid` VARCHAR(50) NULL DEFAULT '0' COLLATE 'utf8mb4_general_ci',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `identifier` (`identifier`) USING BTREE,
+  UNIQUE INDEX `identifier` (`identifier`) USING BTREE
 ) COLLATE = 'utf8mb4_general_ci' ENGINE = InnoDB ROW_FORMAT = DYNAMIC;
 
 INSERT IGNORE INTO `items` (`item`, `label`, `limit`, `can_remove`, `type`, `usable`, `id`, `metadata`, `desc`) VALUES
