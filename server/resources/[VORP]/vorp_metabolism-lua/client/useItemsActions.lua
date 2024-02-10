@@ -63,9 +63,9 @@ RegisterNetEvent('vorpmetabolism:useItem', function(index, label)
         local health = GetEntityHealth(PlayerPedId(), 0)
         local newhealth = health + Config["ItemsToUse"][index]["OuterCoreHealth"]
 
-        if (newhealth > 150) then
+     --[[    if (newhealth > 150) then
             newhealth = 150
-        end
+        end ]]--
         SetEntityHealth(PlayerPedId(), newhealth, 0)
     end
     -- Golds
@@ -83,22 +83,23 @@ RegisterNetEvent('vorpmetabolism:useItem', function(index, label)
         EnableAttributeOverpower(PlayerPedId(), 1, Config["ItemsToUse"][index]["InnerCoreStaminaGold"], true)
     end
 
-    if (Config["ItemsToUse"][index]["Animation"]) == 'eat' then
+    if (Config["ItemsToUse"][index]["Animation"] == "eat") then
         PlayAnimEat(Config["ItemsToUse"][index]["PropName"])
     else
         PlayAnimDrink(Config["ItemsToUse"][index]["PropName"])
     end
 
-    if (Config["ItemsToUse"][index]["Effect"] ~= "") then
-        ScreenEffect(Config["ItemsToUse"][index]["Effect"], Config["ItemsToUse"][index]["EffectDuration"])
-    end
+	if (Config["ItemsToUse"][index]["Effect"] ~= "") then
+		ScreenEffect(Config["ItemsToUse"][index]["Effect"], Config["ItemsToUse"][index]["EffectDuration"])
+	end
         
     TriggerEvent("vorp:Tip", string.format(Translation["OnUseItem"], label), 3000)
 end)
 
-function ScreenEffect(effect, time)
+function ScreenEffect(effect, durationMinutes)
+    local durationMilliseconds = durationMinutes * 60000 -- Convert minutes to milliseconds
     AnimpostfxPlay(effect)
-    Citizen.Wait(time)
+    Citizen.Wait(durationMilliseconds)
     AnimpostfxStop(effect)
 end
 
