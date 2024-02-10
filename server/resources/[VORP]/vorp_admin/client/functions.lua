@@ -2,6 +2,7 @@
 --------------------------------------- FUNCTIONS -------------------------------------------------
 --close menu
 
+local T = Translation.Langs[Config.Lang]
 
 function Closem()
     MenuData.CloseAll()
@@ -61,16 +62,16 @@ function OpenMenu()
     MenuData.CloseAll()
 
     local elements = {
-        { label = _U("Administration"), value = 'administration', desc = _U("administration_desc") },
-        { label = _U("Booster"),        value = 'boost',          desc = _U("booster_desc") },
-        { label = _U("Database"),       value = 'database',       desc = _U("database_desc") },
-        { label = _U("Teleport"),       value = 'teleport',       desc = _U("teleport_desc") },
-        { label = _U("devtools"),       value = 'devtools',       desc = _U("devtools_desc") },
+        { label = T.Menus.MainMenuOptions.administration, value = 'administration', desc = T.Menus.MainMenuOptions.administration_desc },
+        { label = T.Menus.MainMenuOptions.booster,        value = 'boost',          desc = T.Menus.MainMenuOptions.booster_desc },
+        { label = T.Menus.MainMenuOptions.database,       value = 'database',       desc = T.Menus.MainMenuOptions.database_desc },
+        { label = T.Menus.MainMenuOptions.teleport,       value = 'teleport',       desc = T.Menus.MainMenuOptions.teleport_desc },
+        { label = T.Menus.MainMenuOptions.devTools,       value = 'devtools',       desc = T.Menus.MainMenuOptions.devTools_desc },
     }
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi',
         {
-            title    = _U("MenuTitle"),
-            subtext  = _U("MenuSubTitle"),
+            title    = T.Menus.DefaultsMenusTitle.menuTitle,
+            subtext  = T.Menus.DefaultsMenusTitle.menuSubTitle,
             align    = 'top-left',
             elements = elements,
         },
@@ -85,7 +86,7 @@ function OpenMenu()
                 if AdminAllowed then
                     Admin()
                 else
-                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", T.Notify.noperms, 4000)
                 end
             elseif data.current.value == "boost" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Boosters')
@@ -93,7 +94,7 @@ function OpenMenu()
                 if AdminAllowed then
                     Boost()
                 else
-                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", T.Notify.noperms, 4000)
                 end
             elseif data.current.value == "database" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Database')
@@ -101,7 +102,7 @@ function OpenMenu()
                 if AdminAllowed then
                     DataBase()
                 else
-                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", T.Notify.noperms, 4000)
                 end
             elseif data.current.value == "teleport" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Teleports')
@@ -109,7 +110,7 @@ function OpenMenu()
                 if AdminAllowed then
                     Teleport()
                 else
-                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", T.Notify.noperms, 4000)
                 end
             elseif data.current.value == "devtools" then
                 TriggerServerEvent("vorp_admin:opneStaffMenu", 'vorp.staff.Devtools')
@@ -117,7 +118,7 @@ function OpenMenu()
                 if AdminAllowed then
                     OpenDevTools()
                 else
-                    TriggerEvent("vorp:TipRight", _U("noperms"), 4000)
+                    TriggerEvent("vorp:TipRight", T.Notify.noperms, 4000)
                 end
             end
         end,
@@ -135,43 +136,27 @@ end
 
 function CopyToClipboard(dataType)
     local ped = PlayerPedId()
-    if dataType == 'v2' then
-        local coords = GetEntityCoords(ped)
-        local x = Round(coords.x, 2)
-        local y = Round(coords.y, 2)
-        local z = Round(coords.z, 2)
+    local coords = GetEntityCoords(ped)
+    local x, y, z = Round(coords.x, 2), Round(coords.y, 2), Round(coords.z, 2)
 
-        SendNUIMessage({
-            string = string.format('{x = %s, y = %s, z = %s}', x, y, z)
-        })
-        TriggerEvent('vorp:TipRight', _U("copied"), 3000)
+    if dataType == 'v2' then
+        local copiedText = string.format('{x = %s, y = %s, z = %s}', x, y, z)
+        SendNUIMessage({ string = copiedText })
+        TriggerEvent('vorp:TipRight', T.Notify.copied, 3000)
     elseif dataType == 'v3' then
-        local coords = GetEntityCoords(ped)
-        local x = Round(coords.x, 2)
-        local y = Round(coords.y, 2)
-        local z = Round(coords.z, 2)
-        SendNUIMessage({
-            string = string.format('vector3(%s, %s, %s)', x, y, z)
-        })
-        TriggerEvent('vorp:TipRight', _U("copied"), 3000)
+        local copiedText = string.format('vector3(%s, %s, %s)', x, y, z)
+        SendNUIMessage({ string = copiedText })
+        TriggerEvent('vorp:TipRight', T.Notify.copied, 3000)
     elseif dataType == 'v4' then
-        local coords = GetEntityCoords(ped)
-        local x = Round(coords.x, 2)
-        local y = Round(coords.y, 2)
-        local z = Round(coords.z, 2)
         local heading = GetEntityHeading(ped)
         local h = Round(heading, 2)
-        SendNUIMessage({
-            string = string.format('vector4(%s, %s, %s, %s)', x, y, z, h)
-        })
-        TriggerEvent('vorp:TipRight', _U("copied"), 3000)
+        local copiedText = string.format('vector4(%s, %s, %s, %s)', x, y, z, h)
+        SendNUIMessage({ string = copiedText })
+        TriggerEvent('vorp:TipRight', T.Notify.copied, 3000)
     elseif dataType == 'heading' then
-        local heading = GetEntityHeading(ped)
-        local h = Round(heading, 2)
-        SendNUIMessage({
-            string = h
-        })
-        TriggerEvent('vorp:TipRight', _U("copied"), 3000)
+        local heading = Round(GetEntityHeading(ped), 2)
+        SendNUIMessage({ string = heading })
+        TriggerEvent('vorp:TipRight', T.Notify.copied, 3000)
     end
 end
 

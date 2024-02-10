@@ -2,20 +2,12 @@ local Key = Config.Key
 local CanOpen = Config.CanOpenMenuWhenDead
 local Inmenu
 local spectating = false
-local lastcoords
-MenuData = {}
-VORP = {}
+local lastcoords = nil
+local T = Translation.Langs[Config.Lang]
 
-TriggerEvent("getCore", function(core)
-    VORP = core
-end)
+MenuData = exports.vorp_menu:GetMenuData()
+VORP = exports.vorp_core:GetCore()
 
--- get menu
-TriggerEvent("menuapi:getData", function(call)
-    MenuData = call
-end)
-
-ClientRPC = exports.vorp_core:ClientRpcCall() --[[@as ClientRPC]]
 
 AddEventHandler("onResourceStop", function(resourceName)
     if resourceName ~= GetCurrentResourceName() then
@@ -75,7 +67,7 @@ if Config.useAdminCommand then
 
     RegisterCommand(Config.commandAdmin, function()
         TriggerServerEvent("vorp_admin:opneStaffMenu", "vorp.staff.OpenMenu")
-        Wait(100)
+        Wait(200)
         if AdminAllowed then
             OpenMenu()
             return true
@@ -84,7 +76,7 @@ if Config.useAdminCommand then
 end
 
 --OPEN MENU
-Citizen.CreateThread(function()
+CreateThread(function()
     while true do
         local player = PlayerPedId()
         local isDead = IsPedDeadOrDying(player, false)
@@ -101,16 +93,13 @@ Citizen.CreateThread(function()
                 end
             end
         end
-        Citizen.Wait(0)
+        Wait(0)
     end
 end)
-
--- perms
 
 RegisterNetEvent("vorp_admin:OpenStaffMenu", function(perm)
     AdminAllowed = perm
 end)
-
 
 ----- EVENTS
 RegisterNetEvent("vorp_admin:Freezeplayer")
@@ -121,20 +110,22 @@ end)
 RegisterNetEvent("vorp_admin:respawn", function(target)
     Wait(50)
     DoScreenFadeOut(1000)
+    repeat Wait(0) until not IsScreenFadingOut()
     FreezeEntityPosition(PlayerPedId(), true)
     Wait(1000)
     DoScreenFadeIn(4000)
+    repeat Wait(0) until not IsScreenFadingIn()
     FreezeEntityPosition(PlayerPedId(), false)
-    TriggerEvent('vorp:ShowBottomRight', "Please revise our rules!", 10000)
+    TriggerEvent('vorp:ShowBottomRight', T.Notify.reviseRules, 10000)
 end)
 
 
-RegisterNetEvent("vorp_sdmin:spectatePlayer")
-AddEventHandler("vorp_sdmin:spectatePlayer", function(target, targetCoords)
+RegisterNetEvent("vorp_admin:spectatePlayer", function(target, targetCoords)
     local admin = PlayerPedId()
     local ped = 0
     if not spectating then
         DoScreenFadeOut(2000)
+        repeat Wait(0) until not IsScreenFadingOut()
         lastcoords = GetEntityCoords(admin)
         SetEntityVisible(admin, false)
         SetEntityCanBeDamaged(admin, false)
@@ -148,9 +139,11 @@ AddEventHandler("vorp_sdmin:spectatePlayer", function(target, targetCoords)
         SetCamActive(Camera, true)
         RenderScriptCams(true, true, 1, true, true, 0)
         DoScreenFadeIn(2000)
+        repeat Wait(0) until IsScreenFadingIn()
         spectating = true
     else
         DoScreenFadeOut(2000)
+        repeat Wait(0) until not IsScreenFadingOut()
         RenderScriptCams(true, false, 1, true, true, 0)
         DestroyCam(Camera, true)
         DestroyAllCams(true)
@@ -159,6 +152,7 @@ AddEventHandler("vorp_sdmin:spectatePlayer", function(target, targetCoords)
         SetEntityCanBeDamaged(admin, false)
         SetEntityInvincible(admin, true)
         DoScreenFadeIn(2000)
+        repeat Wait(0) until IsScreenFadingIn()
         spectating = false
     end
 end)
@@ -200,10 +194,11 @@ RegisterNetEvent('vorp_admin:ClientTrollKillPlayerHandler', function()
 end)
 
 RegisterNetEvent('vorp_admin:ClientTrollInvisbleHandler', function()
-    if IsEntityVisible(PlayerPedId()) then
-        SetEntityVisible(PlayerPedId(), false)
+    local player = PlayerPedId()
+    if IsEntityVisible(player) then
+        SetEntityVisible(player, false)
     else
-        SetEntityVisible(PlayerPedId(), true)
+        SetEntityVisible(player, true)
     end
 end)
 
@@ -213,11 +208,15 @@ end)
 
 RegisterNetEvent('vorp_admin:ClientTrollSetPlayerOnFireHandler', function()
     local model = 'p_campfire02xb'
-    RequestModel(model, false)
-    local object = CreateObject(model, 0, 0, 0, false, false, false)
+    if not HasModelLoaded(model) then
+        RequestModel(model, false)
+        repeat Wait(0) until HasModelLoaded(model)
+    end
+    local object = CreateObject(joaat(model), 0, 0, 0, false, false, false)
+    repeat Wait(0) until DoesEntityExist(object)
     AttachEntityToEntity(object, PlayerPedId(), 41, 1000, 1000, 10000, 0, 0, 0, false, false, true, false, 1000, false,
         false, false)
-    Citizen.Wait(5000)
+    Wait(5000)
     DeleteObject(object)
 end)
 
@@ -235,10 +234,11 @@ RegisterNetEvent('vorp_admin:ClientDrainPlayerStamHandler', function()
 end)
 
 RegisterNetEvent('vorp_admin:ClientHandcuffPlayerHandler', function()
-    if not IsPedCuffed(PlayerPedId()) then
-        SetEnableHandcuffs(PlayerPedId(), true, false)
+    local player = PlayerPedId()
+    if not IsPedCuffed(player) then
+        SetEnableHandcuffs(player, true, false)
     else
-        SetEnableHandcuffs(PlayerPedId(), false, false)
+        SetEnableHandcuffs(player, false, false)
     end
 end)
 

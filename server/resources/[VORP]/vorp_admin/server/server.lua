@@ -1,10 +1,11 @@
 ---@diagnostic disable: undefined-global
-local Core = {}
-local VORPwl = {}
+
 local stafftable = {}
 local PlayersTable = {}
 
--- has updated inventory
+local T = Translation.Langs[Config.Lang]
+
+-------------------------- ONLY WORKS WITH UPDATES --------------------------------
 local hasResourceStarted = GetResourceState("vorp_inventory") == "started"
 local hasvorpcorestarted = GetResourceState("vorp_core") == "started"
 if not hasResourceStarted or not hasvorpcorestarted then
@@ -12,23 +13,16 @@ if not hasResourceStarted or not hasvorpcorestarted then
     return
 end
 
-local resourceVersion = GetResourceMetadata("vorp_inventory", "version", 0)
+local invVersion = GetResourceMetadata("vorp_inventory", "version", 0)
 local coreVersion = GetResourceMetadata("vorp_core", "version", 0)
-if tonumber(resourceVersion) < 2.9 or tonumber(coreVersion) < 2.3 then
+if tonumber(invVersion) < 2.9 or tonumber(coreVersion) < 2.3 then
     print("vorp_inventory or vorp core is not up to date this resource will stop")
     StopResource("vorp_admin")
     return
 end
+----------------------------------------------------------------------------------
 
-TriggerEvent("getCore", function(core)
-    Core = core
-end)
-
-TriggerEvent("getWhitelistTables", function(cb)
-    VORPwl = cb
-end)
-
-local ServerRPC = exports.vorp_core:ServerRpcCall() --[[@as ServerRPC]]
+local Core = exports.vorp_core:GetCore()
 
 local function getUserData(User, _source)
     local Character = User.getUsedCharacter
@@ -40,8 +34,8 @@ local function getUserData(User, _source)
     local PlayerMoney = Character.money
     local PlayerGold = Character.gold
     local JobGrade = Character.jobGrade
-    local getid = VORPwl.getEntry(identifier).getId()
-    local getstatus = VORPwl.getEntry(identifier).getStatus()
+    local getid = Core.Whitelist.getEntry(identifier)
+    local getstatus = Core.Whitelist.getEntry(identifier)
     local warnstatus = User.getPlayerwarnings()
 
     local data = {
@@ -54,15 +48,17 @@ local function getUserData(User, _source)
         Money = PlayerMoney,
         Gold = PlayerGold,
         Grade = JobGrade,
-        staticID = tonumber(getid),
-        WLstatus = tostring(getstatus),
+        staticID = getid and tonumber(getid.id) or "no id",
+        WLstatus = getstatus and tostring(getstatus.status) or "no status",
         warns = tonumber(warnstatus),
     }
     return data
 end
 
+
+
 -- Register CallBack
-ServerRPC.Callback.Register("vorp_admin:Callback:getplayersinfo", function(source, cb, args)
+Core.Callback.Register("vorp_admin:Callback:getplayersinfo", function(source, cb, args)
     if next(PlayersTable) then
         if args.search == "search" then -- is for unique player
             if PlayersTable[args.id] then
@@ -95,9 +91,7 @@ local function CheckTable(group, group1, object)
     for key, value in ipairs(Config.AllowedGroups) do
         for k, v in ipairs(value.group) do
             if v == group or v == group1 then
-                if value.command == object then
-                    return true
-                end
+                return true
             end
         end
     end
@@ -130,7 +124,7 @@ RegisterServerEvent("vorp_admin:TpToPlayer", function(targetID, command)
         local targetCoords = GetEntityCoords(GetPlayerPed(targetID))
         TriggerClientEvent('vorp_admin:gotoPlayer', _source, targetCoords)
     else
-        Core.NotifyRightTip(_source, "user dont exist", 8000)
+        Core.NotifyRightTip(_source, T.Notify.userNotExist, 8000)
     end
 end)
 
@@ -191,7 +185,7 @@ RegisterServerEvent("vorp_admin:kick", function(targetID, reason, command)
         if not AllowedToExecuteAction(_source, command) then
             return
         end
-        TriggerClientEvent('vorp:updatemissioNotify', _target, _U("kickednotify"), _U("notify"), 5000)
+        TriggerClientEvent('vorp:updatemissioNotify', _target, T.Notify.kickedNotify, T.Notify.kickedNotify, 5000)
 
         SetTimeout(5000, function()
             DropPlayer(_target, reason)
@@ -252,8 +246,7 @@ RegisterServerEvent("vorp_admin:BanPlayer", function(targetID, staticid, time, c
             datetime = datetime + banTime * 3600
         end
 
-        TriggerClientEvent('vorp:updatemissioNotify', _target, _U("banned"),
-            _U("notify"), 8000)
+        TriggerClientEvent('vorp:updatemissioNotify', _target, T.Notify.bannedNotify, T.Notify.bannedNotify, 8000)
         SetTimeout(8000, function()
             TriggerEvent("vorpbans:addtodb", false, targetStaticId, datetime)
         end)
@@ -274,7 +267,7 @@ RegisterServerEvent("vorp_admin:respawnPlayer", function(targetID, command)
     TriggerEvent("vorp:PlayerForceRespawn", targetID)
     TriggerClientEvent("vorp:PlayerForceRespawn", targetID)
     exports.vorp_inventory:closeInventory(targetID)
-    TriggerClientEvent('vorp:updatemissioNotify', targetID, _U("respawned"), _U("lostall"), 8000)
+    TriggerClientEvent('vorp:updatemissioNotify', targetID, T.Notify.respawnedNotify, T.Notify.lostAllItems, 8000)
     SetTimeout(8000, function()
         TriggerClientEvent("vorp_core:respawnPlayer", targetID) --remove player
         TriggerClientEvent("vorp_admin:respawn", targetID)      --add effects
@@ -303,7 +296,7 @@ RegisterServerEvent("vorp_admin:givePlayer", function(targetID, action, data1, d
         local qty = data2
 
         if not qty or not item then
-            return Core.NotifyRightTip(_source, "INVALID add: ITEM and AMOUNT", 5000)
+            return Core.NotifyRightTip(_source, T.Notify.invalidAdd, 5000)
         end
 
         local itemCheck = exports.vorp_inventory:getItemDB(item)
@@ -311,21 +304,21 @@ RegisterServerEvent("vorp_admin:givePlayer", function(targetID, action, data1, d
         local canCarryInv = exports.vorp_inventory:canCarryItems(targetID, qty)
 
         if not itemCheck then
-            return Core.NotifyRightTip(_source, _U("doesnotexist"), 5000)
+            return Core.NotifyRightTip(_source, T.Notify.doesNotExistInDB, 5000)
         end
 
         if not canCarryInv then
-            return Core.NotifyRightTip(_source, _U("inventoryfull"), 5000)
+            return Core.NotifyRightTip(_source, T.Notify.inventoryFull, 5000)
         end
 
         if not canCarryItem then
-            return Core.NotifyRightTip(_source, _U("itemlimit"), 5000)
+            return Core.NotifyRightTip(_source, T.Notify.itemLimit, 5000)
         end
 
         exports.vorp_inventory:addItem(targetID, item, qty)
 
-        Core.NotifyRightTip(targetID, _U("received") .. qty .. _U("of") .. itemCheck.label .. "~q~", 5000)
-        Core.NotifyRightTip(_source, _U("itemgiven"), 4000)
+        Core.NotifyRightTip(targetID, T.Notify.receivedItem .. qty .. T.Notify.of .. itemCheck.label .. "~q~", 5000)
+        Core.NotifyRightTip(_source, T.Notify.itemGiven, 4000)
         return
     end
 
@@ -335,13 +328,13 @@ RegisterServerEvent("vorp_admin:givePlayer", function(targetID, action, data1, d
         local canCarryWeapons = exports.vorp_inventory:canCarryWeapons(targetID, 1, nil, weapon)
 
         if not canCarryWeapons then
-            return Core.NotifyRightTip(_source, _U("cantcarryweapon"), 5000)
+            return Core.NotifyRightTip(_source, T.Notify.cantCarryWeapon, 5000)
         end
 
         exports.vorp_inventory:createWeapon(targetID, weapon)
 
-        Core.NotifyRightTip(targetID, _U("receivedweapon"), 5000)
-        Core.NotifyRightTip(_source, _U("weapongiven"), 4000)
+        Core.NotifyRightTip(targetID, T.Notify.receivedWeapon, 5000)
+        Core.NotifyRightTip(_source, T.Notify.weaponGiven, 4000)
         return
     end
 
@@ -350,18 +343,18 @@ RegisterServerEvent("vorp_admin:givePlayer", function(targetID, action, data1, d
         local qty = data2
 
         if not qty then
-            return Core.NotifyRightTip(_source, _U("addquantity"), 5000)
+            return Core.NotifyRightTip(_source, T.Notify.addQuantity, 5000)
         end
 
         Character.addCurrency(tonumber(CurrencyType), tonumber(qty))
         if CurrencyType == 0 then
-            Core.NotifyRightTip(targetID, _U("received") .. qty .. _U("money"), 5000)
+            Core.NotifyRightTip(targetID, T.Notify.receivedItem .. qty .. T.Notify.money, 5000)
         elseif CurrencyType == 1 then
-            Core.NotifyRightTip(targetID, _U("received") .. qty .. _U("gold"), 5000)
+            Core.NotifyRightTip(targetID, T.Notify.receivedItem .. qty .. T.Notify.gold, 5000)
         elseif CurrencyType == 2 then
-            Core.NotifyRightTip(targetID, _U("received") .. qty .. " of roll ", 5000)
+            Core.NotifyRightTip(targetID, T.Notify.receivedItem .. qty .. T.Notify.ofRoll, 5000)
         end
-        Core.NotifyRightTip(_source, _U("sent"), 4000)
+        Core.NotifyRightTip(_source, T.Notify.sent, 4000)
 
         return
     end
@@ -394,8 +387,8 @@ RegisterServerEvent("vorp_admin:givePlayer", function(targetID, action, data1, d
                     inventory = json.encode({})
                 })
         end
-        Core.NotifyRightTip(targetID, _U("horsereceived"), 5000)
-        Core.NotifyRightTip(_source, _U("horsegiven"), 4000)
+        Core.NotifyRightTip(targetID, T.Notify.horseReceived, 5000)
+        Core.NotifyRightTip(_source, T.Notify.horseGiven, 4000)
         return
     end
 
@@ -426,8 +419,8 @@ RegisterServerEvent("vorp_admin:givePlayer", function(targetID, action, data1, d
                     inventory = json.encode({})
                 })
         end
-        Core.NotifyRightTip(targetID, _U("wagonreceived"), 5000)
-        Core.NotifyRightTip(_source, _U("givenwagon"), 4000)
+        Core.NotifyRightTip(targetID, T.Notify.wagonReceived, 5000)
+        Core.NotifyRightTip(_source, T.Notify.weaponGiven, 4000)
     end
 end)
 
@@ -457,8 +450,8 @@ RegisterServerEvent("vorp_admin:ClearAllItems", function(type, targetID, command
             Wait(10)
             exports.vorp_inventory:subItem(targetID, inventoryItems.name, inventoryItems.count)
         end
-        Core.NotifyRightTip(_source, _U("itemswiped"), 4000)
-        Core.NotifyRightTip(targetID, _U("itemwipe"), 5000)
+        Core.NotifyRightTip(_source, T.Notify.itemsWiped, 4000)
+        Core.NotifyRightTip(targetID, T.Notify.itemWipe, 5000)
     end
 
     if type == "weapons" then
@@ -470,8 +463,8 @@ RegisterServerEvent("vorp_admin:ClearAllItems", function(type, targetID, command
             TriggerClientEvent('syn_weapons:removeallammo', targetID)  -- syn script
             TriggerClientEvent('vorp_weapons:removeallammo', targetID) -- vorp
         end
-        Core.NotifyRightTip(_source, _U("weaponswiped"), 4000)
-        Core.NotifyRightTip(targetID, _U("weaponwipe"), 5000)
+        Core.NotifyRightTip(_source, T.Notify.weaponsWiped, 4000)
+        Core.NotifyRightTip(targetID, T.Notify.weaponWipe, 5000)
     end
 end)
 
@@ -492,8 +485,8 @@ end)
 RegisterServerEvent("vorp_admin:ClearCurrency", function(targetID, type, command)
     local _source = source
 
-    local Character = Core.getUser(targetID)
-    if not Character then
+    local User = Core.getUser(targetID)
+    if not User then
         return
     end
 
@@ -501,17 +494,18 @@ RegisterServerEvent("vorp_admin:ClearCurrency", function(targetID, type, command
         return
     end
 
-    local money = Character.getUsedCharacter.money
-    local gold = Character.getUsedCharacter.gold
+    local Character = User.getUsedCharacter
+    local money = User.getUsedCharacter.money
+    local gold = User.getUsedCharacter.gold
 
     if type == "money" then
         Character.removeCurrency(0, money)
-        Core.NotifyRightTip(_source, _U("moneyremoved"), 4000)
-        Core.NotifyRightTip(targetID, _U("moneyremovedfromyou"), 4000)
+        Core.NotifyRightTip(_source, T.Notify.moneyRemoved, 4000)
+        Core.NotifyRightTip(targetID, T.Notify.moneyRemovedFromAdmin, 4000)
     else
         Character.removeCurrency(1, gold)
-        Core.NotifyRightTip(_source, _U("goldremoved"), 4000)
-        Core.NotifyRightTip(targetID, _U("goldremovedfromyou"), 4000)
+        Core.NotifyRightTip(_source, T.Notify.goldRemoved, 4000)
+        Core.NotifyRightTip(targetID, T.Notify.goldRemovedFromAdmin, 4000)
     end
 end)
 
@@ -535,10 +529,10 @@ RegisterServerEvent("vorp_admin:setGroup", function(targetID, newgroup, command)
     character.setGroup(NewPlayerGroup)
     user.setGroup(NewPlayerGroup)
     TriggerEvent("vorp:setGroup", _target, NewPlayerGroup)
-    Core.NotifyRightTip(_target, _U("groupgiven") .. NewPlayerGroup, 5000)
+    Core.NotifyRightTip(_target, T.Notify.groupGiven .. NewPlayerGroup, 5000)
 end)
 -- JOB
-RegisterServerEvent("vorp_admin:setJob", function(targetID, newjob, newgrade, command)
+RegisterServerEvent("vorp_admin:setJob", function(targetID, newjob, newgrade, newJobLabel, command)
     local _source = source
     local _target = targetID
 
@@ -548,27 +542,29 @@ RegisterServerEvent("vorp_admin:setJob", function(targetID, newjob, newgrade, co
 
     local user = Core.getUser(_target)
     if not user then
-        return
+        return print("user not found")
     end
-
     local character = user.getUsedCharacter
     character.setJob(newjob)
     character.setJobGrade(newgrade)
-    Core.NotifyRightTip(_target, _U("jobgiven") .. newjob, 5000)
-    Core.NotifyRightTip(_target, _U("gradegiven") .. newgrade, 5000)
+    character.setJobLabel(newJobLabel)
+
+    Core.NotifyRightTip(_target, T.Notify.jobGiven .. newjob, 5000)
+    Core.NotifyRightTip(_target, T.Notify.gradeGiven .. newgrade, 5000)
+    Core.NotifyRightTip(_target, T.Notify.jobLabelGiven .. newJobLabel, 5000)
 end)
 
 -- WHITELIST
-RegisterServerEvent("vorp_admin:Whitelist", function(targetID, staticid, type, command)
+RegisterServerEvent("vorp_admin:Whitelist", function(targetID, steam, type, command)
     local _source = source
     if not AllowedToExecuteAction(_source, command) then
         return
     end
-    local staticID = staticid
+    local steam = steam
     if type == "addWhiteList" then
-        TriggerEvent("vorp:whitelistPlayer", staticID)
+        Core.Whitelist.WhitelistUser(steam)
     else
-        TriggerEvent("vorp:unwhitelistPlayer", staticID)
+        Core.Whitelist.unWhitelistUser(steam)
     end
 end)
 
@@ -622,7 +618,7 @@ RegisterServerEvent("vorp_admin:spectate", function(targetID, command)
         return
     end
     local targetCoords = GetEntityCoords(GetPlayerPed(targetID))
-    TriggerClientEvent("vorp_sdmin:spectatePlayer", _source, targetID, targetCoords)
+    TriggerClientEvent("vorp_admin:spectatePlayer", _source, targetID, targetCoords)
 end)
 
 
@@ -632,7 +628,7 @@ RegisterServerEvent("vorp_admin:announce", function(announce, command)
         return
     end
 
-    Core.NotifySimpleTop(-1, _U("announce"), announce, 10000)
+    Core.NotifySimpleTop(-1, T.Notify.announce, announce, 10000)
 end)
 
 RegisterNetEvent('vorp_admin:HealSelf', function(command)
@@ -814,7 +810,7 @@ RegisterServerEvent('vorp_admin:alertstaff', function(source)
     local playername = Character.firstname .. ' ' .. Character.lastname --player char name
 
     for _, staff in pairs(stafftable) do
-        Core.NotifyRightTip(staff, _U("player") .. playername .. _U("reportedtodiscord"), 4000)
+        Core.NotifyRightTip(staff, T.Notify.player .. playername .. T.Notify.reportedToDiscord, 4000)
     end
 end)
 
@@ -841,17 +837,17 @@ RegisterNetEvent("vorp_admin:requeststaff", function(source, type)
     local playername = Character.firstname .. ' ' .. Character.lastname --player char name
     for id, staff in pairs(stafftable) do
         if type == "new" then
-            Core.NotifyRightTip(staff, playername .. " ID: " .. playerID .. _U("requestingassistance") .. _U("New"),
-                4000)
+            Core.NotifyRightTip(staff, playername .. " ID: " .. playerID .. T.Notify.requestingAssistance .. T.Notify
+                .new, 4000)
         elseif type == "bug" then
             Core.NotifyRightTip(staff,
-                playername .. " ID: " .. playerID .. _U("requestingassistance") .. _U("Foundbug"), 4000)
+                playername .. " ID: " .. playerID .. T.Notify.requestingAssistance .. T.Notify.foundBug, 4000)
         elseif type == "rules" then
             Core.NotifyRightTip(staff,
-                playername .. " ID: " .. playerID .. _U("requestingassistance") .. _U("Someonebrokerules"), 4000)
+                playername .. " ID: " .. playerID .. T.Notify.requestingAssistance .. T.Notify.someoneBrokerules, 4000)
         elseif type == "cheating" then
             Core.NotifyRightTip(staff,
-                playername .. " ID: " .. playerID .. _U("requestingassistance") .. _U("Someonecheating"), 4000)
+                playername .. " ID: " .. playerID .. T.Notify.requestingAssistance .. T.Notify.someoneCheating, 4000)
         end
     end
 end)
@@ -859,12 +855,11 @@ end)
 
 AddEventHandler('playerDropped', function()
     local _source = source
-    if _source then
-        if stafftable[_source] then
-            stafftable[_source] = nil
-        end
-        if PlayersTable[_source] then
-            PlayersTable[_source] = nil
-        end
+
+    if stafftable[_source] then
+        stafftable[_source] = nil
+    end
+    if PlayersTable[_source] then
+        PlayersTable[_source] = nil
     end
 end)

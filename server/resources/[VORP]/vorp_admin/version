@@ -1,3 +1,6 @@
+<2.5>
+- new exports compability
+- whitelist options redone
 <2.4>
 - NEW VERSION 2.4 security and fixes to events.
 - double check for permissions due to RedM cheat menus 
