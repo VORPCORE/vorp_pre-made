@@ -1,3 +1,19 @@
+<1.6>
+- major changes to the code colorways were added to the character creation
+- added clothing stores , barbers,makeup,surgeon and second chance as locations using character creation features (dont need vorp_clothing stores anymore)
+- category with prices and whitelist some clothing to have higher prices
+- secondchance with item removed, use location 
+- secondchance currency support cash gold and rol currencies
+- Menu was redone for clarity when making a character
+- all modifications are now tracked when you enter a new tab or leave it
+- added new features to costumise face upper body and lower body
+- added foundation to make up 
+- fixed grime in life style menu
+- fixed skin color 
+- hair color will stay when you scroll to styles same for any hair eyebrows etc
+- statebags to check player is wearing bandana or not
+- clothing status will save using ResourceKvp 
+- new sql code is needed to update the database make sure to update all files
 <1.5>
 - In this version RDO intro has been added with scenes 
 - Textures for character selector should now be loaded correctly and not be *seen* loading
