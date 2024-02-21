@@ -1,13 +1,16 @@
 # VORP Animations
 
 ## What is this script?
-An animation tool for other scripts to utilize. The goal of this scrtipt is to make interacting with animations much easier for other developers. This Script allows other script creators to leverage pre-made animations and animation combos with ease of use in mind.
+An animation tool for other scripts to utilize. The goal of this script is to make interacting with animations much easier for other developers. This Script allows other script creators to leverage pre-made animations and animation combos with ease of use in mind.
 
 ## How to install
 * Download this repo
 * Copy and paste `vorp_animations` folder to `resources/vorp_animations`
 * Add `ensure vorp_animations` to your `server.cfg` file
 * Now you are ready to get coding!
+
+## Screen Shot
+![image](https://user-images.githubusercontent.com/10902965/184693638-fb6aab24-721b-4c29-a69b-57daf62b0bda.png)
 
 ## Documentation
 
@@ -77,6 +80,7 @@ Animations.endAnimation('campfire')
 ### Animation DevTool
 
 _To Activate set `Config.DevTools` to true and then in-game use the `/startanimation animationname` command_
+![image](https://user-images.githubusercontent.com/10902965/184692733-c450aff6-e793-43b3-880b-ba1563199cc1.png)
 
 #### View Current animation
 - Displays the current animation playing

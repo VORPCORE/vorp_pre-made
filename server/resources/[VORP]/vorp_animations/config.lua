@@ -102,5 +102,60 @@ Config.Animations = {
             },
             bone = 'SKEL_L_Hand'
         }
-    }
+    },
+    ["readnewspaper"] = {
+        dict = "mech_carry_box",
+        name = "idle",
+        flag = 17,
+        type = 'standard',
+        prop = {
+            model = 'p_cs_newspaper_02x_noanim',
+            coords = {
+                x = 0.15, 
+                y = -0.0399,
+                z = 0,
+                xr = 0.0,
+                yr = 0.0,
+                zr = 0.0
+            },
+            bone = 'SKEL_L_Finger12'
+        }
+    },
+	
+    ["gravedigging"] = {
+        dict = "amb_work@world_human_gravedig@working@male_b@base",
+        name = "base", 
+        flag = 17,
+        type = 'standard',
+        prop = {
+            model = 'p_shovel02x',
+            coords = {
+                x = 0.0, 
+                y = -0.09, 
+                z = -0.09, 
+                xr = 250.2899,
+                yr = 579.19,
+                zr = 373.3
+            },
+            bone = 'SKEL_R_Hand'
+        }
+    },
+    ["carry_box"] = {
+        dict = "mech_carry_box",
+        name = "idle", 
+        flag = 31,
+        type = 'standard',
+        prop = {
+            model = 'p_chair_crate02x',
+            coords = {
+                x = 0.1, 
+                y = -0.1399, 
+                z = 0.21, 
+                xr = 263.2899,
+                yr = 619.19,
+                zr = 334.3
+            },
+            bone = 'SKEL_L_Hand'
+        }
+    },
 }

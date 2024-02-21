@@ -130,6 +130,16 @@ exports('initiate', function()
         customprop = val
     end
 
+    Animations.registerAnimation = function(name, animation)
+        Anims[name] = animation
+    end
+
+    Animations.registerAnimations = function(animationTables)
+        for name, animation in pairs(animationTables) do
+            Anims[name] = animation
+        end
+    end
+
     return Animations
 end)
 
