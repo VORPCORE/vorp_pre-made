@@ -684,7 +684,7 @@ function InventoryService.sharePickupServerItem(data)
 	SvUtils.SendDiscordWebhook(info)
 	shareData(data)
 end
-registerIn
+
 function InventoryService.shareMoneyPickupServer(obj, amount, position)
 	local _source = source
 	local Character = Core.getUser(_source).getUsedCharacter
