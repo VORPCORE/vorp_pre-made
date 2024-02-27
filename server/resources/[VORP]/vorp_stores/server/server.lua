@@ -176,6 +176,7 @@ local function buyItems(_source, Character, value, ItemName, storeId)
         end
 
         Character.removeCurrency(0, total)
+        Character.money = Character.money - total
         VORPcore.NotifyRightTip(_source,
             T.youbought .. value.quantity .. " " .. value.label .. T.frcash .. total2 .. T.ofcash, 3000)
         DiscordLog(fname ..

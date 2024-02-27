@@ -158,7 +158,7 @@ function LoadComps(ped, components, set)
 				Citizen.InvokeNative(0xAAB86462966168CE, ped, 1)
 				UpdatePedVariation(ped)
 				IsPedReadyToRender(ped)
-				if value.tint0 ~= 0 or value.tint1 ~= 0 or value.tint2 ~= 0 or value.palette ~= 0 then
+				if value.tint0 ~= 0 and value.tint1 ~= 0 and value.tint2 ~= 0 and value.palette ~= 0 then -- cannot be 0 or it will apply 0 and mess up the colors
 					local TagData = GetMetaPedData(category == "Boots" and "boots" or category, ped)
 					if TagData then
 						local palette = (value.palette ~= 0) and value.palette or TagData.palette
@@ -279,6 +279,7 @@ function StartSwapCharacters()
 		local randomScenario = math.random(1, #data.scenario[value.skin.sex])
 		Citizen.InvokeNative(0x524B54361229154F, data.PedHandler, joaat(data.scenario[value.skin.sex][randomScenario]), -1, false, joaat(data.scenario[value.skin.sex][randomScenario]), -1.0, 0)
 		Peds[#Peds + 1] = data.PedHandler
+		SetPedCanBeTargetted(data.PedHandler, false)
 	end
 
 	mainCam = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", options.mainCam.x, options.mainCam.y, options.mainCam.z, options.mainCam.rotx, options.mainCam.roty, options.mainCam.rotz, options.mainCam.fov, false, 0)

@@ -17,7 +17,7 @@ MenuData.RegisteredTypes['default'] = {
             ak_menubase_action = 'closeMenu',
             ak_menubase_namespace = namespace,
             ak_menubase_name = name,
-            ak_menubase_data = data
+            -- ak_menubase_data = data
         })
     end
 }
@@ -32,7 +32,8 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
     menu.submit                           = submit
     menu.cancel                           = cancel
     menu.change                           = change
-    menu.data.selected                    = MenuData.LastSelectedIndex[menu.type .. "_" .. menu.namespace .. "_" .. menu.name] or 0
+    menu.data.selected                    = MenuData.LastSelectedIndex
+        [menu.type .. "_" .. menu.namespace .. "_" .. menu.name] or 0
 
     menu.close                            = function()
         MenuData.RegisteredTypes[type].close(namespace, name)
@@ -156,11 +157,6 @@ function MenuData.CloseAll()
     end
 end
 
---[[ function MenuData.LastSelected(type, namespace, name)
-    local menuKey = type .. "_" .. namespace .. "_" .. name
-    return MenuData.LastSelectedIndex[menuKey] or 0
-end ]]
-
 function MenuData.GetOpened(type, namespace, name)
     for i = 1, #MenuData.Opened, 1 do
         if MenuData.Opened[i] then
@@ -180,7 +176,8 @@ function MenuData.IsOpen(type, namespace, name)
 end
 
 function MenuData.ReOpen(oldMenu)
-    MenuData.Open(oldMenu.type, oldMenu.namespace, oldMenu.name, oldMenu.data, oldMenu.submit, oldMenu.cancel, oldMenu.change, oldMenu.close)
+    MenuData.Open(oldMenu.type, oldMenu.namespace, oldMenu.name, oldMenu.data, oldMenu.submit, oldMenu.cancel,
+        oldMenu.change, oldMenu.close)
 end
 
 local MenuType = 'default'
@@ -188,7 +185,7 @@ local MenuType = 'default'
 RegisterNUICallback('menu_submit', function(data)
     PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
-    if menu.submit ~= nil then
+    if menu and menu.submit ~= nil then
         menu.submit(data, menu)
     end
 end)
@@ -201,14 +198,14 @@ end)
 RegisterNUICallback('menu_cancel', function(data)
     PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
-    if menu.cancel ~= nil then
+    if menu and menu.cancel ~= nil then
         menu.cancel(data, menu)
     end
 end)
 
 RegisterNUICallback('menu_change', function(data)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
-
+    if not menu then return end
     for i = 1, #data.elements, 1 do
         menu.setElement(i, 'value', data.elements[i].value)
 
@@ -226,6 +223,7 @@ end)
 
 RegisterNUICallback('update_last_selected', function(data)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
+    if not menu then return end
     local menuKey = menu.type .. "_" .. menu.namespace .. "_" .. menu.name
     if data.selected ~= nil then
         MenuData.LastSelectedIndex[menuKey] = data.selected

@@ -126,7 +126,7 @@ end
 function playanim(anim, msg)
 	local playerPed = PlayerPedId()
 	TaskStartScenarioInPlace(playerPed, GetHashKey(anim), 20000, true, false, false, false)
-        progressbar.start(msg, 20000, function ()
+	progressbar.start(msg, 20000, function ()
 	end)
 	Citizen.Wait(20000)
 	ClearPedTasksImmediately(PlayerPedId())
@@ -882,6 +882,7 @@ Citizen.CreateThread(function()
 									WarMenu.CloseMenu()
 									TriggerEvent("vorpinputs:getInput", Config2.Language.confirm, Config2.Language.amount, function(cb)
 										local count = tonumber(cb)
+                                                                                 count = math.floor(count) -- prevent decimals
 										if count ~= nil and count ~= 0 and count > 0 then
 											itemlabel = j
 											itemprice = d.price

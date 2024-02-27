@@ -3,11 +3,8 @@
 vorp stores in Lua (not a conversion from th C#) totaly from scratch
 
 ## Dependency
-[MenuApi](https://github.com/VORPCORE/vorp_stores-lua/files/8743531/menuapi.zip) you this replace with yours. yes replace. no it wont affect other scripts
-- ensure menuapi `on the top of resources.cfg`
-- [vorp_inputs-lua](https://github.com/VORPCORE/vorp_inputs-lua) YOU MUST USE THIS repo or it wont work.
-
-
+#### vorp_menu
+- ensure vorp_menu `on the top of resources.cfg`
 
 ## instalation
 -`ensure vorp_stores` in your resources.cfg

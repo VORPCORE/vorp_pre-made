@@ -109,10 +109,10 @@ AddEventHandler('playerDropped', function()
 
     -- remove weapons from cache on player leave
     local weapons = UsersWeapons.default
-    local char = Core.getUser(_source).getUsedCharacter
+    local char = Core.getUser(_source)
 
     if char then
-        local charid = char.charIdentifier
+        local charid = char.getUsedCharacter.charIdentifier
         for key, value in pairs(weapons) do
             if value.charId == charid then
                 UsersWeapons.default[key] = nil

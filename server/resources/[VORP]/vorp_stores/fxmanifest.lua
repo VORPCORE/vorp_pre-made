@@ -3,10 +3,10 @@ rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aw
 
 game 'rdr3'
 author 'VORP @outsider31000'
+description 'A store script for vorp core framework'
+repository 'https://github.com/VORPCORE/vorp_stores-lua'
 lua54 'yes'
 
-client_script 'client/client.lua'
-server_script 'server/server.lua'
 
 shared_scripts {
     'config.lua',
@@ -15,10 +15,10 @@ shared_scripts {
     'shared/language.lua',
     'images/*.png'
 }
+client_script 'client/client.lua'
 
+server_script 'server/server.lua'
 
---dont
---touch
 
 version '2.1'
 vorp_checker 'yes'

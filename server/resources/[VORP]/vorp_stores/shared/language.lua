@@ -46,6 +46,7 @@ TranslationStores.Langs = {
         pressHereToFinish = "press here when finish",
         buyMenu = "buy menu",
         StoreInUse = "Store is in use by another player",
+        cantcarryitem ="you cant carry anymore items"
     },
     Portugues_PT = {
         SubPrompt = "Carregue",
@@ -92,6 +93,8 @@ TranslationStores.Langs = {
         pressHereToFinish = "pressione aqui quando terminar",
         buyMenu = "menu de compra",
         StoreInUse = "Store is in use by another player",
+        cantcarryitem ="you cant carry anymore items"
+
     },
     Portugues_BR = {
         SubPrompt = "Pressione",
@@ -138,6 +141,8 @@ TranslationStores.Langs = {
         pressHereToFinish = "pressione aqui quando finalizar",
         buyMenu = "menu de compra",
         StoreInUse = "Store is in use by another player",
+        cantcarryitem ="you cant carry anymore items"
+
     },
     Francais = {
         SubPrompt = "Appuyez",
@@ -184,6 +189,8 @@ TranslationStores.Langs = {
         pressHereToFinish = "appuyez ici lorsque vous avez terminé",
         buyMenu = "menu d'achat",
         StoreInUse = "Store is in use by another player",
+        cantcarryitem ="you cant carry anymore items"
+
     },
     German = {
         SubPrompt = "Drücke",
@@ -230,6 +237,8 @@ TranslationStores.Langs = {
         pressHereToFinish = "Drücke hier, um abzuschließen",
         buyMenu = "Kaufmenü",
         StoreInUse = "Store is in use by another player",
+        cantcarryitem ="you cant carry anymore items"
+
     },
     Spanish = {
         SubPrompt = "Presiona",
@@ -276,5 +285,7 @@ TranslationStores.Langs = {
         pressHereToFinish = "presiona aquí cuando hayas terminado",
         buyMenu = "menú de compra",
         StoreInUse = "Store is in use by another player",
+        cantcarryitem ="you cant carry anymore items"
+
     },
 }

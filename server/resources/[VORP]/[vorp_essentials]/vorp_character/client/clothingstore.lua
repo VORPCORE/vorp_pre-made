@@ -165,5 +165,7 @@ function PrepareClothingStore(value)
         OpenMakeupMenu(Clothing, value)
     elseif value.TypeOfShop == "face" then
         OpenFaceMenu(Clothing, value)
+    elseif ShopType == "lifestyle" then
+        OpenLifeStyleMenu(Clothing, value)
     end
 end

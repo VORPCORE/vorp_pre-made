@@ -79,11 +79,6 @@ local function GetPlayerDistanceFromCoords(vector)
 end
 
 local function SpawnNPC(Store)
-   if not CheckJobs(Store) then
-      return
-   end
-
-
    local value = Config.Stores[Store]
    local ped   = VORPutils.Peds:Create(value.Npc.Model, nil, nil, nil, nil, 'world', false, true, nil, false,
       value.Npc.Pos)
@@ -543,7 +538,7 @@ function OpenBuyMenu(storeId, category)
                         max = items.amount,
                         action = "buy",
                         type = "slider",
-                        desc = font .. T.sellfor ..
+                        desc = font .. T.buyfor ..
                             '<span style="margin-left:90px;"><span style="font-size:25px;">' ..
                             ctp .. '</span>' ..
                             '<span style="font-size:30px;">' .. string.format("%.2f", storeItem.buyprice) ..
@@ -568,7 +563,7 @@ function OpenBuyMenu(storeId, category)
                   type = "slider",
                   action = "buy",
                   desc = font ..
-                      T.sellfor ..
+                      T.buyfor ..
                       '<span style="margin-left:90px;"><span style="font-size:25px;">' .. ctp .. '</span>' ..
                       '<span style="font-size:30px;">' .. string.format("%.2f", storeItem.buyprice) ..
                       "    </span><span style='color:" ..
@@ -619,7 +614,7 @@ function OpenBuyMenu(storeId, category)
                   price = data.current.info.buyprice,
                   quantity = data.current.value,
                   weapon = data.current.info.weapon,
-                  total = buyPrice
+                  total = string.format("%.2f",buyPrice)
                }
             end
 
@@ -630,14 +625,14 @@ function OpenBuyMenu(storeId, category)
 
             for key, value in pairs(menu.data.elements) do
                if value.index == ItemName then
-                  menu.setElement(key, "desc", font .. T.sellfor ..
+                  menu.setElement(key, "desc", font .. T.buyfor ..
                      '<span style="margin-left:90px;"><span style="font-size:25px;">' ..
                      ctp ..
                      '</span><span style="font-size:30px;">' ..
                      string.format("%.2f", data.current.info.buyprice) ..
                      "    </span><span style='color:" .. color .. ";'>   " .. currencyType ..
                      "</span><br><br><span style='font-size:25px;'> " .. T.totalToPay .. " =</span> " ..
-                     ctp .. "<span style='color: Green; font-size:25px;'>" .. buyPrice .. "</span><br><br>" ..
+                     ctp .. "<span style='color: Green; font-size:25px;'>" .. string.format("%.2f",buyPrice) .. "</span><br><br>" ..
                      data.current.info.desc ..
                      "<br>" .. "<br><br><span style='color:" .. color .. ";'></span>")
                   menu.refresh()

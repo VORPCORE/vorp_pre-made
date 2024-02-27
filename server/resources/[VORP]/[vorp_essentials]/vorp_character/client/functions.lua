@@ -472,16 +472,22 @@ end
 --- update cachedComponents for creator
 function UpdateCache(newcomponents)
     for key, value in pairs(newcomponents) do
-        if not CachedComponents[key] then
+        if type(value) == 'table' then
+            CachedComponents[key] = {
+                comp = value.comp,
+                tint0 = value.tint0 or 0,
+                tint1 = value.tint1 or 0,
+                tint2 = value.tint2 or 0,
+                palette = value.palette or 0,
+            }
+        else
             CachedComponents[key] = {
                 comp = value,
                 tint0 = 0,
                 tint1 = 0,
                 tint2 = 0,
-                palette = 0
+                palette = 0,
             }
-        else
-            CachedComponents[key].comp = value
         end
     end
     return CachedComponents

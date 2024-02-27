@@ -4,7 +4,7 @@ rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aw
 
 games { "rdr3" }
 author 'VORP @AndrewR3K'
-
+description 'Zone Notify for VORP Core Framework'
 client_scripts {
     'client/client.lua',
     'config.lua'

@@ -215,7 +215,7 @@ Core.Callback.Register("vorp_character:callback:PayToShop", function(source, cal
 	if arguments.skin then
 		character.updateSkin((json.encode(arguments.skin)))
 	end
-	
+
 	if arguments.comps then
 		character.updateComps(json.encode(arguments.comps))
 	end
@@ -239,7 +239,7 @@ local function CanProcceed(User, source)
 	local moneyType = ConfigShops.SecondChanceCurrency == 0 and "money" or ConfigShops.SecondChanceCurrency == 1 and "gold" or ConfigShops.SecondChanceCurrency == 2 and "rol"
 
 	if money < amountToPay then
-		Core.NotifyRightTip(source, string.format(T.PayToShop.DontMoney, moneyType, ConfigShops.SecondChancePrice), 6000)
+		Core.NotifyRightTip(source, string.format(T.PayToShop.notenoughtMoney, moneyType, ConfigShops.SecondChancePrice), 6000)
 		return false
 	end
 

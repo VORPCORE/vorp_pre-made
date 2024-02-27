@@ -22,6 +22,12 @@ Config.ShowGold = true -- this will show gold next to money in character selecti
 Config.Webhook = {
     deleteCharacter = ''
 }
+-- in here you can add multiple checks from other script to prevent players from using Rc command
+Config.CanRunReload = function()
+    -- callback ?
+    -- statbebag ?
+    return true -- dont touch
+end
 
 -- * PLAYER SELECTION MENU * --
 -- loactions will be random each restart

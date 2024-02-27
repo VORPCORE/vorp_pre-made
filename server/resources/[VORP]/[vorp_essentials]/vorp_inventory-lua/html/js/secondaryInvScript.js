@@ -1,6 +1,38 @@
+function PostActionPostQty(eventName, itemData, id, propertyName, qty) {
+    if (!isValidating) {
+        processEventValidation();
+        $.post(
+            `https://${GetParentResourceName()}/${eventName}`,
+            JSON.stringify({
+                item: itemData,
+                type: itemData.type,
+                number: qty,
+                [propertyName]: id,
+            })
+        );
+    }
+}
+
+let isShiftActive = false
+
+document.onkeydown = function (e) {
+    isShiftActive = e.shiftKey
+};
+
+document.onkeyup = function (e) {
+    isShiftActive = e.shiftKey
+};
+
 function PostAction(eventName, itemData, id, propertyName) {
   disableInventory(500);
   if (itemData.type != "item_weapon") {
+
+    if (itemData.count === 1 || isShiftActive === true) {
+      let qty = (isShiftActive) ? itemData.count : 1;
+      PostActionPostQty(eventName, itemData, id, propertyName, qty);
+      return;
+    }
+
     dialog.prompt({
       title: LANGUAGE.prompttitle,
       button: LANGUAGE.promptaccept,
@@ -15,36 +47,13 @@ function PostAction(eventName, itemData, id, propertyName) {
       validate: function (value, item, type) {
         if (!value || value <= 0 || value > 200 || !isInt(value)) {
           dialog.close();
-          return;
         } else {
-          if (!isValidating) {
-            processEventValidation();
-            $.post(
-              `https://${GetParentResourceName()}/${eventName}`,
-              JSON.stringify({
-                item: itemData,
-                type: type,
-                number: value,
-                [propertyName]: id,
-              })
-            );
-          }
+          PostActionPostQty(eventName, itemData, id, propertyName, value);
         }
       },
     });
   } else {
-    if (!isValidating) {
-      processEventValidation();
-      $.post(
-        `https://${GetParentResourceName()}/${eventName}`,
-        JSON.stringify({
-          item: itemData,
-          type: itemData.type,
-          number: 1,
-          [propertyName]: id,
-        })
-      );
-    }
+    PostActionPostQty(eventName, itemData, id, propertyName, 1);
   }
 }
 const ActionTakeList = {
@@ -87,11 +96,38 @@ const ActionMoveList = {
   horse: { action: "MoveToHorse", id: () => horseid, customtype: "horse" },
 };
 
+/**
+ * Take from store with price
+ * @param {object} itemData
+ * @param {number} qty
+ */
+function takeFromStoreWithPrice(itemData, qty) {
+
+    if (isValidating) {
+        return;
+    }
+
+    processEventValidation();
+
+    $.post(
+        `https://${GetParentResourceName()}/TakeFromStore`,
+        JSON.stringify({
+            item: itemData,
+            type: itemData.type,
+            number: qty,
+            price: itemData.price,
+            geninfo: geninfo,
+            store: StoreId,
+        })
+    );
+}
+
 function initSecondaryInventoryHandlers() {
   $("#inventoryElement").droppable({
     drop: function (event, ui) {
       itemData = ui.draggable.data("item");
       itemInventory = ui.draggable.data("inventory");
+      // console.log('inventoryElement', isShiftActive, itemData, itemInventory);
       if (itemInventory === "second") {
         if (type in ActionTakeList) {
           const { action, id, customtype } = ActionTakeList[type];
@@ -100,6 +136,13 @@ function initSecondaryInventoryHandlers() {
         } else if (type === "store") {
           disableInventory(500);
           if (itemData.type != "item_weapon") {
+
+            if (itemData.count === 1 || isShiftActive === true) {
+              let qty = (isShiftActive) ? itemData.count : 1;
+              takeFromStoreWithPrice(itemData, qty);
+              return;
+            }
+
             dialog.prompt({
               title: LANGUAGE.prompttitle,
               button: LANGUAGE.promptaccept,
@@ -121,47 +164,109 @@ function initSecondaryInventoryHandlers() {
                   return;
                 }
 
-                if (!isValidating) {
-                  processEventValidation();
-                  $.post(
-                    `https://${GetParentResourceName()}/TakeFromStore`,
-                    JSON.stringify({
-                      item: itemData,
-                      type: type,
-                      number: value,
-                      price: itemData.price,
-                      geninfo: geninfo,
-                      store: StoreId,
-                    })
-                  );
-                }
+                takeFromStoreWithPrice(itemData, value);
               },
             });
           } else {
-            if (!isValidating) {
-              processEventValidation();
-              $.post(
-                `https://${GetParentResourceName()}/TakeFromStore`,
-                JSON.stringify({
-                  item: itemData,
-                  type: itemData.type,
-                  number: 1,
-                  price: itemData.price,
-                  geninfo: geninfo,
-                  store: StoreId,
-                })
-              );
-            }
+            let qty = 1;
+            takeFromStoreWithPrice(itemData, qty);
           }
         }
       }
     },
   });
 
+  /**
+   * Move to store
+   * @param {object} itemData
+   * @param {number} qty
+   */
+  function moveToStore(itemData, qty) {
+
+      if (isValidating) {
+          return;
+      }
+
+      processEventValidation();
+
+      $.post(
+          `https://${GetParentResourceName()}/MoveToStore`,
+          JSON.stringify({
+              item: itemData,
+              type: itemData.type,
+              number: qty,
+              geninfo: geninfo,
+              store: StoreId,
+          })
+      );
+  }
+
+  /**
+   * Move to store with price
+   * @param {object} itemData
+   * @param {number} qty
+   * @param {number} price
+   */
+  function moveToStoreWithPrice(itemData, qty, price) {
+
+      if (isValidating) {
+          return;
+      }
+
+      processEventValidation();
+
+      $.post(
+          `https://${GetParentResourceName()}/MoveToStore`,
+          JSON.stringify({
+              item: itemData,
+              type: itemData.type,
+              number: qty,
+              price: price,
+              geninfo: geninfo,
+              store: StoreId,
+          })
+      );
+  }
+
+  /**
+   * Creates a dialog to determine price for item moving to store.
+   * @param {object} itemData
+   * @param {number} qty
+   */
+  function moveToStorePriceDialog(itemData, qty) {
+
+      if (isValidating) {
+          return;
+      }
+
+      processEventValidation();
+
+      dialog.prompt({
+          title: LANGUAGE.prompttitle2,
+          button: LANGUAGE.promptaccept,
+          required: true,
+          item: itemData,
+          type: itemData.type,
+          input: {
+              type: "number",
+              autofocus: "true",
+          },
+          validate: function (value2, item, type) {
+              if (!value2) {
+                  dialog.close();
+                  return;
+              }
+
+              moveToStoreWithPrice(itemData, qty, value2);
+          },
+      });
+  }
+
   $("#secondInventoryElement").droppable({
     drop: function (event, ui) {
       itemData = ui.draggable.data("item");
       itemInventory = ui.draggable.data("inventory");
+      // console.log('secondInventoryElement', isShiftActive, itemData, itemInventory);
 
       if (itemInventory === "main") {
         if (type in ActionMoveList) {
@@ -170,8 +275,20 @@ function initSecondaryInventoryHandlers() {
           PostAction(action, itemData, Id, customtype);
         } else if (type === "store") {
           disableInventory(500);
+
           // this action is different than all the others
           if (itemData.type != "item_weapon") {
+
+            if (itemData.count === 1 || isShiftActive === true) {
+              let qty = (isShiftActive) ? itemData.count : 1;
+              if (geninfo.isowner != 0) {
+                moveToStorePriceDialog(itemData, qty);
+              } else {
+                moveToStore(itemData, qty);
+              }
+              return;
+            }
+
             dialog.prompt({
               title: LANGUAGE.prompttitle,
               button: LANGUAGE.promptaccept,
@@ -193,106 +310,18 @@ function initSecondaryInventoryHandlers() {
                 }
 
                 if (geninfo.isowner != 0) {
-                  if (!isValidating) {
-                    processEventValidation();
-                    dialog.prompt({
-                      title: LANGUAGE.prompttitle2,
-                      button: LANGUAGE.promptaccept,
-                      required: true,
-                      item: itemData,
-                      type: itemData.type,
-                      input: {
-                        type: "number",
-                        autofocus: "true",
-                      },
-                      validate: function (value2, item, type) {
-                        if (!value2) {
-                          dialog.close();
-                          return;
-                        }
-
-                        if (!isValidating) {
-                          processEventValidation();
-                          $.post(
-                            `https://${GetParentResourceName()}/MoveToStore`,
-                            JSON.stringify({
-                              item: itemData,
-                              type: type,
-                              number: value,
-                              price: value2,
-                              geninfo: geninfo,
-                              store: StoreId,
-                            })
-                          );
-                        }
-                      },
-                    });
-                  }
+                  moveToStorePriceDialog(itemData, value);
                 } else {
-                  if (!isValidating) {
-                    processEventValidation();
-                    $.post(
-                      `https://${GetParentResourceName()}/MoveToStore`,
-                      JSON.stringify({
-                        item: itemData,
-                        type: type,
-                        number: value,
-                        geninfo: geninfo,
-                        store: StoreId,
-                      })
-                    );
-                  }
+                  moveToStore(itemData, value);
                 }
               },
             });
           } else {
+            let qty = 1;
             if (geninfo.isowner != 0) {
-              dialog.prompt({
-                title: LANGUAGE.prompttitle2,
-                button: LANGUAGE.promptaccept,
-                required: true,
-                item: itemData,
-                type: itemData.type,
-                input: {
-                  type: "number",
-                  autofocus: "true",
-                },
-                validate: function (value2, item, type) {
-                  if (!value2) {
-                    dialog.close();
-                    return;
-                  }
-
-                  if (!isValidating) {
-                    processEventValidation();
-                    $.post(
-                      `https://${GetParentResourceName()}/MoveToStore`,
-                      JSON.stringify({
-                        item: itemData,
-                        type: itemData.type,
-                        number: 1,
-                        price: value2,
-                        geninfo: geninfo,
-                        store: StoreId,
-                      })
-                    );
-                  }
-                },
-              });
+              moveToStorePriceDialog(itemData, qty);
             } else {
-              if (!isValidating) {
-                processEventValidation();
-                $.post(
-                  `https://${GetParentResourceName()}/MoveToStore`,
-                  JSON.stringify({
-                    item: itemData,
-                    type: itemData.type,
-                    number: 1,
-                    geninfo: geninfo,
-                    store: StoreId,
-                  })
-                );
-              }
+              moveToStore(itemData, qty);
             }
           }
         }

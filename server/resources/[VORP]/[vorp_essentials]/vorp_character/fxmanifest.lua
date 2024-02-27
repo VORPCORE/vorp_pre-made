@@ -1,11 +1,12 @@
 fx_version 'cerulean'
 rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
-
--- Initial Convertion from C# to lua by grumpypoo
--- refactor by outsider
-author 'VORP @outsider'
 game 'rdr3'
 lua54 'yes'
+
+-- Initial Convertion from C# to lua by grumpypoo
+author 'VORP refactored by @outsider'
+description 'A Character creator with also shops built in for vorpcore framework'
+repository 'https://github.com/VORPCORE/vorp_character-lua'
 
 shared_scripts {
 	'config.lua',
