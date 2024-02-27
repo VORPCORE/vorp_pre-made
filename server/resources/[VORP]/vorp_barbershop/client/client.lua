@@ -1,4 +1,4 @@
-local prompts = GetRandomIntInRange(0, 0xffffff)
+local prompts    = GetRandomIntInRange(0, 0xffffff)
 local openmenu
 local orghair
 local orgbeard
@@ -6,10 +6,10 @@ local activebarber
 local activehair
 local activebeard
 local waitresult = false
-local inmenu = false
-local blips = {}
-
-T = Translation.Langs[Lang]
+local inmenu     = false
+local blips      = {}
+local Core       = exports.vorp_core:GetCore()
+local T          = Translation.Langs[Lang]
 
 TriggerEvent("menuapi:getData", function(call)
     MenuData = call
@@ -70,18 +70,6 @@ AddEventHandler('vorp_barbershop:recinfo', function(skininfo)
     waitresult = false
 end)
 
-RegisterNetEvent('vorp_barbershop:apply')
-AddEventHandler('vorp_barbershop:apply', function(paid)
-    if paid then
-        orghair = activehair
-        orgbeard = activebeard
-    end
-    Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), activehair, true, true, true)
-    if IsPedMale(PlayerPedId()) then
-        Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), orgbeard, true, true, true)
-    end
-    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, 0)
-end)
 
 Citizen.CreateThread(function()
     while true do
@@ -131,12 +119,23 @@ Citizen.CreateThread(function()
     end
 end)
 
-function keysx(table)
+local function keysx(table)
     local keys = 0
     for k, v in pairs(table) do
         keys = keys + 1
     end
     return keys
+end
+
+local function ApplyDataBack(data)
+    MenuData.CloseAll()
+    Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), data.hair, true, true, true)
+    if IsPedMale(PlayerPedId()) then
+        Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), data.beard, true, true, true)
+    end
+    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, 0)
+    FreezeEntityPosition(PlayerPedId(), false)
+    ClearPedTasks(PlayerPedId())
 end
 
 function openbarbermenu()
@@ -220,31 +219,31 @@ function openbarbermenu()
                     Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, 0)
                 end
             end
+
             if (data.current.tag == 'confirm') then
                 if activehair ~= orghair or activebeard ~= orgbeard then
-                    TriggerServerEvent("vorp_barbershop:payforservice", activebarber.price, activehair, activebeard)
+                    local result = Core.Callback.TriggerAwait("vorp_barbershop:payforservice",
+                        { amount = activebarber.price, hair = activehair, beard = activebeard })
+
+                    if not result then
+                        ApplyDataBack({ hair = orghair, beard = orgbeard })
+                        Wait(2000)
+                        inmenu = false
+                        return
+                    end
+
+                    orghair = activehair
+                    orgbeard = activebeard
+                    Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), activehair, true, true, true)
+                    if IsPedMale(PlayerPedId()) then
+                        Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), orgbeard, true, true, true)
+                    end
+                    Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, 0)
                 end
-                FreezeEntityPosition(PlayerPedId(), false)
-                ClearPedTasks(PlayerPedId())
-                MenuData.CloseAll()
-                Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), orghair, true, true, true)
-                if IsPedMale(PlayerPedId()) then
-                    Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), orgbeard, true, true, true)
-                end
-                Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, 0)
-                Wait(2000)
-                inmenu = false
             end
         end,
         function(data, menu)
-            menu.close()
-            FreezeEntityPosition(PlayerPedId(), false)
-            ClearPedTasks(PlayerPedId())
-            Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), orghair, true, true, true)
-            if IsPedMale(PlayerPedId()) then
-                Citizen.InvokeNative(0xD3A7B003ED343FD9, PlayerPedId(), orgbeard, true, true, true)
-            end
-            Citizen.InvokeNative(0xCC8CA3E88256E58F, PlayerPedId(), 0, 1, 1, 1, 0)
+            ApplyDataBack({ hair = orghair, beard = orgbeard })
             Wait(5000)
             inmenu = false
         end)

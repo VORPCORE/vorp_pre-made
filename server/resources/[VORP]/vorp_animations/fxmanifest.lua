@@ -19,7 +19,7 @@ files {
     'ui/*',
     'ui/assets/*',
     'ui/assets/fonts/*'
-}
+} 
     
 ui_page 'ui/index.html'
 
