@@ -5,6 +5,13 @@ progressbar = exports.vorp_progressbar:initiate()
 local iscrafting = false
 local blipsadded = false
 
+if Config.DevMode then
+    RegisterCommand("crafttest",function()
+        appready = true
+        TriggerServerEvent('vorp:findjob')
+    end)
+end
+
 Citizen.CreateThread(function()
     UIPrompt.initialize()
 

@@ -228,40 +228,25 @@ createApp({
       let style = data.style
       let language = data.language
       let location = data.location
-      let job = data.job
+      let charJob = data.job
 
       let consumables = {}
       let filteredcat = []
       // Setup object with keys
-      categories.forEach(cata => {
-        consumables[cata.ident] = []
-        let jobcheck = false
-        // Job is set to specific jobs
-        if (cata.Job !== 0) {
+      categories.forEach(cat => {
+        consumables[cat.ident] = []
+        let jobcheck = cat.Job === 0 ? true : cat.Job.some(j => j === charJob);
 
-          let ln = cata.Job.length
-          let ps = 0
-          for (ps; ps < ln; ps++) {
-            let currentjob = cata.Job[ps]
-            if (currentjob == job) {
-              jobcheck = true
-              break
-            }
-          }
-        } else {
-          jobcheck = true
-        }
-
-        if (jobcheck == true) {
-          if (cata.Location == 0) {
-            filteredcat.push(cata)
+        if (jobcheck) {
+          if (cat.Location == 0) {
+            filteredcat.push(cat)
           } else {
-            let l = cata.Location.length
+            let l = cat.Location.length
             let pos = 0
             for (pos; pos < l; pos++) {
-              let loc = cata.Location[pos]
+              let loc = cat.Location[pos]
               if (loc == location?.id) {
-                filteredcat.push(cata)
+                filteredcat.push(cat)
                 break
               }
             }
@@ -273,25 +258,12 @@ createApp({
 
       // Fill object created above
       craftables.forEach(item => {
-        let jobcheck = false
-        if (item.Job !== 0) {
-          let ln = item.Job.length
-          let ps = 0
-          for (ps; ps < ln; ps++) {
-            let currentjob = item.Job[ps]
-            if (currentjob == job) {
-              jobcheck = true
-              break
-            }
-          }
-        } else {
-          jobcheck = true
-        }
+        let jobcheck = item.Job === 0 ? true : item.Job.some(j => j === charJob);
 
-        if (jobcheck == true) {
+        if (jobcheck) {
           // Filter out locations
           if (item.Location == 0) {
-            if (consumables[item.Category]){
+            if (consumables[item.Category]) {
               consumables[item.Category].push(item)
             }
           } else {
@@ -300,13 +272,13 @@ createApp({
             for (pos; pos < l; pos++) {
               let loc = item.Location[pos]
               if (loc == location?.id) {
-                if (consumables[item.Category]){
+                if (consumables[item.Category]) {
                   consumables[item.Category].push(item)
                 }
                 break
               }
             }
-          } 
+          }
         }
       });
 
