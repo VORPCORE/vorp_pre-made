@@ -1,28 +1,43 @@
 Config = {}
 
-Config.Axe = "hatchet" -- Item you want to use as an axe
+Lang = "English"
 
-Config.ChopPromptKey = 0xD9D0E1C0 -- Key to press for prompt
-Config.CancelChopKey = 0x3B24C470 -- Key to Cancel Choppinp
-Config.ChopTreeKey = 0x07B8BEAF -- Key To Chop Tree
+Config.Axe = "hatchet"            -- Item you want to use as an axe, same DB
+
+Config.ChopPromptKey = 0xD9D0E1C0 -- [ SPACE ] Key to press for prompt
+Config.CancelChopKey = 0x3B24C470 -- [ F ] Key to Cancel Choppinp
+Config.ChopTreeKey = 0x07B8BEAF   -- [ MOUSE LEFT CLICK ] Key To Chop Tree
 
 Config.MinSwing = 1
 Config.MaxSwing = 5
 
-
------ lower number is harder
-Config.minDifficulty = 4000
-Config.maxDifficulty = 2700
+-- Lower number is harder
+Config.minDifficulty = 3800
+Config.maxDifficulty = 2000
 ---------------------------
 
+Config.TownRestrictions = {
+    { name = 'Annesburg',  chop_allowed = false },
+    { name = 'Armadillo',  chop_allowed = false },
+    { name = 'Blackwater', chop_allowed = false },
+    { name = 'Lagras',     chop_allowed = false },
+    { name = 'Rhodes',     chop_allowed = false },
+    { name = 'StDenis',    chop_allowed = false },
+    { name = 'Strawberry', chop_allowed = false },
+    { name = 'Tumbleweed', chop_allowed = false },
+    { name = 'Valentine',  chop_allowed = false },
+    { name = 'Vanhorn',    chop_allowed = false },
+}
+
+-- Label name change manually for your language
 Config.Items = {
-    {name = "sap", label = "Sap", chance = 8, amount = 2},
-    {name = "honey", label = "Honey", chance = 5, amount = 2},
-    {name = "wood", label = "Soft Wood", chance = 10, amount = 5},
-    {name = "hwood", label = "Hard Wood", chance = 8, amount = 5},
-    {name = "rubber", label = "Rubber", chance = 5, amount = 4},
-    {name = "fibers", label = "Fibers", chance = 8, amount = 5},
-    {name = "pulp", label = "Pulp", chance = 10, amount = 3},
+    { name = "sap",    label = "Sap",       chance = 8,  amount = 2 },
+    { name = "honey",  label = "Honey",     chance = 5,  amount = 2 },
+    { name = "wood",   label = "Soft Wood", chance = 10, amount = 5 },
+    { name = "hwood",  label = "Hard Wood", chance = 8,  amount = 5 },
+    { name = "rubber", label = "Rubber",    chance = 5,  amount = 4 },
+    { name = "fibers", label = "Fibers",    chance = 8,  amount = 5 },
+    { name = "pulp",   label = "Pulp",      chance = 10, amount = 3 },
 }
 
 Config.Trees = {

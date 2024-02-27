@@ -1,3 +1,5 @@
+<1.2.0>
+- progressBars support added (Remove progressBars if you have it installed)
 <1.1>
 - Bugfixes
 - Stringed together progresses will now not infinitely loop.

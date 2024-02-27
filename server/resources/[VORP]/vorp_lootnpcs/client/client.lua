@@ -1,4 +1,5 @@
 ---@diagnostic disable: undefined-global
+
 --THREAD
 Citizen.CreateThread(function()
     while true do
