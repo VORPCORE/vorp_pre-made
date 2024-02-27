@@ -1,17 +1,17 @@
 local VorpCore = {}
 
 TriggerEvent("getCore", function(core)
-    VorpCore = core
+	VorpCore = core
 end)
 
-VorpInv = exports.vorp_inventory:vorp_inventoryApi()
+local VorpInv = exports.vorp_inventory:vorp_inventoryApi()
 
-local function giveReward(context, data, skipfinal)
+local function giveReward(context, data, skipfinal, entity)
 	local _source = source
-    local Character = VorpCore.getUser(_source).getUsedCharacter
-	
-	local money, gold, rolPoints, xp = 0,0,0,0
-	local givenItem, givenAmount, givenDisplay = {},{},{}
+	local Character = VorpCore.getUser(_source).getUsedCharacter
+
+	local money, gold, rolPoints, xp = 0, 0, 0, 0
+	local givenItem, givenAmount, givenDisplay = {}, {}, {}
 	local animal, found
 	if context == "skinned" then
 		animal = Config.SkinnableAnimals[data.model]
@@ -33,7 +33,7 @@ local function giveReward(context, data, skipfinal)
 			gold = animal.gold or 0
 			rolPoints = animal.rolPoints or 0
 			xp = animal.xp or 0
-			
+
 			local multiplier = 1.0
 			if (animal.poorQualityMultiplier and animal.poor) and (data.quality == animal.poor) then
 				multiplier = animal.poorQualityMultiplier
@@ -42,7 +42,7 @@ local function giveReward(context, data, skipfinal)
 			elseif (animal.perfectQualityMultiplier and animal.perfect) and (data.quality == animal.perfect) then
 				multiplier = animal.perfectQualityMultiplier
 			end
-			
+
 			money = money * multiplier
 			gold = gold * multiplier
 			rolPoints = rolPoints * multiplier
@@ -61,7 +61,7 @@ local function giveReward(context, data, skipfinal)
 			xp = animal.xp or 0
 		end
 	end
-	
+
 	if found then
 		local monies = {}
 		local moneylinux = (math.floor(money * 100) / 100)
@@ -71,9 +71,9 @@ local function giveReward(context, data, skipfinal)
 				Character.addCurrency(0, money)
 			end
 		else
-            if money ~= 0 then
-			    table.insert(monies, Config.Language.dollar .. money)
-			    Character.addCurrency(0, money)
+			if money ~= 0 then
+				table.insert(monies, Config.Language.dollar .. money)
+				Character.addCurrency(0, money)
 			end
 		end
 
@@ -90,18 +90,22 @@ local function giveReward(context, data, skipfinal)
 		if xp ~= 0 then
 			Character.addXp(xp)
 		end
-		
+
 		if #monies > 0 then
+			VorpCore.AddWebhook("Hunting", Config.webhook,
+				GetPlayerName(_source) .. " " .. "player received" .. table.concat(monies, ", "), nil, nil, nil, nil, nil)
 			TriggerClientEvent("vorp:TipRight", _source, Config.Language.AnimalSold .. table.concat(monies, ", "), 4000)
 		end
-		
+
 		if not skipfinal then
+			local entity1 = NetworkGetEntityFromNetworkId(data.netid)
+			DeleteEntity(entity1)
 			TriggerClientEvent("vorp_hunting:finalizeReward", _source, data.entity, data.horse)
 		end
-		
-		local itemsAvailable = true 
+
+		local itemsAvailable = true
 		local done = false
-		
+
 		if #givenItem ~= #givenAmount then
 			print('Error: Please ensure givenItem and givenAmount have the same length in the items config.')
 		elseif (givenItem ~= nil) and (#givenItem > 0) then
@@ -113,7 +117,7 @@ local function giveReward(context, data, skipfinal)
 			-- total up the quantity so it can be checked as a whole
 			for k, v in ipairs(givenItem) do
 				local nmb = 0
-				
+
 				if type(givenAmount[k]) == "table" then
 					nmb = math.random(tonumber(givenAmount[k][1]) or 0, tonumber(givenAmount[k][2]) or 1)
 				else
@@ -132,9 +136,9 @@ local function giveReward(context, data, skipfinal)
 				total = total + nmb
 
 				-- Check if there is enough to add, if not send message
-				TriggerEvent("vorpCore:canCarryItem", tonumber(_source), v, nmb, function(canCarryItem)                
+				TriggerEvent("vorpCore:canCarryItem", tonumber(_source), v, nmb, function(canCarryItem)
 					if canCarryItem ~= true then
-						itemsAvailable = false              
+						itemsAvailable = false
 					end
 					done = true
 				end)
@@ -145,7 +149,8 @@ local function giveReward(context, data, skipfinal)
 			end
 
 			if itemsAvailable == false then
-				TriggerClientEvent("vorp:TipRight", _source,  Config.Language.FullInventory, 4000)
+				TriggerClientEvent("vorp:TipRight", _source, Config.Language.FullInventory, 4000)
+				TriggerClientEvent("vorp_hunting:unlock", _source)
 				return
 			end
 
@@ -153,6 +158,7 @@ local function giveReward(context, data, skipfinal)
 			local invAvailable = VorpInv.canCarryItems(_source, total)
 			if invAvailable ~= true then
 				TriggerClientEvent("vorp:TipRight", _source, Config.Language.FullInventory, 4000)
+				TriggerClientEvent("vorp_hunting:unlock", _source)
 				return
 			end
 
@@ -175,14 +181,16 @@ local function giveReward(context, data, skipfinal)
 						givenMsg = givenMsg .. givenDisplay[k] .. ((v.nmb > 1) and "s" or "")
 					end
 				end
-				VorpInv.addItem(_source, v.item, v.nmb) 
+				VorpInv.addItem(_source, v.item, v.nmb)
 			end
 
 			if givenMsg ~= "" then
+				VorpCore.AddWebhook("Hunting", Config.webhook, GetPlayerName(_source) .. " player received" .. givenMsg,nil, nil, nil, nil, nil)
 				TriggerClientEvent("vorp:TipRight", _source, givenMsg, 4000)
 			end
 		end
 	end
+	TriggerClientEvent("vorp_hunting:unlock", _source)
 end
 
 RegisterServerEvent("vorp_hunting:giveReward")
@@ -191,12 +199,10 @@ AddEventHandler("vorp_hunting:giveReward", giveReward)
 
 RegisterServerEvent("vorp_hunting:getJob")
 AddEventHandler("vorp_hunting:getJob", function()
-    local _source = source
-    local User = VorpCore.getUser(_source)
-    local Character = User.getUsedCharacter
-    local job = Character.job -- character table
+	local _source = source
+	local User = VorpCore.getUser(_source)
+	local Character = User.getUsedCharacter
+	local job = Character.job -- character table
 
-    TriggerClientEvent("vorp_hunting:findJob", _source, job)
-
+	TriggerClientEvent("vorp_hunting:findJob", _source, job)
 end)
-

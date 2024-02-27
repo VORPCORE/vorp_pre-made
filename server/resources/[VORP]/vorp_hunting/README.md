@@ -21,3 +21,5 @@
 * Now you are ready!
 
 Credits to [zebbyskitzoo](https://github.com/OTRP) &amp; [CryptoGenics](https://github.com/CryptoGenics) for the original config and also to [Local9](https://github.com/Local9) for potential fix.
+
+ [Spreadsheet](https://docs.google.com/spreadsheets/d/1d9VQXdl8JS76N6OFf541MN1R0XMHI2f9PHPLiJapru8/edit?usp=sharing) for easy adding animals
