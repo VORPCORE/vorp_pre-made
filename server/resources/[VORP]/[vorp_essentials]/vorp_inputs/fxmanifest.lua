@@ -3,7 +3,8 @@ fx_version 'adamant'
 rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
 ui_page 'html/index.html'
 
-author 'Emollit'
+author 'VORP @Emollit' --C# conversion by Emollit
+description 'Inputs for your scripts'
 
 client_scripts {
   'client/models/*.lua',

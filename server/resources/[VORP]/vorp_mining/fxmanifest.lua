@@ -10,7 +10,7 @@ shared_scripts {
    'config.lua',
    'shared/*.lua'
 }
-client_scripts 'client/client.lua'
+client_script 'client/client.lua'
 server_script 'server/server.lua'
 
 dependencies {
