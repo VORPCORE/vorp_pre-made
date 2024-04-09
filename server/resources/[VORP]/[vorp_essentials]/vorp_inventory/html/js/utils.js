@@ -44,7 +44,7 @@ function secondarySetCapacity(cap) {
 }
 
 
-function initiateSecondaryInventory(id, title, capacity) {
+function initiateSecondaryInventory(title, capacity) {
     $("#secondInventoryHud").append(
         `<div class='controls'><div class='controls-center'><input type='text' id='secondarysearch' placeholder='${LANGUAGE.inventorysearch}'/></div></div>`
     );

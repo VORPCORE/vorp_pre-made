@@ -1,3 +1,9 @@
+<3.5>
+- exploit fixed when using devtools to insert items no custom inventories
+- added ItemOnUse event hook ( useful when you dont have acces to a script)
+- added statebag for getting current serial number of a weapon
+- other minor improvements and optimisation
+- added feature to drag and press shift to move all items to custom inventories or main
 <3.4>
 - small fixes were added to this version
 - item hook to use in your scripts

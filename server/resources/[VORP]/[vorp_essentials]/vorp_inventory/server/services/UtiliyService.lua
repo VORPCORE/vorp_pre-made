@@ -193,10 +193,9 @@ end
 function SvUtils.DoesItemExist(itemName, api)
     if ServerItems[itemName] then
         return true
-    else
-        Log.error("[^2" .. api .. "7] Item [^3" .. tostring(itemName) .. "^7] does not exist in DB.")
-        return false
     end
+    print("[^2" .. api .. "7] Item [^3" .. tostring(itemName) .. "^7] does not exist in DB.")
+    return false
 end
 
 --- generate a weapon label
@@ -226,9 +225,9 @@ end
 --- generate a unique random id
 ---@return string
 function SvUtils.GenerateUniqueID()
-	local time = os.time()
-	local randomNum = math.random(1000000, 9999999)
-	return tostring(time) .. tostring(randomNum)
+    local time = os.time()
+    local randomNum = math.random(1000000, 9999999)
+    return tostring(time) .. tostring(randomNum)
 end
 
 --- generate a unique serial number

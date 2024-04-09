@@ -51,9 +51,7 @@ function NUIService.ReloadInventory(inventory)
 
 			if item.desc == nil then
 				local applySerial = Utils.filterWeaponsSerialNumber(item.name)
-				item.desc = applySerial and
-					Utils.GetWeaponDesc(item.name) .. "<br><br>" .. T.serialnumber .. serial_number or
-					Utils.GetWeaponDesc(item.name)
+				item.desc = applySerial and Utils.GetWeaponDesc(item.name) .. "<br><br>" .. T.serialnumber .. serial_number or Utils.GetWeaponDesc(item.name)
 			end
 		end
 	end
@@ -77,6 +75,25 @@ function NUIService.OpenCustomInventory(name, id, capacity)
 		})
 		InInventory = true
 	end
+end
+
+function NUIService.OpenPlayerInventory(name, id)
+	SetNuiFocus(true, true)
+	SendNUIMessage({
+		action = "display",
+		type = "player",
+		title = name,
+		id = id,
+	})
+	InInventory = true
+end
+
+function NUIService.NUIMoveToPlayer(obj)
+	TriggerServerEvent("vorp_inventory:MoveToPlayer", json.encode(obj))
+end
+
+function NUIService.NUITakeFromPlayer(obj)
+	TriggerServerEvent("vorp_inventory:TakeFromPlayer", json.encode(obj))
 end
 
 function NUIService.NUIMoveToCustom(obj)
@@ -561,47 +578,69 @@ local function addWardrobeInventoryItem(itemName, slotHash)
 	return equipped;
 end
 
+local function useWeapon(data)
+	data.type = data.type or "item_weapon"
+	local ped = PlayerPedId()
+	local _, weaponHash = GetCurrentPedWeapon(ped, false, 0, false)
+	local weaponId = tonumber(data.id)
+	if weaponId and not UserWeapons[weaponId] then
+		return print("Weapon not found")
+	end
+	local weapName = joaat(UserWeapons[weaponId]:getName())
+	local isWeaponAGun = Citizen.InvokeNative(0x705BE297EEBDB95D, weapName)
+	local isWeaponOneHanded = Citizen.InvokeNative(0xD955FEE4B87AFA07, weapName)
+	local isArmed = Citizen.InvokeNative(0xCB690F680A3EA971, ped, 4)
+	local notdual = false
+
+	if (isWeaponAGun and isWeaponOneHanded) and isArmed then
+		addWardrobeInventoryItem("CLOTHING_ITEM_M_OFFHAND_000_TINT_004", 0xF20B6B4A)
+		addWardrobeInventoryItem("UPGRADE_OFFHAND_HOLSTER", 0x39E57B01)
+		UserWeapons[weaponId]:setUsed2(true)
+		if weaponHash == weapName then
+			UserWeapons[weaponId]:equipwep(true)
+		else
+			UserWeapons[weaponId]:equipwep()
+		end
+		UserWeapons[weaponId]:loadComponents()
+		UserWeapons[weaponId]:setUsed(true)
+		TriggerServerEvent("syn_weapons:weaponused", data)
+	elseif not UserWeapons[weaponId]:getUsed() and not Citizen.InvokeNative(0x8DECB02F88F428BC, ped, weapName, 0, true) or Citizen.InvokeNative(0x30E7C16B12DA8211, joaat(weapName)) then
+		notdual = true
+	end
+
+	if notdual then
+		UserWeapons[weaponId]:equipwep()
+		UserWeapons[weaponId]:loadComponents()
+		UserWeapons[weaponId]:setUsed(true)
+		TriggerServerEvent("syn_weapons:weaponused", data)
+	end
+	if UserWeapons[weaponId]:getUsed() then
+		local serial = UserWeapons[weaponId]:getSerialNumber()
+		local info = { weaponId = weaponId, serialNumber = serial }
+		local key = string.format("GetEquippedWeaponData_%d", weapName)
+		LocalPlayer.state:set(key, info, false)
+	end
+	NUIService.LoadInv()
+end
+
+exports("useWeapon", useWeapon)
+
+
+
+local function useItem(data)
+	if timerUse <= 0 then
+		TriggerServerEvent("vorp_inventory:useItem", data)
+		timerUse = 2000
+	else
+		TriggerEvent('vorp:TipRight', T.slow, 5000)
+	end
+end
+
 function NUIService.NUIUseItem(data)
 	if data.type == "item_standard" then
-		if timerUse <= 0 then
-			TriggerServerEvent("vorp_inventory:useItem", data.item, data.id)
-			timerUse = 2000
-		else
-			TriggerEvent('vorp:TipRight', T.slow, 5000)
-		end
+		useItem(data)
 	elseif data.type == "item_weapon" then
-		local ped = PlayerPedId()
-		local _, weaponHash = GetCurrentPedWeapon(ped, false, 0, false)
-		local weaponId = tonumber(data.id)
-		local weapName = joaat(UserWeapons[weaponId]:getName())
-		local isWeaponAGun = Citizen.InvokeNative(0x705BE297EEBDB95D, weapName)
-		local isWeaponOneHanded = Citizen.InvokeNative(0xD955FEE4B87AFA07, weapName)
-		local isArmed = Citizen.InvokeNative(0xCB690F680A3EA971, ped, 4)
-		local notdual = false
-
-		if (isWeaponAGun and isWeaponOneHanded) and isArmed then
-			addWardrobeInventoryItem("CLOTHING_ITEM_M_OFFHAND_000_TINT_004", 0xF20B6B4A)
-			addWardrobeInventoryItem("UPGRADE_OFFHAND_HOLSTER", 0x39E57B01)
-			UserWeapons[weaponId]:setUsed2(true)
-			if weaponHash == weapName then
-				UserWeapons[weaponId]:equipwep(true)
-			else
-				UserWeapons[weaponId]:equipwep()
-			end
-			UserWeapons[weaponId]:loadComponents()
-			UserWeapons[weaponId]:setUsed(true)
-			TriggerServerEvent("syn_weapons:weaponused", data)
-		elseif not UserWeapons[weaponId]:getUsed() and not Citizen.InvokeNative(0x8DECB02F88F428BC, ped, weapName, 0, true) or Citizen.InvokeNative(0x30E7C16B12DA8211, joaat(weapName)) then
-			notdual = true
-		end
-
-		if notdual then
-			UserWeapons[weaponId]:equipwep()
-			UserWeapons[weaponId]:loadComponents()
-			UserWeapons[weaponId]:setUsed(true)
-			TriggerServerEvent("syn_weapons:weaponused", data)
-		end
-		NUIService.LoadInv()
+		useWeapon(data)
 	end
 end
 
@@ -611,10 +650,6 @@ end
 
 function NUIService.NUIFocusOff()
 	NUIService.CloseInv()
-end
-
-function NUIService.OfflineFocusOff()
-	NUIService.CloseInventory()
 end
 
 function NUIService.LoadInv()
@@ -753,6 +788,7 @@ end
 Citizen.CreateThread(function()
 	Wait(5000)
 	NUIService.initiateData()
+	repeat Wait(0) until LocalPlayer.state.IsInSession
 
 	while true do
 		local sleep = 1000

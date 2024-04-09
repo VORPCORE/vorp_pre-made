@@ -46,7 +46,7 @@ ui_page 'html/ui.html'
 server_exports { 'vorp_inventoryApi' }
 
 -- version
-version '3.4'
+version '3.5'
 vorp_checker 'yes'
 vorp_name '^4Resource version Check^3'
 vorp_github 'https://github.com/VORPCORE/vorp_inventory-lua'

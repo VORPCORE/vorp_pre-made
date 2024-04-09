@@ -137,6 +137,10 @@ function CoreAction.Player.ResurrectPlayer(currentHospital, currentHospitalName,
     Wait(200)
     EndDeathCam()
     TriggerServerEvent("vorp:ImDead", false)
+
+    TriggerServerEvent("vorp_core:Server:OnPlayerRevive")
+    TriggerEvent("vorp_core:Client:OnPlayerRevive")
+
     setDead = false
     DisplayHud(true)
     DisplayRadar(true)
@@ -171,9 +175,11 @@ function CoreAction.Player.ResurrectPlayer(currentHospital, currentHospitalName,
     end
 end
 
-function CoreAction.Player.RespawnPlayer()
+function CoreAction.Player.RespawnPlayer(allow)
     local player = PlayerPedId()
-    TriggerServerEvent("vorp:PlayerForceRespawn")
+    if allow then
+        TriggerServerEvent("vorp:PlayerForceRespawn")
+    end
     TriggerEvent("vorp:PlayerForceRespawn")
     local closestDistance = math.huge
     local closestLocation = ""
@@ -246,7 +252,11 @@ CreateThread(function()
                 PromptSetEnabled(prompt, true)
                 NetworkSetInSpectatorMode(false, PlayerPedId())
                 exports.spawnmanager.setAutoSpawn(false)
-                TriggerServerEvent("vorp:ImDead", true)
+                TriggerServerEvent("vorp:ImDead", true) -- internal event
+
+                TriggerServerEvent("vorp_core:Server:OnPlayerDeath")
+                TriggerEvent("vorp_core:Client:OnPlayerDeath")
+                
                 DisplayRadar(false)
                 CreateThread(function()
                     RespawnTimer()
@@ -261,7 +271,7 @@ CreateThread(function()
                     if PromptHasHoldModeCompleted(prompt) then
                         DoScreenFadeOut(3000)
                         Wait(3000)
-                        CoreAction.Player.RespawnPlayer()
+                        CoreAction.Player.RespawnPlayer(true)
                         PressKey      = true
                         carried       = false
                         Done          = false

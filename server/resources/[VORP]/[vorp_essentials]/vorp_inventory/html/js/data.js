@@ -14,6 +14,7 @@ let Containerid = 0;
 let horseid = 0;
 let wagonid = 0;
 let bankId = 0;
+let playerId = 0;
 let secondaryCapacityAvailable = false;
 let allplayerammo = [];
 let ammolabels = [];

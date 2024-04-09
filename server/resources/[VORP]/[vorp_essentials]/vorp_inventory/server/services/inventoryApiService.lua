@@ -22,7 +22,7 @@ CustomInventoryInfos = {
 	default = {
 		id = "default",
 		name = "Satchel",
-		limit = Config.MaxItemsInInventory.Items,
+		limit = 0,
 		shared = false,
 		limitedItems = {},
 		ignoreItemStackLimit = false,
@@ -37,9 +37,9 @@ CustomInventoryInfos = {
 	}
 }
 
----@type table<string, table<string, function>> table of Registered items
+---@type table<string,function> table of Registered items
 UsableItemsFunctions = {}
-
+CoolDownStarted = {}
 allplayersammo = {}
 
 ---@type table<string, table<number, table<number, Item>>> contain users inventory items
@@ -62,6 +62,7 @@ function InventoryAPI.canCarryAmountItem(player, amount, cb)
 	local sourceCharacter = Core.getUser(_source).getUsedCharacter
 	local identifier = sourceCharacter.identifier
 	local charid = sourceCharacter.charIdentifier
+	local invCapacity = sourceCharacter.invCapacity
 	local userInventory = UsersInventories.default[identifier]
 
 	local function cancarryammount(identifier, charid, amount, limit)
@@ -69,7 +70,7 @@ function InventoryAPI.canCarryAmountItem(player, amount, cb)
 		return limit ~= -1 and totalAmount + amount <= limit and userInventory ~= nil
 	end
 
-	local canCarry = cancarryammount(identifier, charid, amount, Config.MaxItemsInInventory.Items)
+	local canCarry = cancarryammount(identifier, charid, amount, invCapacity)
 	return respond(cb, canCarry)
 end
 
@@ -91,15 +92,16 @@ function InventoryAPI.canCarryItem(player, itemName, amount, cb)
 		return count + amount > limit
 	end
 
-	local function exceedsInventoryLimit(identifier, charid, amount)
+	local function exceedsInventoryLimit(identifier, charid, amount, invCapacity)
 		local totalAmount = InventoryAPI.getUserTotalCountItems(identifier, charid)
-		return Config.MaxItemsInInventory.Items ~= -1 and totalAmount + amount > Config.MaxItemsInInventory.Items
+		return invCapacity ~= -1 and totalAmount + amount > invCapacity
 	end
 
 	local _source = player
 	local sourceCharacter = Core.getUser(_source).getUsedCharacter
 	local identifier = sourceCharacter.identifier
 	local charid = sourceCharacter.charIdentifier
+	local invCapacity = sourceCharacter.invCapacity
 	local svItem = ServerItems[itemName]
 	local canCarry = false
 
@@ -110,9 +112,9 @@ function InventoryAPI.canCarryItem(player, itemName, amount, cb)
 	local limit = svItem.limit
 
 	if limit ~= -1 and not exceedsItemLimit(identifier, itemName, amount, limit) then
-		canCarry = not exceedsInventoryLimit(identifier, charid, amount)
+		canCarry = not exceedsInventoryLimit(identifier, charid, amount, invCapacity)
 	elseif limit == -1 then
-		canCarry = not exceedsInventoryLimit(identifier, charid, amount)
+		canCarry = not exceedsInventoryLimit(identifier, charid, amount, invCapacity)
 	end
 
 	return respond(cb, canCarry)
@@ -157,48 +159,39 @@ end
 
 exports("getUserInventoryItems", InventoryAPI.getInventory)
 
+
 --- register usable item
 ---@param name string item name
 ---@param cb function callback
----@return string
 function InventoryAPI.registerUsableItem(name, cb)
 	if Config.Debug then
 		SetTimeout(9000, function()
-			Log.print("Callback for item[^3" .. name .. "^7] ^2Registered!^7")
+			print("Callback for item[^3" .. name .. "^7] ^2Registered!^7")
 		end)
 	end
 
-	local callbackId = SvUtils.GenerateUniqueID()
-
-	if not UsableItemsFunctions[name] then
-		UsableItemsFunctions[name] = {}
+	if not name then
+		return print("InventoryAPI.registerUsableItem: name is required")
 	end
+	-- this is just to help users see whats wrong with their items and to fix them
+	SetTimeout(25000, function()
+		if not ServerItems[name] then
+			print("^3Warning^7: item ", name, " was registered as usabled but ^1 does not exist in database ^7")
+		end
 
-	UsableItemsFunctions[name][callbackId] = cb
+		if ServerItems[name] and not ServerItems[name].canUse then
+			print("^3Warning^7: item", name, " is not usable in database , ^1 you need to set usable to 1 in database ^7")
+		end
+	end)
 
-	return callbackId
+	if UsableItemsFunctions[name] then
+		print("^3Warning^7: item ", name, " is already registered, ^1 cant register the same item twice ^7")
+		print("^5Info:^7 if you restarting a script this is normal and you can ignore it!.^7")
+	end
+	UsableItemsFunctions[name] = cb
 end
 
 exports("registerUsableItem", InventoryAPI.registerUsableItem)
-
---- remove callback for item
----@param name string item name
----@param cbId string id generated when registering the item callback
-function InventoryAPI.unRegisterUsableItem(name, cbId)
-	if Config.Debug then
-		SetTimeout(9000, function()
-			Log.print("Callback[^3" .. cbId .. "^7] for item[^3" .. name .. "^7] ^2UnRegistered!^7")
-		end)
-	end
-
-	if cbId == nil then
-		return
-	end
-
-	UsableItemsFunctions[name][cbId] = nil
-end
-
-exports("unRegisterUsableItem", InventoryAPI.unRegisterUsableItem)
 
 --- get user weapon
 ---@param player number player source
@@ -992,11 +985,10 @@ exports("deleteWeapon", InventoryAPI.deleteWeapon)
 ---@param customSerial string | nil? custom serial number
 ---@param customLabel string | nil? custom label
 ---@return nil | boolean
-function InventoryAPI.registerWeapon(_target, wepname, ammos, components, comps, cb, wepId, customSerial, customLabel,
-									 customDesc)
+function InventoryAPI.registerWeapon(_target, wepname, ammos, components, comps, cb, wepId, customSerial, customLabel, customDesc)
 	local targetUser = Core.getUser(_target)
 	if not targetUser then
-		Log.error("InventoryAPI.registerWeapon: user is not logged in")
+		print("InventoryAPI.registerWeapon: user is not logged in")
 		return respond(cb, nil)
 	end
 	local targetCharacter = targetUser.getUsedCharacter
@@ -1039,8 +1031,7 @@ function InventoryAPI.registerWeapon(_target, wepname, ammos, components, comps,
 			if targetTotalWeaponCount > DefaultAmount then
 				TriggerClientEvent("vorp:TipRight", _target, T.cantweapons2, 2000)
 				if Config.Debug then
-					Log.Warning(targetCharacter.firstname ..
-						" " .. targetCharacter.lastname .. " ^1Can't carry more weapons^7")
+					Log.Warning(targetCharacter.firstname .. " " .. targetCharacter.lastname .. " ^1Can't carry more weapons^7")
 				end
 				return respond(cb, nil)
 			end
@@ -1094,14 +1085,10 @@ function InventoryAPI.registerWeapon(_target, wepname, ammos, components, comps,
 			return nil
 		end
 
-		local serialNumber = customSerial or hasSerialNumber() or
-			SvUtils.GenerateSerialNumber(name) -- custom serial number or existent serial number or generate new one
-		local label = customLabel or hasCustomLabel() or
-			SvUtils.GenerateWeaponLabel(name) --custom label or existent label or generate new one
-		local desc = customDesc or
-			hasCustomDesc()           -- custom desc or existent desc or nil
-		local query =
-		'INSERT INTO loadout (identifier, charidentifier, name, ammo,components,comps,label,serial_number,custom_label,custom_desc) VALUES (@identifier, @charid, @name, @ammo, @components,@comps,@label,@serial_number,@custom_label,@custom_desc)'
+		local serialNumber = customSerial or hasSerialNumber() or SvUtils.GenerateSerialNumber(name) -- custom serial number or existent serial number or generate new one
+		local label = customLabel or hasCustomLabel() or SvUtils.GenerateWeaponLabel(name)     --custom label or existent label or generate new one
+		local desc = customDesc or hasCustomDesc()                                             -- custom desc or existent desc or nil
+		local query = 'INSERT INTO loadout (identifier, charidentifier, name, ammo,components,comps,label,serial_number,custom_label,custom_desc) VALUES (@identifier, @charid, @name, @ammo, @components,@comps,@label,@serial_number,@custom_label,@custom_desc)'
 		local params = {
 			identifier = targetIdentifier,
 			charid = targetCharId,
@@ -1135,13 +1122,12 @@ function InventoryAPI.registerWeapon(_target, wepname, ammos, components, comps,
 			})
 			UsersWeapons.default[weaponId] = newWeapon
 			TriggerEvent("syn_weapons:registerWeapon", weaponId)
-			TriggerClientEvent("vorpInventory:receiveWeapon", _target, weaponId, targetIdentifier, name, ammo, label,
-				serialNumber, label, _target, desc)
+			TriggerClientEvent("vorpInventory:receiveWeapon", _target, weaponId, targetIdentifier, name, ammo, label, serialNumber, label, _target, desc)
 		end)
 		return respond(cb, true)
 	end
 
-	Log.Warning("Weapon: [^2" .. name .. "^7] ^1 do not exist on the config or its a WRONG HASH")
+	print("Weapon: [^2" .. name .. "^7] ^1 do not exist on the config or its a WRONG HASH")
 
 	return respond(cb, nil)
 end
@@ -1196,8 +1182,7 @@ function InventoryAPI.giveWeapon(player, weaponId, target, cb)
 			if sourceTotalWeaponCount > DefaultAmount then
 				TriggerClientEvent("vorp:TipRight", _source, T.cantweapons, 2000)
 				if Config.Debug then
-					Log.print(sourceCharacter.firstname ..
-						" " .. sourceCharacter.lastname .. " ^1Can't carry more weapons^7")
+					Log.print(sourceCharacter.firstname .. " " .. sourceCharacter.lastname .. " ^1Can't carry more weapons^7")
 				end
 				return respond(cb, false)
 			end
@@ -1225,16 +1210,13 @@ function InventoryAPI.giveWeapon(player, weaponId, target, cb)
 			if _target and _target > 0 then
 				if Core.getUser(_target) then
 					weapon:setSource(_target)
-					TriggerClientEvent('vorp:ShowAdvancedRightNotification', _target, T.youGaveWeapon, "inventory_items",
-						weaponName, "COLOR_PURE_WHITE", 4000)
+					TriggerClientEvent('vorp:ShowAdvancedRightNotification', _target, T.youGaveWeapon, "inventory_items", weaponName, "COLOR_PURE_WHITE", 4000)
 					TriggerClientEvent("vorpCoreClient:subWeapon", _target, weaponId)
 				end
 			end
-			TriggerClientEvent('vorp:ShowAdvancedRightNotification', _source, T.youReceivedWeapon, "inventory_items",
-				weaponName, "COLOR_PURE_WHITE", 4000)
+			TriggerClientEvent('vorp:ShowAdvancedRightNotification', _source, T.youReceivedWeapon, "inventory_items", weaponName, "COLOR_PURE_WHITE", 4000)
 
-			TriggerClientEvent("vorpInventory:receiveWeapon", _source, weaponId, weaponPropietary, weaponName,
-				weaponAmmo, label, serialNumber, customLabel, _source, customDesc)
+			TriggerClientEvent("vorpInventory:receiveWeapon", _source, weaponId, weaponPropietary, weaponName, weaponAmmo, label, serialNumber, customLabel, _source, customDesc)
 		end)
 	end
 	return respond(cb, true)
@@ -1405,7 +1387,7 @@ exports("BlackListCustomAny", InventoryAPI.BlackListCustom)
 ---Remove inventory by id from server
 ---@param id string inventory id
 function InventoryAPI.removeInventory(id)
-	if CustomInventoryInfos[id] == nil then
+	if not CustomInventoryInfos[id] then
 		return
 	end
 	CustomInventoryInfos[id]:removeCustomInventory()
@@ -1422,6 +1404,11 @@ exports("removeInventory", InventoryAPI.removeInventory)
 ---@param slots number inventory slots
 function InventoryAPI.updateCustomInventorySlots(id, slots)
 	if not CustomInventoryInfos[id] or not slots then
+		return
+	end
+
+	if type(slots) ~= "number" then
+		Log.error("InventoryAPI.updateCustomInventorySlots: slots is not a number")
 		return
 	end
 
@@ -1447,6 +1434,11 @@ function InventoryAPI.setCustomInventoryItemLimit(id, itemName, limit)
 		return
 	end
 
+	if type(limit) ~= "number" then
+		Log.error("InventoryAPI.setCustomInventoryItemLimit: limit is not a number")
+		return
+	end
+
 	local data = { name = itemName:lower(), limit = limit }
 
 	CustomInventoryInfos[id]:setCustomItemLimit(data)
@@ -1467,6 +1459,11 @@ function InventoryAPI.setCustomInventoryWeaponLimit(id, wepName, limit)
 	end
 
 	if not wepName and not limit then
+		return
+	end
+
+	if type(limit) ~= "number" then
+		Log.error("InventoryAPI.setCustomInventoryWeaponLimit: limit is not a number")
 		return
 	end
 
@@ -1498,7 +1495,7 @@ function InventoryAPI.openInventory(player, id)
 
 	local sourceCharacter = Core.getUser(_source)
 	if not sourceCharacter then
-		Log.error("InventoryAPI.openInventory: user is not logged in")
+		print("InventoryAPI.openInventory: user is not logged in")
 		return
 	end
 	sourceCharacter = sourceCharacter.getUsedCharacter
@@ -1615,3 +1612,65 @@ function InventoryAPI.updateCustomInventoryData(id, data, callback)
 end
 
 exports("updateCustomInventoryData", InventoryAPI.updateCustomInventoryData)
+
+---comment
+---@param data table
+---@param callback fun(success: boolean)? async or sync callback
+---@return boolean
+function InventoryAPI.openPlayerInventory(data, callback)
+	local title = data.title or "Steal Inventory"
+	local target = data.target
+	local source = data.source
+	local charid = Core.getUser(target).getUsedCharacter.charIdentifier
+
+	PlayerBlackListedItems = data.blacklist or {}
+
+	if not CoolDownStarted[source] then
+		CoolDownStarted[source] = {}
+	end
+
+	local function isInCooldown(itemType)
+		return CoolDownStarted[source][itemType] and os.time() < CoolDownStarted[source][itemType]
+	end
+
+	local function HandleLimits(limitType)
+		if not data.itemsLimit then return true, false end
+		local itemType = data.itemsLimit[limitType].itemType
+		local limit = data.itemsLimit[limitType].limit
+
+		if not PlayerItemsLimit[target] then
+			PlayerItemsLimit[target] = {}
+		end
+
+		if not PlayerItemsLimit[target][itemType] then
+			PlayerItemsLimit[target][itemType] = { limit = limit, timeout = data.timeout or nil }
+		end
+
+		local cooldownActive = isInCooldown(itemType)
+
+		if PlayerItemsLimit[target][itemType].limit <= 0 and cooldownActive then
+			return false, true
+		elseif not cooldownActive and data.timeout then
+			PlayerItemsLimit[target][itemType].limit = limit
+		end
+
+		return true, cooldownActive
+	end
+
+	local allowWeapons, cooldownWeapons = HandleLimits("weapons")
+	local allowItems, cooldownItems = HandleLimits("items")
+
+	if cooldownWeapons and cooldownItems then
+		Core.NotifyObjective(source, "You can't open the inventory due to cooldown on both weapons and items.", 5000)
+		return respond(callback, false)
+	end
+
+	if allowWeapons or allowItems then
+		InventoryService.reloadInventory(target, "default", "player", source)
+		TriggerClientEvent("vorp_inventory:OpenPlayerInventory", source, title, charid, "player")
+	end
+
+	return respond(callback, true)
+end
+
+exports("openPlayerInventory", InventoryAPI.openPlayerInventory)

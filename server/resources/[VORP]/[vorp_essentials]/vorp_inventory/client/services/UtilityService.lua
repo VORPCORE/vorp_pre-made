@@ -110,7 +110,7 @@ function Utils.getNearestPlayers()
 end
 
 function Utils.GetWeaponLabel(hash)
-	for _, wp in pairs(SharedData.Weapons) do
+	for _, wp in ipairs(SharedData.Weapons) do
 		if wp.HashName == hash then
 			return wp.Name
 		end
@@ -119,7 +119,7 @@ function Utils.GetWeaponLabel(hash)
 end
 
 function Utils.GetWeaponDesc(hash)
-	for k, v in pairs(SharedData.Weapons) do
+	for k, v in ipairs(SharedData.Weapons) do
 		if v.HashName == hash then
 			return v.Desc
 		end
@@ -145,7 +145,7 @@ function Utils.GetHashreadableLabel(hash, weaponId)
 end
 
 function Utils.filterWeaponsSerialNumber(name)
-	for _, weapon in pairs(Config.noSerialNumber) do
+	for _, weapon in ipairs(Config.noSerialNumber) do
 		if weapon == name then
 			return false
 		end

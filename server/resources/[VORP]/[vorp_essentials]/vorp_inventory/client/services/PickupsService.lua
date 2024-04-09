@@ -12,7 +12,7 @@ PickupsService.CreateObject = function(model, position)
 	end
 
 	while not HasModelLoaded(objectHash) do
-		Wait(1)
+		Wait(0)
 	end
 
 	local entityHandle = CreateObject(objectHash, position.x, position.y, position.z, true, true, true)
@@ -205,7 +205,7 @@ PickupsService.removePickupClient = function(entityHandle)
 		Wait(100)
 	end
 
-	FreezeEntityPosition(entityHandle, false)                  -- FreezeEntityPosition
+	FreezeEntityPosition(entityHandle, false)
 	Citizen.InvokeNative(0x7DFB49BCDB73089A, entityHandle, false) -- SetPickupLight
 	DeleteObject(entityHandle)
 end
@@ -228,7 +228,6 @@ end
 
 PickupsService.DeadActions = function()
 	local playerPed = PlayerPedId()
-
 	lastCoords = GetEntityCoords(playerPed, true, true)
 	dropAll = true
 	PickupsService.dropAllPlease()
@@ -289,9 +288,28 @@ PickupsService.dropAllPlease = function()
 	dropAll = false
 end
 
+CreateThread(function()
+	local function isAnyPlayerNear()
+		local playerPed = PlayerPedId()
+		local playerCoords = GetEntityCoords(playerPed, true, true)
+		local players = GetActivePlayers()
+		local count = 0
+		for _, player in ipairs(players) do
+			local targetPed = GetPlayerPed(player)
+			if player ~= PlayerId() then
+				local targetCoords = GetEntityCoords(targetPed, true, true)
+				local distance = #(playerCoords - targetCoords)
+				if distance < 2.0 then
+					count = count + 1
+				end
+			end
+		end
 
+		return count
+	end
 
-Citizen.CreateThread(function()
+	repeat Wait(0) until LocalPlayer.state.IsInSession
+
 	while true do
 		local sleep = 1000
 		if not InInventory then
@@ -320,18 +338,16 @@ Citizen.CreateThread(function()
 						PromptSetActiveGroupThisFrame(promptGroup, promptSubLabel, 1)
 
 						if pickup.prompt:HasHoldModeCompleted() then
-							if pickup.isMoney then
-								TriggerServerEvent("vorpinventory:onPickupMoney", pickup.entityId)
-							elseif Config.UseGoldItem and pickup.isGold then
-								TriggerServerEvent("vorpinventory:onPickupGold", pickup.entityId)
-							else
-								local data = {
-									data = pickupsInRange,
-									key = key
-								}
-								TriggerServerEvent("vorpinventory:onPickup", data)
+							if isAnyPlayerNear() == 0 then
+								if pickup.isMoney then
+									TriggerServerEvent("vorpinventory:onPickupMoney", pickup.entityId)
+								elseif Config.UseGoldItem and pickup.isGold then
+									TriggerServerEvent("vorpinventory:onPickupGold", pickup.entityId)
+								else
+									local data = { data = pickupsInRange, key = key }
+									TriggerServerEvent("vorpinventory:onPickup", data)
+								end
 							end
-
 							Wait(1000)
 						end
 					else

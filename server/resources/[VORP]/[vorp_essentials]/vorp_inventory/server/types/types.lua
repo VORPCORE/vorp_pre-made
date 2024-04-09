@@ -1,9 +1,10 @@
 ---@diagnostic disable: undefined-global
---credits to ox team for the types idea
+-- Credits to OX team for the types idea
 ---@meta
- 
+
+
 --- check inventory limit
----@param source number player  id
+---@param source number player id
 ---@param amount number amount of item
 ---@param callback fun(canCarry:boolean)?  callback function async or sync leave nil
 ---@return boolean

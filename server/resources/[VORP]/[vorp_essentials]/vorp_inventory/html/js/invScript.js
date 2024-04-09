@@ -2,17 +2,104 @@
 
 /* DROP DOWN BUTTONS MAIN AND SECONDARY INVENTORY */
 
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.dropdownButton[data-type="clothing"], .dropdownButton1[data-type="clothing"]').forEach(button => {
+        button.classList.add('active');
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.dropdownButton[data-type="itemtype"]').forEach(button => {
+        button.addEventListener('mouseenter', function () {
+            OverSetTitle(this.getAttribute('data-param'));
+            OverSetDesc(this.getAttribute('data-desc'));
+        });
+        button.addEventListener('mouseleave', function () {
+            OverSetTitle(" ");
+            OverSetDesc(" ");
+        });
+    });
+
+    // For the second inventory buttons
+    document.querySelectorAll('.dropdownButton1[data-type="itemtype"]').forEach(button => {
+        button.addEventListener('mouseenter', function () {
+            OverSetTitleSecond(this.getAttribute('data-param'));
+            OverSetDescSecond(this.getAttribute('data-desc'));
+        });
+        button.addEventListener('mouseleave', function () {
+            OverSetTitleSecond(" ");
+            OverSetDescSecond(" ");
+        });
+    });
+
+    document.querySelectorAll('.dropdownButton[data-type="clothing"]').forEach(button => {
+        button.addEventListener('mouseenter', function () {
+            OverSetTitle(this.getAttribute('data-param'));
+            OverSetDesc(this.getAttribute('data-desc'));
+        });
+        button.addEventListener('mouseleave', function () {
+            OverSetTitle(" ");
+            OverSetDesc(" ");
+        });
+    });
+});
+
 function toggleDropdown(mainButton) {
     const dropdownButtonsContainers = document.querySelectorAll('.dropdownButtonContainer');
     dropdownButtonsContainers.forEach((container) => {
         if (container.classList.contains(mainButton)) {
-            container.classList.toggle('showDropdown');
+            const isVisible = container.classList.toggle('showDropdown');
+            const parentCarouselContainer = container.closest('.carouselContainer');
+            if (parentCarouselContainer) {
+                const controls = parentCarouselContainer.querySelectorAll('.carousel-control');
+                controls.forEach(control => control.style.visibility = isVisible ? 'visible' : 'hidden');
+            }
         } else {
             container.classList.remove('showDropdown');
+            const otherParentCarouselContainer = container.closest('.carouselContainer');
+            if (otherParentCarouselContainer) {
+                const controls = otherParentCarouselContainer.querySelectorAll('.carousel-control');
+                controls.forEach(control => control.style.visibility = 'hidden');
+            }
         }
     });
+
+    const dropdownContainers = document.querySelectorAll('.dropdownButtonContainer');
+    dropdownContainers.forEach(container => {
+        container.addEventListener('wheel', function (event) {
+            event.preventDefault();
+            this.scrollLeft += event.deltaY;
+        }, { passive: false });
+    });
 }
-/* 0 is empty divs 1  is fixed divs like money and ammo */
+
+function initializeStaticCarousel() {
+
+    const staticCarouselControls = document.querySelectorAll('.carouselWrapper1 .carousel-control1');
+    staticCarouselControls.forEach(control => control.style.visibility = 'visible');
+    const staticDropdownContainer = document.querySelector('#staticCarousel');
+    if (staticDropdownContainer) {
+        staticDropdownContainer.addEventListener('wheel', function (event) {
+            event.preventDefault();
+            this.scrollLeft += event.deltaY;
+        }, { passive: false });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', initializeStaticCarousel);
+
+function scrollCarousel(carouselId, direction) {
+    const container = document.getElementById(carouselId);
+    const scrollAmount = 200;
+    let newScrollPosition = container.scrollLeft + (scrollAmount * direction);
+    container.scrollTo({
+        top: 0,
+        left: newScrollPosition,
+        behavior: 'smooth'
+    });
+    container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+}
+/* 0 is empty divs 1 is fixed divs like money and ammo */
 const Actions = {
     all: { types: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
     medical: { types: [0, 2] },
@@ -28,8 +115,20 @@ const Actions = {
 
 };
 
+
 function action(type, param, inv) {
     if (type === 'itemtype') {
+        if (inv === "inventoryElement") {
+            document.querySelectorAll('.dropdownButton[data-type="itemtype"]').forEach(btn => btn.classList.remove('active'));
+            const activeButtonMain = document.querySelector(`.dropdownButton[data-param="${param}"][data-type="itemtype"]`);
+            if (activeButtonMain) activeButtonMain.classList.add('active');
+        } else if (inv === "secondInventoryElement") {
+            document.querySelectorAll('.dropdownButton1').forEach(btn => {
+                if (btn.getAttribute('data-type') === 'itemtype') btn.classList.remove('active');
+            });
+            const activeButtonSecond = document.querySelector(`.dropdownButton1[data-param="${param}"][data-type="itemtype"]`);
+            if (activeButtonSecond) activeButtonSecond.classList.add('active');
+        }
         if (param in Actions) {
             const action = Actions[param];
             showItemsByType(action.types, inv);
@@ -38,6 +137,10 @@ function action(type, param, inv) {
             showItemsByType(defaultAction.types, inv);
         }
     } else if (type === 'clothing') {
+        const clickedButton = document.querySelector(`.dropdownButton[data-param="${param}"][data-type="clothing"], .dropdownButton1[data-param="${param}"][data-type="clothing"]`);
+        if (clickedButton) {
+            clickedButton.classList.toggle('active');
+        }
         $.post(
             `https://${GetParentResourceName()}/ChangeClothing`, JSON.stringify(param)
         );

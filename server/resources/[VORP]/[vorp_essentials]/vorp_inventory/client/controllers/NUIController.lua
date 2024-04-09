@@ -1,6 +1,5 @@
 --=========================== NUI CALL BACKS  ===========================--
 RegisterNUICallback('NUIFocusOff', NUIService.NUIFocusOff)
-RegisterNUICallback("OfflineFocusOff", NUIService.OfflineFocusOff)
 RegisterNUICallback('DropItem', NUIService.NUIDropItem)
 RegisterNUICallback('UseItem', NUIService.NUIUseItem)
 RegisterNUICallback('sound', NUIService.NUISound)
@@ -10,6 +9,8 @@ RegisterNUICallback('UnequipWeapon', NUIService.NUIUnequipWeapon)
 RegisterNUICallback('TakeFromCustom', NUIService.NUITakeFromCustom)
 RegisterNUICallback('MoveToCustom', NUIService.NUIMoveToCustom)
 RegisterNUICallback("ChangeClothing", NUIService.ChangeClothing)
+RegisterNUICallback("TakeFromPlayer", NUIService.NUITakeFromPlayer)
+RegisterNUICallback("MoveToPlayer", NUIService.NUIMoveToPlayer)
 --========================================================================--
 -- shared
 RegisterNetEvent("vorp_inventory:CloseInv")
@@ -26,6 +27,7 @@ RegisterNetEvent("vorp_inventory:CloseCustomInv", NUIService.CloseInv)
 RegisterNetEvent("vorp_inventory:ReloadCustomInventory", NUIService.ReloadInventory)
 RegisterNetEvent("vorp_inventory:transactionStarted", NUIService.TransactionStarted)
 RegisterNetEvent("vorp_inventory:transactionCompleted", NUIService.TransactionComplete)
+RegisterNetEvent("vorp_inventory:OpenPlayerInventory", NUIService.OpenPlayerInventory)
 
 -- SYN SCRIPT EVENTS
 -- Store Module

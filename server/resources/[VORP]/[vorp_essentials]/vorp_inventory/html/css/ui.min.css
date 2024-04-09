@@ -326,6 +326,254 @@ body {
 }
 
 
+/*Buttons for filters and cloths*/
+
+.imageButtonContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 18px;
+    margin-left: 1px;
+
+}
+
+.imageButtonContainer1 {
+    display: flex;
+    justify-content: center;
+    margin-top: -65vh;
+    /*width: 300px;*/
+    /*margin-left: 450px;*/
+}
+
+.dropdownButtonContainer {
+    display: flex;
+}
+
+.mainButton {
+    background-color: none;
+    padding: 1px;
+    border: none;
+    cursor: pointer;
+    max-width: 32px;
+    max-height: 32px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.mainButton:hover {
+    transform: scale(1.15);
+}
+
+.dropdownButton {
+    display: none;
+    background-color: none;
+    padding: 1px;
+    border: none;
+    cursor: pointer;
+    max-width: 30px;
+    max-height: 30px;
+    opacity: 0.6;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.dropdownButton1 {
+    background-color: none;
+    padding: 1px;
+    border: none;
+    cursor: pointer;
+    max-width: 30px;
+    max-height: 30px;
+    opacity: 0.6;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+
+.dropdownButton:hover,
+.dropdownButton1:hover {
+    transform: scale(1.15);
+    opacity: 1.0;
+}
+
+.showDropdown .dropdownButton {
+    display: inline-block;
+}
+
+.dropdownButton img {
+    width: 100%;
+    height: 100%;
+}
+
+.dropdownButton1 img {
+    width: 100%;
+    height: 100%;
+}
+
+
+.mainButton img {
+    width: 100%;
+    height: 100%;
+}
+
+.mainButtonContainer {
+    display: flex;
+    margin-left: 752px;
+    margin-top: -3.6vh;
+}
+
+.carouselWrapper {
+    position: relative;
+   /* max-width: 320px; */
+    margin: auto;
+}
+
+.carouselContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  /*  max-width: 300px; */
+    margin: auto; 
+
+}
+
+.carousel-control {
+    background-color: #ddd;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    visibility: hidden; 
+    width: 20px; 
+    height: 20px; 
+    display: flex;
+    border-radius: 50px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.carousel-control.left {
+    left: -3vh;
+
+    color:#000;
+}
+
+.carousel-control.right {
+    right: -3vh; 
+
+    color:#000;
+}
+
+.dropdownButtonContainer {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto; 
+    width: 100%; 
+    scrollbar-width: thin; 
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; 
+    margin-top: 1vh;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+.dropdownButton {
+    flex: 0 0 auto; 
+    margin: 0 5px; 
+}
+
+.imageButtonContainer {
+    position: relative; 
+    width: 100%; 
+    max-width: 25vh;
+    margin: auto;
+    border-radius: 20px; 
+}
+
+.dropdownButton.active, .dropdownButton1.active {
+    transform: scale(1.15); /* Keep the button enlarged */
+    opacity: 1.0; /* Ensure full opacity */
+}
+
+.carouselWrapper1 {
+    position: relative;
+   /* max-width: 320px; */
+    margin: auto;
+}
+
+.carouselContainer1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  /*  max-width: 300px; */
+    margin: auto; 
+
+}
+
+.carousel-control1 {
+    background-color: #ddd;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    visibility: hidden; 
+    width: 20px; 
+    height: 20px; 
+    display: flex;
+    border-radius: 50px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.carousel-control1.left {
+    left: -3vh;
+
+    color:#000;
+}
+
+.carousel-control1.right {
+    right: -3vh; 
+
+    color:#000;
+}
+
+.dropdownButtonContainer1 {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto; 
+    width: 100%; 
+    scrollbar-width: thin; 
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; 
+    overflow-y: hidden;
+    white-space: nowrap;
+    margin-top: 1vh;
+}
+
+.dropdownButton1 {
+    flex: 0 0 auto; 
+    margin: 0 5px; 
+}
+
+.imageButtonContainer1 {
+    position: relative; 
+    width: 100%; 
+    max-width: 25vh;
+    border-radius: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+}
+
+/*END Filter buttons*/
+
+
 ::-webkit-scrollbar {
     display: none;
 }
@@ -426,95 +674,6 @@ input#secondarysearch:-moz-placeholder {
 input#search:-ms-input-placeholder,
 input#secondarysearch:-ms-input-placeholder {
     color: #ffffff;
-}
-
-
-.imageButtonContainer {
-    display: flex;
-    justify-content: center;
-    margin-top: 18px;
-    margin-left: 1px;
-
-}
-
-.imageButtonContainer1 {
-    display: flex;
-    justify-content: center;
-    margin-top: -700px;
-    width: 300px;
-    margin-left: 450px;
-}
-
-.dropdownButtonContainer {
-    display: flex;
-}
-
-.mainButton {
-    background-color: none;
-    padding: 1px;
-    border: none;
-    cursor: pointer;
-    max-width: 32px;
-    max-height: 32px;
-}
-
-.mainButton:hover {
-    max-width: 35px;
-    max-height: 35px;
-}
-
-.dropdownButton {
-    display: none;
-    background-color: none;
-    padding: 1px;
-    border: none;
-    cursor: pointer;
-    max-width: 30px;
-    max-height: 30px;
-    opacity: 0.6;
-}
-
-.dropdownButton1 {
-    background-color: none;
-    padding: 1px;
-    border: none;
-    cursor: pointer;
-    max-width: 30px;
-    max-height: 30px;
-    opacity: 0.6;
-}
-
-.dropdownButton:hover,
-.dropdownButton1:hover {
-    max-width: 35px;
-    max-height: 35px;
-    opacity: 1.0;
-}
-
-.showDropdown .dropdownButton {
-    display: inline-block;
-}
-
-.dropdownButton img {
-    width: 100%;
-    height: 100%;
-}
-
-.dropdownButton1 img {
-    width: 100%;
-    height: 100%;
-}
-
-
-.mainButton img {
-    width: 100%;
-    height: 100%;
-}
-
-.mainButtonContainer {
-    display: flex;
-    margin-left: 752px;
-    margin-top: -32px;
 }
 
 
@@ -682,6 +841,7 @@ span.emoji {
     transform: rotateZ(calc(60deg * 6));
 }
 
+
 @media (max-width:1920px) {
 
     #title {
@@ -757,14 +917,312 @@ span.emoji {
         margin-top: -40px;
     }
 
-    .imageButtonContainer1 {
-        margin-top: -690px;
-        width: 400px;
-        margin-left: 400px;
-   }
     .capacity {
     margin-top:680px;
    }
+
+   .imageButtonContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 18px;
+    margin-left: 1px;
+
+}
+
+.imageButtonContainer1 {
+    display: flex;
+    justify-content: center;
+    margin-top: -65vh;
+    /*width: 300px;*/
+    /*margin-left: 450px;*/
+}
+
+.dropdownButtonContainer {
+    display: flex;
+}
+
+.mainButton {
+    background-color: none;
+    padding: 1px;
+    border: none;
+    cursor: pointer;
+    max-width: 32px;
+    max-height: 32px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.mainButton:hover {
+    transform: scale(1.15);
+}
+
+.dropdownButton {
+    display: none;
+    background-color: none;
+    padding: 1px;
+    border: none;
+    cursor: pointer;
+    max-width: 30px;
+    max-height: 30px;
+    opacity: 0.6;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.dropdownButton1 {
+    background-color: none;
+    padding: 1px;
+    border: none;
+    cursor: pointer;
+    max-width: 30px;
+    max-height: 30px;
+    opacity: 0.6;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+
+.dropdownButton:hover,
+.dropdownButton1:hover {
+    transform: scale(1.15);
+    opacity: 1.0;
+}
+
+.showDropdown .dropdownButton {
+    display: inline-block;
+}
+
+.dropdownButton img {
+    width: 100%;
+    height: 100%;
+}
+
+.dropdownButton1 img {
+    width: 100%;
+    height: 100%;
+}
+
+
+.mainButton img {
+    width: 100%;
+    height: 100%;
+}
+
+.mainButtonContainer {
+    display: flex;
+    margin-left: 752px;
+    margin-top: -3.6vh;
+}
+
+.carouselWrapper {
+    position: relative;
+   /* max-width: 320px; */
+    margin: auto;
+}
+
+.carouselContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  /*  max-width: 300px; */
+    margin: auto; 
+
+}
+
+.carousel-control {
+    background-color: #ddd;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    visibility: hidden; 
+    width: 20px; 
+    height: 20px; 
+    display: flex;
+    border-radius: 50px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.carousel-control.left {
+    left: -3vh;
+
+    color:#000;
+}
+
+.carousel-control.right {
+    right: -3vh; 
+
+    color:#000;
+}
+
+.dropdownButtonContainer {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto; 
+    width: 100%; 
+    scrollbar-width: thin; 
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; 
+    margin-top: 1vh;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+.dropdownButton {
+    flex: 0 0 auto; 
+    margin: 0 5px; 
+}
+
+.imageButtonContainer {
+    position: relative; 
+    width: 100%; 
+    max-width: 25vh;
+    margin: auto;
+    border-radius: 20px; 
+}
+
+.dropdownButton.active, .dropdownButton1.active {
+    transform: scale(1.15); /* Keep the button enlarged */
+    opacity: 1.0; /* Ensure full opacity */
+}
+
+.carouselWrapper1 {
+    position: relative;
+   /* max-width: 320px; */
+    margin: auto;
+}
+
+.carouselContainer1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  /*  max-width: 300px; */
+    margin: auto; 
+
+}
+
+.carousel-control1 {
+    background-color: #ddd;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    visibility: hidden; 
+    width: 20px; 
+    height: 20px; 
+    display: flex;
+    border-radius: 50px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.carousel-control1.left {
+    left: -3vh;
+
+    color:#000;
+}
+
+.carousel-control1.right {
+    right: -3vh; 
+
+    color:#000;
+}
+
+.dropdownButtonContainer1 {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto; 
+    width: 100%; 
+    scrollbar-width: thin; 
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; 
+    overflow-y: hidden;
+    white-space: nowrap;
+    margin-top: 1vh;
+}
+
+.dropdownButton1 {
+    flex: 0 0 auto; 
+    margin: 0 5px; 
+}
+
+.imageButtonContainer1 {
+    position: relative; 
+    width: 100%; 
+    max-width: 25vh;
+    border-radius: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+}
+}
+
+@media (min-width: 2560px) and (max-width: 2560px) {
+    .mainButtonContainer {
+        display: flex;
+        margin-left: 752px;
+        margin-top: -2.5vh;
+    }
+
+    .imageButtonContainer1 {
+        display: flex;
+        justify-content: center;
+        max-width: 20vh;
+        margin-top: -49.3vh;
+        margin-left: 32.5vh;
+    }
+
+    .imageButtonContainer {
+        max-width: 20vh;
+        margin-top: 0.4vh;
+        margin-left: 32vh;
+    
+    }
+
+    .carousel-control {
+        width: 1.6vh; 
+        height: 1.6vh; 
+        margin-top: 0.5vh;
+    }
+    
+    .carousel-control.left {
+        left: -2vh;
+    
+        color:#000;
+    }
+    
+    .carousel-control.right {
+        right: -2vh; 
+    
+        color:#000;
+    }
+
+    .carousel-control1 {
+        width: 1.6vh; 
+        height: 1.6vh; 
+        margin-top: 0.5vh;
+    }
+    
+    .carousel-control1.left {
+        left: -2vh;
+    
+        color:#000;
+    }
+    
+    .carousel-control1.right {
+        right: -2vh; 
+    
+        color:#000;
+    }
+
 }
 
 @media (min-width:3840px) {
@@ -879,10 +1337,59 @@ span.emoji {
         margin-top: -40px;
     }
 
-    .imageButtonContainer1 {
+   /* .imageButtonContainer1 {
         margin-top: -880px;
         width: 400px;
         margin-left: 400px;
+    }*/
+
+    .imageButtonContainer1 {
+        display: flex;
+        justify-content: center;
+        margin-top: -41.5vh;
+        max-width: 20vh;
+    }
+
+    .imageButtonContainer {
+        margin-left: 18vh;
+        max-width: 20vh;
+    
+    }
+
+    .carousel-control {
+        width: 1.2vh; 
+        height: 1.2vh; 
+        margin-top: 0.5vh;
+    }
+    
+    .carousel-control.left {
+        left: -2vh;
+    
+        color:#000;
+    }
+    
+    .carousel-control.right {
+        right: -2vh; 
+    
+        color:#000;
+    }
+
+    .carousel-control1 {
+        width: 1.2vh; 
+        height: 1.2vh; 
+        margin-top: 0.5vh;
+    }
+    
+    .carousel-control1.left {
+        left: -2vh;
+    
+        color:#000;
+    }
+    
+    .carousel-control1.right {
+        right: -2vh; 
+    
+        color:#000;
     }
 
     .capacity {
