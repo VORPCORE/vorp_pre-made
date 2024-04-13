@@ -11,9 +11,9 @@ local rockGroup = GetRandomIntInRange(0, 0xffffff)
 T = Translation.Langs[Lang]
 
 function CreateStartMinePrompt()
-    CreateThread(function()
+    Citizen.CreateThread(function()
         local str = T.PromptLabels.mineLabel
-        MinePrompt = InvokeNative(0x04F97DE45A519419)
+        MinePrompt = Citizen.InvokeNative(0x04F97DE45A519419)
         PromptSetControlAction(MinePrompt, Config.MinePromptKey)
         str = CreateVarString(10, 'LITERAL_STRING', str)
         PromptSetText(MinePrompt, str)
@@ -27,7 +27,7 @@ end
 
 function GetRockNearby(coords, radius, hash_filter)
     local itemSet = CreateItemset(true)
-    local size = InvokeNative(0x59B57C4B06531E1E, coords, radius, itemSet, 3, ResultAsInteger())
+    local size = Citizen.InvokeNative(0x59B57C4B06531E1E, coords, radius, itemSet, 3, Citizen.ResultAsInteger())
     local found_entity
 
     if size > 0 then
@@ -158,7 +158,7 @@ function checkStartMineBtnPressed(rock)
         active = true
         local player = PlayerPedId()
         SetCurrentPedWeapon(player, GetHashKey("WEAPON_UNARMED"), true, 0, false, false)
-        Wait(500)
+        Citizen.Wait(500)
         TriggerServerEvent("vorp_mining:pickaxecheck", rock.vector_coords)
     end
 end
@@ -175,7 +175,7 @@ function convertConfigRocksToHashRegister()
 end
 
 function doNothingAndWait()
-    Wait(500)
+    Citizen.Wait(500)
 end
 
 function waitForStartKey(rock)
@@ -183,11 +183,11 @@ function waitForStartKey(rock)
 
     checkStartMineBtnPressed(rock)
 
-    Wait(0)
+    Citizen.Wait(0)
 end
 
 function GetTown(x, y, z)
-    return InvokeNative(0x43AD8FC02B429D33, x, y, z, 1)
+    return Citizen.InvokeNative(0x43AD8FC02B429D33, x, y, z, 1)
 end
 
 function convertConfigTownRestrictionsToHashRegister()
@@ -212,7 +212,7 @@ function manageStartMinePrompt(restricted_towns, player_coords)
     PromptSetEnabled(MinePrompt, is_promp_enabled)
 end
 
-CreateThread(function()
+Citizen.CreateThread(function()
     local allowed_rock_model_hashes = convertConfigRocksToHashRegister()
 
     local restricted_towns = convertConfigTownRestrictionsToHashRegister()
@@ -233,7 +233,7 @@ CreateThread(function()
     end
 end)
 
-CreateThread(function()
+Citizen.CreateThread(function()
     CreateStartMinePrompt()
 
     while true do
@@ -285,8 +285,8 @@ function rockFinished(rock)
 
     active = false
 
-    CreateThread(function()
-        Wait(1800000)
+    Citizen.CreateThread(function()
+        Citizen.Wait(1800000)
         forgetRockAsMined(rock)
     end)
 end
@@ -298,9 +298,9 @@ function removeToolFromPlayer()
         return
     end
 
-    InvokeNative(0xED00D72F81CF7278, tool, 1, 1)
+    Citizen.InvokeNative(0xED00D72F81CF7278, tool, 1, 1)
     DeleteObject(tool)
-    InvokeNative(0x58F7DB5BD8FA2288, PlayerPedId()) -- Cancel Walk Style
+    Citizen.InvokeNative(0x58F7DB5BD8FA2288, PlayerPedId()) -- Cancel Walk Style
 
     tool = nil
 end
@@ -341,7 +341,7 @@ end
 
 function EquipTool(toolhash, prompttext, holdtowork)
     hastool = false
-    InvokeNative(0x6A2F820452017EA2) -- Clear Prompts from Screen
+    Citizen.InvokeNative(0x6A2F820452017EA2) -- Clear Prompts from Screen
     if tool then
         DeleteEntity(tool)
     end
@@ -351,11 +351,11 @@ function EquipTool(toolhash, prompttext, holdtowork)
     ped = PlayerPedId()
     tool = CreateObject(toolhash, GetOffsetFromEntityInWorldCoords(ped, 0.0, 0.0, 0.0), true, true, true)
     AttachEntityToEntity(tool, ped, GetPedBoneIndex(ped, 7966), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, 1, 0, 0);
-    InvokeNative(0x923583741DC87BCE, ped, 'arthur_healthy')
-    InvokeNative(0x89F5E7ADECCCB49C, ped, "carry_pitchfork")
-    InvokeNative(0x2208438012482A1A, ped, true, true)
+    Citizen.InvokeNative(0x923583741DC87BCE, ped, 'arthur_healthy')
+    Citizen.InvokeNative(0x89F5E7ADECCCB49C, ped, "carry_pitchfork")
+    Citizen.InvokeNative(0x2208438012482A1A, ped, true, true)
     ForceEntityAiAndAnimationUpdate(tool, 1)
-    InvokeNative(0x3A50753042B6891B, ped, "PITCH_FORKS")
+    Citizen.InvokeNative(0x3A50753042B6891B, ped, "PITCH_FORKS")
 
     Wait(500)
     PromptSetEnabled(PropPrompt, true)
@@ -367,7 +367,7 @@ function EquipTool(toolhash, prompttext, holdtowork)
 end
 
 function FPrompt(text, button, hold)
-    CreateThread(function()
+    Citizen.CreateThread(function()
         proppromptdisplayed = false
         PropPrompt = nil
         local str = T.PromptLabels.keepPickaxe
@@ -386,7 +386,7 @@ function FPrompt(text, button, hold)
 end
 
 function LMPrompt(text, button, hold)
-    CreateThread(function()
+    Citizen.CreateThread(function()
         UsePrompt = nil
         local str = T.PromptLabels.usePickaxe
         local buttonhash = button or Config.MineRockKey
@@ -405,7 +405,7 @@ function LMPrompt(text, button, hold)
 end
 
 function Anim(actor, dict, body, duration, flags, introtiming, exittiming)
-    CreateThread(function()
+    Citizen.CreateThread(function()
         RequestAnimDict(dict)
         local dur = duration or -1
         local flag = flags or 1
@@ -417,7 +417,7 @@ function Anim(actor, dict, body, duration, flags, introtiming, exittiming)
             if timeout == 0 then
                 print("Animation Failed to Load")
             end
-            Wait(300)
+            Citizen.Wait(300)
         end
         TaskPlayAnim(actor, dict, body, intro, exit, dur, flag --[[1 for repeat--]], 1, false, false, false, 0, true)
     end)
