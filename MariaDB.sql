@@ -105,7 +105,7 @@ CREATE TABLE  `character_inventories` (
   `character_id` INT(11) DEFAULT NULL,
   `inventory_type` VARCHAR(100) NOT NULL DEFAULT 'default',
   `item_crafted_id` INT(11) NOT NULL,
-  `item_name` VARCHAR(50) COLLATE 'utf8mb4_general_ci' DEFAULT 'item'.
+  `item_name` VARCHAR(50) COLLATE 'utf8mb4_general_ci' DEFAULT 'item',
   `amount` INT(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   KEY `character_inventory_idx` (`character_id`, `inventory_type`)
