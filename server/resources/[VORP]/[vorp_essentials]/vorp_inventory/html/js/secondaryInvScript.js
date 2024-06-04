@@ -83,11 +83,7 @@ const ActionMoveList = {
     horse: { action: "MoveToHorse", id: () => horseid, customtype: "horse" },
 };
 
-/**
- * Take from store with price
- * @param {object} itemData
- * @param {number} qty
- */
+
 function takeFromStoreWithPrice(itemData, qty) {
 
     if (isValidating) {
@@ -164,11 +160,7 @@ function initSecondaryInventoryHandlers() {
         },
     });
 
-    /**
-     * Move to store
-     * @param {object} itemData
-     * @param {number} qty
-     */
+
     function moveToStore(itemData, qty) {
 
         if (isValidating) {
@@ -189,12 +181,6 @@ function initSecondaryInventoryHandlers() {
         );
     }
 
-    /**
-     * Move to store with price
-     * @param {object} itemData
-     * @param {number} qty
-     * @param {number} price
-     */
     function moveToStoreWithPrice(itemData, qty, price) {
 
         if (isValidating) {
@@ -216,11 +202,6 @@ function initSecondaryInventoryHandlers() {
         );
     }
 
-    /**
-     * Creates a dialog to determine price for item moving to store.
-     * @param {object} itemData
-     * @param {number} qty
-     */
     function moveToStorePriceDialog(itemData, qty) {
 
         if (isValidating) {
@@ -323,36 +304,33 @@ function secondInventorySetup(items, info) {
     $("#secondInventoryElement").html("").data("info", info);
 
     var divCount = 0;
-    $.each(items, function (index, item) {
+    $.each(items, function () {
         divCount = divCount + 1;
     });
 
     $.each(items, function (index, item) {
         count = item.count;
+        const group = item.type != "item_weapon" ? !item.group ? 1 : item.group : 5;
         if (item.type !== "item_weapon") {
-            /* items  */
-            if (!item.group) {
-                item.group = 1;
-            }
 
-            $("#secondInventoryElement").append(`<div data-label='${item.label}' data-group ='${item.group}'
-            style='background-image: url(\"img/items/${item.name ? item.name.toLowerCase() : ""
-                }.png\"), url(); background-size: 90px 90px, 90px 90px; background-repeat: no-repeat; background-position: center;'
-            id="item-${index}" class='item'> ${count > 0 ? `<div class='count'>${count}</div>` : ``} 
-            <div class='text'></div> 
-            </div>
-           `);
+            const custom = item.metadata?.tooltip ? "<br>" + item.metadata.tooltip : "";
+            const degradation = item.degradation ? "<br>" + LANGUAGE.labels.decay + item.degradation + "%" : "";
+            const weight = item.weight ? LANGUAGE.labels.weight + (item.weight * item.count).toFixed(2) + " " + Config.WeightMeasure : LANGUAGE.labels.weight + (item.count / 4).toFixed(2) + " " + Config.WeightMeasure;
+            const groupKey = Object.keys(window.Actions).find(key =>
+                key !== "all" && window.Actions[key].types.includes(group)
+            );
+            const groupImg = groupKey ? window.Actions[groupKey].img : 'satchel_nav_all.png';
+            const tooltipContent = group > 1 ? `<img src="img/itemtypes/${groupImg}"> ${weight + degradation + custom}` : `${weight + degradation + custom}`;
+
+            $("#secondInventoryElement").append(` <div data-label='${item.label}' data-group ='${group}' style='background-image: url(\"img/items/${item.name ? item.name.toLowerCase() : ""}.png\"); background-size: 4.5vw 7.7vh; background-repeat: no-repeat; background-position: center;' id="item-${index}"  class='item' class='item' data-tooltip='${tooltipContent}'> ${count > 0 ? `<div class='count'>${count}</div>` : ``}<div class='text'></div></div> `);
         } else {
-            /* weapons */
-            var group = 5;
+
+            const info = item.serial_number ? "<br>" + LANGUAGE.labels.ammo + item.count + "<br>" + LANGUAGE.labels.serial + item.serial_number : "";
+            const weight = item.weight ? LANGUAGE.labels.weight + (item.weight * item.count).toFixed(2) + " " + Config.WeightMeasure : LANGUAGE.labels.weight + (item.count / 4).toFixed(2) + " " + Config.WeightMeasure;
             $("#secondInventoryElement").append(`
             <div data-label='${item.label}' data-group ='${group}'
-            style='background-image: url("img/items/${item.name.toLowerCase()
-                }.png"), url(); background-size: 90px 90px, 90px 90px; background-repeat: no-repeat; background-position: center;'
-            id='item-${index}' class='item'>
-            </div> 
-           `);
-
+            style='background-image: url("img/items/${item.name.toLowerCase()}.png"); background-size: 4.5vw 7.7vh; background-repeat: no-repeat; background-position: center;' id='item-${index}' class='item' data-tooltip="${weight + info}">
+            </div>`);
         }
 
         $("#item-" + index).data("item", item);
@@ -385,9 +363,7 @@ function secondInventorySetup(items, info) {
     if (divCount < 14) {
         var emptySlots = 16 - divCount;
         for (var i = 0; i < emptySlots; i++) {
-            $("#secondInventoryElement").append(`
-         <div class='item' data-group='0'></div>
-        `);
+            $("#secondInventoryElement").append(`<div class='item' data-group='0'></div>`);
         }
     }
 }

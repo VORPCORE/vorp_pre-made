@@ -14,8 +14,8 @@ Pickup.prompt = nil
 
 function Pickup:Distance()
     local playerCoords = GetEntityCoords(PlayerPedId(), true, true)
-
-    return Vdist(playerCoords.x, playerCoords.y, playerCoords.z, self.coords.x, self.coords.y, self.coords.z)
+    local distance = #(playerCoords - vector3(self.coords.x, self.coords.y, self.coords.z))
+    return distance
 end
 
 function Pickup:IsWeapon()

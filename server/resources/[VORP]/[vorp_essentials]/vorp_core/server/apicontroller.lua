@@ -107,11 +107,9 @@ CoreFunctions.Callback = {
     Register = function(name, callback)
         ServerRPC.Callback.Register(name, callback)
     end,
-
     TriggerAsync = function(name, source, callback, ...)
         ServerRPC.Callback.TriggerAsync(name, source, callback, ...)
     end,
-
     TriggerAwait = function(name, source, ...)
         return ServerRPC.Callback.TriggerAwait(name, source, ...)
     end
@@ -210,7 +208,6 @@ CoreFunctions.Command = {
     }
 }
  ]]
-
 
 exports('GetCore', function()
     return CoreFunctions

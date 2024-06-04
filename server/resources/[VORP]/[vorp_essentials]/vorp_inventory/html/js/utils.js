@@ -31,30 +31,29 @@ function OverSetDescSecond(desc) {
 function secondarySetTitle(title) {
     document.getElementById("titleHorse").innerHTML = title;
 }
-
+//amount of items
 function secondarySetCurrentCapacity(cap) {
     document.getElementById("current-cap-value").innerHTML = cap;
 }
 
-function secondarySetCapacity(cap) {
-    secondaryCapacityAvailable = true;
+//capacty of inventory
+function secondarySetCapacity(cap, weight) {
     $(".capacity").show();
-    document.getElementById("capacity-value").innerHTML = cap;
-    secondarySetCurrentCapacity("0");
+    document.getElementById("capacity-value").innerHTML = weight ? weight + " " + Config.WeightMeasure : cap;
 }
 
 
-function initiateSecondaryInventory(title, capacity) {
+function initiateSecondaryInventory(title, capacity, weight) {
+
     $("#secondInventoryHud").append(
         `<div class='controls'><div class='controls-center'><input type='text' id='secondarysearch' placeholder='${LANGUAGE.inventorysearch}'/></div></div>`
     );
-
 
     $("#secondarysearch").bind("input", function () {
         var searchFor = $("#secondarysearch").val().toLowerCase();
         $("#secondInventoryElement .item").each(function () {
             var label = $(this).data("label");
-            if (label) { // Check that label is defined
+            if (label) {
                 label = label.toLowerCase();
                 if (label.indexOf(searchFor) < 0) {
                     $(this).hide();
@@ -69,13 +68,11 @@ function initiateSecondaryInventory(title, capacity) {
     secondarySetTitle(title);
 
     if (capacity) {
-        secondarySetCapacity(capacity);
+        secondarySetCapacity(capacity, weight);
     } else {
-        secondaryCapacityAvailable = false;
         secondarySetCapacity("0")
     }
 }
-
 
 function initDivMouseOver() {
     if (isOpen === true) {
@@ -372,6 +369,8 @@ function giveGetHowManyGold() {
 }
 
 function closeInventory() {
+    // need to close tool tip 
+    $('.tooltip').remove();
     $.post(`https://${GetParentResourceName()}/NUIFocusOff`, JSON.stringify({}));
     isOpen = false;
 }

@@ -1,10 +1,10 @@
----@type table<string, Item> contains Database Server items
-ServerItems = {}
----@type table<string, table<number, Weapon>> contain users weapons
+local Core   = exports.vorp_core:GetCore()
+ServerItems  = {}
 UsersWeapons = { default = {} }
 
+-- temporary just to assing serial numbers to old weapons and labels will be removed eventually
 MySQL.ready(function()
-	DBService.queryAsync('SELECT * FROM loadout', {},
+	DBService.queryAsync('SELECT name,id,label,serial_number FROM loadout', {},
 		function(result)
 			if next(result) then
 				for _, db_weapon in pairs(result) do
@@ -30,6 +30,7 @@ local function loadAllWeapons(db_weapon)
 
 	if db_weapon.dropped == 0 then
 		local label = db_weapon.custom_label or db_weapon.label
+		local weight = SvUtils.GetWeaponWeight(db_weapon.name)
 		local weapon = Weapon:New({
 			id = db_weapon.id,
 			propietary = db_weapon.identifier,
@@ -46,6 +47,7 @@ local function loadAllWeapons(db_weapon)
 			serial_number = db_weapon.serial_number,
 			custom_label = db_weapon.custom_label,
 			custom_desc = db_weapon.custom_desc,
+			weight = weight,
 		})
 
 		if not UsersWeapons[db_weapon.curr_inv] then
@@ -94,14 +96,15 @@ MySQL.ready(function()
 					canUse = db_item.usable,
 					canRemove = db_item.can_remove,
 					desc = db_item.desc,
-					group = db_item.groupId or 1
+					group = db_item.groupId or 1,
+					weight = db_item.weight or 0.25,
 				})
 				ServerItems[item.item] = item
 			end
 		end
 	end)
 
-	--load all secondary weapons from database
+	--load all secondary inventory weapons from database
 	DBService.queryAsync("SELECT * FROM loadout", {}, function(result)
 		for _, db_weapon in pairs(result) do
 			if db_weapon.curr_inv ~= "default" then

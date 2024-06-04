@@ -29,7 +29,6 @@ RegisterServerEvent("vorp_inventory:TakeFromCustom", InventoryService.TakeFromCu
 RegisterServerEvent("vorp_inventory:MoveToPlayer", InventoryService.MoveToPlayer)
 RegisterServerEvent("vorp_inventory:TakeFromPlayer", InventoryService.TakeFromPlayer)
 RegisterNetEvent("vorpinventory:servergiveammo", InventoryService.serverGiveAmmo)
-RegisterNetEvent("vorpinventory:getammoinfo", InventoryService.getAmmoInfo)
 RegisterServerEvent("vorpinventory:updateammo", InventoryService.updateAmmo)
 AddEventHandler("vorp_NewCharacter", InventoryService.onNewCharacter)
 

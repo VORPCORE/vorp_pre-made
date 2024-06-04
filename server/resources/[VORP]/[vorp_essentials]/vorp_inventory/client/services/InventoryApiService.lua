@@ -1,5 +1,4 @@
 InventoryApiService = {}
-
 InventoryApiService.addItem = function(itemData)
     local itemId = itemData.id
     local itemAmount = itemData.count
@@ -74,7 +73,7 @@ InventoryApiService.addComponent = function(weaponId, component)
 
         UserWeapons[weaponId]:setComponent(component)
         if UserWeapons[weaponId]:getUsed() then
-            Citizen.InvokeNative(0x4899CB088EDF59B8, PlayerPedId(), joaat(UserWeapons[weaponId]:getName()), true, 0)
+            RemoveWeaponFromPed(PlayerPedId(), joaat(UserWeapons[weaponId]:getName()), true, 0) 
             UserWeapons[weaponId]:equipwep()
             UserWeapons[weaponId]:loadComponents()
         end
@@ -92,7 +91,7 @@ InventoryApiService.subComponent = function(weaponId, component)
 
         UserWeapons[weaponId]:quitComponent(component)
         if UserWeapons[weaponId]:getUsed() then
-            Citizen.InvokeNative(0x4899CB088EDF59B8, PlayerPedId(), joaat(UserWeapons[weaponId]:getName()), true, 0)
+            RemoveWeaponFromPed(PlayerPedId(), joaat(UserWeapons[weaponId]:getName()), true, 0)
             UserWeapons[weaponId]:equipwep()
             UserWeapons[weaponId]:loadComponents()
         end

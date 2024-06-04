@@ -1,7 +1,6 @@
-
 @font-face {
-    font-family: crock;
-    src: url(../fonts/crock.ttf) format('truetype');
+	font-family: crock;
+	src: url(../fonts/crock.ttf) format('truetype');
 }
 
 
@@ -19,7 +18,6 @@
 	opacity: 0;
 	transition: opacity .5s;
 	transform: translateZ(0)
-	
 }
 
 #dialog-overlay.dialog-closing {
@@ -32,9 +30,8 @@
 
 #dialog-holder {
 	position: absolute;
-
 	top: 0%;
-	left: -240px;
+	left: -1vw;
 	opacity: 0.9;
 	right: 0;
 	height: 100%;
@@ -69,18 +66,18 @@
 	width: 90%;
 	perspective: 1000px;
 	font-family: crock;
-	
+
 }
 
 #dialog-holder #dialog-center td .dialog-alert {
 	z-index: 999;
 	position: relative;
 	margin: 0 auto;
-	padding: 40px 10px;
+	padding: 4vh 2vw;
 	background-image: url(../img/bgPanel2.png);
 	background-repeat: no-repeat;
 	background-position: center;
-	max-width: 400px;
+	max-width: 14vw;
 	word-break: break-word;
 	display: none;
 	opacity: 0;
@@ -88,20 +85,23 @@
 	background-size: 100% 100%;
 	z-index: 999;
 	transition: transform .5s, opacity .45s;
-	font-size: 20px;
-	
+	font-size: 1vw;
+
 }
 
 @keyframes shake {
 	20% {
 		transform: translateX(-12px) rotateY(-8deg)
 	}
+
 	40% {
 		transform: translateX(12px) rotateY(8deg)
 	}
+
 	60% {
 		transform: translateX(-12px) rotateY(-8deg)
 	}
+
 	80% {
 		transform: translateX(12px) rotateY(8deg)
 	}
@@ -137,7 +137,7 @@
 	left: -1px;
 	right: -1px;
 	bottom: -1px;
-	border:none;
+	border: none;
 	z-index: -1;
 	opacity: .2;
 
@@ -186,10 +186,10 @@
 	box-sizing: border-box;
 	padding: 15px 20px;
 	border-radius: 12px;
-	border:none;
+	border: none;
 	outline: 0;
 	width: 80%;
-	font-size: 10px;
+	font-size: 0.9vw;
 	color: #000;
 	font-family: crock;
 	-webkit-font-smoothing: antialiased;
@@ -306,14 +306,14 @@
 	display: block
 }
 
-@media (max-width: 1920px){
+@media (max-width: 1920px) {
 
 
-  #dialog-holder #dialog-center td .dialog-alert {
+	#dialog-holder #dialog-center td .dialog-alert {
 
-	left:160px;
-	
-  }
+		left: 160px;
 
-	
+	}
+
+
 }

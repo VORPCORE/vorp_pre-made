@@ -15,13 +15,11 @@ shared_scripts {
 }
 client_scripts {
     'client/client.lua',
-    'client/functions.lua',
     'client/services/*.lua'
 }
 server_scripts {
     'server/server.lua',
     'server/apis/events.lua',
-    'server/functions.lua'
 }
 files {
     'ui/*',
@@ -36,7 +34,7 @@ dependencies {
 }
 
 --dont touch
-version '1.6'
+version '1.7'
 vorp_checker 'yes'
 vorp_name '^4Resource version Check^3'
 vorp_github 'https://github.com/VORPCORE/vorp_crafting'

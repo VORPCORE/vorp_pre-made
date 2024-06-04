@@ -10,7 +10,7 @@ end
 UIPrompt.initialize = function()
     local str = _U('CraftText')
     CraftPrompt = PromptRegisterBegin()
-    PromptSetControlAction(CraftPrompt, keys["G"])
+    PromptSetControlAction(CraftPrompt, Config.Keys["G"])
     str = CreateVarString(10, 'LITERAL_STRING', str)
     PromptSetText(CraftPrompt, str)
     PromptSetEnabled(CraftPrompt, 1)

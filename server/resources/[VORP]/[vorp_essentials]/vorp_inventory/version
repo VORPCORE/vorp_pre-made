@@ -1,5 +1,36 @@
+<3.7>
+- added msgpack send to items to client to reduce load 
+- added new exports for client side mostly for weapons see client/exports.lua
+- added item names to tables items_crafted and characters_inventories for easier look up (you must run the sql code provived in the discord or commits)
+- fixed getAmmo there was a typo
+- fixed GiveWeapon wasnt properly checking the weight
+- added a check to make sure weapons name are valid when given
+- fixed canCarryWeapons when  using names wasnt returning the proper value
+- added some strings to translation regarding the last changes about weight
+- added some native declararations since they are not on release version
+- fixed exports add weapons desc label and serial number that were not synced in client
+- updated types for exports
+- added server side export getUserAmmo will return ammo that is cached on the server
+- fixed openPlayerInv only allowing to open once
+- fixed non shared inventories would not remove items from custom containers when it was set to not be shared
+- make sure to update all files remove old back up and add new DO NOT REPLACE
+<3.6>
+- inventory weight based 
+- weapons now count towards inventory weight
+- UI changes 
+- see weapons used marked
+- added new file to make item groups easily
+- fixed permissions for secondary inventories
+- deprecated canCarryItems
+- WIP items decay, is only for display at the moment (coming on next updates)
+- new export to openPlayerInventories
+- new export client side to use weapon without having to open inventory
+- new event listeners (check documentation) and extra parameters added to current ones
+- this update requires database changes and vorp_core to be updated
+- function to clean up items_crafted
+- canCarryWeapons extra param now supports weapon name or hash
 <3.5>
-- exploit fixed when using devtools to insert items no custom inventories
+- exploit fixed when using devtools to insert items to custom inventories
 - added ItemOnUse event hook ( useful when you dont have acces to a script)
 - added statebag for getting current serial number of a weapon
 - other minor improvements and optimisation

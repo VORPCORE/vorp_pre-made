@@ -11,6 +11,8 @@
 ---@field dropped number @Weapon dropped
 ---@field group number @Weapon group type
 ---@field source number @Weapon player source
+---@field weight number @Weapon weight
+
 Weapon               = {}
 Weapon.name          = nil
 Weapon.id            = nil
@@ -29,6 +31,7 @@ Weapon.label         = nil
 Weapon.serial_number = nil
 Weapon.custom_label  = nil
 Weapon.custom_desc   = nil
+Weapon.weight        = nil
 
 function Weapon:getLabel()
 	return self.label
@@ -193,6 +196,10 @@ function Weapon:subAmmo(type, amount)
 		DBService.updateAsync('UPDATE loadout SET ammo = @ammo WHERE id=@id',
 			{ ammo = json.encode(self:getAllAmmo()), id = self.id }, function() end)
 	end
+end
+
+function Weapon:getWeight()
+	return self.weight
 end
 
 ---@return Weapon

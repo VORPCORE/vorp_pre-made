@@ -1,4 +1,4 @@
----@diagnostic disable: undefined-global
+local Core           = exports.vorp_core:GetCore()
 
 ---@class SvUtils @Server Utility Service
 ---@field FindAllWeaponsByName fun(invId: string, name: string): table<number, Weapon>
@@ -10,9 +10,8 @@
 ---@field InProcessing fun(id: number): boolean
 ---@field Trem fun(id: string, keepInventoryOpen: boolean)
 ---@field DoesItemExist fun(itemName:string,api:string): boolean
-SvUtils = {}
+SvUtils              = {}
 
---@Processing user when making inventory transactions
 local processingUser = {}
 math.randomseed(GetGameTimer())
 
@@ -245,4 +244,13 @@ end
 ---@param data {title: string, webhook: string, description: string, color: number, name: string, logo: string, footerlogo: string, avatar: string, source: number, target: number}
 function SvUtils.SendDiscordWebhook(data)
     Core.AddWebhook(data.title, data.webhook, data.description, data.color, data.name)
+end
+
+function SvUtils.GetWeaponWeight(name)
+    for _, weapon in ipairs(SharedData.Weapons) do
+        if weapon.HashName == name:upper() then
+            return weapon.Weight
+        end
+    end
+    return 1
 end

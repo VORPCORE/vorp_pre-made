@@ -1,7 +1,6 @@
-local getammoinfo = false
-local playerammoinfo = {}
+local playerammoinfo   = {}
 local updatedAmmoCache = {}
-InvLoaded = false
+local Core             = exports.vorp_core:GetCore()
 
 local function addAmmoToPed(ammoData)
     for ammoType, ammo in pairs(ammoData) do
@@ -22,25 +21,22 @@ local function contains(arr, element)
     return false
 end
 
-RegisterNetEvent("vorpinventory:loaded")
-AddEventHandler("vorpinventory:loaded", function()
+RegisterNetEvent("vorpinventory:loaded", function()
     SendNUIMessage({
         action = "reclabels",
         labels = SharedData.AmmoLabels
     })
-    --TODO add callback here
-    getammoinfo = true
-    TriggerServerEvent("vorpinventory:getammoinfo")
-    while getammoinfo do
-        Wait(100)
-    end
 
+    local result = Core.Callback.TriggerAwait("vorpinventory:getammoinfo")
+    playerammoinfo = result or {}
+    if not result then
+        return
+    end
     addAmmoToPed(playerammoinfo.ammo)
     SendNUIMessage({
         action = "updateammo",
         ammo   = playerammoinfo.ammo
     })
-    InvLoaded = true
 end)
 
 RegisterNetEvent("vorpinventory:updateuiammocount", function(ammo)
@@ -53,28 +49,25 @@ end)
 
 RegisterNetEvent("vorpinventory:setammotoped", function(ammoData)
     local PlayerPedId = PlayerPedId()
-    Citizen.InvokeNative(0xF25DF915FA38C5F3, PlayerPedId, 1, 1)
-    Citizen.InvokeNative(0x1B83C0DEEBCBB214, PlayerPedId)
+    RemoveAllPedWeapons(PlayerPedId, true, true)
+    RemoveAllPedAmmo(PlayerPedId)
     addAmmoToPed(ammoData)
 end)
 
-RegisterNetEvent("vorpinventory:updateinventorystuff", function() -- new
+RegisterNetEvent("vorpinventory:updateinventory", function() -- new
     NUIService.LoadInv()
-end)
-
-RegisterNetEvent("vorpinventory:recammo", function(ammo)
-    playerammoinfo = ammo
-    getammoinfo = false
 end)
 
 -- AMMO SAVING THREAD
 Citizen.CreateThread(function()
+    repeat Wait(2000) until LocalPlayer.state.IsInSession
+
     while true do
         local sleep = 1000
-        if InvLoaded and not InInventory then
+        if not InInventory then
             local PlayerPedId = PlayerPedId()
             local isArmed = Citizen.InvokeNative(0xCB690F680A3EA971, PlayerPedId, 4)
-            local wephash = Citizen.InvokeNative(0x8425C5F057012DAB, PlayerPedId)
+            local wephash = GetPedCurrentHeldWeapon(PlayerPedId)
             local ismelee = Citizen.InvokeNative(0x959383DCD42040DA, wephash)
             if (isArmed or GetWeapontypeGroup(wephash) == 1548507267) and not ismelee then
                 local wepgroup = GetWeapontypeGroup(wephash)
@@ -83,7 +76,7 @@ Citizen.CreateThread(function()
                 if ammotypes and playerammoinfo.ammo then
                     for k, v in pairs(ammotypes) do
                         if contains(playerammoinfo.ammo, v) then
-                            local ammoQty = Citizen.InvokeNative(0x39D22031557946C1, PlayerPedId, joaat(v)) --GET_PED_AMMO_BY_TYPE
+                            local ammoQty = GetPedAmmoByType(PlayerPedId, joaat(v))
                             if not ammoQty or ((GetWeapontypeGroup(wephash) == 1548507267 or GetWeapontypeGroup(wephash) == -1241684019) and ammoQty == 1) then
                                 ammoQty = 0
                             end
@@ -106,11 +99,11 @@ end)
 
 local ammoupdate = true
 RegisterNetEvent("vorpinventory:ammoUpdateToggle", function(state)
-    if not ammoupdate and state then 
-        getammoinfo = true
-        TriggerServerEvent("vorpinventory:getammoinfo")
-        while getammoinfo do
-            Wait(100)
+    if not ammoupdate and state then
+        local result = Core.Callback.TriggerAwait("vorpinventory:getammoinfo")
+        playerammoinfo = result or {}
+        if not result then
+            return
         end
         addAmmoToPed(playerammoinfo.ammo)
         SendNUIMessage({
@@ -123,13 +116,14 @@ end)
 
 -- AMMO UPDATE THREAD
 Citizen.CreateThread(function()
+    repeat Wait(2000) until LocalPlayer.state.IsInSession
     while true do
-        if ammoupdate then 
+        if ammoupdate then
             if next(updatedAmmoCache) ~= nil then
                 TriggerServerEvent("vorpinventory:updateammo", playerammoinfo)
                 updatedAmmoCache = {}
             end
         end
-        Wait(10000) -- every 10 seconds
+        Wait(10000)
     end
 end)

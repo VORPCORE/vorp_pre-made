@@ -86,9 +86,8 @@ function RegisterCommands(value, key)
         end
 
         local group = CoreFunctions.getUser(_source).getGroup -- admin group
-        -- local group2 = CoreFunctions.getUser(_source).getUsedCharacter.group --? this could be for any group not just for admins so lets not use it as admin group
 
-        if not CheckAce(value.aceAllowed, _source) and not CheckGroupAllowed(value.groupAllowed, group) --[[ and not CheckGroupAllowed(value.groupAllowed, group2) ]] then
+        if not CheckAce(value.aceAllowed, _source) and not CheckGroupAllowed(value.groupAllowed, group) then
             return CoreFunctions.NotifyObjective(_source, T.NoPermissions, 4000)
         end
 
@@ -149,8 +148,8 @@ function SetGroup(data)
     end
 
     SendDiscordLogs(data.config.webhook, data, data.source, newgroup, "")
-    CoreFunctions.NotifyRightTip(target, string.format(Translation[Lang].Notify.SetGroup, target), 4000)
-    CoreFunctions.NotifyRightTip(data.source, string.format(Translation[Lang].Notify.SetGroup1, newgroup), 4000)
+    CoreFunctions.NotifyRightTip(data.source, string.format(Translation[Lang].Notify.SetGroup, target), 4000)
+    CoreFunctions.NotifyRightTip(target, string.format(Translation[Lang].Notify.SetGroup1, newgroup), 4000)
 end
 
 --ADDJOBS
@@ -219,16 +218,17 @@ end
 function AddWeapons(data)
     local target = tonumber(data.args[1])
     local weaponHash = tostring(data.args[2])
-    exports.vorp_inventory:canCarryWeapons(target, 1, function(result) --can carry weapons
-        local canCarry = result
-        if not canCarry then
-            return CoreFunctions.NotifyObjective(data.source, T.cantCarry, 4000)
-        end
+    local canCarry = exports.vorp_inventory:canCarryWeapons(target, 1, nil, weaponHash)
+    if not canCarry then
+        return CoreFunctions.NotifyObjective(data.source, T.cantCarry, 4000)
+    end
 
-        exports.vorp_inventory:createWeapon(target, weaponHash, {})
-        SendDiscordLogs(data.config.webhook, data, data.source, weaponHash, "")
-        CoreFunctions.NotifyRightTip(target, Translation[Lang].Notify.AddWeapons, 4000)
-    end, weaponHash)
+    local result = exports.vorp_inventory:createWeapon(target, weaponHash, {})
+    if not result then
+        return CoreFunctions.NotifyRightTip(target, "weapon does not exist or is wrong name", 4000)
+    end
+    SendDiscordLogs(data.config.webhook, data, data.source, weaponHash, "")
+    CoreFunctions.NotifyRightTip(target, Translation[Lang].Notify.AddWeapons, 4000)
 end
 
 --DELCURRENCY

@@ -39,6 +39,9 @@
 ---@field getPermissionMoveTo fun(self : CustomInventory) : table<string, integer> @Get Permission Move To
 ---@field getPermissionTakeFrom fun(self : CustomInventory) : table<string, integer> @Get Permission Take From
 ---@field doesAcceptWeapons fun(self : CustomInventory) : boolean @Does Accept Weapons
+---@field setWeight fun(self : CustomInventory, value : number) @Set Weight
+---@field useweight boolean
+---@field weight number
 CustomInventoryAPI = {}
 
 CustomInventoryAPI.__index = CustomInventoryAPI
@@ -64,7 +67,8 @@ function CustomInventoryAPI:New(data)
     obj.BlackListItems = {}
     obj.whitelistWeapons = data.whitelistWeapons or false
     obj.limitedWeapons = {}
-
+    obj.useweight = data.useWeight or false
+    obj.weight = data.weight or 0.0
     return obj
 end
 
@@ -241,6 +245,20 @@ end
 ---@return  table
 function CustomInventoryAPI:getAllCustomInvData()
     return self
+end
+
+---does it use weight or slots
+---@return boolean
+function CustomInventoryAPI:useWeight()
+    return self.useweight
+end
+
+--- weight of inventory
+---@param value number
+function CustomInventoryAPI:setWeight(value)
+    if self.useweight then
+        self.weight = value
+    end
 end
 
 --- update any custom inventory data

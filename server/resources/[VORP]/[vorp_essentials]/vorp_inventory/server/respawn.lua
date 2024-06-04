@@ -1,6 +1,6 @@
----@diagnostic disable: undefined-global
--- * CLEAR ITEMS WEAPONS AND MONEY * --
+local Core = exports.vorp_core:GetCore()
 
+-- * CLEAR ITEMS WEAPONS AND MONEY * --
 RegisterNetEvent("vorp:PlayerForceRespawn", function()
     local _source = source
     local User = Core.getUser(_source).getUsedCharacter
@@ -47,8 +47,7 @@ RegisterNetEvent("vorp:PlayerForceRespawn", function()
                         if next(_value.Items.itemWhiteList) then
                             for index, value in ipairs(_value.Items.itemWhiteList) do
                                 if item.name ~= value then
-                                    InventoryAPI.subItem(_source, item.name, item.count, item.metadata, function()
-                                    end)
+                                    InventoryAPI.subItem(_source, item.name, item.count, item.metadata)
                                 end
                             end
                         else

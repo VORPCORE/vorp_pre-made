@@ -13,6 +13,7 @@
 ---@field canUse boolean  @Item can use
 ---@field canRemove boolean @Item can remove
 ---@field desc string @Item description
+---@field weight number @Item weight
 Item = {}
 
 Item.id = nil
@@ -121,9 +122,6 @@ end
 
 function Item:quitCount(amount)
 	if not amount then
-		if Config.Debug then
-			print('[^3Item quitCount^7]^1 Error: given amount is nil^7')
-		end
 		return
 	end
 	self.count = self.count - amount
@@ -167,6 +165,14 @@ end
 
 function Item:getDropOnDeath()
 	return self.dropOnDeath
+end
+
+function Item:getWeight()
+	return self.weight
+end
+
+function Item:setWeight(weight)
+	self.weight = weight
 end
 
 ---@return Item Item class

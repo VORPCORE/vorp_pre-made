@@ -1,37 +1,37 @@
-RegisterNetEvent("vorp:AddRecipes")
-AddEventHandler("vorp:AddRecipes", function(recipe)
+RegisterNetEvent("vorp:AddRecipes", function(recipe, all)
     local _source = source
     table.insert(Config.Crafting, recipe)
-    TriggerClientEvent("vorp:UpdateRecipes", _source,  Config.Crafting)
+    local id = not all and _source or -1
+    TriggerClientEvent("vorp:UpdateRecipes", id, recipe, false)
 end)
 
-RegisterNetEvent("vorp:RemoveRecipes")
-AddEventHandler("vorp:RemoveRecipes", function(recipe)
+RegisterNetEvent("vorp:RemoveRecipes", function(recipe, all)
     local _source = source
-    for k,v in pairs(Config.Crafting) do
+    for k, v in pairs(Config.Crafting) do
         if v.Text == recipe.Text then
             table.remove(Config.Crafting, k)
-            TriggerClientEvent("vorp:UpdateRecipes", _source,  Config.Crafting)
-            break
+            local id = not all and _source or -1
+            TriggerClientEvent("vorp:UpdateRecipes", id, k, true)
+            return
         end
     end
 end)
 
-RegisterNetEvent("vorp:AddCraftLocation")
-AddEventHandler("vorp:AddCraftLocation", function(location)
+RegisterNetEvent("vorp:AddCraftLocation", function(location, all)
     local _source = source
     table.insert(Config.Locations, location)
-    TriggerClientEvent("vorp:UpdateLocations", _source, Config.Locations)
+    local id = not all and _source or -1
+    TriggerClientEvent("vorp:UpdateLocations", id, location, false)
 end)
 
-RegisterNetEvent("vorp:RemoveCraftLocation")
-AddEventHandler("vorp:RemoveCraftLocation", function(location)
+RegisterNetEvent("vorp:RemoveCraftLocation", function(location, all)
     local _source = source
-    for k,v in pairs(Config.Locations) do
+    for k, v in pairs(Config.Locations) do
         if v.id == location.id then
             table.remove(Config.Locations, k)
-            TriggerClientEvent("vorp:UpdateLocations", _source, Config.Locations)
-            break
+            local id = not all and _source or -1
+            TriggerClientEvent("vorp:UpdateLocations", id, k, true)
+            return
         end
     end
 end)

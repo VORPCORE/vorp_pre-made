@@ -1,72 +1,84 @@
-keys = Config.Keys
-
-progressbar = exports.vorp_progressbar:initiate()
-
+local progressbar = exports.vorp_progressbar:initiate()
 local iscrafting = false
 local blipsadded = false
 
-if Config.DevMode then
-    RegisterCommand("crafttest",function()
-        appready = true
-        TriggerServerEvent('vorp:findjob')
-    end)
+local function GetCoordDistance(v1, v2)
+    local v = vector3(v1.x, v1.y, v1.z)
+    local x = vector3(v2.x, v2.y, v2.z)
+    return #(v - x)
 end
 
-Citizen.CreateThread(function()
+CreateThread(function()
+    repeat Wait(1000) until LocalPlayer.state.IsInSession
     UIPrompt.initialize()
 
     while true do
-        Citizen.Wait(1)
-        if appready then
-            -- Check for craftable object starters
-            local player = PlayerPedId()
-            local Coords = GetEntityCoords(player)
-            
-            if  Config.CraftingPropsEnabled then
-                local propjobcheck = CheckJob(Config.CampfireJobLock)
-                for k, v in pairs(Config.CraftingProps) do
-                    if propjobcheck and iscrafting == false and uiopen == false then
-                        local campfire = DoesObjectOfTypeExistAtCoords(Coords.x, Coords.y, Coords.z, Config.Distances.campfire, GetHashKey(v.prop), 0) --This is resource intensive, but not sure there is a way around this.
-                        if campfire then
-                            UIPrompt.activate(v.title)
-        
-                            if Citizen.InvokeNative(0xC92AC953F0A982AE, CraftPrompt) then
-                                VUI.OpenUI({ id = v.title:lower()})
-                            end
-                        end 
-                    end
-                end 
-            end
+        local sleep = 1000 -- optimize thread
+        local player = PlayerPedId()
+        local Coords = GetEntityCoords(player)
+        local campfire = false
 
-            -- Check for craftable location starters
-            local blipcount = 0
-            for k, loc in ipairs(Config.Locations) do
-                local jobcheck = CheckJob(loc.Job)
-                if jobcheck and uiopen == false then
-                    if loc.Blip and blipsadded == false and loc.Blip.enable then
-                        blipcount = blipcount + 1
-                        Blips.addBlipForCoords(k, loc.name, loc.Blip.Hash, loc.x, loc.y, loc.z)
-                    end                
-                    
-                    local dist = getCoordDistance(loc, Coords)
-                    if Config.Distances.locations > dist then
-                        UIPrompt.activate(loc.name)
-                        if Citizen.InvokeNative(0xC92AC953F0A982AE, CraftPrompt) then
-                            VUI.OpenUI(loc)
+        if Config.CraftingPropsEnabled and CheckJobClient(Config.CampfireJobLock) then -- dont allow check if player dont have job
+            for k, v in pairs(Config.CraftingProps) do
+                if iscrafting == false and uiopen == false and IsEntityDead(player) == false then
+                    if type(v.prop) == "table" then
+                        for kk, vv in pairs(v.prop) do
+                            campfire = DoesObjectOfTypeExistAtCoords(Coords.x, Coords.y, Coords.z,   Config.Distances.campfire, GetHashKey(vv), false)
                         end
-                    end 
+                        if not campfire then break end
+                    else
+                        local prop = v.prop --[[@as string]]
+                        campfire = DoesObjectOfTypeExistAtCoords(Coords.x, Coords.y, Coords.z, Config.Distances.campfire,
+                            GetHashKey(prop), false)
+                        if not campfire then break end
+                    end
+
+                    if campfire then
+                        sleep = 0
+                        UIPrompt.activate(v.title)
+                        if Citizen.InvokeNative(0xC92AC953F0A982AE, CraftPrompt) then
+                            local jobcheck = CheckJob(Config.CampfireJobLock) -- security check
+                            if jobcheck then
+                                VUI.OpenUI({ id = v.title:lower() })
+                            end
+                        end
+                    end
                 end
             end
+        end
 
-            if blipcount > 0 then
-                blipsadded = true
-            end
+        local blipcount = 0
+        for k, loc in ipairs(Config.Locations) do
+            local jobcheck = CheckJobClient(loc.Job)
+            if jobcheck and uiopen == false and IsEntityDead(player) == false then
+                if loc.Blip and blipsadded == false and loc.Blip.enable then
+                    blipcount = blipcount + 1
+                    Blips.addBlipForCoords(k, loc.name, loc.Blip.Hash, loc.x, loc.y, loc.z)
+                end
 
-            -- Hide the native rest prompts while the crafting menu is open
-            if (uiopen == true or iscrafting == true) then
-                Citizen.InvokeNative(0xF1622CE88A1946FB)
+                local dist = GetCoordDistance(loc, Coords)
+                if Config.Distances.locations > dist then
+                    sleep = 0
+                    UIPrompt.activate(loc.name)
+                    if Citizen.InvokeNative(0xC92AC953F0A982AE, CraftPrompt) then
+                        local jobcheck = CheckJob(loc.Job)
+                        if jobcheck then
+                            VUI.OpenUI(loc)
+                        end
+                    end
+                end
             end
         end
+
+        if blipcount > 0 then
+            blipsadded = true
+        end
+
+        if (uiopen == true or iscrafting == true) then
+            Citizen.InvokeNative(0xF1622CE88A1946FB)
+        end
+
+        Wait(sleep)
     end
 end)
 
@@ -82,22 +94,28 @@ AddEventHandler("vorp:crafting", function(animation)
     end
 
     Animations.playAnimation(playerPed, animation)
-    progressbar.start(_U('Crafting'), Config.CraftTime, function ()
+    progressbar.start(_U('Crafting'), Config.CraftTime, function()
         Animations.endAnimation(animation)
-
         TriggerEvent("vorp:TipRight", _U('FinishedCrafting'), 4000)
         VUI.Refocus()
-
         iscrafting = false
     end)
 end)
 
-RegisterNetEvent("vorp:UpdateRecipes")
-AddEventHandler("vorp:UpdateRecipes", function(recipes)
-    Config.Crafting = recipes
+--UPDATE CRAFTING RECIPES
+RegisterNetEvent("vorp:UpdateRecipes", function(recipes, bool)
+    if not bool then
+        table.insert(Config.Crafting, recipes)
+    else
+        table.remove(Config.Crafting, recipes)
+    end
 end)
 
-RegisterNetEvent("vorp:UpdateLocations")
-AddEventHandler("vorp:UpdateLocations", function(locations)
-    Config.Locations = locations
+--UPDATE CRAFTING LOCATIONS
+RegisterNetEvent("vorp:UpdateLocations", function(location, bool)
+    if not bool then
+        table.insert(Config.Locations, location)
+    else
+        table.remove(Config.Locations, location)
+    end
 end)

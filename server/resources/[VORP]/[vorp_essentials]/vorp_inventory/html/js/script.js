@@ -26,32 +26,12 @@ $("document").ready(function () {
 
 window.onload = initDivMouseOver;
 
+let stopTooltip = false;
+
 window.addEventListener('message', function (event) {
 
-    /*$('body').animate({ opacity: event.data.show ? 1 : 0 }, 500);*/
 
-    // if(event.data.action == "updateStatusHud") {
-
-    //     if(event.data.money) {
-    //         $("#money-value").text(event.data.money.toFixed(2) + " ").css("color" , "#ffffff");
-    //         /*console.log(event.data.money)*/
-    //     }
-
-    //     if(event.data.gold) {
-    //         $("#gold-value").text(event.data.gold.toFixed(2) + " ").css("color" , "#ffffff");
-    //         /*console.log(event.data.gold)*/
-    //     }
-
-    //     if(event.data.id) {
-    //         $("#id-value").text(event.data.id + "ID ").css("color" , "#ffffff");
-    //         /*console.log(event.data.id)*/
-    //     }
-
-    // }
-
-    // Initial entry, setup things like locale
     if (event.data.action == "initiate") {
-        //BACKHERE
         LANGUAGE = event.data.language
         LuaConfig = event.data.config
         Config.UseGoldItem = LuaConfig.UseGoldItem;
@@ -60,6 +40,14 @@ window.addEventListener('message', function (event) {
         Config.AddAmmoItem = LuaConfig.AddAmmoItem;
         Config.DoubleClickToUse = LuaConfig.DoubleClickToUse;
         Config.UseRolItem = LuaConfig.UseRolItem;
+        Config.WeightMeasure = LuaConfig.WeightMeasure;
+        // Fetch the Actions configuration from Lua
+        loadActionsConfig().then(actionsConfig => {
+            generateActionButtons(actionsConfig, 'carousel1', 'inventoryElement', 'dropdownButton');
+            generateActionButtons(actionsConfig, 'staticCarousel', 'secondInventoryElement', 'dropdownButton1');
+        }).catch(error => {
+            console.error("Failed to load or process the Actions configuration:", error);
+        });
 
         if (!Config.UseGoldItem) {
             $("#inventoryHud").addClass("NoGoldBackground")
@@ -110,25 +98,33 @@ window.addEventListener('message', function (event) {
         }
     }
 
+    //main inv update weight
     if (event.data.action == "changecheck") {
         checkxy = event.data.check
         infoxy = event.data.info
+
         $('#check').html('')
-        $("#check").append(`<button id='check'>${checkxy}/${infoxy}</button>`);
+        $("#check").append(`<button id='check'>${checkxy}/${infoxy + " " + Config.WeightMeasure}</button>`);
     }
+
+    //main inv
     if (event.data.action == "display") {
+        stopTooltip = false;
+        moveInventory("main");
+        if (event.data.type != 'main') {
+            moveInventory("second");
+        }
         $("#inventoryHud").fadeIn();
         $(".controls").remove();
-
         $("#inventoryHud").append(
-            `<div class='controls'><div class='controls-center'><input type='text' id='search' placeholder='${LANGUAGE.inventorysearch}'/input><button id='check'>${checkxy} / ${infoxy}</button></div><button id='close'>${LANGUAGE.inventoryclose}</button></div></div>`
+            `<div class='controls'><div class='controls-center'><input type='text' id='search' placeholder='${LANGUAGE.inventorysearch}'/input><button id='check'>${checkxy}/${infoxy + " " + Config.WeightMeasure}</button></div><button id='close'>${LANGUAGE.inventoryclose}</button></div></div>`
         );
 
         $("#search").bind("input", function () {
             var searchFor = $("#search").val().toLowerCase();
             $("#inventoryElement .item").each(function () {
                 var label = $(this).data("label");
-                if (label) { // Check that label is defined
+                if (label) {
                     label = label.toLowerCase();
                     if (label.indexOf(searchFor) < 0) {
                         $(this).hide();
@@ -143,12 +139,13 @@ window.addEventListener('message', function (event) {
 
         if (event.data.type == "player") {
             playerId = event.data.id;
+
             initiateSecondaryInventory(event.data.title, event.data.capacity)
         }
 
         if (event.data.type == "custom") {
             customId = event.data.id;
-            initiateSecondaryInventory(event.data.title, event.data.capacity)
+            initiateSecondaryInventory(event.data.title, event.data.capacity, event.data.weight)
         }
 
         if (event.data.type == "horse") {
@@ -205,15 +202,17 @@ window.addEventListener('message', function (event) {
         $("#close").on('click', function (event) {
             closeInventory();
         });
+
     } else if (event.data.action == "hide") {
+        $('.tooltip').remove();
         $("#inventoryHud").fadeOut();
         $(".controls").fadeOut();
         $(".site-cm-box").remove();
-
         $("#secondInventoryHud").fadeOut();
         $(".controls").fadeOut();
         $(".site-cm-box").remove();
         dialog.close();
+        stopTooltip = true;
     } else if (event.data.action == "setItems") {
         inventorySetup(event.data.itemList);
 
@@ -225,11 +224,11 @@ window.addEventListener('message', function (event) {
                 zIndex: 99999,
                 revert: 'invalid',
                 start: function (event, ui) {
+
                     if (disabled) {
                         return false;
                     }
-
-
+                    stopTooltip = true;
                     itemData = $(this).data("item");
                     itemInventory = $(this).data("inventory");
 
@@ -241,6 +240,7 @@ window.addEventListener('message', function (event) {
 
                 },
                 stop: function () {
+                    stopTooltip = false;
                     itemData = $(this).data("item");
                     itemInventory = $(this).data("inventory");
 
@@ -257,19 +257,18 @@ window.addEventListener('message', function (event) {
 
     } else if (event.data.action == "setSecondInventoryItems") {
         secondInventorySetup(event.data.itemList, event.data.info);
-        if (secondaryCapacityAvailable == true) {
-            // Get how many items are in inventory
-            let l = event.data.itemList.length
-            let itemlist = event.data.itemList
-            let total = 0
-            let p = 0
-            for (p; p < l; p++) {
-                total += Number(itemlist[p].count)
-            }
-            secondarySetCurrentCapacity(total)
-        } else {
-            secondarySetCurrentCapacity(0)
+
+        let l = event.data.itemList.length
+        let itemlist = event.data.itemList
+        let total = 0
+        let p = 0
+        for (p; p < l; p++) {
+            total += Number(itemlist[p].count)
         }
+        let weight = null
+        //amount of items in Inventory
+        secondarySetCurrentCapacity(total, weight)
+
     } else if (event.data.action == "nearPlayers") {
         if (event.data.what == "give") {
             selectPlayerToGive(event.data);

@@ -1,22 +1,15 @@
 ---@diagnostic disable: undefined-global
 --------------------------------------------------------------------------------------------------------------
 --------------------------------------------- SERVER SIDE ----------------------------------------------------
-local VORPcore = {}
+local Core = exports.vorp_core:GetCore()
 local storeLimits = {}
-local VORPinv = exports.vorp_inventory:vorp_inventoryApi()
-local Jobs = {}
+local T = TranslationStores.Langs[Lang]
 
-T = TranslationStores.Langs[Lang]
-
-TriggerEvent("getCore", function(core)
-    VORPcore = core
-end)
 
 -- * STORE ITEM SELL/BUY LIMITS * --
 Citizen.CreateThread(function()
     local sellItems = Config.SellItems
     local buyItems = Config.BuyItems
-    -- Sell Items
 
     for index, v in pairs(sellItems) do
         for _, value in pairs(v) do
@@ -31,7 +24,6 @@ Citizen.CreateThread(function()
         end
     end
 
-    -- Buy Items
     for key, value in pairs(buyItems) do
         for _, v in pairs(value) do
             if v.itemLimit and v.itemLimit > 0 then
@@ -46,12 +38,9 @@ Citizen.CreateThread(function()
     end
 end)
 
-
--- * FUNCTIONS * --
-
 local function DiscordLog(message)
     if Config.UseWebhook == true then
-        VORPcore.AddWebhook(Config.WebhookLanguage.WebhookTitle, Config.WebhookLanguage.WebhookUrl, message,
+        Core.AddWebhook(Config.WebhookLanguage.WebhookTitle, Config.WebhookLanguage.WebhookUrl, message,
             Config.WebhookLanguage.WebhookColor, Config.WebhookLanguage.WebhookName, Config.WebhookLanguage.WebhookLogo,
             Config.WebhookLanguage.WebhookLogo2, Config.WebhookLanguage.WebhookAvatar)
     end
@@ -63,18 +52,15 @@ local function checkStoreLimits(storeId, ItemName, quantity, action)
     end
     for k, v in pairs(storeLimits[storeId]) do
         if action == "sell" then
-            -- *sell to store and increase stock from buy items and decrease stock from sell items  * --
             if v.itemName == ItemName and v.type == "buy" then
                 v.amount = v.amount + quantity
             end
-            -- if you dont want to decrease stock from sell items remove this if statement
             if v.itemName == ItemName and v.type == "sell" then
                 v.amount = v.amount - quantity
             end
         end
 
         if action == "buy" then
-            -- *buy from store and decrease amount in stock * --
             if v.itemName == ItemName and v.type == "buy" then
                 if v.amount >= quantity then
                     v.amount = v.amount - quantity
@@ -99,24 +85,23 @@ local function sellItems(_source, Character, value, ItemName, storeId)
     if value.weapon then
         for i = 1, value.quantity, 1 do
             Wait(500)
-            local userWeapons = VORPinv.getUserWeapons(_source)
+            local userWeapons = exports.vorp_inventory:getUserWeapons(_source)
             for _, v in pairs(userWeapons) do
                 if v.name == ItemName then
-                    VORPinv.subWeapon(_source, v.id)
-                    VORPinv.deletegun(_source, v.id)
+                    exports.vorp_inventory:subWeapon(_source, v.id)
+                    exports.vorp_inventory:deleteWeapon(_source, v.id)
                     canContinue = true
                     break
                 end
             end
         end
     else
-        local count = VORPinv.getItemCount(_source, ItemName)
-
+        local count = exports.vorp_inventory:getItemCount(_source, nil, ItemName)
         if value.quantity <= count then
-            VORPinv.subItem(_source, ItemName, value.quantity)
+            exports.vorp_inventory:subItem(_source, ItemName, value.quantity)
             canContinue = true
         else
-            return VORPcore.NotifyObjective(_source, T.noManyQty, 5000)
+            return Core.NotifyObjective(_source, T.noManyQty, 5000)
         end
     end
 
@@ -126,13 +111,13 @@ local function sellItems(_source, Character, value, ItemName, storeId)
 
     if Config.Stores[storeId].DynamicStore then
         if not checkStoreLimits(storeId, ItemName, value.quantity, "sell") then
-            return VORPcore.NotifyRightTip(_source, T.limitBuy, 3000)
+            return Core.NotifyRightTip(_source, T.limitBuy, 3000)
         end
     end
 
     if value.currency == "cash" then
         Character.addCurrency(0, total)
-        VORPcore.NotifyRightTip(_source,
+        Core.NotifyRightTip(_source,
             T.yousold .. value.quantity .. " " .. value.label .. T.frcash .. total2 .. T.ofcash, 3000)
         DiscordLog(fname ..
             " " .. lname .. T.hassold .. " " .. value.quantity .. value.label .. T.frcash .. total2 .. T.ofcash)
@@ -140,7 +125,7 @@ local function sellItems(_source, Character, value, ItemName, storeId)
 
     if value.currency == "gold" then
         Character.addCurrency(1, total)
-        VORPcore.NotifyRightTip(_source, T.yousold .. value.quantity .. " " .. value.label .. T.fr .. total2 .. T.ofgold,
+        Core.NotifyRightTip(_source, T.yousold .. value.quantity .. " " .. value.label .. T.fr .. total2 .. T.ofgold,
             3000)
         DiscordLog(fname ..
             " " .. lname .. T.hassold .. " " .. value.quantity .. value.label .. T.fr .. total2 .. T.ofgold)
@@ -158,26 +143,27 @@ local function buyItems(_source, Character, value, ItemName, storeId)
 
     if value.currency == "cash" then
         if money < total then
-            return VORPcore.NotifyRightTip(_source, T.youdontcash, 3000)
+            return Core.NotifyRightTip(_source, T.youdontcash, 3000)
         end
+
         if value.weapon then
             for i = 1, value.quantity, 1 do
                 Wait(100)
-                VORPinv.createWeapon(_source, ItemName)
+                exports.vorp_inventory:createWeapon(_source, ItemName)
             end
         else
-            VORPinv.addItem(_source, ItemName, value.quantity)
+            exports.vorp_inventory:addItem(_source, ItemName, value.quantity)
         end
 
         if Config.Stores[storeId].DynamicStore then
             if not checkStoreLimits(storeId, ItemName, value.quantity, "buy") then
-                return VORPcore.NotifyRightTip(_source, T.limitBuy, 3000)
+                return Core.NotifyRightTip(_source, T.limitBuy, 3000)
             end
         end
 
         Character.removeCurrency(0, total)
         Character.money = Character.money - total
-        VORPcore.NotifyRightTip(_source,
+        Core.NotifyRightTip(_source,
             T.youbought .. value.quantity .. " " .. value.label .. T.frcash .. total2 .. T.ofcash, 3000)
         DiscordLog(fname ..
             " " .. lname .. T.hasbought .. " " .. value.quantity .. value.label .. T.frcash .. total2 .. T.ofcash)
@@ -187,24 +173,23 @@ local function buyItems(_source, Character, value, ItemName, storeId)
 
     if value.currency == "gold" then
         if gold < total then
-            return VORPcore.NotifyRightTip(_source, T.youdontgold, 3000)
+            return Core.NotifyRightTip(_source, T.youdontgold, 3000)
         end
 
         if value.weapon then
-            VORPinv.createWeapon(_source, ItemName)
+            exports.vorp_inventory:createWeapon(_source, ItemName)
         else
-            VORPinv.addItem(_source, ItemName, value.quantity)
+            exports.vorp_inventory:addItem(_source, ItemName, value.quantity)
         end
         Character.removeCurrency(1, total)
-
-        VORPcore.NotifyRightTip(_source,
+        Core.NotifyRightTip(_source,
             T.youbought .. value.quantity .. " " .. value.label .. T.fr .. total2 .. T.ofgold, 3000)
         DiscordLog(fname ..
             " " .. lname .. T.hasbought .. " " .. value.quantity .. value.label .. T.fr .. total2 .. T.ofgold)
 
         if Config.Stores[storeId].DynamicStore then
             if not checkStoreLimits(storeId, ItemName, value.quantity, "buy") then
-                return VORPcore.NotifyRightTip(_source, T.limitBuy, 3000)
+                return Core.NotifyRightTip(_source, T.limitBuy, 3000)
             end
         end
     end
@@ -215,10 +200,10 @@ end
 -- * EVENTS * --
 RegisterServerEvent('vorp_stores:Client:sellItems', function(dataItems, storeId)
     local _source = source
-    local User = VORPcore.getUser(_source)
+    local User = Core.getUser(_source)
 
     if not User then
-        return print("User not found")
+        return
     end
 
     local Character = User.getUsedCharacter
@@ -234,10 +219,10 @@ end)
 
 RegisterServerEvent('vorp_stores:Client:buyItems', function(dataItems, storeId)
     local _source = source
-    local User = VORPcore.getUser(_source)
+    local User = Core.getUser(_source)
 
     if not User then
-        return print("User not found")
+        return
     end
 
     local Character = User.getUsedCharacter
@@ -247,46 +232,40 @@ RegisterServerEvent('vorp_stores:Client:buyItems', function(dataItems, storeId)
 
         if not value.weapon then
             local quantity = value.quantity
-            local canCarry = VORPinv.canCarryItems(_source, quantity)           --can carry inv space
-            local canCarry2 = VORPinv.canCarryItem(_source, ItemName, quantity) --cancarry item limit
-            local itemCheck = VORPinv.getDBItem(_source, ItemName)              --check items exist in DB
+            local canCarry = exports.vorp_inventory:canCarryItem(_source, ItemName, quantity) --cancarry item limit
+            local itemCheck = exports.vorp_inventory:getItemDB(ItemName)                      --check items exist in DB
 
             if not itemCheck then
-                return VORPcore.NotifyRightTip(_source, T.itemNotExist, 3000)
+                return Core.NotifyRightTip(_source, T.itemNotExist, 3000)
             end
 
             if not canCarry then
-                return VORPcore.NotifyRightTip(_source, T.cantcarry, 3000)
-            end
-
-            if not canCarry2 then
-                return VORPcore.NotifyRightTip(_source, T.cantcarryitem, 3000)
+                return Core.NotifyRightTip(_source, T.cantcarryitem, 3000)
             end
 
             buyItems(_source, Character, value, ItemName, storeId)
         end
 
         if value.weapon then
-            VORPinv.canCarryWeapons(_source, 1, function(cb) --can carry weapons
-                local canCarryWep = cb
-                if not canCarryWep then
-                    return VORPcore.NotifyRightTip(_source, T.cantcarryweapon, 5000)
-                end
+            local canCarryWep = exports.vorp_inventory:canCarryWeapons(_source, 1, nil, ItemName) --can carry weapons
 
-                buyItems(_source, Character, value, ItemName, storeId)
-            end, ItemName)
+            if not canCarryWep then
+                return Core.NotifyRightTip(_source, T.cantcarryweapon, 5000)
+            end
+
+            buyItems(_source, Character, value, ItemName, storeId)
         end
     end
 end)
 
 
 -- * CALLBACKS * --
-VORPcore.addRpcCallback('vorp_stores:callback:getShopStock', function(source, cb, args)
-    local userInv = VORPinv.getUserInventory(source)
+Core.Callback.Register('vorp_stores:callback:getShopStock', function(source, cb, args)
     local items = Config.SellItems[args]
     local ItemsFound = false
     local PlayerItems = {}
-
+    local userInv = exports.vorp_inventory:getUserInventoryItems(source)
+    local userWeapons = exports.vorp_inventory:getUserInventoryWeapons(source)
     for _, value in pairs(userInv) do
         for _, v in pairs(items) do
             if value.name == v.itemName then
@@ -295,8 +274,6 @@ VORPcore.addRpcCallback('vorp_stores:callback:getShopStock', function(source, cb
             end
         end
     end
-
-    local userWeapons = VORPinv.getUserWeapons(source)
 
     for _, value in pairs(userWeapons) do
         for _, v in pairs(items) do
@@ -314,7 +291,7 @@ VORPcore.addRpcCallback('vorp_stores:callback:getShopStock', function(source, cb
 
     if not ItemsFound then
         ItemsFound = false
-        VORPcore.NotifyRightTip(source, T.notAllowItem, 3000)
+        Core.NotifyRightTip(source, T.notAllowItem, 3000)
         return cb(false)
     end
 
@@ -325,46 +302,36 @@ VORPcore.addRpcCallback('vorp_stores:callback:getShopStock', function(source, cb
     return cb(data)
 end)
 
-VORPcore.addRpcCallback('vorp_stores:callback:ShopStock', function(source, cb, args)
+Core.Callback.Register('vorp_stores:callback:ShopStock', function(source, cb, args)
     local data = {
         shopStock = storeLimits
     }
     return cb(data)
 end)
 
-VORPcore.addRpcCallback('vorp_stores:callback:getPlayerJob', function(source, cb, args)
-    local _source = source
-    local Character = VORPcore.getUser(_source).getUsedCharacter
-    local CharacterJob = Character.job
-    local CharacterGrade = Character.jobGrade
-    for key, jobs in ipairs(args.joblist) do
-        if jobs == CharacterJob then
-            if args.grade <= CharacterGrade then
-                return cb(true)
-            end
-        end
-    end
-    return cb(false)
-end)
+
 local storesInUse = {}
-VORPcore.addRpcCallback("vorp_stores:callback:canOpenStore", function(source, cb, storeIndex)
+Core.Callback.Register("vorp_stores:callback:canOpenStore", function(source, cb, storeIndex)
     local _source = source
 
     if not storesInUse[storeIndex] then
-        storesInUse[storeIndex] = true
+        storesInUse[storeIndex] = _source
         return cb(true)
-    else
-        return cb(false)
     end
+
+    return cb(false)
 end)
 
-VORPcore.addRpcCallback("vorp_stores:callback:CloseStore", function(source, cb, storeIndex)
+Core.Callback.Register("vorp_stores:callback:CloseStore", function(source, cb, storeIndex)
     local _source = source
-    if storesInUse[storeIndex] then
+
+    if storesInUse[storeIndex] == _source then
         storesInUse[storeIndex] = nil
         return cb(true)
     end
+    return cb(false)
 end)
+
 -- * LOGIC FOR RANDOM PRICES * --
 AddEventHandler('onResourceStart', function(resourceName)
     if (GetCurrentResourceName() ~= resourceName) then
@@ -387,73 +354,20 @@ AddEventHandler('onResourceStart', function(resourceName)
     end
 end)
 
-local function CheckTable(table, job)
-    for index, value in ipairs(table) do
-        if value == job then
-            return true
-        end
-    end
-end
+
 
 RegisterServerEvent('vorp_stores:GetRefreshedPrices', function()
     local _source = source
     TriggerClientEvent('vorp_stores:RefreshStorePrices', _source, Config.SellItems, Config.BuyItems, Config.Stores)
-
-    if not Config.DevMode then
-        return
-    end
-    -- enable for tests
-    local character = VORPcore.getUser(_source).getUsedCharacter
-    local job = character.job
-    local grade = character.jobGrade
-
-    for key, value in pairs(Config.Stores) do
-        if CheckTable(value.AllowedJobs, job) then
-            if not Jobs[_source] then
-                Jobs[_source] = {}
-            end
-
-            Jobs[_source] = {
-                job = job,
-                grade = grade
-            }
-        end
-    end
-
-    TriggerClientEvent("vorp_stores:Server:tableOfJobs", _source, Jobs)
 end)
 
-
-RegisterNetEvent("vorp:SelectedCharacter", function(source, character)
-    local _source = source
-    if Config.DevMode then
-        return
-    end
-
-    local job = character.job
-    local grade = character.jobGrade
-
-    for key, value in pairs(Config.Stores) do
-        if CheckTable(value.AllowedJobs, job) then
-            if not Jobs[_source] then
-                Jobs[_source] = {}
-            end
-
-            Jobs[_source] = {
-                job = job,
-                grade = grade
-            }
-
-            break
-        end
-    end
-    TriggerClientEvent("vorp_stores:Server:tableOfJobs", _source, Jobs)
-end)
 
 -- event drrop player
 AddEventHandler('vorp:playerDropped', function(source, reason)
     local _source = source
-    if Jobs[_source] then
-        Jobs[_source] = nil
+    for k, v in pairs(storesInUse) do
+        if v == _source then
+            storesInUse[k] = nil
+        end
     end
 end)

@@ -52,9 +52,15 @@ local Events = {
     `EVENT_DAILY_CHALLENGE_STREAK_COMPLETED`
 }
 
+--f6 photo mode doesnt work so just hide the prompt
+local function disablePhotoMode()
+    DatabindingAddDataBoolFromPath('', 'bPauseMenuPhotoModeVisible', false)
+    DatabindingAddDataBoolFromPath('', 'bEnablePauseMenuPhotoMode', false)
+end
+
 CreateThread(function()
+    disablePhotoMode()
     HidePlayerCores()
-    FillUpCores()
     while true do
         Wait(0)
         local event = GetNumberOfEvents(0)
@@ -80,6 +86,7 @@ end)
 -- show players id when focus on other players
 CreateThread(function()
     repeat Wait(1000) until LocalPlayer.state.IsInSession
+    FillUpCores()
     while Config.showplayerIDwhenfocus do
         local sleep = 1000
         if #GetActivePlayers() > 1 then -- we also count ourselfs

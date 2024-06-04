@@ -13,6 +13,7 @@
             <div id="ammobox"></div>
             <div id="hint"></div>
             <div id="title">Satchel</div>
+            <div class='tooltip' style='display: none; position: absolute; padding: 10px; background-color: black; color: white; border-radius: 5px;'>Tooltip content</div>
             <div id="inventoryElement">
             </div>
             <p id="information"></p>
@@ -44,72 +45,7 @@
                 <div class="carouselWrapper">
                     <div class="carouselContainer" id="carousel1Container">
                         <button class="carousel-control left" onclick="scrollCarousel('carousel1', -1)">&#10094;</button>
-                        <div class="dropdownButtonContainer mainButton1" id="carousel1">
-                            <button class="dropdownButton" type="button" data-type="itemtype" data-param="all" data-desc="All items" onclick="action('itemtype','all','inventoryElement')">
-                                <div>
-                                    <img src="img/itemtypes/satchel_nav_all.png" alt="Image 2">
-                                </div>
-                            </button>
-                            <button class="dropdownButton" type="button" data-type="itemtype" data-param="medical" data-desc="Medical items"
-                                onclick="action('itemtype','medical','inventoryElement')">
-                                <div>
-                                    <img src="img/itemtypes/satchel_nav_remedies.png" alt="Image 2">
-                                </div>
-                            </button>
-                            <button class="dropdownButton" type="button" data-type="itemtype" data-param="herbs" data-desc="Herbs and berries"
-                                onclick="action('itemtype','herbs','inventoryElement')">
-                                <div>
-                                    <img src="img/itemtypes/satchel_nav_herbs.png" alt="Image 2">
-                                </div>
-                            </button>
-                            <button class="dropdownButton" type="button" data-type="itemtype" data-param="foods" data-desc="Food stuff"
-                                onclick="action('itemtype','foods','inventoryElement')">
-                                <div>
-                                    <img src="img/itemtypes/satchel_nav_provisions.png" alt="Image 2">
-                                </div>
-                            </button>
-                            <button class="dropdownButton" type="button" data-type="itemtype" data-param="weapons" data-desc="All weapons"
-                                onclick="action('itemtype','weapons','inventoryElement')">
-                                <div>
-                                    <img src="img/itemtypes/weapon.png" alt="Image 2">
-                                </div>
-                            </button>
-                            <button class="dropdownButton" type="button" data-type="itemtype" data-param="ammo" data-desc="All ammunition" onclick="action('itemtype','ammo','inventoryElement')">
-                                <div>
-                                    <img src="img/itemtypes/ammo.png" alt="Image 2">
-                                </div>
-                            </button>
-                            <button class="dropdownButton" type="button" data-type="itemtype" data-param="tools" data-desc="Tools and Utils"
-                                onclick="action('itemtype','tools','inventoryElement')">
-                                <div>
-                                    <img src="img/itemtypes/satchel_nav_materials.png" alt="Image 2">
-                                </div>
-                            </button>
-                            <button class="dropdownButton" type="button" data-type="itemtype" data-param="valuables" data-desc="Stuff that has a lot of value"
-                                onclick="action('itemtype','valuables','inventoryElement')">
-                                <div>
-                                    <img src="img/itemtypes/satchel_nav_valuables.png" alt="Image 2">
-                                </div>
-                            </button>
-                            <button class="dropdownButton" type="button" data-type="itemtype" data-param="horse" data-desc="Items to use on your horse or on yourself"
-                                onclick="action('itemtype','horse','inventoryElement')">
-                                <div>
-                                    <img src="img/itemtypes/satchel_nav_horse_items.png" alt="Image 2">
-                                </div>
-                            </button>
-                            <button class="dropdownButton" type="button" data-type="itemtype" data-param="animals" data-desc="Items you got from animals you killed"
-                                onclick="action('itemtype','animals','inventoryElement')">
-                                <div>
-                                    <img src="img/itemtypes/satchel_nav_animals.png" alt="Image 2">
-                                </div>
-                            </button>
-                            <button class="dropdownButton" type="button" data-type="itemtype" data-param="documents" data-desc="Documents and Letters"
-                                onclick="action('itemtype','documents','inventoryElement')">
-                                <div>
-                                    <img src="img/itemtypes/satchel_nav_documents.png" alt="Image 2">
-                                </div>
-                            </button>
-                        </div>
+                        <div class="dropdownButtonContainer mainButton1" id="carousel1"></div>
                         <button class="carousel-control right" onclick="scrollCarousel('carousel1', 1)">&#10095;</button>
                     </div>
                 </div>
@@ -184,74 +120,19 @@
         </div>
         <div id="secondInventoryHud">
             <div id="titleHorse"></div>
-            <div id="secondInventoryElement">
-            </div>
+            <div id="secondInventoryElement"></div>
             <p id="information2"></p>
             <p id="description2"></p>
+
             <div class="capacity">
                 <a id="current-cap-value"></a>/<a id="capacity-value"></a>
             </div>
+
             <div class="imageButtonContainer1">
                 <div class="carouselWrapper1">
                     <div class="carouselContainer1">
                         <button class="carousel-control1 left" onclick="scrollCarousel('staticCarousel', -1)">&#10094;</button>
-                        <div class="dropdownButtonContainer1" id="staticCarousel">                    
-                        <button class="dropdownButton1" type="button" data-type="itemtype" data-param="all" onclick="action('itemtype','all','secondInventoryElement')">
-                            <div>
-                                <img src="img/itemtypes/satchel_nav_all.png" alt="Image 2">
-                            </div>
-                        </button>
-                        <button class="dropdownButton1" type="button" data-type="itemtype" data-param="medical" onclick="action('itemtype','medical','secondInventoryElement')">
-                            <div>
-                                <img src="img/itemtypes/satchel_nav_remedies.png" alt="Image 2">
-                            </div>
-                        </button>
-                        <button class="dropdownButton1" type="button" data-type="itemtype" data-param="herbs" onclick="action('itemtype','herbs','secondInventoryElement')">
-                            <div>
-                                <img src="img/itemtypes/satchel_nav_herbs.png" alt="Image 2">
-                            </div>
-                        </button>
-                        <button class="dropdownButton1" type="button" data-type="itemtype" data-param="foods" onclick="action('itemtype','foods','secondInventoryElement')">
-                            <div>
-                                <img src="img/itemtypes/satchel_nav_provisions.png" alt="Image 2">
-                            </div>
-                        </button>
-                        <button class="dropdownButton1" type="button" data-type="itemtype" data-param="weapons" onclick="action('itemtype','weapons','secondInventoryElement')">
-                            <div>
-                                <img src="img/itemtypes/weapon.png" alt="Image 2">
-                            </div>
-                        </button>
-                        <button class="dropdownButton1" type="button" data-type="itemtype" data-param="ammo" onclick="action('itemtype','ammo','secondInventoryElement')">
-                            <div>
-                                <img src="img/itemtypes/ammo.png" alt="Image 2">
-                            </div>
-                        </button>
-                        <button class="dropdownButton1" type="button" data-type="itemtype" data-param="tools" onclick="action('itemtype','tools','secondInventoryElement')">
-                            <div>
-                                <img src="img/itemtypes/satchel_nav_materials.png" alt="Image 2">
-                            </div>
-                        </button>
-                        <button class="dropdownButton1" type="button" data-type="itemtype" data-param="valuables" onclick="action('itemtype','valuables','secondInventoryElement')">
-                            <div>
-                                <img src="img/itemtypes/satchel_nav_valuables.png" alt="Image 2">
-                            </div>
-                        </button>
-                        <button class="dropdownButton1" type="button" data-type="itemtype" data-param="horse" onclick="action('itemtype','horse','secondInventoryElement')">
-                            <div>
-                                <img src="img/itemtypes/satchel_nav_horse_items.png" alt="Image 2">
-                            </div>
-                        </button>
-                        <button class="dropdownButton1" type="button" data-type="itemtype" data-param="animals" onclick="action('itemtype','animals','secondInventoryElement')">
-                            <div>
-                                <img src="img/itemtypes/satchel_nav_animals.png" alt="Image 2">
-                            </div>
-                        </button>
-                        <button class="dropdownButton1" type="button" data-type="itemtype" data-param="documents" onclick="action('itemtype','documents','secondInventoryElement')">
-                            <div>
-                                <img src="img/itemtypes/satchel_nav_documents.png" alt="Image 2">
-                            </div>
-                        </button>
-                    </div>
+                        <div class="dropdownButtonContainer1" id="staticCarousel"></div>
                     <button class="carousel-control1 right" onclick="scrollCarousel('staticCarousel', 1)">&#10095;</button>
                 </div>
                 </div>
@@ -267,6 +148,7 @@
             <ul id="character-list">
             </ul>
         </div>
+        
         <script type="text/javascript" src="js/vendor/jquery-3.3.1.min.js"></script>
         <script type="text/javascript" src="js/vendor/jquery-ui.js"></script>
         <script type="text/javascript" src="js/config.js"></script>

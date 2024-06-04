@@ -1,3 +1,7 @@
+<1.7>
+- optimisation now the script runs at 0.0
+- use of new exports
+- refactor deprecated code and use of callbacks
 <1.6>
 - Bugfix adding recipes from other scripts
 - New functions in api to add and remove crafting locations from other scripts

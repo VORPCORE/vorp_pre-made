@@ -25,12 +25,13 @@ Config = {
 	DisableDeathInventory    = true, -- prevent the ability to access inventory while dead
 	--{ I } OPEN INVENTORY
 	OpenKey                  = 0xC1989F95,
+	UseFilter                = true, -- if true then will use the filter opening inventory
 	--RMB mouse PROMPT PICKUP
 	PickupKey                = 0xF84FA74F,
 	discordid                = true, -- turn to true if ur using discord whitelist
 	DeleteOnlyDontDrop       = false, -- if true then dropping items only deletes from inventory and box on the floor is not created
 	UseLanternPutOnBelt      = true, -- if true then lanterns will be put on belt
-
+	WeightMeasure            = "kg", -- Weight measure (kg, lbs, etc)
 	-- =================== CLEAR ITEMS WEAPONS MONEY GOLD =====================--
 
 

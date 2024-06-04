@@ -1,12 +1,7 @@
-local backoff = 500
-local dlq = 0
-job = nil
-
-appready = false
+local Core = exports.vorp_core:GetCore()
 
 function CheckJob(joblist)
-    -- job = nil
-
+    local job = Core.Callback.TriggerAwait("vorp_crafting:GetJob")
     if joblist == 0 then
         return true
     end
@@ -22,20 +17,18 @@ function CheckJob(joblist)
     return false
 end
 
-Citizen.CreateThread(function()
-    while true do
-        TriggerServerEvent('vorp:findjob')
-        Wait(60000) --waiting five minutes for the next check
+function CheckJobClient(joblist)
+    if joblist == 0 then
+        return true
     end
-end)
 
-RegisterNetEvent("vorp:setjob")
-AddEventHandler("vorp:setjob", function(rjob)
-    job = rjob
-end)
+    if joblist ~= 0 then
+        for k, v in pairs(joblist) do
+            if v == LocalPlayer.state.Character.Job then
+                return true
+            end
+        end
+    end
 
-RegisterNetEvent("vorp:SelectedCharacter")
-AddEventHandler("vorp:SelectedCharacter", function()
-    appready = true
-    TriggerServerEvent('vorp:findjob')
-end)
+    return false
+end

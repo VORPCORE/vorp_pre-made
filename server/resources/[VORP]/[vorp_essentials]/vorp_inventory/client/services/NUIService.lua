@@ -1,19 +1,18 @@
----@diagnostic disable: undefined-global
-
-local isProcessingPay = false
-local timerUse = 0
-local candrop = true
-local cangive = true
-local storemenu = false
-local geninfo = {}
-local CanOpen = true
+local isProcessingPay     = false
+local timerUse            = 0
+local candrop             = true
+local cangive             = true
+local CanOpen             = true
 local InventoryIsDisabled = false
--- * GLOBALS * --
-InInventory = false
-NUIService = {}
+local T                   = TranslationInv.Langs[Lang]
+local Core                = exports.vorp_core:GetCore()
 
-RegisterNetEvent('inv:dropstatus')
-AddEventHandler('inv:dropstatus', function(x)
+StoreSynMenu              = false
+GenSynInfo                = {}
+InInventory               = false
+NUIService                = {}
+
+RegisterNetEvent('inv:dropstatus', function(x)
 	candrop = x
 end)
 
@@ -22,6 +21,12 @@ AddEventHandler('inv:givestatus', function(x)
 	cangive = x
 end)
 
+function ApplyPosfx()
+	if Config.UseFilter then
+		AnimpostfxPlay("OJDominoBlur")
+		AnimpostfxSetStrength("OJDominoBlur", 0.5)
+	end
+end
 
 function NUIService.ReloadInventory(inventory)
 	local payload = json.decode(inventory)
@@ -55,15 +60,18 @@ function NUIService.ReloadInventory(inventory)
 			end
 		end
 	end
+
 	SendNUIMessage(payload)
 	Wait(500)
 	NUIService.LoadInv()
 end
 
-function NUIService.OpenCustomInventory(name, id, capacity)
+function NUIService.OpenCustomInventory(name, id, capacity, weight)
 	local result = Core.Callback.TriggerAwait("vorp_inventory:Server:CanOpenCustom", id)
 	CanOpen = result
 	if CanOpen then
+		ApplyPosfx()
+		DisplayRadar(false)
 		CanOpen = false
 		SetNuiFocus(true, true)
 		SendNUIMessage({
@@ -71,29 +79,11 @@ function NUIService.OpenCustomInventory(name, id, capacity)
 			type = "custom",
 			title = tostring(name),
 			id = tostring(id),
-			capacity = capacity
+			capacity = capacity,
+			weight = weight,
 		})
 		InInventory = true
 	end
-end
-
-function NUIService.OpenPlayerInventory(name, id)
-	SetNuiFocus(true, true)
-	SendNUIMessage({
-		action = "display",
-		type = "player",
-		title = name,
-		id = id,
-	})
-	InInventory = true
-end
-
-function NUIService.NUIMoveToPlayer(obj)
-	TriggerServerEvent("vorp_inventory:MoveToPlayer", json.encode(obj))
-end
-
-function NUIService.NUITakeFromPlayer(obj)
-	TriggerServerEvent("vorp_inventory:TakeFromPlayer", json.encode(obj))
 end
 
 function NUIService.NUIMoveToCustom(obj)
@@ -104,81 +94,41 @@ function NUIService.NUITakeFromCustom(obj)
 	TriggerServerEvent("vorp_inventory:TakeFromCustom", json.encode(obj))
 end
 
-function NUIService.OpenClanInventory(clanName, clanId, capacity)
-	SetNuiFocus(true, true)
-	SendNUIMessage({
-		action = "display",
-		type = "clan",
-		title = "" .. clanName .. "",
-		clanid = clanId,
-		capacity = capacity,
-		search = Config.InventorySearchable
-	})
-	InInventory = true
-end
-
-function NUIService.NUIMoveToClan(obj)
-	TriggerServerEvent("syn_clan:MoveToClan", json.encode(obj))
-end
-
-function NUIService.NUITakeFromClan(obj)
-	TriggerServerEvent("syn_clan:TakeFromClan", json.encode(obj))
-end
-
-function NUIService.OpenContainerInventory(ContainerName, Containerid, capacity)
-	SetNuiFocus(true, true)
-	SendNUIMessage({
-		action = "display",
-		type = "Container",
-		title = "" .. ContainerName .. "",
-		Containerid = Containerid,
-		capacity = capacity,
-		search = Config.InventorySearchable
-	})
-	InInventory = true
-end
-
-function NUIService.NUIMoveToContainer(obj)
-	TriggerServerEvent("syn_Container:MoveToContainer", json.encode(obj))
-end
-
-function NUIService.NUITakeFromContainer(obj)
-	TriggerServerEvent("syn_Container:TakeFromContainer", json.encode(obj))
-end
-
-function NUIService.CloseInventory()
-	if storemenu then
-		storemenu = false
-		geninfo = {}
-		for _, item in pairs(UserInventory) do
-			if item.metadata ~= nil and item.metadata.description ~= nil and
-				(item.metadata.orgdescription ~= nil or item.metadata.orgdescription == "") then
-				if item.metadata.orgdescription == "" then
-					item.metadata.description = nil
-				else
-					item.metadata.description = item.metadata.orgdescription
-				end
-				item.metadata.orgdescription = nil
-			end
-		end
+function NUIService.OpenPlayerInventory(name, id)
+	local result = Core.Callback.TriggerAwait("vorp_inventory:Server:CanOpenCustom", id)
+	CanOpen = result
+	if CanOpen then
+		CanOpen = false
+		ApplyPosfx()
+		DisplayRadar(false)
+		SetNuiFocus(true, true)
+		SendNUIMessage({
+			action = "display",
+			type = "player",
+			title = name,
+			id = id,
+		})
+		InInventory = true
 	end
-	if not CanOpen then -- only trigger if someone is inside custom inv
-		TriggerServerEvent("vorp_inventory:Server:UnlockCustomInv")
-	end
-	SetNuiFocus(false, false)
-	SendNUIMessage({ action = "hide" })
-	InInventory = false
-	TriggerEvent("vorp_stables:setClosedInv", false)
-	TriggerEvent("syn:closeinv")
+end
+
+function NUIService.NUIMoveToPlayer(obj)
+	TriggerServerEvent("vorp_inventory:MoveToPlayer", json.encode(obj))
+end
+
+function NUIService.NUITakeFromPlayer(obj)
+	TriggerServerEvent("vorp_inventory:TakeFromPlayer", json.encode(obj))
 end
 
 function NUIService.CloseInv()
-	if storemenu then
-		storemenu = false
-		geninfo = {}
+	if Config.UseFilter then
+		AnimpostfxStop("OJDominoBlur")
+	end
+	if StoreSynMenu then
+		StoreSynMenu = false
+		GenSynInfo = {}
 		for _, item in pairs(UserInventory) do
-			if item.metadata ~= nil and item.metadata.description ~= nil and
-				(item.metadata.orgdescription ~= nil or item.metadata.orgdescription == "") then
+			if item.metadata ~= nil and item.metadata.description ~= nil and (item.metadata.orgdescription ~= nil or item.metadata.orgdescription == "") then
 				if item.metadata.orgdescription == "" then
 					item.metadata.description = nil
 				else
@@ -189,169 +139,15 @@ function NUIService.CloseInv()
 		end
 	end
 
-	if not CanOpen then -- only trigger if somone is inside
+	if not CanOpen then -- only trigger if somone is in inv
 		TriggerServerEvent("vorp_inventory:Server:UnlockCustomInv")
 	end
+	DisplayRadar(true)
 	SetNuiFocus(false, false)
 	SendNUIMessage({ action = "hide" })
 	InInventory = false
 	TriggerEvent("vorp_stables:setClosedInv", false)
 	TriggerEvent("syn:closeinv")
-end
-
-function NUIService.OpenHorseInventory(horseTitle, horseId, capacity)
-	SetNuiFocus(true, true)
-	SendNUIMessage({
-		action = "display",
-		type = "horse",
-		title = horseTitle,
-		horseid = horseId,
-		capacity = capacity,
-		search = Config.InventorySearchable
-	})
-	InInventory = true
-	TriggerEvent("vorp_stables:setClosedInv", true)
-end
-
-function NUIService.NUIMoveToHorse(obj)
-	TriggerServerEvent("vorp_stables:MoveToHorse", json.encode(obj))
-end
-
-function NUIService.NUITakeFromHorse(obj)
-	TriggerServerEvent("vorp_stables:TakeFromHorse", json.encode(obj))
-end
-
-function NUIService.NUIMoveToStore(obj)
-	TriggerServerEvent("syn_store:MoveToStore", json.encode(obj))
-end
-
-function NUIService.NUITakeFromStore(obj)
-	TriggerServerEvent("syn_store:TakeFromStore", json.encode(obj))
-end
-
-function NUIService.OpenStoreInventory(StoreName, StoreId, capacity, geninfox)
-	storemenu = true
-	geninfo = geninfox
-	SetNuiFocus(true, true)
-	SendNUIMessage({
-		action = "display",
-		type = "store",
-		title = StoreName,
-		StoreId = StoreId,
-		capacity = capacity,
-		geninfo = geninfo,
-		search = Config.InventorySearchable
-	})
-	InInventory = true
-	TriggerEvent("syn_store:setClosedInv", true)
-end
-
-function NUIService.OpenstealInventory(stealName, stealId, capacity)
-	SetNuiFocus(true, true)
-	SendNUIMessage({
-		action = "display",
-		type = "steal",
-		title = stealName,
-		stealId = stealId,
-		capacity = capacity,
-		search = Config.InventorySearchable
-	})
-	InInventory = true
-	TriggerEvent("vorp_stables:setClosedInv", true)
-end
-
-function NUIService.NUIMoveTosteal(obj)
-	TriggerServerEvent("syn_search:MoveTosteal", json.encode(obj))
-end
-
-function NUIService.NUITakeFromsteal(obj)
-	TriggerServerEvent("syn_search:TakeFromsteal", json.encode(obj))
-end
-
-function NUIService.OpenCartInventory(cartName, wagonId, capacity)
-	SetNuiFocus(true, true)
-	SendNUIMessage({
-		action = "display",
-		type = "cart",
-		title = cartName,
-		wagonid = wagonId,
-		capacity = capacity,
-		search = Config.InventorySearchable
-	})
-	InInventory = true
-
-	TriggerEvent("vorp_stables:setClosedInv", true)
-end
-
-function NUIService.NUIMoveToCart(obj)
-	TriggerServerEvent("vorp_stables:MoveToCart", json.encode(obj))
-end
-
-function NUIService.NUITakeFromCart(obj)
-	TriggerServerEvent("vorp_stables:TakeFromCart", json.encode(obj))
-end
-
-function NUIService.OpenHouseInventory(houseName, houseId, capacity)
-	SetNuiFocus(true, true)
-	SendNUIMessage({
-		action = "display",
-		type = "house",
-		title = houseName,
-		houseId = houseId,
-		capacity = capacity,
-		search = Config.InventorySearchable
-	})
-	InInventory = true
-end
-
-function NUIService.NUIMoveToHouse(obj)
-	TriggerServerEvent("vorp_housing:MoveToHouse", json.encode(obj))
-end
-
-function NUIService.NUITakeFromHouse(obj)
-	TriggerServerEvent("vorp_housing:TakeFromHouse", json.encode(obj))
-end
-
-function NUIService.OpenBankInventory(bankName, bankId, capacity)
-	SetNuiFocus(true, true)
-	SendNUIMessage({
-		action = "display",
-		type = "bank",
-		title = bankName,
-		bankId = bankId,
-		capacity = capacity,
-		search = Config.InventorySearchable
-	})
-	InInventory = true
-end
-
-function NUIService.NUIMoveToBank(obj)
-	TriggerServerEvent("vorp_bank:MoveToBank", json.encode(obj))
-end
-
-function NUIService.NUITakeFromBank(obj)
-	TriggerServerEvent("vorp_bank:TakeFromBank", json.encode(obj))
-end
-
-function NUIService.OpenHideoutInventory(hideoutName, hideoutId, capacity)
-	SetNuiFocus(true, true)
-	SendNUIMessage({
-		action = "display",
-		type = "hideout",
-		title = hideoutName,
-		hideoutId = hideoutId,
-		capacity = capacity,
-		search = Config.InventorySearchable
-	})
-	InInventory = true
-end
-
-function NUIService.NUIMoveToHideout(obj)
-	TriggerServerEvent("syn_underground:MoveToHideout", json.encode(obj))
-end
-
-function NUIService.NUITakeFromHideout(obj)
-	TriggerServerEvent("syn_underground:TakeFromHideout", json.encode(obj))
 end
 
 function NUIService.setProcessingPayFalse()
@@ -390,10 +186,6 @@ function NUIService.NUISetNearPlayers(obj, nearestPlayers)
 		return
 	end
 
-	if Config.Debug then
-		print('[^NUISetNearPlayers^7] ^2Info^7: players found = ' .. json.encode(nearestPlayers))
-	end
-
 	nuiReturn.action = "nearPlayers"
 	nuiReturn.foundAny = isAnyPlayerFound
 	nuiReturn.players = nearestPlayers
@@ -409,7 +201,7 @@ end
 
 function NUIService.NUIGiveItem(obj)
 	if not cangive then
-		TriggerEvent('vorp:TipRight', T.cantgivehere, 5000)
+		return TriggerEvent('vorp:TipRight', T.cantgivehere, 5000)
 	end
 
 	local nearestPlayers = Utils.getNearestPlayers()
@@ -453,9 +245,7 @@ function NUIService.NUIGiveItem(obj)
 					else
 						TriggerServerEvent("vorpinventory:serverGiveWeapon", tonumber(itemId), target)
 					end
-					if Config.Debug then
-						print('[^NUIGiveItem^7] ^2Info^7: Reloading inv after sending info of giving item ?');
-					end
+
 					NUIService.LoadInv()
 				end
 			end
@@ -544,22 +334,22 @@ local function getGuidFromItemId(inventoryId, itemData, category, slotId)
 end
 
 local function addWardrobeInventoryItem(itemName, slotHash)
-	local itemHash = GetHashKey(itemName)
-	local addReason = GetHashKey("ADD_REASON_DEFAULT")
+	local itemHash    = joaat(itemName)
+	local addReason   = joaat("ADD_REASON_DEFAULT")
 	local inventoryId = 1
 
 	-- _ITEMDATABASE_IS_KEY_VALID
-	local isValid = Citizen.InvokeNative(0x6D5D51B188333FD1, itemHash, 0) --ItemdatabaseIsKeyValid
+	local isValid     = Citizen.InvokeNative(0x6D5D51B188333FD1, itemHash, 0) --ItemdatabaseIsKeyValid
 	if not isValid then
 		return false
 	end
 
-	local characterItem = getGuidFromItemId(inventoryId, nil, GetHashKey("CHARACTER"), 0xA1212100)
+	local characterItem = getGuidFromItemId(inventoryId, nil, joaat("CHARACTER"), 0xA1212100)
 	if not characterItem then
 		return false
 	end
 
-	local wardrobeItem = getGuidFromItemId(inventoryId, characterItem, GetHashKey("WARDROBE"), 0x3DABBFA7)
+	local wardrobeItem = getGuidFromItemId(inventoryId, characterItem, joaat("WARDROBE"), 0x3DABBFA7)
 	if not wardrobeItem then
 		return false
 	end
@@ -567,8 +357,7 @@ local function addWardrobeInventoryItem(itemName, slotHash)
 	local itemData = DataView.ArrayBuffer(8 * 13)
 
 	-- _INVENTORY_ADD_ITEM_WITH_GUID
-	local isAdded = Citizen.InvokeNative(0xCB5D11F9508A928D, inventoryId, itemData:Buffer(), wardrobeItem, itemHash,
-		slotHash, 1, addReason)
+	local isAdded = Citizen.InvokeNative(0xCB5D11F9508A928D, inventoryId, itemData:Buffer(), wardrobeItem, itemHash, slotHash, 1, addReason)
 	if not isAdded then
 		return false
 	end
@@ -604,7 +393,7 @@ local function useWeapon(data)
 		UserWeapons[weaponId]:loadComponents()
 		UserWeapons[weaponId]:setUsed(true)
 		TriggerServerEvent("syn_weapons:weaponused", data)
-	elseif not UserWeapons[weaponId]:getUsed() and not Citizen.InvokeNative(0x8DECB02F88F428BC, ped, weapName, 0, true) or Citizen.InvokeNative(0x30E7C16B12DA8211, joaat(weapName)) then
+	elseif not UserWeapons[weaponId]:getUsed() and not Citizen.InvokeNative(0x8DECB02F88F428BC, ped, weapName, 0, true) or Citizen.InvokeNative(0x30E7C16B12DA8211, weapName) then
 		notdual = true
 	end
 
@@ -624,7 +413,6 @@ local function useWeapon(data)
 end
 
 exports("useWeapon", useWeapon)
-
 
 
 local function useItem(data)
@@ -649,6 +437,11 @@ function NUIService.NUISound()
 end
 
 function NUIService.NUIFocusOff()
+	if Config.UseFilter then
+		AnimpostfxStop("OJDominoBlur")
+	end
+	DisplayRadar(true)
+	PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
 	NUIService.CloseInv()
 end
 
@@ -656,28 +449,38 @@ function NUIService.LoadInv()
 	local payload = {}
 	local items = {}
 
-	TriggerServerEvent("vorpinventory:check_slots")
+	Core.Callback.TriggerAsync("vorpinventory:get_slots", function(result)
+		SendNUIMessage({ action = "changecheck", check = string.format("%.1f", result.totalInvWeight), info = string.format("%.1f", result.slots) })
+		SendNUIMessage({
+			action = "updateStatusHud",
+			show   = not IsRadarHidden(),
+			money  = result.money,
+			gold   = result.gold,
+			rol    = result.rol,
+			id     = GetPlayerServerId(PlayerId()),
+		})
+	end)
 
-	if not storemenu then
+	if not StoreSynMenu then
 		for _, item in pairs(UserInventory) do
+			--item.degradation = math.random(100, 1000) / 10 -- just for tests not implemented yet
 			table.insert(items, item)
 		end
-	elseif storemenu then
+	elseif StoreSynMenu then
 		for _, item in pairs(UserInventory) do
 			if item.metadata ~= nil and item.metadata.description ~= nil and item.metadata.orgdescription ~= nil then
 				item.metadata.description = item.metadata.orgdescription
 				item.metadata.orgdescription = nil
 			end
 		end
-		if geninfo.buyitems ~= nil and next(geninfo.buyitems) ~= nil then
-			local buyitems = geninfo.buyitems
+		if GenSynInfo.buyitems ~= nil and next(GenSynInfo.buyitems) ~= nil then
+			local buyitems = GenSynInfo.buyitems
 			for _, item in pairs(UserInventory) do
 				for k, v in ipairs(buyitems) do
 					if item.name == v.name then
 						if item.metadata.description ~= nil then
 							item.metadata.orgdescription = item.metadata.description
-							item.metadata.description = item.metadata.description ..
-								"<br><span style=color:Green;>" .. T.cansell .. v.price .. "</span>"
+							item.metadata.description = item.metadata.description .. "<br><span style=color:Green;>" .. T.cansell .. v.price .. "</span>"
 						else
 							item.metadata.orgdescription = ""
 							item.metadata.description = "<span style=color:Green;>" .. T.cansell .. v.price .. "</span>"
@@ -695,7 +498,7 @@ function NUIService.LoadInv()
 	for _, currentWeapon in pairs(UserWeapons) do
 		local label = currentWeapon:getCustomLabel() or currentWeapon:getLabel()
 		local weapon = {}
-		weapon.count = currentWeapon:getTotalAmmoCount()
+		weapon.count = currentWeapon:getTotalAmmoCount() -- doesnt actually get anything cause nothing is adding it?
 		weapon.limit = -1
 		weapon.label = label
 		weapon.name = currentWeapon:getName()
@@ -706,11 +509,13 @@ function NUIService.LoadInv()
 		weapon.canRemove = true
 		weapon.id = currentWeapon:getId()
 		weapon.used = currentWeapon:getUsed()
+		weapon.used2 = currentWeapon:getUsed2()
 		weapon.desc = currentWeapon:getDesc()
 		weapon.group = 5
 		weapon.serial_number = currentWeapon:getSerialNumber()
 		weapon.custom_label = currentWeapon:getCustomLabel()
 		weapon.custom_desc = currentWeapon:getCustomDesc()
+		weapon.weight = currentWeapon:getWeight()
 
 		table.insert(items, weapon)
 	end
@@ -722,6 +527,9 @@ function NUIService.LoadInv()
 end
 
 function NUIService.OpenInv()
+	ApplyPosfx()
+	DisplayRadar(false)
+	PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
 	SetNuiFocus(true, true)
 	SendNUIMessage({
 		action = "display",
@@ -729,7 +537,7 @@ function NUIService.OpenInv()
 		search = Config.InventorySearchable,
 		autofocus = Config.InventorySearchAutoFocus
 	})
-	InInventory = true
+	InInventory = true -- internal
 	NUIService.LoadInv()
 end
 
@@ -771,7 +579,8 @@ function NUIService.initiateData()
 			equip = T.equip,
 			use = T.use,
 			give = T.give,
-			drop = T.drop
+			drop = T.drop,
+			labels = T.labels
 		},
 		config = {
 			UseGoldItem = Config.UseGoldItem,
@@ -779,25 +588,26 @@ function NUIService.initiateData()
 			AddDollarItem = Config.AddDollarItem,
 			AddAmmoItem = Config.AddAmmoItem,
 			DoubleClickToUse = Config.DoubleClickToUse,
-			UseRolItem = Config.UseRolItem
+			UseRolItem = Config.UseRolItem,
+			WeightMeasure = Config.WeightMeasure or "Kg",
 		}
 	})
 end
 
 -- Main loop
-Citizen.CreateThread(function()
-	Wait(5000)
+CreateThread(function()
+	repeat Wait(1000) until LocalPlayer.state.IsInSession
 	NUIService.initiateData()
-	repeat Wait(0) until LocalPlayer.state.IsInSession
 
 	while true do
 		local sleep = 1000
+
 		if not InInventory then
 			sleep = 0
-			if IsControlJustReleased(1, Config.OpenKey) and IsInputDisabled(0) then
+			if IsControlJustReleased(1, Config.OpenKey) then
 				local player = PlayerPedId()
-				local hogtied = Citizen.InvokeNative(0x3AA24CCC0D451379, player)
-				local cuffed = Citizen.InvokeNative(0x74E559B3BC910685, player)
+				local hogtied = IsPedHogtied(player) == 1
+				local cuffed = IsPedCuffed(player)
 				if not hogtied and not cuffed and not InventoryIsDisabled then
 					NUIService.OpenInv()
 				end
@@ -809,12 +619,14 @@ Citizen.CreateThread(function()
 				NUIService.CloseInv()
 			end
 		end
+
 		Wait(sleep)
 	end
 end)
 
 -- Prevent Spam
-Citizen.CreateThread(function()
+CreateThread(function()
+	repeat Wait(2000) until LocalPlayer.state.IsInSession
 	while true do
 		Wait(1000)
 		if timerUse > 0 then
@@ -831,4 +643,8 @@ end
 
 function NUIService.DisableInventory(param)
 	InventoryIsDisabled = param
+end
+
+function NUIService.getActionsConfig(obj, cb)
+	cb(Actions)
 end

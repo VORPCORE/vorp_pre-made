@@ -1,15 +1,6 @@
 local isInMenu = false
-local MenuData = {}
-
-TriggerEvent("menuapi:getData", function(call)
-    MenuData = call
-end)
-
-AddEventHandler('menuapi:closemenu', function()
-    if isInMenu then
-        isInMenu = false
-    end
-end)
+local MenuData = exports.vorp_menu:GetMenuData()
+local Core = exports.vorp_core:GetCore()
 
 local Clothing = {
     { label = _U('remove_hat'),       value = "A1",  desc = _U("remove"), info = 'hat' },
@@ -67,18 +58,17 @@ local function OpenClothesMenu()
     MenuData.CloseAll()
     isInMenu = true
     local elements = {}
-
     for key, value in pairs(Clothing) do
         elements[#elements + 1] = { label = value.label, value = value.value, desc = value.desc, info = value.info }
     end
 
-    MenuData.Open('default', GetCurrentResourceName(), 'menuapi', {
-        title    = _U("MenuTitle1"),
-        subtext  = _U("SubMenuTitle"),
-        align    = Config.Align,
-        elements = elements,
-        lastmenu = "OpenMenu"
-    },
+    MenuData.Open('default', GetCurrentResourceName(), 'OpenClothesMenu', {
+            title    = _U("MenuTitle1"),
+            subtext  = _U("SubMenuTitle"),
+            align    = Config.Align,
+            elements = elements,
+            lastmenu = "OpenMenu"
+        },
         function(data, menu)
             if data.current == "backup" then
                 _G[data.trigger]()
@@ -107,12 +97,12 @@ local function OpenWalkMenu()
         elements[#elements + 1] = { label = value.label, value = value.value, desc = value.desc, info = value.info }
     end
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi', {
-        title    = _U("MenuTitle"),
-        subtext  = _U("SubMenuTitle"),
-        align    = Config.Align,
-        elements = elements,
-        lastmenu = "OpenMenu"
-    },
+            title    = _U("MenuTitle"),
+            subtext  = _U("SubMenuTitle"),
+            align    = Config.Align,
+            elements = elements,
+            lastmenu = "OpenMenu"
+        },
         function(data, menu)
             if data.current == "backup" then
                 _G[data.trigger]()
@@ -120,7 +110,7 @@ local function OpenWalkMenu()
 
             if data.current.value then
                 local animation = data.current.info
-                TriggerEvent("vorp_walkanim:setAnim", animation)
+                TriggerEvent("vorp_walkanim:Client:setAnim", animation)
             end
         end,
 
@@ -140,11 +130,11 @@ function OpenMenu()
     }
 
     MenuData.Open('default', GetCurrentResourceName(), 'menuapi', {
-        title    = _U("MenuTitle"),
-        subtext  = _U("SubMenuTitle"),
-        align    = Config.Align,
-        elements = elements,
-    },
+            title    = _U("MenuTitle"),
+            subtext  = _U("SubMenuTitle"),
+            align    = Config.Align,
+            elements = elements,
+        },
         function(data, menu)
             if data.current.value == "CL" then
                 OpenClothesMenu()
@@ -160,63 +150,50 @@ function OpenMenu()
         end)
 end
 
-RegisterNetEvent("vorp_walkanim:getwalk2")
-AddEventHandler("vorp_walkanim:getwalk2", function(walk)
+RegisterNetEvent("vorp_walkanim:Server:setwalk", function(walk)
     local animation = walk
     local player = PlayerPedId()
     if animation == "noanim" then
-        Citizen.InvokeNative(0xA6F67BEC53379A32, PlayerPedId(), "MP_Style_Casual") -- will also remove
+        Citizen.InvokeNative(0xA6F67BEC53379A32, PlayerPedId(), "MP_Style_Casual") 
         return
     end
     Citizen.InvokeNative(0xCB9401F918CB0F75, player, animation, 1, -1)
 end)
 
 local old = nil
-AddEventHandler("vorp_walkanim:setAnim", function(animation)
+AddEventHandler("vorp_walkanim:Client:setAnim", function(animation)
     if old then
-        Citizen.InvokeNative(0xA6F67BEC53379A32, PlayerPedId(), old) -- will also remove
+        Citizen.InvokeNative(0xA6F67BEC53379A32, PlayerPedId(), old)    
     end
-    Citizen.InvokeNative(0xCB9401F918CB0F75, PlayerPedId(), animation, 1, -1) -- add
+    Citizen.InvokeNative(0xCB9401F918CB0F75, PlayerPedId(), animation, 1, -1) 
     old = animation
     TriggerServerEvent("vorp_walkanim:setwalk", animation)
 end)
 
-AddEventHandler("onResourceStart", function(resourceName)
-    if resourceName == GetCurrentResourceName() then
-        Wait(10000)
-        TriggerServerEvent("vorp_walkanim:getwalk")
-    end
-end)
 
 TriggerEvent("chat:addSuggestion", "/" .. Config.command, Config.walkanimsuggestion, {})
-
 RegisterCommand(Config.command, function()
-    TriggerEvent("vorp_walkanim:OpenMenu")
-end)
-
-AddEventHandler("vorp_walkanim:OpenMenu", function()
     if isInMenu == false then
         OpenMenu()
         DisplayRadar(false)
     end
-end)
+end, false)
 
 local Command = false
-
 TriggerEvent("chat:addSuggestion", "/" .. Config.slowWalkCommand, Config.slowcommandSuggestion, {})
 RegisterCommand(Config.slowWalkCommand, function(source, args)
     Command = not Command
     local value = tonumber(args[1])
     if Command then
-        TriggerEvent("vorp:TipRight", "Slow walk enabled")
+        Core.NotifyObjective("Slow walk enabled", 5000)
     else
-        TriggerEvent("vorp:TipRight", "Slow walk Disabled")
+        Core.NotifyObjective("Slow walk Disabled", 5000)
     end
     while Command do
         Wait(0)
 
         if not value and value > 3 and value == 0 then
-            TriggerEvent("vorp:TipRight", "you need to add an argument example 0.3")
+            Core.NotifyObjective("you need to add an argument example 0.3", 5000)
             break
         end
 
@@ -225,156 +202,10 @@ RegisterCommand(Config.slowWalkCommand, function(source, args)
         end
 
         if value == 0 then
-            TriggerEvent("vorp:TipRight", "you need to add an argument bigger than that")
+            Core.NotifyObjective("you need to add an argument bigger than that", 5000)
             return
         end
         SetPedMaxMoveBlendRatio(PlayerPedId(), value)
     end
     SetPedMaxMoveBlendRatio(PlayerPedId(), 3.0)
-end)
-
-
-
--- charcters already have these commands
-
---[[RegisterCommand("sleeves", function(source, args, rawCommand)
-    ExecuteCommand("sleeves")
-
-end)
-
-RegisterCommand("sleeves2", function(source, args, rawCommand)
-    ExecuteCommand("sleeves2")
-
-end)
-RegisterCommand("bandana", function(source, args, rawCommand)
-    ExecuteCommand("bandana")
-
-end)
-RegisterCommand("hat", function(source, args, rawCommand)
-    ExecuteCommand("hat")
-
-end)
-RegisterCommand("eyewear", function(source, args, rawCommand)
-    ExecuteCommand("eyewear")
-
-end)
-RegisterCommand("mask", function(source, args, rawCommand)
-    ExecuteCommand("mask")
-
-end)
-RegisterCommand("neckwear", function(source, args, rawCommand)
-    ExecuteCommand("neckwear")
-
-end)
-RegisterCommand("undress", function(source, args, rawCommand)
-    ExecuteCommand("undress")
-
-end)
-
-
-RegisterCommand("dress", function(source, args, rawCommand)
-    ExecuteCommand("dress")
-
-end)
-RegisterCommand("suspender", function(source, args, rawCommand)
-    ExecuteCommand("suspender")
-
-end)
-RegisterCommand("vest", function(source, args, rawCommand)
-    ExecuteCommand("vest")
-
-end)
-RegisterCommand("coat", function(source, args, rawCommand)
-    ExecuteCommand("coat")
-
-end)
-RegisterCommand("ccoat", function(source, args, rawCommand)
-    ExecuteCommand("ccoat")
-
-end)
-RegisterCommand("bow", function(source, args, rawCommand)
-    ExecuteCommand("bow")
-
-end)
-RegisterCommand("armor", function(source, args, rawCommand)
-    ExecuteCommand("armor")
-
-end)
-RegisterCommand("poncho", function(source, args, rawCommand)
-    ExecuteCommand("poncho")
-
-end)
-RegisterCommand("cloack", function(source, args, rawCommand)
-    ExecuteCommand("cloack")
-
-end)
-RegisterCommand("glove", function(source, args, rawCommand)
-    ExecuteCommand("glove")
-
-end)
-RegisterCommand("rings", function(source, args, rawCommand)
-    ExecuteCommand("rings")
-
-end)
-RegisterCommand("bracelet", function(source, args, rawCommand)
-    ExecuteCommand("bracelet")
-
-end)
-RegisterCommand("accessories", function(source, args, rawCommand)
-    ExecuteCommand("accessories")
-
-end)
-RegisterCommand("neckties", function(source, args, rawCommand)
-    ExecuteCommand("neckties")
-
-end)
-RegisterCommand("shirt", function(source, args, rawCommand)
-    ExecuteCommand("shirt")
-
-end)
-RegisterCommand("loadouts", function(source, args, rawCommand)
-    ExecuteCommand("loadouts")
-
-end)
-RegisterCommand("satchels", function(source, args, rawCommand)
-    ExecuteCommand("satchels")
-
-end)
-RegisterCommand("gunbeltaccs", function(source, args, rawCommand)
-    ExecuteCommand("gunbeltaccs")
-
-end)
-RegisterCommand("buckle", function(source, args, rawCommand)
-    ExecuteCommand("buckle")
-
-end)
-RegisterCommand("pant", function(source, args, rawCommand)
-    ExecuteCommand("pant")
-
-end)
-RegisterCommand("skirt", function(source, args, rawCommand)
-    ExecuteCommand("skirt")
-
-end)
-RegisterCommand("chap", function(source, args, rawCommand)
-    ExecuteCommand("chap")
-
-end)
-RegisterCommand("boots", function(source, args, rawCommand)
-    ExecuteCommand("boots")
-
-end)
-RegisterCommand("spurs", function(source, args, rawCommand)
-    ExecuteCommand("spurs")
-
-end)
-
-RegisterCommand("spats", function(source, args, rawCommand)
-    ExecuteCommand("spats")
-
-end)
-
-RegisterCommand("gauntlets", function(source, args, rawCommand)
-    ExecuteCommand("gauntlets")
-
-end)]]
+end, false)

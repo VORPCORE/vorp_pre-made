@@ -1,14 +1,13 @@
 
-
 /* DROP DOWN BUTTONS MAIN AND SECONDARY INVENTORY */
-
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.dropdownButton[data-type="clothing"], .dropdownButton1[data-type="clothing"]').forEach(button => {
         button.classList.add('active');
     });
 });
 
-document.addEventListener('DOMContentLoaded', function () {
+
+function bindButtonEventListeners() {
     document.querySelectorAll('.dropdownButton[data-type="itemtype"]').forEach(button => {
         button.addEventListener('mouseenter', function () {
             OverSetTitle(this.getAttribute('data-param'));
@@ -19,8 +18,9 @@ document.addEventListener('DOMContentLoaded', function () {
             OverSetDesc(" ");
         });
     });
+}
 
-    // For the second inventory buttons
+function bindSecondButtonEventListeners() {
     document.querySelectorAll('.dropdownButton1[data-type="itemtype"]').forEach(button => {
         button.addEventListener('mouseenter', function () {
             OverSetTitleSecond(this.getAttribute('data-param'));
@@ -31,6 +31,12 @@ document.addEventListener('DOMContentLoaded', function () {
             OverSetDescSecond(" ");
         });
     });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    bindButtonEventListeners();
+    // For the second inventory buttons
+    bindSecondButtonEventListeners();
 
     document.querySelectorAll('.dropdownButton[data-type="clothing"]').forEach(button => {
         button.addEventListener('mouseenter', function () {
@@ -99,22 +105,61 @@ function scrollCarousel(carouselId, direction) {
     });
     container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
 }
-/* 0 is empty divs 1 is fixed divs like money and ammo */
-const Actions = {
-    all: { types: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
-    medical: { types: [0, 2] },
-    foods: { types: [0, 3] },
-    weapons: { types: [0, 5] },
-    ammo: { types: [0, 6] },
-    tools: { types: [0, 4] },
-    animals: { types: [0, 8] },
-    documents: { types: [0, 7] },
-    valuables: { types: [0, 9] },
-    horse: { types: [0, 10] },
-    herbs: { types: [0, 11] },
 
-};
+let actionsConfigLoaded; // Holds the promise once initialized
 
+function loadActionsConfig() {
+    if (!actionsConfigLoaded) {
+        actionsConfigLoaded = new Promise((resolve, reject) => {
+            fetch(`https://${GetParentResourceName()}/getActionsConfig`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                }
+            })
+                .then(response => response.json())
+                .then(actionsConfig => {
+                    window.Actions = actionsConfig;
+                    resolve(actionsConfig);
+                })
+                .catch(error => {
+                    reject(error);
+                });
+        });
+    }
+    return actionsConfigLoaded;
+}
+
+function generateActionButtons(actionsConfig, containerId, inventoryContext, buttonClass) {
+    const basePath = "img/itemtypes/";
+    const container = document.getElementById(containerId);
+
+    if (container) {
+        Object.keys(actionsConfig).forEach(key => {
+            const action = actionsConfig[key];
+            const button = document.createElement('button');
+            button.className = buttonClass;
+            button.type = 'button';
+            button.setAttribute('data-type', 'itemtype');
+            button.setAttribute('data-param', key);
+            button.setAttribute('data-desc', action.desc);
+            button.setAttribute('onclick', `action('itemtype', '${key}', '${inventoryContext}')`);
+
+            const div = document.createElement('div');
+            const img = document.createElement('img');
+            img.src = basePath + action.img;
+            img.alt = "Image";
+            div.appendChild(img);
+            button.appendChild(div);
+            container.appendChild(button);
+        });
+
+        bindButtonEventListeners();
+        bindSecondButtonEventListeners();
+    } else {
+        console.warn(`Container for action buttons not found: ${containerId}`);
+    }
+}
 
 function action(type, param, inv) {
     if (type === 'itemtype') {
@@ -175,20 +220,70 @@ function showItemsByType(itemTypesToShow, inv) {
         /* if itemDiv is less than 12 then create the rest od the divs */
         let emptySlots = 16 - itemDiv;
         for (let i = 0; i < emptySlots; i++) {
-            $(`#${inv}`).append(`
-          <div data-group="0" class="item"></div>`);
-
+            $(`#${inv}`).append(`<div data-group="0" class="item"></div>`);
         }
     }
 
 }
 
+$(document).ready(function () {
+
+    $(document).on('mouseenter', '.item', function () {
+
+        if ($(this).data('tooltip') && !stopTooltip) {
+
+            var tooltipText = $(this).data('tooltip');
+            var $tooltip = $('<div></div>')
+                .addClass('tooltip')
+                .css('pointer-events', 'none')
+                .html(tooltipText)
+                .appendTo('body');
+
+            var itemOffset = $(this).offset();
+            var tooltipTop = itemOffset.top + $(this).outerHeight() + 10;
+            var tooltipLeft = itemOffset.left;
+
+            $tooltip.css({
+                'top': tooltipTop,
+                'left': tooltipLeft,
+                'position': 'absolute',
+                'display': 'block'
+            });
+        }
+    });
+
+    $(document).on('mouseleave', '.item', function () {
+        $('.tooltip').remove();
+    });
+});
+
+function moveInventory(inv) {
+    var inventoryHud = document.getElementById('inventoryHud');
+    if (inv === 'main') {
+        inventoryHud.style.left = '25%';
+    } else if (inv === 'second') {
+        inventoryHud.style.left = '1%';
+    }
+}
+
+function getColorForDegradation(degradation) {
+    if (degradation < 15) {
+        return "red";
+    } else if (degradation < 40) {
+        return "orange";
+    } else if (degradation < 70) {
+        return "gold";
+    } else {
+        return "green";
+    }
+}
+
 function inventorySetup(items) {
+
     $("#inventoryElement").html("");
     var divAmount = 0;
 
-    // Count the number of items first
-    $.each(items, function (index, item) {
+    $.each(items, function () {
         divAmount = divAmount + 1;
     });
 
@@ -196,32 +291,37 @@ function inventorySetup(items) {
     $.each(items, function (index, item) {
         var count = item.count;
         var limit = item.limit;
-
-        if (limit > 0) {
-            count = count + " / " + limit;
-        };
+        const group = item.type != "item_weapon" ? !item.group ? 1 : item.group : 5;
 
         if (item.type != "item_weapon") {
-            /* items */
-            if (!item.group) {
-                item.group = 1;
-            }
+            const custom = item.metadata.tooltip ? "<br>" + item.metadata.tooltip : "";
+            const degradation = item.degradation ? `<br>${LANGUAGE.labels.decay}<span style="color: ${getColorForDegradation(item.degradation)}">${item.degradation}%</span>` : "";
+            const weight = item.weight ? "<br>" + LANGUAGE.labels.weight + (item.weight * count).toFixed(2) + " " + Config.WeightMeasure : "<br>" + LANGUAGE.labels.weight + (count / 4).toFixed(2) + " " + Config.WeightMeasure;
+            // make sure weight dont pass from 2 decimals
+
+
+            const groupKey = Object.keys(window.Actions).find(key =>
+                key !== "all" && window.Actions[key].types.includes(group)
+            );
+            const groupImg = groupKey ? window.Actions[groupKey].img : 'satchel_nav_all.png';
+            const tooltipContent = group > 1 ? `<img src="img/itemtypes/${groupImg}"> ${LANGUAGE.labels.limit + limit + custom + weight + degradation}` : `${LANGUAGE.labels.limit} ${limit}${custom}${weight}${degradation}`;
 
             $("#inventoryElement").append(`
-            <div data-label='${item.label}' data-group='${item.group}' style='background-image: url("img/items/${item.name.toLowerCase()}.png"), url(); background-size: 90px 90px, 90px 90px; background-repeat: no-repeat; background-position: center;' id='item-${index}' class='item'>
-                <div class='count'<span style ='color:Black'>${count}</span></div>
-                <div class='text'></div>
-            </div>
-          `);
-
+                <div data-group='${group}' data-label='${item.label}' style='background-image: url("img/items/${item.name.toLowerCase()}.png"); background-size: 4.5vw 7.7vh; background-repeat: no-repeat; background-position: center;' id='item-${index}' class='item' data-tooltip='${tooltipContent}'> 
+                    <div class='count'>
+                        <span style='color:Black'>${count}</span>
+                    </div>
+                    <div class='text'></div>
+                </div>`);
         } else {
-            /* weapons */
-            const group = 5;
+            const weight = item.weight ? LANGUAGE.labels.weight + item.weight.toFixed(2) + " " + Config.WeightMeasure : LANGUAGE.labels.weight + (count / 4).toFixed(2) + " " + Config.WeightMeasure;
+            const info = item.serial_number ? "<br>" + LANGUAGE.labels.ammo + item.count + "<br>" + LANGUAGE.labels.serial + item.serial_number : "";
             $("#inventoryElement").append(`
-          <div data-label='${item.label}' data-group='${group}' style='background-image: url("img/items/${item.name.toLowerCase()}.png"), url(); background-size: 90px 90px, 90px 90px; background-repeat: no-repeat; background-position: center;' id='item-${index}' class='item'></div>
-          `);
-
+                <div data-label='${item.label}' data-group='${group}' style='background-image: url("img/items/${item.name.toLowerCase()}.png"); background-size: 4.5vw 7.7vh; background-repeat: no-repeat; background-position: center;' id='item-${index}' class='item' data-tooltip="${weight + info}">
+                    <div class='equipped-icon' style='display: ${!item.used && !item.used2 ? "none" : "block"};'></div>
+                </div>`);
         }
+
 
         $("#item-" + index).data("item", item);
         $("#item-" + index).data("inventory", "main");
@@ -229,33 +329,37 @@ function inventorySetup(items) {
         var data = [];
 
         if (Config.DoubleClickToUse) {
+
             $("#item-" + index).dblclick(function () {
+
                 if (item.used || item.used2) {
-                    $.post(
-                        `https://${GetParentResourceName()}/UnequipWeapon`,
-                        JSON.stringify({
-                            item: item.name,
-                            id: item.id,
-                        })
-                    );
+                    $(this).find('.equipped-icon').hide();
+                    $.post(`https://${GetParentResourceName()}/UnequipWeapon`, JSON.stringify({
+                        item: item.name,
+                        id: item.id,
+                    }));
+
                 } else {
-                    $.post(
-                        `https://${GetParentResourceName()}/UseItem`,
-                        JSON.stringify({
-                            item: item.name,
-                            type: item.type,
-                            hash: item.hash,
-                            amount: item.count,
-                            id: item.id,
-                        })
-                    );
+
+                    if (item.type == "item_weapon") {
+                        $(this).find('.equipped-icon').show();
+                    }
+                    $.post(`https://${GetParentResourceName()}/UseItem`, JSON.stringify({
+                        item: item.name,
+                        type: item.type,
+                        hash: item.hash,
+                        amount: item.count,
+                        id: item.id,
+                    }));
                 }
             });
+
         } else {
             if (item.used || item.used2) {
                 data.push({
                     text: LANGUAGE.unequip,
                     action: function () {
+                        $(this).find('.equipped-icon').hide();
                         $.post(
                             `https://${GetParentResourceName()}/UnequipWeapon`,
                             JSON.stringify({
@@ -274,6 +378,9 @@ function inventorySetup(items) {
                 data.push({
                     text: lang,
                     action: function () {
+                        if (item.type == "item_weapon") {
+                            $(this).find('.equipped-icon').show();
+                        }
                         $.post(
                             `https://${GetParentResourceName()}/UseItem`,
                             JSON.stringify({
@@ -380,14 +487,7 @@ function inventorySetup(items) {
 
     if (Config.AddAmmoItem) {
         $("#inventoryElement").append(
-            "<div data-label='" +
-            gunbelt_label +
-            "'data-group ='1' style='background-image: url(\"img/items/" +
-            gunbelt_item +
-            ".png\"), url(); background-size: 90px 90px, 90px 90px; background-repeat: no-repeat; background-position: center;' id='item-" +
-            gunbelt_item +
-            "' class='item'><div class='text'></div></div>"
-        );
+            "<div data-label='" + gunbelt_label + "'data-group ='1' style='background-image: url(\"img/items/" + gunbelt_item + ".png\"); background-size: 4.5vw 6.7vh; background-repeat: no-repeat; background-position: center;' id='item-" + gunbelt_item + "' class='item'>  <div class='text'></div> </div>");
 
         $("#item-" + gunbelt_item).contextMenu([data], {
             offsetX: 1,
@@ -457,8 +557,7 @@ function inventorySetup(items) {
     if (Config.AddDollarItem) {
         $("#inventoryElement").append(
             "<div data-label='" + m_label + "'data-group ='1' style='background-image: url(\"img/items/" + m_item +
-            ".png\"), url(); background-size: 90px 90px, 90px 90px; background-repeat: no-repeat; background-position: center;' id='item-" +
-            m_item + "' class='item'><div class='text'></div></div>"
+            ".png\"), url(); background-size: 4.5vw 6.7vh; background-repeat: no-repeat; background-position: center;' id='item-" + m_item + "' class='item'><div class='text'></div></div>"
         );
 
         $("#item-" + m_item).contextMenu([data], {
@@ -531,11 +630,8 @@ function inventorySetup(items) {
 
         if (Config.AddGoldItem) {
             $("#inventoryElement").append(
-                "<div data-label='" + g_label + "'data-group ='1' style='background-image: url(\"img/items/" +
-                g_item +
-                ".png\"), url(); background-size: 90px 90px, 90px 90px; background-repeat: no-repeat; background-position: center;' id='item-" +
-                g_item +
-                "' class='item'><div class='text'></div></div>"
+                "<div data-label='" + g_label + "'data-group ='1' style='background-image: url(\"img/items/" + g_item +
+                ".png\"), url(); background-size: 4.5vw 6.7vh; background-repeat: no-repeat; background-position: center;' id='item-" + g_item + "' class='item'><div class='text'></div></div>"
             );
 
             $("#item-" + g_item).contextMenu([data], {
