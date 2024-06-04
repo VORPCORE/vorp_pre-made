@@ -183,7 +183,7 @@ function Utils.GetLabel(hash, id)
 		end
 		return hash
 	else
-		return Utils.GetWeaponLabel(hash)
+		return Utils.GetWeaponDefaultLabel(hash)
 	end
 end
 
