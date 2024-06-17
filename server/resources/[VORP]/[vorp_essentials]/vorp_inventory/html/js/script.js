@@ -211,6 +211,10 @@ window.addEventListener('message', function (event) {
         $("#secondInventoryHud").fadeOut();
         $(".controls").fadeOut();
         $(".site-cm-box").remove();
+        if ($('#character-selection').is(":visible")) {
+            $('#character-selection').hide();
+            $('#disabler').hide();
+        }
         dialog.close();
         stopTooltip = true;
     } else if (event.data.action == "setItems") {

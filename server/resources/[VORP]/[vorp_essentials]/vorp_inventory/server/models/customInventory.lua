@@ -1,76 +1,34 @@
----@class CustomInventory @Custom Inventory Info
----@field id string
----@field name string
----@field limit number
----@field acceptWeapons boolean
----@field shared boolean
----@field ignoreItemStackLimit boolean
----@field whitelistItems boolean
----@field limitedItems table<string, integer>
----@field PermissionTakeFrom table<string, integer>
----@field PermissionMoveTo table<string, integer>
----@field UsePermissions boolean
----@field UseBlackList boolean
----@field BlackListItems table<string, string>
----@field whitelistWeapons boolean
----@field limitedWeapons table<string, integer>
----@field setCustomInventoryLimit fun(self : CustomInventory, limit : number) @Set Custom Inventory Limit
----@field removeCustomInventory fun(self : CustomInventory) @Remove Custom Inventory
----@field BlackList fun(self : CustomInventory, data : table) @Black List
----@field AddPermissionMoveTo fun(self : CustomInventory, data : table) @Add Permission Move To
----@field AddPermissionTakeFrom fun(self : CustomInventory, data : table) @Add Permission Take From
----@field setCustomItemLimit fun(self : CustomInventory, data : table) @Set Custom Item Limit
----@field setCustomWeaponLimit fun(self : CustomInventory, data : table) @Set Custom Weapon Limit
----@field register fun(self : CustomInventory) @Register Inventory
----@field getLimit fun(self : CustomInventory) : number @Get Limit
----@field isShared fun(self : CustomInventory) : boolean @Get Shared
----@field getName  fun (self : CustomInventory) : string @Get Name
----@field isPermEnabled fun(self : CustomInventory) : boolean @Get Perm Enabled
----@field getIgnoreItemStack fun(self : CustomInventory) : boolean @Get Ignore Item Stack
----@field isWeaponInList fun(self : CustomInventory, name : string) : boolean @Is Weapon In List
----@field isItemInList fun(self : CustomInventory, name:{limit:number}) : boolean @Is Item In List
----@field isItemInBlackList fun(self : CustomInventory, name : string) : boolean @Is Item In Black List
----@field getWeaponLimit fun(self : CustomInventory, name : string) : number @Get Weapon Limit
----@field getItemLimit fun(self : CustomInventory, name : string) : number @Get Item Limit
----@field iswhitelistWeaponsEnabled fun(self : CustomInventory) : boolean @Is Whitelist Weapons Enabled
----@field iswhitelistItemsEnabled fun(self : CustomInventory) : boolean @Is Whitelist Items Enabled
----@field isBlackListEnabled fun(self : CustomInventory) : boolean @Is Black List Enabled
----@field getBlackList fun(self : CustomInventory) : table<string, boolean> @Get Black List
----@field getPermissionMoveTo fun(self : CustomInventory) : table<string, integer> @Get Permission Move To
----@field getPermissionTakeFrom fun(self : CustomInventory) : table<string, integer> @Get Permission Take From
----@field doesAcceptWeapons fun(self : CustomInventory) : boolean @Does Accept Weapons
----@field setWeight fun(self : CustomInventory, value : number) @Set Weight
----@field useweight boolean
----@field weight number
 CustomInventoryAPI = {}
-
 CustomInventoryAPI.__index = CustomInventoryAPI
 CustomInventoryAPI.__call = function()
     return "CustomInventoryAPI"
 end
 
-
 function CustomInventoryAPI:New(data)
-    local obj = setmetatable({}, self)
-    obj.id = data.id
-    obj.name = data.name
-    obj.limit = data.limit or 10
-    obj.acceptWeapons = data.acceptWeapons or false
-    obj.shared = data.shared or false
-    obj.ignoreItemStackLimit = data.ignoreItemStackLimit or false
-    obj.limitedItems = {}
-    obj.whitelistItems = data.whitelistItems or false
-    obj.PermissionTakeFrom = {}
-    obj.PermissionMoveTo = {}
-    obj.UsePermissions = data.UsePermissions or false
-    obj.UseBlackList = data.UseBlackList or false
-    obj.BlackListItems = {}
-    obj.whitelistWeapons = data.whitelistWeapons or false
-    obj.limitedWeapons = {}
-    obj.useweight = data.useWeight or false
-    obj.weight = data.weight or 0.0
-    return obj
+    ---@constructor
+    local instance = setmetatable({}, self)
+    instance.id = data.id
+    instance.name = data.name
+    instance.limit = data.limit or 10
+    instance.acceptWeapons = data.acceptWeapons or false
+    instance.shared = data.shared or false
+    instance.ignoreItemStackLimit = data.ignoreItemStackLimit or false
+    instance.limitedItems = {}
+    instance.whitelistItems = data.whitelistItems or false
+    instance.PermissionTakeFrom = {}
+    instance.PermissionMoveTo = {}
+    instance.UsePermissions = data.UsePermissions or false
+    instance.UseBlackList = data.UseBlackList or false
+    instance.BlackListItems = {}
+    instance.whitelistWeapons = data.whitelistWeapons or false
+    instance.limitedWeapons = {}
+    instance.useweight = data.useWeight or false
+    instance.weight = data.weight or 0.0
+    instance.webhook = data.webhook or false
+    return instance
 end
+
+---@methods
 
 --- register inventor
 function CustomInventoryAPI:Register()
@@ -247,6 +205,12 @@ function CustomInventoryAPI:getAllCustomInvData()
     return self
 end
 
+--- get log name
+---@return string
+function CustomInventoryAPI:getWebhook()
+    return self.webhook
+end
+
 ---does it use weight or slots
 ---@return boolean
 function CustomInventoryAPI:useWeight()
@@ -264,18 +228,19 @@ end
 --- update any custom inventory data
 ---@param data table @table with all custom inventory data
 function CustomInventoryAPI:updateCustomInvData(data)
-    self.name = data?.name or self.name
-    self.limit = data?.limit or self.limit
-    self.acceptWeapons = data?.acceptWeapons or self.acceptWeapons
-    self.shared = data?.shared or self.shared
-    self.ignoreItemStackLimit = data?.ignoreItemStackLimit or self.ignoreItemStackLimit
-    self.limitedItems = data?.limitedItems or self.limitedItems
-    self.whitelistItems = data?.whitelistItems or self.whitelistItems
-    self.PermissionTakeFrom = data?.PermissionTakeFrom or self.PermissionTakeFrom
-    self.PermissionMoveTo = data?.PermissionMoveTo or self.PermissionMoveTo
-    self.UsePermissions = data?.UsePermissions or self.UsePermissions
-    self.UseBlackList = data?.UseBlackList or self.UseBlackList
-    self.BlackListItems = data?.BlackListItems or self.BlackListItems
-    self.whitelistWeapons = data?.whitelistWeapons or self.whitelistWeapons
-    self.limitedWeapons = data?.limitedWeapons or self.limitedWeapons
+    self.name = data.name or self.name
+    self.limit = data.limit or self.limit
+    self.acceptWeapons = data.acceptWeapons or self.acceptWeapons
+    self.shared = data.shared or self.shared
+    self.ignoreItemStackLimit = data.ignoreItemStackLimit or self.ignoreItemStackLimit
+    self.limitedItems = data.limitedItems or self.limitedItems
+    self.whitelistItems = data.whitelistItems or self.whitelistItems
+    self.PermissionTakeFrom = data.PermissionTakeFrom or self.PermissionTakeFrom
+    self.PermissionMoveTo = data.PermissionMoveTo or self.PermissionMoveTo
+    self.UsePermissions = data.UsePermissions or self.UsePermissions
+    self.UseBlackList = data.UseBlackList or self.UseBlackList
+    self.BlackListItems = data.BlackListItems or self.BlackListItems
+    self.whitelistWeapons = data.whitelistWeapons or self.whitelistWeapons
+    self.limitedWeapons = data.limitedWeapons or self.limitedWeapons
+    self.webhook = data.webhook or self.webhook
 end

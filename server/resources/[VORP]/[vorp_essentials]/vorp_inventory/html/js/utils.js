@@ -42,6 +42,18 @@ function secondarySetCapacity(cap, weight) {
     document.getElementById("capacity-value").innerHTML = weight ? weight + " " + Config.WeightMeasure : cap;
 }
 
+function getGroupKey(group) {
+    let groupKey;
+    if (window.Actions && Object.keys(window.Actions).length > 0) {
+        groupKey = Object.keys(window.Actions).find(key =>
+            key !== "all" && window.Actions[key].types.includes(group)
+        );
+    } else {
+        console.log("Actions were not loaded!!");
+    }
+    return groupKey;
+}
+
 
 function initiateSecondaryInventory(title, capacity, weight) {
 
@@ -369,7 +381,6 @@ function giveGetHowManyGold() {
 }
 
 function closeInventory() {
-    // need to close tool tip 
     $('.tooltip').remove();
     $.post(`https://${GetParentResourceName()}/NUIFocusOff`, JSON.stringify({}));
     isOpen = false;

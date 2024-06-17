@@ -27,7 +27,7 @@ exports('vorp_inventoryApi', function()
             whitelistItems = whitelistItems,
             UsePermissions = UsePermissions,
             UseBlackList = UseBlackList,
-            whitelistWeapons = whitelistWeapons
+            whitelistWeapons = whitelistWeapons,
         }
         TriggerEvent("vorpCore:registerInventory", data)
     end

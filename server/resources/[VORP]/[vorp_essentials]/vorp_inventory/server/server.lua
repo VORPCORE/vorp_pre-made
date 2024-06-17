@@ -46,7 +46,7 @@ AddEventHandler('playerDropped', function()
     if _source then
         local char = Core.getUser(_source)
         local weapons = UsersWeapons.default
-        allplayersammo[_source] = nil
+        AmmoData[_source] = nil
 
         for i, value in pairs(InventoryBeingUsed) do
             if value == _source then
