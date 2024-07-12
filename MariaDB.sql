@@ -177,6 +177,18 @@ CREATE TABLE `items` (
   CONSTRAINT `metadata` CHECK (json_valid(`metadata`))
 ) COLLATE = 'utf8mb4_general_ci' ENGINE = InnoDB ROW_FORMAT = DYNAMIC;
 
+INSERT INTO `item_group` (`description`) VALUES
+    ('medical'),
+    ('foods'),
+    ('tools'),
+    ('weapons'),
+    ('ammo'),
+    ('documents'),
+    ('animals'),
+    ('valuables'),
+    ('horse'),
+    ('herbs');
+
 CREATE TABLE `items_crafted` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `character_id` INT(11) NOT NULL,
