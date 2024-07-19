@@ -1,3 +1,17 @@
+<3.8>
+- new exports for custom inventories using char id permissions just like jobs
+- new feature to pass image variable with item name for metadata to display different images
+- new exports for custom inventories add/get items
+- added to  export registerCustomInventory webhook variable that can contain url link for logs of each custom inv
+- export registerCustomInventory now returns with an object including methods getters and setters.
+- updated types for exports
+- fix canCarryWeapons not counting with ammount requested because of the new weight feature
+- fix missing method for setLabel on weapons
+- fix OnItemCreated missing event in GiveItem function
+- fix not saving ammo when its empty in the database
+- refactor some code for optimisation like jobs look up
+- fix dialog window would stay open if users disconnect internet to dupe.
+- make sure to update fxmanifest and all other files.
 <3.7>
 - added msgpack send to items to client to reduce load 
 - added new exports for client side mostly for weapons see client/exports.lua

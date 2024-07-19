@@ -86,39 +86,51 @@ end
 
 function DBService.CreateItem(sourceCharIdentifier, itemId, amount, metadata, name, cb, invId)
     invId = invId or "default"
-    MySQL.insert("INSERT INTO items_crafted (character_id, item_id, metadata,item_name) VALUES (@charid, @itemid, @metadata,@item_name);"
-    , {
+    MySQL.insert("INSERT INTO items_crafted (character_id, item_id, metadata,item_name) VALUES (@charid, @itemid, @metadata,@item_name);", {
         ['charid'] = tonumber(sourceCharIdentifier),
         ['itemid'] = tonumber(itemId),
         ['metadata'] = json.encode(metadata),
         ['item_name'] = name
     }, function()
-        MySQL.query(
-            "SELECT * FROM items_crafted WHERE character_id = @charid AND item_id = @itemid AND JSON_CONTAINS(metadata, @metadata);"
-            , {
-                ['charid'] = tonumber(sourceCharIdentifier),
-                ['itemid'] = tonumber(itemId),
-                ['metadata'] = json.encode(metadata)
-            }, function(result)
-                if result[1] and result[#result] then
-                    local item = result[#result]
-                    if item then
-                        local itemCraftedId = item.id
-                        MySQL.insert(
-                            "INSERT INTO character_inventories (character_id, item_crafted_id, amount, inventory_type,item_name) VALUES (@charid, @itemid, @amount, @invId,@item_name);"
-                            , {
-                                ['charid'] = tonumber(sourceCharIdentifier),
-                                ['itemid'] = tonumber(itemCraftedId),
-                                ['amount'] = tonumber(amount),
-                                ['invId'] = invId,
-                                ['item_name'] = name
-                            }, function()
-                                cb({ id = itemCraftedId })
-                            end)
-                    end
+        MySQL.query("SELECT * FROM items_crafted WHERE character_id = @charid AND item_id = @itemid AND JSON_CONTAINS(metadata, @metadata);"
+        , {
+            ['charid'] = tonumber(sourceCharIdentifier),
+            ['itemid'] = tonumber(itemId),
+            ['metadata'] = json.encode(metadata)
+        }, function(result)
+            if result[1] and result[#result] then
+                local item = result[#result]
+                if item then
+                    local itemCraftedId = item.id
+                    MySQL.insert("INSERT INTO character_inventories (character_id, item_crafted_id, amount, inventory_type,item_name) VALUES (@charid, @itemid, @amount, @invId,@item_name);", {
+                        ['charid'] = tonumber(sourceCharIdentifier),
+                        ['itemid'] = tonumber(itemCraftedId),
+                        ['amount'] = tonumber(amount),
+                        ['invId'] = invId,
+                        ['item_name'] = name
+                    }, function()
+                        cb({ id = itemCraftedId })
+                    end)
                 end
-            end)
+            end
+        end)
     end)
+end
+
+function DBService.GetTotalItemsInCustomInventory(id)
+    local result = MySQL.query.await("SELECT SUM(amount) as total_amount FROM character_inventories WHERE inventory_type = @invType;", { invType = id })
+    if result[1] and result[1].total_amount then
+        return result[1].total_amount
+    end
+    return 0
+end
+
+function DBService.GetTotalWeaponsInCustomInventory(id)
+    local result = MySQL.query.await("SELECT COUNT(*) as total_count FROM loadout WHERE curr_inv = @invType", { invType = id })
+    if result[1] and result[1].total_count then
+        return result[1].total_count
+    end
+    return 0
 end
 
 ---delete asynchronously

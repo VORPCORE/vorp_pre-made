@@ -14,15 +14,15 @@ local keepdown
 local function CheckLabel()
     if not carried then
         if not Done then
-            local label = CreateVarString(10, 'LITERAL_STRING',
+            local label = VarString(10, 'LITERAL_STRING',
                 T.RespawnIn .. TimeToRespawn .. T.SecondsMove .. T.message)
             return label
         else
-            local label = CreateVarString(10, 'LITERAL_STRING', T.message2)
+            local label = VarString(10, 'LITERAL_STRING', T.message2)
             return label
         end
     else
-        local label = CreateVarString(10, 'LITERAL_STRING', T.YouAreCarried)
+        local label = VarString(10, 'LITERAL_STRING', T.YouAreCarried)
         return label
     end
 end
@@ -66,9 +66,7 @@ local function ProcessNewPosition()
         y = pCoords.y + ((Sin(angleZ) * Cos(angleY)) + (Cos(angleY) * Sin(angleZ))) / 2 * (3.0 + 0.5),
         z = pCoords.z + ((Sin(angleY))) * (3.0 + 0.5)
     }
-    local rayHandle = StartShapeTestRay(pCoords.x, pCoords.y, pCoords.z + 0.5, behindCam.x, behindCam.y, behindCam.z, -1,
-        PlayerPedId(), 0)
-
+    local rayHandle = StartShapeTestLosProbe(pCoords.x, pCoords.y, pCoords.z + 0.5, behindCam.x, behindCam.y, behindCam.z, -1, PlayerPedId(), 0)
     local hitBool, hitCoords = GetShapeTestResult(rayHandle)
 
     local maxRadius = 3.0
@@ -186,8 +184,8 @@ function CoreAction.Player.RespawnPlayer(allow)
     for key, location in pairs(Config.Hospitals) do
         local locationCoords = vector3(location.pos.x, location.pos.y, location.pos.z)
         local currentDistance = #(pedCoords - locationCoords)
-
         if currentDistance < closestDistance then
+            closestDistance = currentDistance
             closestLocation = location.name
             coords = location.pos
         end
@@ -205,7 +203,7 @@ CreateThread(function()
     local keyPress = Config.RespawnKey
     prompt = UiPromptRegisterBegin()
     UiPromptSetControlAction(prompt, keyPress)
-    str = CreateVarString(10, 'LITERAL_STRING', str)
+    str = VarString(10, 'LITERAL_STRING', str)
     UiPromptSetText(prompt, str)
     UiPromptSetEnabled(prompt, true)
     UiPromptSetVisible(prompt, true)
@@ -263,7 +261,7 @@ CreateThread(function()
             if not PressKey and setDead then
                 sleep = 0
                 if not IsEntityAttachedToAnyPed(PlayerPedId()) then
-                    UiPromptSetActiveGroupThisFrame(prompts, CheckLabel())
+                    UiPromptSetActiveGroupThisFrame(prompts, CheckLabel(), 0, 0, 0, 0)
 
                     if UiPromptHasHoldModeCompleted(prompt) then
                         if Config.CanRespawn() then
@@ -289,7 +287,7 @@ CreateThread(function()
                     carried = false
                 else
                     if setDead then
-                        UiPromptSetActiveGroupThisFrame(prompts, CheckLabel())
+                        UiPromptSetActiveGroupThisFrame(prompts, CheckLabel(), 0, 0, 0, 0)
                         UiPromptSetEnabled(prompt, false)
                         ProcessCamControls()
                         carried = true

@@ -75,20 +75,14 @@ CoreFunctions.NotifyLeftRank = function(title, subtitle, dict, icon, duration, c
     VorpNotification:NotifyLeftRank(tostring(title), tostring(subtitle), tostring(dict), tostring(icon), tonumber(duration), tostring(color or "COLOR_WHITE"))
 end
 
+local promise = promise.new()
+
 CoreFunctions.Graphics = {
 
     ScreenResolution = function()
         if ScreenResolution then
             return ScreenResolution
         end
-
-        local promise = promise.new()
-        RegisterNUICallback('getRes', function(args, cb)
-            promise:resolve(args)
-            ScreenResolution = args
-            cb('ok')
-        end)
-
         SendNUIMessage({ type = "getRes" })
         local result = Citizen.Await(promise)
         return result
@@ -138,7 +132,13 @@ exports('GetCore', function()
     return CoreFunctions
 end)
 
-CreateThread(function()
+RegisterNUICallback('getRes', function(args, cb)
+    promise:resolve(args)
+    ScreenResolution = args
+    cb('ok')
+end)
+
+Citizen.CreateThreadNow(function()
     Wait(0)
     SendNUIMessage({ type = "getRes" })
 end)

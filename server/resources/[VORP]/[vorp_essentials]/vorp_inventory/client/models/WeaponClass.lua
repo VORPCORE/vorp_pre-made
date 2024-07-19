@@ -321,6 +321,10 @@ function FindIndexOf(table, value)
 	return false
 end
 
+function Weapon:setLabel(label)
+	self.label = label
+end
+
 function Weapon:setDesc(desc)
 	self.desc = desc
 end

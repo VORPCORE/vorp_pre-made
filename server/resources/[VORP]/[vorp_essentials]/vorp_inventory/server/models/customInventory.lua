@@ -17,6 +17,8 @@ function CustomInventoryAPI:New(data)
     instance.whitelistItems = data.whitelistItems or false
     instance.PermissionTakeFrom = {}
     instance.PermissionMoveTo = {}
+    instance.CharIdPermissionTakeFrom = {}
+    instance.CharIdPermissionMoveTo = {}
     instance.UsePermissions = data.UsePermissions or false
     instance.UseBlackList = data.UseBlackList or false
     instance.BlackListItems = {}
@@ -29,7 +31,6 @@ function CustomInventoryAPI:New(data)
 end
 
 ---@methods
-
 --- register inventor
 function CustomInventoryAPI:Register()
     CustomInventoryInfos[self.id] = self
@@ -69,6 +70,30 @@ end
 ---@param data table<string, integer> @data table with name and grade
 function CustomInventoryAPI:AddPermissionTakeFrom(data)
     self.PermissionTakeFrom[data.name] = data.grade
+end
+
+-- update charid permission
+---@param charid number @charid
+---@param state boolean | nil  remove add or update
+function CustomInventoryAPI:AddCharIdPermissionTakeFrom(charid, state)
+    if self.CharIdPermissionTakeFrom[charid] then
+        self.CharIdPermissionTakeFrom[charid] = state
+    else
+        if state == nil then state = true end
+        self.CharIdPermissionTakeFrom[charid] = state
+    end
+end
+
+-- update charid permission move to
+---@param charid number @charid
+---@param state boolean | nil  remove add or update
+function CustomInventoryAPI:AddCharIdPermissionMoveTo(charid, state)
+    if self.CharIdPermissionMoveTo[charid] then
+        self.CharIdPermissionMoveTo[charid] = state
+    else
+        if state == nil then state = true end
+        self.CharIdPermissionMoveTo[charid] = state
+    end
 end
 
 --- set custom item limit
@@ -182,15 +207,15 @@ function CustomInventoryAPI:getBlackList()
 end
 
 --- get permission move to custom inventory
----@return table<string, integer> @table with inventory name and grade
+---@return table<string, integer>, table<number, boolean> @table with inventory name and grade
 function CustomInventoryAPI:getPermissionMoveTo()
-    return self.PermissionMoveTo
+    return self.PermissionMoveTo, self.CharIdPermissionMoveTo
 end
 
 --- get permission take from custom inventory
----@return table<string, integer> @table with inventory name and grade
+---@return table<string, integer>, table<number, boolean> @table with inventory name and grade
 function CustomInventoryAPI:getPermissionTakeFrom()
-    return self.PermissionTakeFrom
+    return self.PermissionTakeFrom, self.CharIdPermissionTakeFrom
 end
 
 --- does accept weapons

@@ -1,7 +1,7 @@
-# Inventory  System for VORPCore framework in Lua
+# Inventory in Lua
 
 ## Requirements
-- [vorp_core](https://github.com/VORPCORE/vorp-core-lua) Lua
+- vorp core Lua
 
 ## How to install
 * Download the lastest version of vorp_nventory
@@ -11,8 +11,8 @@
 
 
 ## Extensive API
-* using a single export on top of your server and client files
-* single exports for each API function * NEW
+* exports
+* events
 
 ## Features
 * wieght inventory based `(with limit for items)`
@@ -45,12 +45,11 @@
 
 
 ## DOCUMENTATION
-
-[vorp_inventory](https://vorpcore.github.io/VORP_Documentation/api/inventory) 
+inventory api
+[documentation](https://vorpcore.github.io/VORP_Documentation/api/inventory) 
 
 
 ## Credits
 - To [Val3ro](https://github.com/Val3ro) for the initial work.
-- to [Emolitt](https://github.com/RomainJolidon) and [Outsider](https://github.com/outsider31000) for finishing/testing.   
-- Credits to Vorp Team for creating the C# version and [Local9](https://github.com/Local9).
-- to [blue](https://github.com/kamelzarandah) for making this possible
+- to [Emolitt](https://github.com/RomainJolidon) for the conversion.   
+
