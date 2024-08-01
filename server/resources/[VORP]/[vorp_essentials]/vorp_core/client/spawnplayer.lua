@@ -67,16 +67,11 @@ AddEventHandler('playerSpawned', function()
         end
     end)
 end)
-local Spawned = {}
+
 --EVENTS character Innitialize
 RegisterNetEvent('vorp:initCharacter')
 AddEventHandler('vorp:initCharacter', function(coords, heading, isdead)
-    if not Spawned[GetPlayerFromServerId(PlayerId())] then
-        Spawned[GetPlayerFromServerId(PlayerId())] = true
-    else
-        -- dont let anyone spam this
-        return
-    end
+
     CoreAction.Player.TeleportToCoords(coords, heading)
     if isdead then
         if not Config.CombatLogDeath then

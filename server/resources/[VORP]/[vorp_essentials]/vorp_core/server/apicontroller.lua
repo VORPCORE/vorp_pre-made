@@ -56,7 +56,8 @@ CoreFunctions.NotifySimpleTop = function(source, text, subtitle, duration)
 end
 
 CoreFunctions.NotifyAvanced = function(source, text, dict, icon, text_color, duration, quality, showquality)
-    TriggerClientEvent('vorp:ShowAdvancedRightNotification', source, text, dict, icon, text_color, duration, quality, showquality)
+    TriggerClientEvent('vorp:ShowAdvancedRightNotification', source, text, dict, icon, text_color, duration, quality,
+        showquality)
 end
 
 CoreFunctions.NotifyCenter = function(source, text, duration, color)
@@ -155,59 +156,6 @@ CoreFunctions.Player = {
     end,
 }
 
-CoreFunctions.Command = {
-
-    Register = function(data)
-        if Commands[data.name] then
-            print('^1[ERROR] ^0Command ^1' .. data.name .. ' ^0already exists.')
-            return
-        end
-
-        Commands[data.name] = data
-
-        for index, value in pairs(data) do
-            RegisterCommands(value, index)
-        end
-    end,
-
-    Remove = function(name)
-        if not Commands[name] then
-            print('^1[ERROR] ^0Command ^1' .. name .. ' ^0does not exist can only remove commands you have added through core export.')
-            return
-        end
-        Commands[name] = nil
-    end
-}
-
---Example usage
-
---[[ local data = {
-    CommandName = {                               -- must be unique
-        --webhook
-        webhook = "link",                         -- discord log when someone uses this command leave to false if you dont need
-        custom = "message to display on webhook", -- for webhook
-        title = "webhook title",                  -- webhook title
-        ---#end webhook
-        commandName = "command name",             -- name of the command to use
-        label = "command label",                  -- label of command when using
-        suggestion = {                            -- chat arguments needed this is needd to check all arguments have met
-            { name = "Id",  help = "palyer id" }, -- add how many you need
-            { name = "msg", help = "description" },
-        },
-        userCheck = true,                         -- does this command need to check if user is online ? lets say its an admin comand and argument is a player id or it could be identifier or char id etc
-        groupAllowed = { "admin" },               -- from users table in the database this group will be allowed to use this command
-        aceAllowed = 'vorpcore.setGroup.Command', -- ace allow or false must have this in your permissions file
-        jobsAllow = {},                           -- jobs allowed ? remove or leave empty if not needed, not supporting ranks yet
-        callFunction = function(data)             -- dont touch
-            -- you can run code here trigger client events or server events , exports etc,
-            -- local source = data.source -- player id
-            -- local args = data.args -- arguments from chat
-            -- local raw = data.rawCommand
-            -- local data = data.config -- all the values you set above
-        end
-    }
-}
- ]]
 
 exports('GetCore', function()
     return CoreFunctions

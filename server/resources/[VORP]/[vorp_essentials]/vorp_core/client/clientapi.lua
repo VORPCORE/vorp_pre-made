@@ -19,7 +19,8 @@ CoreFunctions.NotifyTip = function(text, duration)
 end
 
 CoreFunctions.NotifyLeft = function(title, subtitle, dict, icon, duration, color)
-    VorpNotification:NotifyLeft(tostring(title), tostring(subtitle), tostring(dict), tostring(icon), tonumber(duration), tostring(color or "COLOR_WHITE"))
+    VorpNotification:NotifyLeft(tostring(title), tostring(subtitle), tostring(dict), tostring(icon), tonumber(duration),
+        tostring(color or "COLOR_WHITE"))
 end
 
 CoreFunctions.NotifyRightTip = function(text, duration)
@@ -40,7 +41,8 @@ CoreFunctions.NotifySimpleTop = function(text, subtitle, duration)
 end
 
 CoreFunctions.NotifyAvanced = function(text, dict, icon, text_color, duration, quality, showquality)
-    VorpNotification:NotifyAvanced(tostring(text), tostring(dict), tostring(icon), tostring(text_color), tonumber(duration), quality, showquality)
+    VorpNotification:NotifyAvanced(tostring(text), tostring(dict), tostring(icon), tostring(text_color),
+        tonumber(duration), quality, showquality)
 end
 
 CoreFunctions.NotifyBasicTop = function(text, duration)
@@ -68,14 +70,16 @@ CoreFunctions.NotifyUpdate = function(title, subtitle, duration)
 end
 
 CoreFunctions.NotifyWarning = function(title, msg, audioRef, audioName, duration)
-    VorpNotification:NotifyWarning(tostring(title), tostring(msg), tostring(audioRef), tostring(audioName), tonumber(duration))
+    VorpNotification:NotifyWarning(tostring(title), tostring(msg), tostring(audioRef), tostring(audioName),
+        tonumber(duration))
 end
 
 CoreFunctions.NotifyLeftRank = function(title, subtitle, dict, icon, duration, color)
-    VorpNotification:NotifyLeftRank(tostring(title), tostring(subtitle), tostring(dict), tostring(icon), tonumber(duration), tostring(color or "COLOR_WHITE"))
+    VorpNotification:NotifyLeftRank(tostring(title), tostring(subtitle), tostring(dict), tostring(icon),
+        tonumber(duration), tostring(color or "COLOR_WHITE"))
 end
 
-local promise = promise.new()
+
 
 CoreFunctions.Graphics = {
 
@@ -83,6 +87,14 @@ CoreFunctions.Graphics = {
         if ScreenResolution then
             return ScreenResolution
         end
+
+        local promise = promise.new()
+        RegisterNUICallback('getRes', function(args, cb)
+            promise:resolve(args)
+            ScreenResolution = args
+            cb('ok')
+        end)
+
         SendNUIMessage({ type = "getRes" })
         local result = Citizen.Await(promise)
         return result
@@ -130,12 +142,6 @@ CoreFunctions.Menu = {
 
 exports('GetCore', function()
     return CoreFunctions
-end)
-
-RegisterNUICallback('getRes', function(args, cb)
-    promise:resolve(args)
-    ScreenResolution = args
-    cb('ok')
 end)
 
 Citizen.CreateThreadNow(function()
