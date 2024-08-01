@@ -7,14 +7,14 @@ description 'A lumberjack script for vorp core framework'
 repository 'https://github.com/VORPCORE/vorp_lumberjack'
 
 shared_scripts {
-   'config.lua',
-   'shared/*.lua'
+    'config.lua',
+    'shared/*.lua'
 }
 client_script 'client/client.lua'
 server_script 'server/server.lua'
 
 dependencies {
-   'syn_minigame'
+      'syn_minigame'
 }
 
 version '1.0'

@@ -5,14 +5,18 @@ Lang = "English"
 Config.Axe = "hatchet"            -- Item you want to use as an axe, same DB
 
 Config.ChopPromptKey = 0xD9D0E1C0 -- [ SPACE ] Key to press for prompt
+
 Config.CancelChopKey = 0x3B24C470 -- [ F ] Key to Cancel Choppinp
+
 Config.ChopTreeKey = 0x07B8BEAF   -- [ MOUSE LEFT CLICK ] Key To Chop Tree
 
 Config.MinSwing = 1
+
 Config.MaxSwing = 5
 
 -- Lower number is harder
 Config.minDifficulty = 3800
+
 Config.maxDifficulty = 2000
 ---------------------------
 
