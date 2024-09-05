@@ -70,7 +70,6 @@ CREATE TABLE `characters` (
   UNIQUE KEY `identifier_charidentifier` (`identifier`, `charidentifier`) USING BTREE,
   KEY `charidentifier` (`charidentifier`) USING BTREE,
   KEY `identifier` (`identifier`), 
-  KEY `crafting` (`crafting`(768)),
   KEY `compPlayer` (`compPlayer`(768)),
   KEY `inventory` (`inventory`(768)),
   KEY `coords` (`coords`),
