@@ -48,7 +48,6 @@ CREATE TABLE `characters` (
   `slots` DECIMAL(20,1) NOT NULL DEFAULT 35.0,
   `job` VARCHAR(50) COLLATE utf8mb4_bin DEFAULT 'unemployed',
   `joblabel` VARCHAR(255) COLLATE utf8mb4_bin DEFAULT 'Unemployed',
-  `status` VARCHAR(140) COLLATE utf8mb4_bin DEFAULT '{}',
   `meta` VARCHAR(255) COLLATE utf8mb4_bin NOT NULL DEFAULT '{}',
   `firstname` VARCHAR(50) COLLATE utf8mb4_bin DEFAULT ' ',
   `lastname` VARCHAR(50) COLLATE utf8mb4_bin DEFAULT ' ',
@@ -62,18 +61,17 @@ CREATE TABLE `characters` (
   `jobgrade` INT(11) DEFAULT 0,
   `coords` LONGTEXT COLLATE utf8mb4_bin DEFAULT '{}',
   `isdead` tinyint(1) DEFAULT 0,
+  `skils` LONGTEXT COLLATE utf8mb4_bin DEFAULT NULL,
   `walk` VARCHAR(50) COLLATE utf8mb4_bin DEFAULT 'noanim',
-  `crafting` longtext COLLATE utf8mb4_bin DEFAULT '{"medical":0,"blacksmith":0,"basic":0,"survival":0,"brewing":0,"food":0}',
-  `info` longtext COLLATE utf8mb4_bin DEFAULT '{}',
   `gunsmith` double(11, 2) DEFAULT 0.00,
   `ammo` longtext COLLATE utf8mb4_bin DEFAULT '{}',
   `discordid` VARCHAR(255) COLLATE utf8mb4_bin DEFAULT '0',
   `lastjoined` longtext COLLATE utf8mb4_bin DEFAULT '[]',
   UNIQUE KEY `identifier_charidentifier` (`identifier`, `charidentifier`) USING BTREE,
   KEY `charidentifier` (`charidentifier`) USING BTREE,
+  KEY `identifier` (`identifier`), 
   KEY `crafting` (`crafting`(768)),
   KEY `compPlayer` (`compPlayer`(768)),
-  KEY `info` (`info`(768)),
   KEY `inventory` (`inventory`(768)),
   KEY `coords` (`coords`),
   KEY `money` (`money`),
@@ -225,7 +223,7 @@ CREATE TABLE `loadout` (
   KEY `id` (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = UTF8MB4;
 
-CREATE TABLE IF NOT EXISTS `mailbox_mails` (
+CREATE TABLE `mailbox_mails` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `sender_id` VARCHAR(50) DEFAULT NULL,
   `sender_firstname` VARCHAR(50) DEFAULT NULL,
@@ -239,7 +237,7 @@ CREATE TABLE IF NOT EXISTS `mailbox_mails` (
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = UTF8MB4;
 
-CREATE TABLE IF NOT EXISTS `outfits` (
+CREATE TABLE  `outfits` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `identifier` VARCHAR(45) NOT NULL,
   `charidentifier` INT(11) DEFAULT NULL,
@@ -250,7 +248,7 @@ CREATE TABLE IF NOT EXISTS `outfits` (
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 ROW_FORMAT = DYNAMIC;
 
 
-CREATE TABLE IF NOT EXISTS `wagons` (
+CREATE TABLE  `wagons` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `identifier` VARCHAR(40) NOT NULL,
   `charid` INT(11) NOT NULL,
