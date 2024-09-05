@@ -60,6 +60,7 @@ CREATE TABLE `characters` (
   `compTints` LONGTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_bin',
   `jobgrade` INT(11) DEFAULT 0,
   `coords` LONGTEXT COLLATE utf8mb4_bin DEFAULT '{}',
+  `status` varchar(140) COLLATE utf8mb4_bin DEFAULT '{}',
   `isdead` tinyint(1) DEFAULT 0,
   `skils` LONGTEXT COLLATE utf8mb4_bin DEFAULT NULL,
   `walk` VARCHAR(50) COLLATE utf8mb4_bin DEFAULT 'noanim',
