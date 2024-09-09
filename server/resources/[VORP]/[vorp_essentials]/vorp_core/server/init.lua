@@ -44,77 +44,80 @@ function UpdateChecker(resource)
             local Name = GetResourceMetadata(resource, 'vorp_name', 0)
             local Github = GetResourceMetadata(resource, 'vorp_github', 0)
             local Version = GetResourceMetadata(resource, 'vorp_version', 0)
-            local  GithubL, NewestVersion
+            local GithubL, NewestVersion
+            if Github then
+                Script = {}
 
-            Script = {}
-
-            Script['Resource'] = resource
-            if Version == nil then
-                Version = GetResourceMetadata(resource, 'version', 0)
-            end
-            if Name ~= nil then
-                Script['Name'] = Name
-            else
-                resource = resource:upper()
-                Script['Name'] = '^6' .. resource
-            end
-            if string.find(Github, "github") then
-                if string.find(Github, "github.com") then
-                    Script['Github'] = Github
-                    Github = string.gsub(Github, "github", "raw.githubusercontent") .. '/master/version'
-                else
-                    GithubL = string.gsub(Github, "raw.githubusercontent", "github"):gsub("/master", "")
-                    Github = Github .. '/version'
-                    Script['Github'] = GithubL
+                Script['Resource'] = resource
+                if Version == nil then
+                    Version = GetResourceMetadata(resource, 'version', 0)
                 end
-            else
-                Script['Github'] = Github .. '/version'
-            end
-            PerformHttpRequest(Github, function(Error, V, Header)
-                NewestVersion = V
-            end)
-            repeat
-                Wait(10)
-            until NewestVersion ~= nil
-
-            StripVersion = NewestVersion:match("<%d?%d.%d?%d.?%d?%d?>")
-            if StripVersion == nil then
-                print(Name, "Version is setup incorrectly!")
-            else
-                CleanedVersion = StripVersion:gsub("[<>]", "")
-                Version1 = CleanedVersion
-
-                if string.find(Version1, Version) then
+                if Name ~= nil then
+                    Script['Name'] = Name
                 else
-                    if Version1 < Version then
-                        Changelog = "Your script version is newer than what was found in github"
-                        NewestVersion = Version
+                    resource = resource:upper()
+                    Script['Name'] = '^6' .. resource
+                end
+                if string.find(Github, "github") then
+                    if string.find(Github, "github.com") then
+                        Script['Github'] = Github
+                        Github = string.gsub(Github, "github", "raw.githubusercontent") .. '/master/version'
                     else
-                        local MinV = NewestVersion:gsub("<" .. Version1 .. ">", "")
-                        local StripedExtra
-                        local isMatch = MinV:match("<" .. Version .. ">")
-                        if isMatch then
-                            StripedExtra = MinV:gsub("<" .. Version .. ">.*", "")
-                        else
-                            StripedExtra = MinV:gsub("<%d?%d.%d?%d.?%d?%d?>.*", "")
-                        end
-
-                        local stripedVersions = StripedExtra:gsub("<%d?%d.%d?%d.?%d?%d?>", "")
-
-                        local Changelog = stripedVersions
-                        Changelog = string.gsub(Changelog, "\n", "")
-                        Changelog = string.gsub(Changelog, "-", " \n-"):gsub("%b<>", ""):sub(1, -2)
-
-                        NewestVersion = Version1
-
-                        Script['CL'] = true
-                        Script['Changelog'] = Changelog
+                        GithubL = string.gsub(Github, "raw.githubusercontent", "github"):gsub("/master", "")
+                        Github = Github .. '/version'
+                        Script['Github'] = GithubL
                     end
+                else
+                    Script['Github'] = Github .. '/version'
                 end
-                Script['NewestVersion'] = Version1
-                Script['Version'] = Version
+                PerformHttpRequest(Github, function(Error, V, Header)
+                    NewestVersion = V
+                end)
+                repeat
+                    Wait(10)
+                until NewestVersion ~= nil
 
-                table.insert(ScriptList, Script)
+                StripVersion = NewestVersion:match("<%d?%d.%d?%d.?%d?%d?>")
+                if StripVersion == nil then
+                    print(Name, "Version is setup incorrectly!")
+                else
+                    CleanedVersion = StripVersion:gsub("[<>]", "")
+                    Version1 = CleanedVersion
+
+                    if string.find(Version1, Version) then
+                    else
+                        if Version1 < Version then
+                            Changelog = "Your script version is newer than what was found in github"
+                            NewestVersion = Version
+                        else
+                            local MinV = NewestVersion:gsub("<" .. Version1 .. ">", "")
+                            local StripedExtra
+                            local isMatch = MinV:match("<" .. Version .. ">")
+                            if isMatch then
+                                StripedExtra = MinV:gsub("<" .. Version .. ">.*", "")
+                            else
+                                StripedExtra = MinV:gsub("<%d?%d.%d?%d.?%d?%d?>.*", "")
+                            end
+
+                            local stripedVersions = StripedExtra:gsub("<%d?%d.%d?%d.?%d?%d?>", "")
+
+                            local Changelog = stripedVersions
+                            Changelog = string.gsub(Changelog, "\n", "")
+                            Changelog = string.gsub(Changelog, "-", " \n-"):gsub("%b<>", ""):sub(1, -2)
+
+                            NewestVersion = Version1
+
+                            Script['CL'] = true
+                            Script['Changelog'] = Changelog
+                        end
+                    end
+                    Script['NewestVersion'] = Version1
+                    Script['Version'] = Version
+
+                    table.insert(ScriptList, Script)
+                end
+            else
+                print(Name, "version metadata now found in the fxmanifest", resource)
             end
         end
     end
@@ -130,16 +133,16 @@ function Checker()
         if string.find(v.NewestVersion, v.Version) then
             table.insert(upToDate,
                 {
-                    message = '^4' .. v.Name .. ' (' .. v.Resource .. ') ^2✅ ' ..  'Up to date - Version ' .. v.Version .. '\n'
+                    message = '^4' .. v.Name .. ' (' .. v.Resource .. ') ^2✅ ' .. 'Up to date - Version ' .. v.Version .. '\n'
                 })
         elseif v.Version > v.NewestVersion then
             table.insert(outdated, {
-                message = '^4' ..    v.Name .. ' (' ..  v.Resource ..  ') ⚠️ ' .. 'Mismatch (v' ..  v.Version .. ') ^5- Official Version: ' .. v.NewestVersion .. ' ^0(' .. v.Github .. ')\n'
+                message = '^4' .. v.Name .. ' (' .. v.Resource .. ') ⚠️ ' .. 'Mismatch (v' .. v.Version .. ') ^5- Official Version: ' .. v.NewestVersion .. ' ^0(' .. v.Github .. ')\n'
             })
         else
             table.insert(outdated, {
-                message = '^4' ..  v.Name ..  ' (' ..      v.Resource ..  ') ^1❌ ' .. 'Outdated (v' ..  v.Version .. ') ^5- Update found: Version ' .. v.NewestVersion .. ' ^0(' .. v.Github .. ')\n'
-              })
+                message = '^4' .. v.Name .. ' (' .. v.Resource .. ') ^1❌ ' .. 'Outdated (v' .. v.Version .. ') ^5- Update found: Version ' .. v.NewestVersion .. ' ^0(' .. v.Github .. ')\n'
+            })
         end
 
         if v.CL then
@@ -176,4 +179,9 @@ function Changelog()
         end
     end
     print('^0###############################################################################')
+end
+
+local oneSyncConvar = GetConvar('onesync', 'off')
+if oneSyncConvar == 'off' then
+    print('^1WARNING: onesync is off, you must enable it in txAdmin settings | onesync infinity')
 end

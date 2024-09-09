@@ -6,6 +6,51 @@ local function SetState(source, key, field, newValue)
         Player(source).state:set(key, state, true)
     end
 end
+if not Config.Skills then
+    print("Update the config Skills config missing")
+    return
+end
+
+local function setSkills(data)
+    for skillName, skillData in pairs(data.skills) do
+        if not Config.Skills[skillName] then
+            print(("Skill %s not found in config of Skills"):format(skillName))
+            return
+        end
+        local currentLevel = skillData.Level
+        local currentExp = skillData.Exp
+        local info = Config.Skills[skillName].Levels
+        local maxLevel = #info
+        local label = info[currentLevel].Label
+        local nextLevel = info[currentLevel].NextLevel
+        data.skills[skillName] = {
+            Exp = currentExp,
+            Level = currentLevel,
+            Label = label,
+            MaxLevel = maxLevel,
+            NextLevel = nextLevel
+
+        }
+    end
+
+    if next(data.skills) then
+        return data.skills
+    end
+
+    for skillName, skillData in pairs(Config.Skills) do
+        if not data.skills[skillName] then
+            data.skills[skillName] = {
+                Exp = 0,
+                Level = 1,
+                Label = skillData.Levels[1].Label,
+                MaxLevel = #skillData.Levels,
+                NextLevel = skillData.Levels[1].NextLevel
+            }
+        end
+    end
+
+    return data.skills
+end
 
 function Character(data)
     local self = {}
@@ -40,6 +85,7 @@ function Character(data)
     self.nickname = data.nickname
     self.steamname = data.steamname
     self.slots = data.slots
+    self.skills = setSkills(data)
 
     self.Identifier = function()
         return self.identifier
@@ -52,10 +98,10 @@ function Character(data)
 
     self.Group = function(value, flag)
         if value then
-            self.group = value
             if flag or flag == nil then -- alow true or nil, only false will not trigger the event
-                TriggerEvent("vorp:playerGroupChange", self.source, self.group)
+                TriggerEvent("vorp:playerGroupChange", self.source, value, self.group)
             end
+            self.group = value
             SetState(self.source, "Character", "Group", self.group)
         end
 
@@ -64,10 +110,10 @@ function Character(data)
 
     self.Job = function(value, flag)
         if value then
-            self.job = value
             if flag or flag == nil then -- alow true or nil, only false will not trigger the event
-                TriggerEvent("vorp:playerJobChange", self.source, self.job)
+                TriggerEvent("vorp:playerJobChange", self.source, value, self.job)
             end
+            self.job = value
             SetState(self.source, "Character", "Job", self.job)
         end
         return self.job
@@ -84,10 +130,10 @@ function Character(data)
 
     self.Jobgrade = function(value, flag)
         if value then
-            self.jobgrade = value
             if flag or flag == nil then -- alow true or nil, only false will not trigger the event
-                TriggerEvent("vorp:playerJobGradeChange", self.source, self.jobgrade)
+                TriggerEvent("vorp:playerJobGradeChange", self.source, value, self.jobgrade)
             end
+            self.jobgrade = value
             SetState(self.source, "Character", "Grade", self.jobgrade)
         end
 
@@ -198,6 +244,53 @@ function Character(data)
         return self.xp
     end
 
+    self.SkillsSetter = function(index, value)
+        if not self.skills[index] then
+            print("Skill not found")
+            return
+        end
+        if not Config.Skills[index] then
+            print("Skill not found in config")
+            return
+        end
+
+        self.skills[index].Exp = self.skills[index].Exp + value
+        local currentExp = self.skills[index].Exp
+        local currentLevel = self.skills[index].Level
+        local MaxLevel = self.skills[index].MaxLevel
+
+        if MaxLevel == currentLevel then return end
+
+        local nextLevelExp = self.skills[index].NextLevel
+
+        if not nextLevelExp then
+            print(("Levels are not set up in config for %s"):format(index))
+            return
+        end
+
+        if currentExp >= nextLevelExp then
+            self.skills[index].Level = currentLevel + 1
+            self.skills[index].Exp = 0
+            TriggerClientEvent("vorp_core:Client:OnPlayerLevelUp", self.source, index, self.skills[index].Level)
+            TriggerEvent("vorp_core:Server:OnPlayerLevelUp", self.source, index, self.skills[index].Level)
+        end
+        -- this logic is for the case where the player has more exp than the next level enabling level up twice etc, which in my opinion is unlikely to happen unless you use pvp servers
+        --[[ while currentExp >= nextLevelExp and currentLevel < MaxLevel do
+            currentLevel = currentLevel + 1
+            self.skills[index].Level = currentLevel
+
+            currentExp = currentExp - nextLevelExp
+            self.skills[index].Exp = currentExp
+
+            if currentLevel == MaxLevel then
+                self.skills[index].Exp = 0
+                return
+            end
+
+            nextLevelExp = Config.Skills[index].Levels[currentLevel].NextLevel
+        end ]]
+    end
+
     self.Hours = function(value)
         if value then self.hours = value end
         return self.hours
@@ -211,8 +304,7 @@ function Character(data)
     self.Skin = function(value)
         if value then
             self.skin = value
-            MySQL.update(
-                "UPDATE characters SET `skinPlayer` = @skin WHERE `identifier` = @identifier AND `charidentifier` = @charIdentifier",
+            MySQL.update("UPDATE characters SET `skinPlayer` = @skin WHERE `identifier` = @identifier AND `charidentifier` = @charIdentifier",
                 { skin = value, identifier = self.identifier, charIdentifier = self.charIdentifier })
         end
         return self.skin
@@ -221,8 +313,7 @@ function Character(data)
     self.Comps = function(value)
         if value then
             self.comps = value
-            MySQL.update(
-                "UPDATE characters SET `compPlayer` = @comps WHERE `identifier` = @identifier AND `charidentifier` = @charIdentifier",
+            MySQL.update("UPDATE characters SET `compPlayer` = @comps WHERE `identifier` = @identifier AND `charidentifier` = @charIdentifier",
                 { comps = value, identifier = self.identifier, charIdentifier = self.charIdentifier })
         end
         return self.comps
@@ -231,8 +322,7 @@ function Character(data)
     self.CompTints = function(value)
         if value then
             self.compTints = value
-            MySQL.update(
-                "UPDATE characters SET `compTints` = @tints WHERE `identifier` = @identifier AND `charidentifier` = @charIdentifier",
+            MySQL.update("UPDATE characters SET `compTints` = @tints WHERE `identifier` = @identifier AND `charidentifier` = @charIdentifier",
                 { tints = value, identifier = self.identifier, charIdentifier = self.charIdentifier })
         end
         return self.compTints
@@ -321,7 +411,7 @@ function Character(data)
     end
 
     self.SaveNewCharacterInDb = function(cb)
-        MySQL.query("INSERT INTO characters (`identifier`,`group`,`money`,`gold`,`rol`,`xp`,`healthouter`,`healthinner`,`staminaouter`,`staminainner`,`hours`,`inventory`,`job`,`status`,`firstname`,`lastname`,`skinPlayer`,`compPlayer`,`jobgrade`,`coords`,`isdead`,`joblabel`, `age`,`gender`,`character_desc`,`nickname`,`compTints`,`steamname`,`slots`) VALUES (@identifier,@group, @money, @gold, @rol, @xp, @healthouter, @healthinner, @staminaouter, @staminainner, @hours, @inventory, @job, @status, @firstname, @lastname, @skinPlayer, @compPlayer, @jobgrade, @coords, @isdead, @joblabel, @age, @gender, @charDescription, @nickname,@compTints,@steamname,@slots)",
+        MySQL.query("INSERT INTO characters (`identifier`,`group`,`money`,`gold`,`rol`,`xp`,`healthouter`,`healthinner`,`staminaouter`,`staminainner`,`hours`,`inventory`,`job`,`status`,`firstname`,`lastname`,`skinPlayer`,`compPlayer`,`jobgrade`,`coords`,`isdead`,`joblabel`, `age`,`gender`,`character_desc`,`nickname`,`compTints`,`steamname`,`slots`,`skills`) VALUES (@identifier,@group, @money, @gold, @rol, @xp, @healthouter, @healthinner, @staminaouter, @staminainner, @hours, @inventory, @job, @status, @firstname, @lastname, @skinPlayer, @compPlayer, @jobgrade, @coords, @isdead, @joblabel, @age, @gender, @charDescription, @nickname,@compTints,@steamname,@slots,@skills)",
             {
                 identifier = self.identifier,
                 group = self.group,
@@ -351,7 +441,9 @@ function Character(data)
                 nickname = self.nickname,
                 compTints = self.compTints,
                 steamname = self.steamname,
-                slots = self.slots
+                slots = self.slots,
+                skills = json.encode(self.skills)
+
             },
             function(character)
                 cb(character.insertId)
@@ -367,8 +459,7 @@ function Character(data)
     end
 
     self.SaveCharacterInDb = function()
-        MySQL.update(
-            "UPDATE characters SET `group` =@group ,`money` =@money ,`gold` =@gold ,`rol` =@rol ,`xp` =@xp ,`healthouter` =@healthouter ,`healthinner` =@healthinner ,`staminaouter` =@staminaouter ,`staminainner` =@staminainner ,`hours` =@hours ,`job` =@job , `status` =@status ,`firstname` =@firstname , `lastname` =@lastname , `jobgrade` =@jobgrade , `coords` =@coords , `isdead` =@isdead , `joblabel` =@joblabel, `age` =@age, `gender`=@gender, `character_desc`=@charDescription,`nickname`=@nickname,`steamname`=@steamname, `slots` =@slots WHERE `identifier` =@identifier AND `charidentifier` =@charidentifier",
+        MySQL.update("UPDATE characters SET `group` =@group ,`money` =@money ,`gold` =@gold ,`rol` =@rol ,`xp` =@xp ,`healthouter` =@healthouter ,`healthinner` =@healthinner ,`staminaouter` =@staminaouter ,`staminainner` =@staminainner ,`hours` =@hours ,`job` =@job , `status` =@status ,`firstname` =@firstname , `lastname` =@lastname , `jobgrade` =@jobgrade , `coords` =@coords , `isdead` =@isdead , `joblabel` =@joblabel, `age` =@age, `gender`=@gender, `character_desc`=@charDescription,`nickname`=@nickname,`steamname`=@steamname, `slots` =@slots, `skills`=@skills  WHERE `identifier` =@identifier AND `charidentifier` =@charidentifier",
             {
                 group = self.group,
                 money = self.money,
@@ -395,14 +486,14 @@ function Character(data)
                 charDescription = self.charDescription,
                 nickname = self.nickname,
                 steamname = self.steamname,
-                slots = self.slots
+                slots = self.slots,
+                skills = json.encode(self.skills)
             })
     end
 
     -- getters and functions setters
     self.getCharacter = function()
         local userData = {}
-
         userData.identifier = self.identifier
         userData.charIdentifier = self.charIdentifier
         userData.group = self.group
@@ -432,6 +523,7 @@ function Character(data)
         userData.charDescription = self.charDescription
         userData.nickname = self.nickname
         userData.invCapacity = tonumber(self.slots)
+        userData.skills = self.skills
 
         userData.updateInvCapacity = function(slots)
             self.setSlots(slots)
@@ -500,6 +592,10 @@ function Character(data)
         --------------
         userData.updateSkin = function(skin)
             self.Skin(skin)
+        end
+
+        userData.setSkills = function(index, exp)
+            self.SkillsSetter(index, exp)
         end
 
         userData.updateComps = function(comps)

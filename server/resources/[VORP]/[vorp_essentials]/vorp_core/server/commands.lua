@@ -250,7 +250,7 @@ end
 --REVIVEPLAYERS
 function RevivePlayer(data)
     local target = tonumber(data.args[1])
-    TriggerClientEvent('vorp:resurrectPlayer', target)
+    CoreFunctions.Player.Revive(target)
     SendDiscordLogs(data.config.webhook, data, target, "", "")
     CoreFunctions.NotifyRightTip(data.source, string.format(Translation[Lang].Notify.revived, target), 4000)
 end
@@ -281,7 +281,7 @@ end
 --HEALPLAYERS
 function HealPlayers(data)
     local target = tonumber(data.args[1])
-    TriggerClientEvent('vorp:heal', target)
+    CoreFunctions.Player.Heal(target)
     SendDiscordLogs(data.config.webhook, data, target, "", "")
     CoreFunctions.NotifyRightTip(data.source, string.format(Translation[Lang].Notify.healedPlayer, target), 4000)
 end
@@ -360,6 +360,7 @@ function AddCharCanCreateMore(data)
     local target = data.args[1]
     local number = tonumber(data.args[2])
     local Character = CoreFunctions.getUser(target)
+    if not Character then return end
     Character.setCharperm(number)
     SendDiscordLogs(data.config.webhook, data, data.source, "", "")
     CoreFunctions.NotifyRightTip(data.source, T.AddChar .. target, 4000)
@@ -406,6 +407,32 @@ function MyHours(data)
         local newhour = math.floor(hours - 0.5)
         CoreFunctions.NotifyRightTip(_source, string.format(T.playhours, newhour, 30), 4000)
     end
+end
+
+function SetExp(data)
+    local target = tonumber(data.args[1])
+    local skillName = tostring(data.args[2])
+    local exp = tonumber(data.args[3])
+    local Character = CoreFunctions.getUser(target).getUsedCharacter
+    Character.setSkills(skillName, exp)
+    SendDiscordLogs(data.config.webhook, data, data.source, exp, skillName)
+    CoreFunctions.NotifyRightTip(data.source, "exp given to player ", 4000)
+    CoreFunctions.NotifyRightTip(target, string.format("you have received %s exp in %s", exp, skillName), 4000)
+end
+
+--my exp
+function MyExp(data)
+    local _source = data.source
+    local User = CoreFunctions.getUser(_source).getUsedCharacter
+    local skills = User.skills
+    if not skills[data.args[1]] then
+        return CoreFunctions.NotifyRightTip(_source, "skill not found", 4000)
+    end
+    local exp = skills[data.args[1]].Exp
+    local lvl = skills[data.args[1]].Level
+    local label = skills[data.args[1]].Label
+    local text = "You are %s level %s with %s exp in %s"
+    CoreFunctions.NotifyRightTip(_source, text:format(label, lvl, exp, data.args[1]), 4000)
 end
 
 --============================================ CHAT ADD SUGGESTION ========================================================--

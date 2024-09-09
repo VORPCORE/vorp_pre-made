@@ -203,15 +203,15 @@ function CoreAction.Admin.TeleportToWayPoint()
 end
 
 function CoreAction.Utils.LoadModel(hash)
-    if IsModelValid(hash) then
-        if not HasModelLoaded(hash) then
-            RequestModel(hash, false)
-            repeat Wait(0) until HasModelLoaded(hash)
-            return true
-        end
+    if not IsModelValid(hash) then return false end
+
+    if not HasModelLoaded(hash) then
+        RequestModel(hash, false)
+        repeat Wait(0) until HasModelLoaded(hash)
         return true
     end
-    return false
+
+    return true
 end
 
 function CoreAction.Utils.LoadTexture(hash)
@@ -220,7 +220,7 @@ function CoreAction.Utils.LoadTexture(hash)
         repeat Wait(0) until HasStreamedTextureDictLoaded(hash)
         return true
     end
-    return false
+    return true
 end
 
 function CoreAction.Utils.bigInt(text)
