@@ -62,7 +62,7 @@ CREATE TABLE `characters` (
   `coords` LONGTEXT COLLATE utf8mb4_bin DEFAULT '{}',
   `status` varchar(140) COLLATE utf8mb4_bin DEFAULT '{}',
   `isdead` tinyint(1) DEFAULT 0,
-  `skils` LONGTEXT COLLATE utf8mb4_bin DEFAULT NULL,
+  `skills` LONGTEXT COLLATE utf8mb4_bin DEFAULT NULL,
   `walk` VARCHAR(50) COLLATE utf8mb4_bin DEFAULT 'noanim',
   `gunsmith` double(11, 2) DEFAULT 0.00,
   `ammo` longtext COLLATE utf8mb4_bin DEFAULT '{}',
