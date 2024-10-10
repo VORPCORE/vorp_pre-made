@@ -848,7 +848,7 @@ Config.Doors = {
         Difficulty = 3,
         Alert = true,
     },
-    --[[     [3093514944]  = { -- id is wrong
+    [3093514944]  = {
         Pos = vector3(360.2287292480469, 1465.9957275390625, 178.7265625),
         Name = "Front Gate 2 (Right)",
         DoorState = 0,
@@ -856,7 +856,7 @@ Config.Doors = {
         BreakAble = Config.Lockpicks.location,
         Difficulty = 3,
         Alert = true,
-    }, ]]
+    },
     [1163537966] = {
         Pos = vector3(347.78607177734375, 1471.0980224609375, 178.77976989746094),
         Name = "1th Office Door",
@@ -932,7 +932,7 @@ Config.Doors = {
         Difficulty = 3,
         Alert = true,
     },
-    [3093514944] = {
+    [1121239638] = {
         Pos = vector3(3327.572265625, -707.517822265625, 43.38306045532226),
         Name = "Back Gate 2 (Right)",
         DoorState = 1,
