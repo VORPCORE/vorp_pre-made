@@ -116,7 +116,16 @@ end)
 
 
 -- on player select character event
-RegisterNetEvent("vorp:SelectedCharacter", loadPlayerWeapons)
+AddEventHandler("vorp:SelectedCharacter", function(source, char)
+	loadPlayerWeapons(source, char)
+
+	local newtable = {}
+	for k, v in pairs(ServerItems) do
+		newtable[k] = v.item
+	end
+	local packed = msgpack.pack(newtable)
+	TriggerClientEvent("vorp_inventory:server:CacheImages", source, packed)
+end)
 
 -- reload on script restart
 if Config.DevMode then
@@ -124,5 +133,12 @@ if Config.DevMode then
 		local _source = source
 		local character = Core.getUser(_source).getUsedCharacter
 		loadPlayerWeapons(_source, character)
+
+		local newtable = {}
+		for k, v in pairs(ServerItems) do
+			newtable[k] = v.item
+		end
+		local packed = msgpack.pack(newtable)
+		TriggerClientEvent("vorp_inventory:server:CacheImages", source, packed)
 	end)
 end

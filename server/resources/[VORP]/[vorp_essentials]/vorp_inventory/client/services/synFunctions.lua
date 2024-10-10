@@ -17,7 +17,10 @@ function NUIService.NUIMoveToClan(obj)
 end
 
 function NUIService.NUITakeFromClan(obj)
-    TriggerServerEvent("syn_clan:TakeFromClan", json.encode(obj))
+    if not SynPending then
+        SynPending = true
+        TriggerServerEvent("syn_clan:TakeFromClan", json.encode(obj))
+    end
 end
 
 function NUIService.OpenContainerInventory(ContainerName, Containerid, capacity)
@@ -39,7 +42,11 @@ function NUIService.NUIMoveToContainer(obj)
 end
 
 function NUIService.NUITakeFromContainer(obj)
-    TriggerServerEvent("syn_Container:TakeFromContainer", json.encode(obj))
+    if not SynPending then
+        SynPending = true
+
+        TriggerServerEvent("syn_Container:TakeFromContainer", json.encode(obj))
+    end
 end
 
 function NUIService.OpenHorseInventory(horseTitle, horseId, capacity)
@@ -62,7 +69,11 @@ function NUIService.NUIMoveToHorse(obj)
 end
 
 function NUIService.NUITakeFromHorse(obj)
-    TriggerServerEvent("vorp_stables:TakeFromHorse", json.encode(obj))
+    if not SynPending then
+        SynPending = true
+
+        TriggerServerEvent("vorp_stables:TakeFromHorse", json.encode(obj))
+    end
 end
 
 function NUIService.NUIMoveToStore(obj)
@@ -70,7 +81,11 @@ function NUIService.NUIMoveToStore(obj)
 end
 
 function NUIService.NUITakeFromStore(obj)
-    TriggerServerEvent("syn_store:TakeFromStore", json.encode(obj))
+    if not SynPending then
+        SynPending = true
+
+        TriggerServerEvent("syn_store:TakeFromStore", json.encode(obj))
+    end
 end
 
 function NUIService.OpenStoreInventory(StoreName, StoreId, capacity, geninfox)
@@ -111,7 +126,11 @@ function NUIService.NUIMoveTosteal(obj)
 end
 
 function NUIService.NUITakeFromsteal(obj)
-    TriggerServerEvent("syn_search:TakeFromsteal", json.encode(obj))
+    if not SynPending then
+        SynPending = true
+
+        TriggerServerEvent("syn_search:TakeFromsteal", json.encode(obj))
+    end
 end
 
 function NUIService.OpenCartInventory(cartName, wagonId, capacity)
@@ -135,7 +154,11 @@ function NUIService.NUIMoveToCart(obj)
 end
 
 function NUIService.NUITakeFromCart(obj)
-    TriggerServerEvent("vorp_stables:TakeFromCart", json.encode(obj))
+    if not SynPending then
+        SynPending = true
+
+        TriggerServerEvent("vorp_stables:TakeFromCart", json.encode(obj))
+    end
 end
 
 function NUIService.OpenHouseInventory(houseName, houseId, capacity)
@@ -157,7 +180,11 @@ function NUIService.NUIMoveToHouse(obj)
 end
 
 function NUIService.NUITakeFromHouse(obj)
-    TriggerServerEvent("vorp_housing:TakeFromHouse", json.encode(obj))
+    if not SynPending then
+        SynPending = true
+
+        TriggerServerEvent("vorp_housing:TakeFromHouse", json.encode(obj))
+    end
 end
 
 function NUIService.OpenHideoutInventory(hideoutName, hideoutId, capacity)
@@ -179,7 +206,11 @@ function NUIService.NUIMoveToHideout(obj)
 end
 
 function NUIService.NUITakeFromHideout(obj)
-    TriggerServerEvent("syn_underground:TakeFromHideout", json.encode(obj))
+    if not SynPending then
+        SynPending = true
+
+        TriggerServerEvent("syn_underground:TakeFromHideout", json.encode(obj))
+    end
 end
 
 function NUIService.OpenBankInventory(bankName, bankId, capacity)
@@ -201,5 +232,9 @@ function NUIService.NUIMoveToBank(obj)
 end
 
 function NUIService.NUITakeFromBank(obj)
-    TriggerServerEvent("vorp_bank:TakeFromBank", json.encode(obj))
+    if not SynPending then
+        SynPending = true
+
+        TriggerServerEvent("vorp_bank:TakeFromBank", json.encode(obj))
+    end
 end

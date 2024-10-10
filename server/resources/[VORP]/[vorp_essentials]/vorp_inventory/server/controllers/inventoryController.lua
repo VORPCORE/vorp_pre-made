@@ -1,4 +1,4 @@
----@diagnostic disable: undefined-global
+
 -- Inventory Service Controller
 RegisterServerEvent("vorpinventory:getItemsTable", InventoryService.getItemsTable)
 RegisterServerEvent("vorpinventory:getInventory", InventoryService.getInventory)
@@ -6,10 +6,7 @@ RegisterServerEvent("vorpinventory:serverGiveItem", InventoryService.GiveItem)
 RegisterServerEvent("vorpinventory:serverGiveWeapon", InventoryService.GiveWeapon)
 RegisterServerEvent("vorpinventory:serverDropItem", InventoryService.DropItem)
 RegisterServerEvent("vorpinventory:serverDropMoney", InventoryService.DropMoney)
-RegisterServerEvent("vorpinventory:serverDropAllMoney", InventoryService.DropAllMoney)
-RegisterServerEvent("vorpinventory:serverDropPartMoney", InventoryService.DropPartMoney)
 RegisterServerEvent("vorpinventory:serverDropGold", InventoryService.DropGold)
-RegisterServerEvent("vorpinventory:serverDropAllGold", InventoryService.DropAllGold)
 RegisterServerEvent("vorpinventory:serverDropWeapon", InventoryService.DropWeapon)
 RegisterServerEvent("vorpinventory:sharePickupServerItem", InventoryService.sharePickupServerItem)
 RegisterServerEvent("vorpinventory:sharePickupServerWeapon", InventoryService.sharePickupServerWeapon)

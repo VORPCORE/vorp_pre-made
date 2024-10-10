@@ -1,9 +1,3 @@
-if GetCurrentResourceName() ~= 'vorp_core' then
-    for i = 1, 5, 1 do
-        print("^3WARNING ^0 This resource is not named correctly, please change it to ^1'vorp_core'^0 to work properly.")
-    end
-end
-
 CoreFunctions = {}
 
 CoreFunctions.maxCharacters = function(source)
@@ -148,13 +142,13 @@ CoreFunctions.Player = {
     end,
     Revive = function(source, param)
         if not source then return end
-        TriggerEvent("vorp_core:Server:OnPlayerRevive", source)
-        TriggerClientEvent("vorp_core:Client:OnPlayerRevive", source)
+        TriggerEvent("vorp_core:Server:OnPlayerRevive", source, param)
+        TriggerClientEvent("vorp_core:Client:OnPlayerRevive", source, param)
     end,
     Respawn = function(source, param)
         if not source then return end
-        TriggerEvent("vorp_core:Server:OnPlayerRespawn", source)
-        TriggerClientEvent("vorp_core:Client:OnPlayerRespawn", source)
+        TriggerEvent("vorp_core:Server:OnPlayerRespawn", source, param)
+        TriggerClientEvent("vorp_core:Client:OnPlayerRespawn", source, param)
     end,
 }
 

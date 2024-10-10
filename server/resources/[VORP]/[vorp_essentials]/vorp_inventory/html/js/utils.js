@@ -48,8 +48,6 @@ function getGroupKey(group) {
         groupKey = Object.keys(window.Actions).find(key =>
             key !== "all" && window.Actions[key].types.includes(group)
         );
-    } else {
-        console.log("Actions were not loaded!!");
     }
     return groupKey;
 }

@@ -24,12 +24,16 @@ $("document").ready(function () {
     initSecondaryInventoryHandlers();
 });
 
+
 window.onload = initDivMouseOver;
 
 let stopTooltip = false;
 
 window.addEventListener('message', function (event) {
 
+    if (event.data.action == "cacheImages") {
+        preloadImages(event.data.info);
+    }
 
     if (event.data.action == "initiate") {
         LANGUAGE = event.data.language
@@ -218,6 +222,7 @@ window.addEventListener('message', function (event) {
         dialog.close();
         stopTooltip = true;
     } else if (event.data.action == "setItems") {
+
         inventorySetup(event.data.itemList);
 
         if (type != "main") {
@@ -258,7 +263,6 @@ window.addEventListener('message', function (event) {
                 }
             });
         }
-
     } else if (event.data.action == "setSecondInventoryItems") {
         secondInventorySetup(event.data.itemList, event.data.info);
 
@@ -272,7 +276,6 @@ window.addEventListener('message', function (event) {
         let weight = null
         //amount of items in Inventory
         secondarySetCurrentCapacity(total, weight)
-
     } else if (event.data.action == "nearPlayers") {
         if (event.data.what == "give") {
             selectPlayerToGive(event.data);

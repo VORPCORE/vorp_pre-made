@@ -1,6 +1,6 @@
 local T          = TranslationInv.Langs[Lang]
 local Core       = exports.vorp_core:GetCore()
-local timer      = 120 -- in minutes --todo needs a config
+local timer      = Config.CoolDownNewPlayer or 120
 local newchar    = {}
 InventoryService = {}
 ItemPickUps      = {}
@@ -98,7 +98,7 @@ function InventoryService.DropMoney(amount)
 			else
 				userCharacter.removeCurrency(0, amount)
 			end
-			local charname, scourceidentifier, steamname = getSourceInfo(_source)
+			local charname, _, steamname = getSourceInfo(_source)
 			local title = T.dropmoney
 			local description = "**" .. T.WebHookLang.money .. ":** `" .. amount .. "` `$` \n**" .. T.WebHookLang.charname .. ":** `" .. charname .. "`\n**" .. T.WebHookLang.Steamname .. "** `" .. steamname .. "`\n"
 
@@ -110,42 +110,6 @@ function InventoryService.DropMoney(amount)
 			SvUtils.SendDiscordWebhook(info)
 		end
 		SvUtils.Trem(_source)
-	end
-end
-
-function InventoryService.DropAllMoney()
-	local _source = source
-	if not SvUtils.InProcessing(_source) then
-		SvUtils.ProcessUser(_source)
-		local userCharacter = Core.getUser(_source).getUsedCharacter
-		local userMoney = userCharacter.money
-		local charid = userCharacter.charIdentifier
-
-		if not InventoryService.CheckNewPlayer(_source, charid) then
-			return
-		end
-
-		if userMoney > 0 then
-			TriggerClientEvent("vorpInventory:createMoneyPickup", _source, userMoney)
-		end
-		SvUtils.Trem(_source)
-	end
-end
-
-function InventoryService.DropPartMoney()
-	local _source = source
-	local userCharacter = Core.getUser(_source).getUsedCharacter
-	local userMoney = userCharacter.money
-	local userPartMoney = userMoney - (userMoney * Config.DropOnRespawn.PartPercentage / 100)
-	local userMoneyDef = userMoney - userPartMoney
-	local charid = userCharacter.charIdentifier
-
-	if not InventoryService.CheckNewPlayer(_source, charid) then
-		return
-	end
-
-	if userMoney > 0 then
-		TriggerClientEvent("vorpInventory:createMoneyPickup", _source, userMoneyDef)
 	end
 end
 
@@ -225,22 +189,6 @@ function InventoryService.DropGold(amount)
 		SvUtils.SendDiscordWebhook(info)
 	end
 	SvUtils.Trem(_source)
-end
-
-function InventoryService.DropAllGold()
-	local _source = source
-	if SvUtils.InProcessing(_source) then
-		return
-	end
-
-	SvUtils.ProcessUser(_source)
-	local userCharacter = Core.getUser(_source).getUsedCharacter
-	local userGold = userCharacter.gold
-
-	if userGold > 0 then
-		TriggerClientEvent("vorpInventory:createGoldPickup", _source, userGold)
-	end
-	SvUtils.Trem(_source, false)
 end
 
 function InventoryService.giveGoldToPlayer(target, amount)
@@ -463,6 +411,10 @@ function InventoryService.onPickup(data)
 	if not ItemUids[uid] or not user or SvUtils.InProcessing(_source) then
 		return
 	end
+
+	local pickup = ItemPickUps[uid]
+	if not pickup then return end
+
 	SvUtils.ProcessUser(_source)
 
 	local character = user.getUsedCharacter
@@ -471,7 +423,7 @@ function InventoryService.onPickup(data)
 	local invCapacity = character.invCapacity
 	local job = character.job
 	local userInventory = UsersInventories.default[identifier]
-	local pickup = ItemPickUps[uid]
+
 
 	if not userInventory then
 		SvUtils.Trem(_source, false)
@@ -514,50 +466,53 @@ function InventoryService.onPickup(data)
 		local weaponId = ItemPickUps[uid].weaponid
 		local userWeapons = UsersWeapons.default
 		local weapon = userWeapons[weaponId]
-		local serialNumber = weapon:getSerialNumber()
-		local weaponCustomDesc = weapon:getCustomDesc()
+		if weapon then
+			local serialNumber = weapon:getSerialNumber()
+			local weaponCustomDesc = weapon:getCustomDesc()
 
-		if Config.JobsAllowed[job] then
-			DefaultAmount = Config.JobsAllowed[job]
-		end
-
-		if DefaultAmount ~= 0 then
-			if weapon:getName() then
-				if SharedUtils.IsValueInArray(string.upper(weapon:getName()), Config.notweapons) then
-					notListed = true
-				end
-			end
-			if not notListed then
-				local itemsToTalWeight = InventoryAPI.getUserTotalCountItems(identifier, charId)
-				local sourceInventoryWeaponWeight = InventoryAPI.getUserTotalCountWeapons(identifier, charId, true)
-				totalInvWeight = (itemsToTalWeight + weapon:getWeight() + sourceInventoryWeaponWeight)
-				sourceInventoryWeaponCount = InventoryAPI.getUserTotalCountWeapons(identifier, charId) + 1
+			if Config.JobsAllowed[job] then
+				DefaultAmount = Config.JobsAllowed[job]
 			end
 
-			if totalInvWeight <= invCapacity or sourceInventoryWeaponCount <= DefaultAmount then
-				local weaponObj = ItemPickUps[uid].obj
+			if DefaultAmount ~= 0 then
+				if weapon:getName() then
+					if SharedUtils.IsValueInArray(string.upper(weapon:getName()), Config.notweapons) then
+						notListed = true
+					end
+				end
 
-				weapon:setDropped(0)
-				local dataweapon = { name = weapon:getName(), obj = weaponObj, amount = pickup.amount, metadata = {}, weaponId = weaponId, position = ItemPickUps[uid].coords, custom_label = weapon:getCustomLabel(), serial_number = serialNumber, custom_desc = weaponCustomDesc, id = nil }
-				ItemPickUps[uid] = nil
-				if weaponCustomDesc == nil then
-					weaponCustomDesc = "Custom Description not set"
+				if not notListed then
+					local itemsToTalWeight = InventoryAPI.getUserTotalCountItems(identifier, charId)
+					local sourceInventoryWeaponWeight = InventoryAPI.getUserTotalCountWeapons(identifier, charId, true)
+					totalInvWeight = (itemsToTalWeight + weapon:getWeight() + sourceInventoryWeaponWeight)
+					sourceInventoryWeaponCount = InventoryAPI.getUserTotalCountWeapons(identifier, charId) + 1
 				end
-				if serialNumber == nil then
-					serialNumber = "Serial Number not set"
+
+				if totalInvWeight <= invCapacity or sourceInventoryWeaponCount <= DefaultAmount then
+					local weaponObj = ItemPickUps[uid].obj
+
+					weapon:setDropped(0)
+					local dataweapon = { name = weapon:getName(), obj = weaponObj, amount = pickup.amount, metadata = {}, weaponId = weaponId, position = ItemPickUps[uid].coords, custom_label = weapon:getCustomLabel(), serial_number = serialNumber, custom_desc = weaponCustomDesc, id = nil }
+					ItemPickUps[uid] = nil
+					if weaponCustomDesc == nil then
+						weaponCustomDesc = "Custom Description not set"
+					end
+					if serialNumber == nil then
+						serialNumber = "Serial Number not set"
+					end
+					local charname, scourceidentifier, steamname = getSourceInfo(_source)
+					local title = T.weppickup
+					local description = "**" .. T.WebHookLang.Weapontype .. ":** `" .. weapon:getName() .. "`\n**" .. T.WebHookLang.charname .. ":** `" .. charname .. "`\n**" .. T.WebHookLang.serialnumber .. "** `" .. serialNumber .. "`\n **" .. T.WebHookLang.Desc .. "** `" .. weaponCustomDesc .. "` \n **" .. T.WebHookLang.Steamname .. "** `" .. steamname .. "`"
+					local info = { source = _source, name = Logs.WebHook.webhookname, title = title, description = description, webhook = Logs.WebHook.webhook, color = Logs.WebHook.colorweppickupd }
+					TriggerClientEvent("vorpInventory:sharePickupClient", -1, dataweapon, 2)
+					TriggerClientEvent("vorpInventory:removePickupClient", -1, weaponObj)
+					TriggerClientEvent("vorpInventory:playerAnim", _source, uid)
+					InventoryService.addWeapon(_source, weaponId)
+					SvUtils.SendDiscordWebhook(info)
 				end
-				local charname, scourceidentifier, steamname = getSourceInfo(_source)
-				local title = T.weppickup
-				local description = "**" .. T.WebHookLang.Weapontype .. ":** `" .. weapon:getName() .. "`\n**" .. T.WebHookLang.charname .. ":** `" .. charname .. "`\n**" .. T.WebHookLang.serialnumber .. "** `" .. serialNumber .. "`\n **" .. T.WebHookLang.Desc .. "** `" .. weaponCustomDesc .. "` \n **" .. T.WebHookLang.Steamname .. "** `" .. steamname .. "`"
-				local info = { source = _source, name = Logs.WebHook.webhookname, title = title, description = description, webhook = Logs.WebHook.webhook, color = Logs.WebHook.colorweppickupd }
-				TriggerClientEvent("vorpInventory:sharePickupClient", -1, dataweapon, 2)
-				TriggerClientEvent("vorpInventory:removePickupClient", -1, weaponObj)
-				TriggerClientEvent("vorpInventory:playerAnim", _source, uid)
-				InventoryService.addWeapon(_source, weaponId)
-				SvUtils.SendDiscordWebhook(info)
+			else
+				Core.NotifyRightTip(_source, T.fullInventoryWeapon, 2000)
 			end
-		else
-			Core.NotifyRightTip(_source, T.fullInventoryWeapon, 2000)
 		end
 	end
 
@@ -676,7 +631,7 @@ function InventoryService.sharePickupServerItem(data)
 	if not result then
 		return
 	end
-	local charname, scourceidentifier, steamname = getSourceInfo(_source)
+	local charname, _, steamname = getSourceInfo(_source)
 	local title = T.WebHookLang.itemDrop
 	local description = "**" .. T.WebHookLang.amount .. "** `" .. data.amount .. "`\n **" .. T.WebHookLang.itemDrop .. "**: `" .. data.name .. "`" .. "\n**" .. T.WebHookLang.charname .. ":** `" .. charname .. "`\n**" .. T.WebHookLang.Steamname .. "** `" .. steamname .. "`"
 	local info = {
@@ -798,8 +753,8 @@ function InventoryService.giveWeapon2(player, weaponId, target)
 	local serialNumber = userWeapons[weaponId]:getSerialNumber()
 	local desc = userWeapons[weaponId]:getCustomDesc()
 	local newWeight = userWeapons[weaponId]:getWeight()
-	local charname, scourceidentifier, steamname = getSourceInfo(_source)
-	local charname2, scourceidentifier2, steamname2 = getSourceInfo(_target)
+	local charname, _, steamname = getSourceInfo(_source)
+	local charname2, _, steamname2 = getSourceInfo(_target)
 	local notListed = false
 
 	if not desc then
@@ -1344,7 +1299,8 @@ function InventoryService.getNearbyCharacters(obj, sources)
 end
 
 --* CUSTOM INVENTORY *--
----@return boolean
+
+
 function InventoryService.DoesHavePermission(invId, job, grade, Table)
 	if not CustomInventoryInfos[invId]:isPermEnabled() then
 		return true
@@ -1449,8 +1405,11 @@ end
 
 function InventoryService.MoveToCustom(obj)
 	local _source = source
+
 	local data = json.decode(obj)
-	local invId = tostring(data.id)
+	local invId <const> = tostring(data.id)
+	if not CustomInventoryInfos[invId] then return end
+
 	local item = data.item
 	local amount = tonumber(data.number)
 	local sourceCharacter = Core.getUser(_source).getUsedCharacter
@@ -1473,7 +1432,7 @@ function InventoryService.MoveToCustom(obj)
 		return Core.NotifyObjective(_source, "Item is blackListed", 5000)
 	end
 
-	if not CanMove or not CanMove1 then -- either job or char id
+	if not CanMove and not CanMove1 then -- either job or char id
 		return Core.NotifyObjective(_source, "You dont have permision to move into the storage", 5000)
 	end
 
@@ -1529,8 +1488,11 @@ end
 
 function InventoryService.TakeFromCustom(obj)
 	local _source = source
+
 	local data = json.decode(obj)
-	local invId = tostring(data.id)
+	local invId <const> = tostring(data.id)
+	if not CustomInventoryInfos[invId] then return end
+
 	local item = data.item
 	local amount = tonumber(data.number)
 	local sourceCharacter = Core.getUser(_source).getUsedCharacter
@@ -1543,7 +1505,7 @@ function InventoryService.TakeFromCustom(obj)
 	local CanMove = InventoryService.DoesHavePermission(invId, job, grade, Table)
 	local CanMove1 = InventoryService.DoesCharIdHavePermission(invId, sourceCharIdentifier, Table1)
 
-	if not CanMove or not CanMove1 then
+	if not CanMove and not CanMove1 then
 		return Core.NotifyObjective(_source, "you dont have permmissions to take from this storage", 5000) -- add your own notifications
 	end
 
@@ -1777,7 +1739,6 @@ function InventoryService.TakeFromPlayer(obj)
 end
 
 function InventoryService.addItemsToCustomInventory(id, items, charid)
-	local resulItems = {}
 	local newTable = {}
 	local result = DBService.queryAwait("SELECT inventory_type FROM character_inventories WHERE inventory_type = @id", { id = id })
 
@@ -1800,7 +1761,7 @@ function InventoryService.addItemsToCustomInventory(id, items, charid)
 				local resulItems = {}
 				for k, v in ipairs(result1) do -- if there is more than one apple we need to check which ones have metadata
 					local result2 = DBService.queryAwait("SELECT metadata FROM items_crafted WHERE id =@id", { id = v.item_crafted_id })
-					local hasMetadata = json.decode(result2[1].metadata)
+					local hasMetadata = result2[1] and json.decode(result2[1].metadata) or {}
 					if next(hasMetadata) then
 						resulItems[#resulItems + 1] = v
 					end
@@ -1834,8 +1795,6 @@ function InventoryService.addItemsToCustomInventory(id, items, charid)
 			end
 		end
 	end
-	table.wipe(newTable)
-	table.wipe(resulItems)
 end
 
 function InventoryService.addWeaponsToCustomInventory(id, weapons, charid)
@@ -1879,5 +1838,153 @@ function InventoryService.addWeaponsToCustomInventory(id, weapons, charid)
 			end
 			UsersWeapons[id][weaponId] = newWeapon
 		end)
+	end
+end
+
+function InventoryService.removeItemFromCustomInventory(invId, item_name, amount)
+	local result = DBService.queryAwait("SELECT amount, item_crafted_id FROM character_inventories WHERE item_name =@itemname AND inventory_type = @inventory_type", { itemname = item_name, inventory_type = invId })
+	if not result[1] then
+		return false
+	end
+
+	local item = result[1]
+	local item_crafted_id = item.item_crafted_id
+	local itemAmount = item.amount
+	if itemAmount < amount then
+		return false
+	end
+
+	if amount <= itemAmount then
+		-- if its less than what we have or equals then we update its count
+		if amount == itemAmount then
+			DBService.updateAsync("DELETE FROM character_inventories WHERE item_name = @itemname AND inventory_type = @inventory_type", { itemname = item_name, inventory_type = invId })
+			DBService.updateAsync("DELETE FROM items_crafted WHERE id = @id", { id = item_crafted_id })
+		else
+			DBService.updateAsync("UPDATE character_inventories SET amount = amount - @amount WHERE item_name = @itemname AND inventory_type = @inventory_type", { amount = amount, itemname = item_name, inventory_type = invId })
+		end
+	end
+	return true
+end
+
+function InventoryService.removeWeaponFromCustomInventory(invId, weapon_name)
+	local result = DBService.queryAwait("SELECT id FROM loadout WHERE curr_inv = @invId AND name = @name", { invId = invId, name = weapon_name })
+	if not result[1] then
+		return false
+	end
+
+	local weaponId = result[1].id
+	DBService.updateAsync("DELETE FROM loadout WHERE id = @id", { id = weaponId })
+	if UsersWeapons[invId] then
+		UsersWeapons[invId][weaponId] = nil
+	end
+	return true
+end
+
+function InventoryService.getAllItemsFromCustomInventory(invId)
+	local result = DBService.queryAwait("SELECT item_name, amount, item_crafted_id FROM character_inventories WHERE inventory_type = @inventory_type", { inventory_type = invId })
+	local items = {}
+	for _, value in ipairs(result) do
+		local item = ServerItems[value.item_name]
+		if item then
+			local itemMetadata = {}
+			local result1 = DBService.queryAwait("SELECT metadata FROM items_crafted WHERE id =@id", { id = value.item_crafted_id })
+			if result1[1] then
+				itemMetadata = result1[1].metadata and json.decode(result1[1].metadata) or {}
+			end
+			items[#items + 1] = {
+				name = value.item_name,
+				amount = value.amount,
+				metadata = itemMetadata,
+				id = value.item_crafted_id
+			}
+		end
+	end
+	return items
+end
+
+function InventoryService.getAllWeaponsFromCustomInventory(invId)
+	local result = DBService.queryAwait("SELECT id, name, serial_number, label, custom_label, custom_desc FROM loadout WHERE curr_inv = @invId", { invId = invId })
+	local weapons = {}
+	for _, value in ipairs(result) do
+		weapons[#weapons + 1] = {
+			name = value.name,
+			serial_number = value.serial_number or "",
+			label = value.label,
+			custom_label = value.custom_label or "",
+			custom_desc = value.custom_desc or "",
+			id = value.id
+		}
+	end
+	return weapons
+end
+
+function InventoryService.removeItemsByIdFromCustomInventory(invId, item_crafted_id, amount)
+	local result = DBService.queryAwait("SELECT item_name, amount FROM character_inventories WHERE item_crafted_id = @item_crafted_id AND inventory_type = @inventory_type", { item_crafted_id = item_crafted_id, inventory_type = invId })
+	if not result[1] then
+		return false
+	end
+
+	local item = result[1]
+	local itemAmount = item.amount
+	if amount >= itemAmount then
+		DBService.updateAsync("DELETE FROM character_inventories WHERE item_crafted_id = @item_crafted_id AND inventory_type = @inventory_type", { item_crafted_id = item_crafted_id, inventory_type = invId })
+		DBService.updateAsync("DELETE FROM items_crafted WHERE id = @id", { id = item_crafted_id })
+	else
+		DBService.updateAsync("UPDATE character_inventories SET amount = amount - @amount WHERE item_crafted_id = @item_crafted_id AND inventory_type = @inventory_type", { amount = amount, item_crafted_id = item_crafted_id, inventory_type = invId })
+	end
+
+	return true
+end
+
+function InventoryService.removeWeaponsByIdFromCustomInventory(invId, weaponId)
+	local result = DBService.queryAwait("SELECT id FROM loadout WHERE id = @id AND curr_inv = @invId", { id = weaponId, invId = invId })
+	if not result[1] then
+		return false
+	end
+
+	DBService.updateAsync("DELETE FROM loadout WHERE id = @id", { id = weaponId })
+	if UsersWeapons[invId] then
+		UsersWeapons[invId][weaponId] = nil
+	end
+	return true
+end
+
+function InventoryService.updateItemInCustomInventory(invId, item_crafted_id, metadata, amount)
+	local result = DBService.queryAwait("SELECT amount FROM character_inventories WHERE item_crafted_id = @item_crafted_id AND inventory_type = @inventory_type", { item_crafted_id = item_crafted_id, inventory_type = invId })
+	if not result[1] or not metadata then
+		return false
+	end
+
+	local item = result[1]
+	local itemAmount = amount or item.amount
+
+	if metadata and type(metadata) == "table" then
+		metadata = json.encode(metadata)
+	end
+
+	DBService.updateAsync("UPDATE character_inventories SET amount = @amount WHERE item_crafted_id = @item_crafted_id AND inventory_type = @inventory_type", { amount = itemAmount, item_crafted_id = item_crafted_id, inventory_type = invId })
+
+
+	if metadata then
+		DBService.updateAsync("UPDATE items_crafted SET metadata = @metadata WHERE id = @id", { metadata = metadata, id = item_crafted_id })
+	end
+	return true
+end
+
+function InventoryService.deleteCustomInventory(invId)
+	local result = DBService.queryAwait("SELECT item_crafted_id FROM character_inventories WHERE inventory_type = @inventory_type", { inventory_type = invId })
+	if not result[1] then
+		return false
+	end
+
+	for _, value in ipairs(result) do
+		DBService.updateAsync("DELETE FROM items_crafted WHERE id = @id", { id = value.item_crafted_id })
+	end
+
+	DBService.updateAsync("DELETE FROM character_inventories WHERE inventory_type = @inventory_type", { inventory_type = invId })
+	DBService.updateAsync("DELETE FROM loadout WHERE curr_inv = @invId", { invId = invId })
+
+	if UsersWeapons[invId] then
+		UsersWeapons[invId] = nil
 	end
 end

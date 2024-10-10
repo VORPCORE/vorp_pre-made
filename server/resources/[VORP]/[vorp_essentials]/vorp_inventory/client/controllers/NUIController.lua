@@ -29,7 +29,7 @@ RegisterNetEvent("vorp_inventory:ReloadCustomInventory", NUIService.ReloadInvent
 RegisterNetEvent("vorp_inventory:transactionStarted", NUIService.TransactionStarted)
 RegisterNetEvent("vorp_inventory:transactionCompleted", NUIService.TransactionComplete)
 RegisterNetEvent("vorp_inventory:OpenPlayerInventory", NUIService.OpenPlayerInventory)
-
+RegisterNetEvent("vorp_inventory:server:CacheImages", NUIService.CacheImages)
 -- SYN SCRIPT EVENTS
 -- Store Module
 RegisterNetEvent("vorp_inventory:OpenStoreInventory")

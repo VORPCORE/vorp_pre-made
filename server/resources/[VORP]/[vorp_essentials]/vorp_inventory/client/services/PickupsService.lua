@@ -2,8 +2,6 @@ PickupsService                        = {}
 local promptGroup                     = GetRandomIntInRange(0, 0xffffff)
 local T                               = TranslationInv.Langs[Lang]
 local WorldPickups                    = {}
-local dropAll                         = false
-local lastCoords                      = {}
 
 PickupsService.CreateObject           = function(objectHash, position)
 	--TODO make it server side
@@ -30,12 +28,6 @@ PickupsService.createPickup           = function(name, amount, metadata, weaponI
 	local position    = vector3(coords.x + forward.x * 1.6, coords.y + forward.y * 1.6, coords.z + forward.z * 1.6)
 	local pickupModel = "P_COTTONBOX01X"
 
-	if dropAll then
-		local randomOffsetX = math.random(-35, 35)
-		local randomOffsetY = math.random(-35, 35)
-		position = vector3(lastCoords.x + (randomOffsetX / 10.0), lastCoords.y + (randomOffsetY / 10.0), lastCoords.z)
-	end
-
 	local entityHandle = PickupsService.CreateObject(pickupModel, position)
 	local data = { name = name, obj = entityHandle, amount = amount, metadata = metadata, weaponId = weaponId, position = position, id = id }
 
@@ -53,13 +45,6 @@ PickupsService.createMoneyPickup      = function(amount)
 	local forward     = GetEntityForwardVector(playerPed)
 	local position    = vector3(coords.x + forward.x * 1.6, coords.y + forward.y * 1.6, coords.z + forward.z * 1.6)
 	local pickupModel = "p_moneybag02x"
-
-	if dropAll then
-		local randomOffsetX = math.random(-35, 35)
-		local randomOffsetY = math.random(-35, 35)
-		position = vector3(lastCoords.x + (randomOffsetX / 10.0), lastCoords.y + (randomOffsetY / 10.0), lastCoords.z)
-	end
-
 	local entityHandle = PickupsService.CreateObject(pickupModel, position)
 
 	TriggerServerEvent("vorpinventory:shareMoneyPickupServer", entityHandle, amount, position)
@@ -76,14 +61,6 @@ PickupsService.createGoldPickup       = function(amount)
 	local forward     = GetEntityForwardVector(playerPed)
 	local position    = vector3(coords.x + forward.x * 1.6, coords.y + forward.y * 1.6, coords.z + forward.z * 1.6)
 	local pickupModel = "s_pickup_goldbar01x"
-
-	if dropAll then
-		local randomOffsetX = math.random(-35, 35)
-		local randomOffsetY = math.random(-35, 35)
-
-		position = vector3(lastCoords.x + (randomOffsetX / 10.0), lastCoords.y + (randomOffsetY / 10.0), lastCoords.z)
-	end
-
 	local entityHandle = PickupsService.CreateObject(pickupModel, position)
 
 	TriggerServerEvent("vorpinventory:shareGoldPickupServer", entityHandle, amount, position)
@@ -108,9 +85,6 @@ PickupsService.sharePickupClient      = function(data, value)
 			})
 			pickup.prompt:SetVisible(false)
 			WorldPickups[data.obj] = pickup
-			if Config.Debug then
-				print('Item pickup added: ' .. tostring(pickup.name))
-			end
 		end
 	else
 		if WorldPickups[data.obj] ~= nil then
@@ -177,7 +151,6 @@ PickupsService.removePickupClient     = function(entityHandle)
 	while not NetworkHasControlOfEntity(entityHandle) and timeout < 5000 do
 		timeout = timeout + 100
 		if timeout >= 5000 then
-			print("Failed to get Control of the Entity" .. entityHandle)
 			break
 		end
 		Wait(100)
@@ -203,58 +176,9 @@ end
 PickupsService.DeadActions            = function()
 	local playerPed = PlayerPedId()
 	lastCoords = GetEntityCoords(playerPed, true, true)
-	dropAll = true
-	PickupsService.dropAllPlease()
 end
 
-PickupsService.dropAllPlease          = function()
-	if Config.UseClearAll then
-		return
-	end
 
-	if Config.DropOnRespawn.AllMoney then
-		TriggerServerEvent("vorpinventory:serverDropAllMoney")
-	end
-
-	if Config.DropOnRespawn.PartMoney then
-		TriggerServerEvent("vorpinventory:serverDropPartMoney")
-	end
-
-	if Config.UseGoldItem and Config.DropOnRespawn.Gold then
-		TriggerServerEvent("vorpinventory:serverDropAllGold")
-	end
-
-	if Config.DropOnRespawn.Items then
-		for _, item in pairs(UserInventory) do
-			local itemName = item:getName()
-			local itemCount = item:getCount()
-			local itemMetadata = item:getMetadata()
-
-			TriggerServerEvent("vorpinventory:serverDropItem", itemName, item.id, itemCount, itemMetadata)
-		end
-	end
-
-	if Config.DropOnRespawn.Weapons then
-		for index, weapon in pairs(UserWeapons) do
-			TriggerServerEvent("vorpinventory:serverDropWeapon", index)
-
-			if next(UserWeapons[index]) then
-				local currentWeapon = UserWeapons[index]
-
-				if currentWeapon:getUsed() then
-					currentWeapon:setUsed(false)
-					RemoveWeaponFromPed(PlayerPedId(), joaat(currentWeapon:getName()), true, 0)
-				end
-
-				UserWeapons[index] = nil
-			end
-		end
-	end
-
-	SetTimeout(500, function()
-		dropAll = false
-	end)
-end
 
 CreateThread(function()
 	local function isAnyPlayerNear()
@@ -304,7 +228,7 @@ CreateThread(function()
 						local isDead = IsEntityDead(playerPed)
 						pickup.prompt:SetVisible(not isDead)
 
-						local promptSubLabel = CreateVarString(10, "LITERAL_STRING", pickup.name)
+						local promptSubLabel = VarString(10, "LITERAL_STRING", pickup.name)
 						UiPromptSetActiveGroupThisFrame(promptGroup, promptSubLabel, 0, 0, 0, 0)
 
 						if pickup.prompt:HasHoldModeCompleted() then

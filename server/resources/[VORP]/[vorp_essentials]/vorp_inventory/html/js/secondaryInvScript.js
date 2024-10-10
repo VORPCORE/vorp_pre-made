@@ -299,6 +299,61 @@ function initSecondaryInventoryHandlers() {
     });
 }
 
+function addDataToCustomInv(item, index) {
+    $("#item-" + index).data("item", item);
+    $("#item-" + index).data("inventory", "second");
+
+    $("#item-" + index).hover(
+        function () {
+            OverSetTitleSecond(item.label);
+        },
+        function () {
+            OverSetTitleSecond(" ");
+        }
+    );
+
+    $("#item-" + index).hover(
+        function () {
+            if (!!item.metadata && !!item.metadata.description) {
+                OverSetDescSecond(item.metadata.description);
+            } else {
+                OverSetDescSecond(!!item.desc ? item.desc : "");
+            }
+        },
+        function () {
+            OverSetDescSecond(" ");
+        }
+    );
+}
+
+function loadCustomInventoryItems(item, index, group, count) {
+    if (item.type === "item_weapon") return;
+
+    const custom = item.metadata?.tooltip ? "<br>" + item.metadata.tooltip : "";
+    const degradation = item.degradation ? "<br>" + LANGUAGE.labels.decay + item.degradation + "%" : "";
+    const weight = item.weight ? LANGUAGE.labels.weight + (item.weight * item.count).toFixed(2) + " " + Config.WeightMeasure : LANGUAGE.labels.weight + (item.count / 4).toFixed(2) + " " + Config.WeightMeasure;
+    const groupKey = getGroupKey(group)
+    const groupImg = groupKey ? window.Actions[groupKey].img : 'satchel_nav_all.png';
+    const tooltipContent = group > 1 ? `<img src="img/itemtypes/${groupImg}"> ${weight + degradation + custom}` : `${weight + degradation + custom}`;
+    const image = item.metadata?.image ? item.metadata.image : item.name ? item.name : "default";
+    const url = imageCache[image]
+    $("#secondInventoryElement").append(` <div data-label='${item.label}' data-group ='${group}' style='background-image: ${url} background-size: 4.5vw 7.7vh; background-repeat: no-repeat; background-position: center;' id="item-${index}"  class='item' class='item' data-tooltip='${tooltipContent}'> ${count > 0 ? `<div class='count'>${count}</div>` : ``}<div class='text'></div></div> `);
+
+}
+
+
+function loadCustomInventoryItemsWeapons(item, index, group) {
+    if (item.type != "item_weapon") return;
+
+    const info = item.serial_number ? "<br>" + LANGUAGE.labels.ammo + item.count + "<br>" + LANGUAGE.labels.serial + item.serial_number : "";
+    const weight = item.weight ? LANGUAGE.labels.weight + (item.weight * item.count).toFixed(2) + " " + Config.WeightMeasure : LANGUAGE.labels.weight + (item.count / 4).toFixed(2) + " " + Config.WeightMeasure;
+    $("#secondInventoryElement").append(`
+    <div data-label='${item.label}' data-group ='${group}'
+    style='background-image: url("img/items/${item.name}.png"); background-size: 4.5vw 7.7vh; background-repeat: no-repeat; background-position: center;' id='item-${index}' class='item' data-tooltip="${weight + info}">
+    </div>`);
+
+}
+
 function secondInventorySetup(items, info) {
     $("#inventoryElement").html("");
     $("#secondInventoryElement").html("").data("info", info);
@@ -308,55 +363,13 @@ function secondInventorySetup(items, info) {
         divCount = divCount + 1;
     });
 
-    $.each(items, function (index, item) {
+    for (const [index, item] of items.entries()) {
         count = item.count;
         const group = item.type != "item_weapon" ? !item.group ? 1 : item.group : 5;
-        if (item.type !== "item_weapon") {
-
-            const custom = item.metadata?.tooltip ? "<br>" + item.metadata.tooltip : "";
-            const degradation = item.degradation ? "<br>" + LANGUAGE.labels.decay + item.degradation + "%" : "";
-            const weight = item.weight ? LANGUAGE.labels.weight + (item.weight * item.count).toFixed(2) + " " + Config.WeightMeasure : LANGUAGE.labels.weight + (item.count / 4).toFixed(2) + " " + Config.WeightMeasure;
-            const groupKey = getGroupKey(group)
-            const groupImg = groupKey ? window.Actions[groupKey].img : 'satchel_nav_all.png';
-            const tooltipContent = group > 1 ? `<img src="img/itemtypes/${groupImg}"> ${weight + degradation + custom}` : `${weight + degradation + custom}`;
-            const image = item.metadata?.image ? item.metadata.image : item.name ? item.name : "default";
-            const url = `url("img/items/${image}.png");`;
-
-            $("#secondInventoryElement").append(` <div data-label='${item.label}' data-group ='${group}' style='background-image: ${url} background-size: 4.5vw 7.7vh; background-repeat: no-repeat; background-position: center;' id="item-${index}"  class='item' class='item' data-tooltip='${tooltipContent}'> ${count > 0 ? `<div class='count'>${count}</div>` : ``}<div class='text'></div></div> `);
-        } else {
-            const info = item.serial_number ? "<br>" + LANGUAGE.labels.ammo + item.count + "<br>" + LANGUAGE.labels.serial + item.serial_number : "";
-            const weight = item.weight ? LANGUAGE.labels.weight + (item.weight * item.count).toFixed(2) + " " + Config.WeightMeasure : LANGUAGE.labels.weight + (item.count / 4).toFixed(2) + " " + Config.WeightMeasure;
-            $("#secondInventoryElement").append(`
-            <div data-label='${item.label}' data-group ='${group}'
-            style='background-image: url("img/items/${item.name}.png"); background-size: 4.5vw 7.7vh; background-repeat: no-repeat; background-position: center;' id='item-${index}' class='item' data-tooltip="${weight + info}">
-            </div>`);
-        }
-
-        $("#item-" + index).data("item", item);
-        $("#item-" + index).data("inventory", "second");
-
-        $("#item-" + index).hover(
-            function () {
-                OverSetTitleSecond(item.label);
-            },
-            function () {
-                OverSetTitleSecond(" ");
-            }
-        );
-
-        $("#item-" + index).hover(
-            function () {
-                if (!!item.metadata && !!item.metadata.description) {
-                    OverSetDescSecond(item.metadata.description);
-                } else {
-                    OverSetDescSecond(!!item.desc ? item.desc : "");
-                }
-            },
-            function () {
-                OverSetDescSecond(" ");
-            }
-        );
-    });
+        loadCustomInventoryItems(item, index, group, count);
+        loadCustomInventoryItemsWeapons(item, index, group);
+        addDataToCustomInv(item, index);
+    };
 
     /* in here we ensure that at least all divs are filled */
     if (divCount < 14) {

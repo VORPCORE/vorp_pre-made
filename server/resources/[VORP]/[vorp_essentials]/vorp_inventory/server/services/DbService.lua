@@ -183,7 +183,3 @@ function DBService.singleAwait(query, params)
     return res
 end
 
-MySQL.ready(function()
-    local query = "DELETE FROM items_crafted WHERE NOT EXISTS (SELECT 1 FROM characters WHERE characters.charidentifier = items_crafted.character_id);"
-    DBService.deleteAsync(query)
-end)

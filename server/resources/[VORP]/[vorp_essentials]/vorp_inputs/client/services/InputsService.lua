@@ -1,8 +1,24 @@
 InputsService = {}
 local callbackOfCurrentOpenInput = nil
 
+-- This is a workaround to consider if the 'x' button is pressed to close the input without an submit. The submit originally
+-- calls the callback and executes the InputsService.CloseInput() method after that. The 'x' button calls the InputsService.CloseInput()
+-- directly. So we need to check if the callback was already called by the submit otherwise the trigger was the 'x' button
+-- then we need to call the callback now.
+---@param result string
+---@private
+InputsService._callCallbackIfNotCalledAlready = function(result)
+
+    if callbackOfCurrentOpenInput == nil then
+        return
+    end
+
+    callbackOfCurrentOpenInput(result)
+    callbackOfCurrentOpenInput = nil -- Don't call callback twice
+end
+
 InputsService.CloseInput = function()
-    callbackOfCurrentOpenInput = nil
+    InputsService._callCallbackIfNotCalledAlready("")
     SetNuiFocus(false, false)
     SendNUIMessage(NUIEvent:New({ style = "none" }))
 end
@@ -13,7 +29,7 @@ InputsService.CallCallbackAndCloseInput = function(result)
     local resultText = result.stringtext or nil
 
     if resultText ~= nil then
-        callbackOfCurrentOpenInput(resultText)
+        InputsService._callCallbackIfNotCalledAlready(resultText)
     end
 
     Wait(1)

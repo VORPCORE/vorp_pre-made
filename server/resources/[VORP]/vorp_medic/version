@@ -1,0 +1,5 @@
+<0.2>
+- added webhooks
+- added translation file
+- make sure to update all files including fxmanifest.lua 
+<0.1>

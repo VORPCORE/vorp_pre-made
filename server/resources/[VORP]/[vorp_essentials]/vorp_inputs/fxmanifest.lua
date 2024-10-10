@@ -1,10 +1,10 @@
-game 'rdr3'
 fx_version 'adamant'
+game 'rdr3'
 rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
-ui_page 'html/index.html'
 
-author 'VORP @Emollit' --C# conversion by Emollit
-description 'Inputs for your scripts'
+author 'VORP converted by @Emollit' -- conversion from C# VORP INPUTS
+description 'An Input tool to use in your scripts for vorp core framework'
+repository 'https://github.com/VORPCORE/vorp_inputs-lua'
 
 client_scripts {
   'client/models/*.lua',
@@ -12,6 +12,7 @@ client_scripts {
   'client/controllers/*.lua'
 }
 
+ui_page 'html/index.html'
 files {
   'html/**/*'
 }
